@@ -20,9 +20,6 @@
     #SSLRandomSeed connect file:/dev/random  512
     #SSLRandomSeed connect file:/dev/urandom 512
 
-    SSLLog      @ServerRoot@/logs/ssl_engine_log
-    #SSLLogLevel debug
-
     <IfModule mod_log_config.c>
         LogFormat "%t %h %{SSL_PROTOCOL}x %{SSL_CIPHER}x \"%r\" %>s %b" ssl
         CustomLog logs/ssl_request_log ssl
