@@ -150,3 +150,29 @@ ScriptLogBuffer 256
 Options +ExecCGI
 </Directory>
 </IfModule>
+
+##
+## mod_alias test config
+##
+<IfModule mod_alias.c>
+Alias /alias @SERVERROOT@/htdocs/modules/alias
+Alias /bogu /bogus/path/to/nothing
+
+AliasMatch /ali([0-9]) @SERVERROOT@/htdocs/modules/alias/$1.html
+
+Redirect permanent /perm http://@SERVERNAME@:@PORT@/alias
+Redirect temp /temp http://@SERVERNAME@:@PORT@/alias
+Redirect seeother /seeother http://@SERVERNAME@:@PORT@/alias
+Redirect gone /gone
+
+RedirectMatch permanent /p([0-9]) http://@SERVERNAME@:@PORT@/alias/$1.html
+RedirectMatch temp /t([0-9]) http://@SERVERNAME@:@PORT@/alias/$1.html
+RedirectMatch seeother /s([0-9]) http://@SERVERNAME@:@PORT@/alias/$1.html
+RedirectMatch gone /g([0-9])
+
+RedirectTemp /temp2 http://@SERVERNAME@:@PORT@/alias/index.html
+RedirectPermanent /perm2 http://@SERVERNAME@:@PORT@/alias/index.html
+
+ScriptAlias /cgi @SERVERROOT@/htdocs/modules/alias
+ScriptAliasMatch /cgi-(.*) @SERVERROOT@/htdocs/modules/alias/$1
+</IfModule>
