@@ -8,6 +8,11 @@ Changes - Apache::Test change logfile
 
 =item 1.04-dev - 
 
+if env var APACHE_TEST_PRETEND_NO_LWP is true, Apache::Test will
+pretend that LWP is not available. useful for testing whether the test
+suite will survive on a system which doesn't have libwww-perl
+installed. [Stas]
+
 Apache::TestSmoke provides a new mode: -bug_mode, which runs an
 equivalent of plain 't/TEST' but generates a lot of useful debug
 information, in addition to matching the core files to the tests that

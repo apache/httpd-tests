@@ -14,17 +14,24 @@ use constant TRY_TIMES => 200;
 use constant INTERP_KEY => 'X-PerlInterpreter';
 use constant UA_TIMEOUT => 60 * 10; #longer timeout for debugging
 
-my $have_lwp = eval {
-    require LWP::UserAgent;
-    require HTTP::Request::Common;
+my $have_lwp = 0;
 
-    unless (defined &HTTP::Request::Common::OPTIONS) {
-        package HTTP::Request::Common;
-        no strict 'vars';
-        *OPTIONS = sub { _simple_req(OPTIONS => @_) };
-        push @EXPORT, 'OPTIONS';
-    }
-};
+# APACHE_TEST_PRETEND_NO_LWP=1 pretends that LWP is not available so
+# one can test whether the test suite survives if the user doesn't
+# have lwp installed
+unless ($ENV{APACHE_TEST_PRETEND_NO_LWP}) {
+    $have_lwp = eval {
+        require LWP::UserAgent;
+        require HTTP::Request::Common;
+
+        unless (defined &HTTP::Request::Common::OPTIONS) {
+            package HTTP::Request::Common;
+            no strict 'vars';
+            *OPTIONS = sub { _simple_req(OPTIONS => @_) };
+            push @EXPORT, 'OPTIONS';
+        }
+    };
+}
 
 unless ($have_lwp) {
     require Apache::TestClient;
@@ -979,6 +986,23 @@ C<GET>, C<HEAD> and C<POST>. This function thus can be useful for
 testing what options the Apache server supports. Consult the HTTPD 1.1
 specification, section 9.2, at
 I<http://www.faqs.org/rfcs/rfc2616.html> for more information.
+
+=back
+
+
+=head1 ENVIRONMENT VARIABLES
+
+The following environment variables can affect the behavior of
+C<Apache::TestRequest>:
+
+=over
+
+=item APACHE_TEST_PRETEND_NO_LWP
+
+If the environment variable C<APACHE_TEST_PRETEND_NO_LWP> is set to a
+true value, C<Apache::TestRequest> will pretend that LWP is not
+available so one can test whether the test suite will survive on a
+system which doesn't have libwww-perl installed.
 
 =back
 
