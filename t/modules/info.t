@@ -21,9 +21,11 @@ foreach (split /\n/, $info) {
     if ($_ =~ /<a name=\"(\w+\.c)\">/) {
         if ($1 eq 'sapi_apache2.c') { # why does php do this?
             push(@actual,'mod_php4.c');
-            next;
+        } elsif ($1 eq 'util_ldap.c') {
+            push(@actual,'mod_ldap.c');
+        } else {        
+            push(@actual, $1);
         }
-        push(@actual, $1)
     }
 }
 
