@@ -494,7 +494,7 @@ sub start {
         return 0;
     }
 
-    $self->wait_till_is_up($timeout) && return 1;
+    return 1 if $self->wait_till_is_up($timeout);
 
     $self->failed_msg("failed to start server!");
     return 0;
