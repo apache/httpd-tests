@@ -7,6 +7,7 @@ use constant WIN32   => $^O eq 'MSWin32';
 use constant CYGWIN  => $^O eq 'cygwin';
 use constant NETWARE => $^O eq 'NetWare';
 use constant WINFU   => WIN32 || CYGWIN || NETWARE;
+use constant COLOR   => ! $ENV{APACHE_TEST_NO_COLOR} && -t STDOUT;
 
 use Symbol ();
 use File::Copy ();
