@@ -293,8 +293,12 @@ sub configure_httpd {
 
     if ($vars->{httpd}) {
         my @chunks = splitdir $vars->{httpd};
-        pop @chunks for 1..2; #bin/httpd
-        $self->{httpd_basedir} = catfile @chunks;
+        #handle both $prefix/bin/httpd and $prefix/Apache.exe
+        for (1,2) {
+            pop @chunks;
+            $self->{httpd_basedir} = catfile @chunks;
+            last if -d "$self->{httpd_basedir}/bin";
+        }
     }
 
     #cleanup httpd droppings
