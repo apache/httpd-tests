@@ -3,7 +3,10 @@ package Apache::TestConfig;
 use strict;
 use warnings FATAL => 'all';
 
-use constant WIN32 => $^O eq 'MSWin32';
+use constant WIN32   => $^O eq 'MSWin32';
+use constant CYGWIN  => $^O eq 'cygwin';
+use constant NETWARE => $^O eq 'NetWare';
+use constant WINFU   => WIN32 || CYGWIN || NETWARE;
 
 use File::Copy ();
 use File::Find qw(finddepth);
@@ -378,7 +381,7 @@ sub preamble_run {
 }
 
 sub default_group {
-    return if WIN32;
+    return if WINFU;
 
     my $gid = $);
 
@@ -389,7 +392,7 @@ sub default_group {
 }
 
 sub default_user {
-    return if WIN32;
+    return if WINFU;
 
     my $uid = $>;
 
