@@ -4,6 +4,11 @@ use Apache::Test;
 use Apache::TestRequest;
 use Apache::TestUtil;
 
+BEGIN {
+   # prevent TestRequest from croaking on an HTTP/0.9 response
+   $ENV{APACHE_TEST_HTTP_09_OK} = 1;
+}
+
 #verify we can send an non-ssl http request to the ssl port
 #without dumping core.
 
@@ -25,10 +30,16 @@ my $hostport = $config->{vhosts}->{$ssl_module}->{hostport};
 my $rurl = "http://$hostport$url";
 
 my $res = GET($rurl);
-ok t_cmp(400,
-         $res->code,
-         "Expected bad request from 'GET $rurl'"
-        );
+my $proto = $res->protocol;
+
+if ($proto and $proto eq "HTTP/0.9") {
+    skip "server gave HTTP/0.9 response";
+} else {    
+    ok t_cmp(400,
+             $res->code,
+             "Expected bad request from 'GET $rurl'"
+            );
+}
 
 ok t_cmp(qr{speaking plain HTTP to an SSL-enabled server port},
          $res->content,
