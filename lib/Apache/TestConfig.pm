@@ -17,6 +17,9 @@ use constant IS_MOD_PERL_2       =>
 use constant IS_MOD_PERL_2_BUILD => IS_MOD_PERL_2 &&
     require Apache::Build && Apache::Build::IS_MOD_PERL_BUILD();
 
+use constant IS_APACHE_TEST_BUILD =>
+    grep { -e "$_/lib/Apache/TestConfig.pm" } qw(. ..);
+
 use Symbol ();
 use File::Copy ();
 use File::Find qw(finddepth);
@@ -304,20 +307,6 @@ sub configure_httpd {
     my $vars = $self->{vars};
 
     $vars->{target} ||= (WIN32 ? 'Apache.exe' : 'httpd');
-
-    unless ($vars->{httpd}) {
-        #sbindir should be bin/ with the default layout
-        #but its eaiser to workaround apxs than fix apxs
-        for my $dir (map { $vars->{$_} } qw(sbindir bindir)) {
-            next unless defined $dir;
-            my $httpd = catfile $dir, $vars->{target};
-            next unless -x $httpd;
-            $vars->{httpd} = $httpd;
-            last;
-        }
-
-        $vars->{httpd} ||= $self->default_httpd;
-    }
 
     if ($vars->{httpd}) {
         my @chunks = splitdir $vars->{httpd};
@@ -1366,7 +1355,7 @@ sub need_reconfiguration {
         }
     }
 
-    my $exe = $vars->{apxs} || $vars->{httpd};
+    my $exe = $vars->{apxs} || $vars->{httpd} || '';
     # if httpd.conf is older than executable
     push @reasons,
         "$exe is newer than $vars->{t_conf_file}"
