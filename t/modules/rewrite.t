@@ -62,7 +62,7 @@ if (have_module('mod_proxy')) {
 }
 
 if (have_module('mod_proxy') && have_module('mod_cgi')) {
-    # broken in 1.3.32
+    # regression in 1.3.32 and 2.0.53: (see PR 14518)
     $r = GET_BODY("/modules/rewrite/proxy2/env.pl?fish=fowl");
     chomp $r;
     ok t_cmp($r, qr/QUERY_STRING = fish=fowl\n/s, "QUERY_STRING passed OK");
