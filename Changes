@@ -8,6 +8,12 @@ Changes - Apache::Test change logfile
 
 =item 1.10-dev
 
+When running as 'root' make the client side drop the root permissions
+and run with the same permissions as the server side
+(e.g. nobody). This is needed in case the client side creates any
+files after the initial check (during server side startup and beyond),
+so that the server side could read/write them. [Stas]
+
 t_server_log_error_is_expected t_server_log_warn_is_expected
 t_client_log_error_is_expected t_client_log_warn_is_expected
 now support an optional argument, suggesting how many entries

@@ -881,6 +881,7 @@ sub adjust_t_perms {
 
         $self->check_perms($user, $uid, $gid);
 
+        $self->become_nonroot($user, $uid, $gid);
     }
 }
 
@@ -986,6 +987,26 @@ EOI
         skip_test_suite();
         exit_perl 0;
     }
+}
+
+# in case the client side creates any files after the initial chown
+# adjustments we want the server side to be able to read/write them, so
+# they better be with the same permissions. dropping root permissions
+# and becoming the same user as the server side solves this problem.
+sub become_nonroot {
+    my ($self, $user, $uid, $gid) = @_;
+
+    warning "the client side drops 'root' permissions and becomes '$user'";
+
+    # first must change gid and egid ("$gid $gid" for an empty
+    # setgroups() call as explained in perlvar.pod)
+    my $groups = "$gid $gid";
+    $( = $) = $groups;
+    die "failed to change gid to $gid" unless $( eq $groups && $) eq $groups;
+
+    # only now can change uid and euid
+    $< = $> = $uid+0;
+    die "failed to change uid to $uid" unless $< == $uid && $> == $uid;
 }
 
 sub run_request {
