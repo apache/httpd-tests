@@ -25,18 +25,24 @@ plan tests => @pods + keys(%other_files), sub { $perlpod };
 my $location = "/getfiles-perl-pod";
 
 for my $file (@pods) {
-    verify(\GET_BODY("$location/$file"), "$perlpod/$file");
+    verify("$location/$file", "$perlpod/$file");
 }
 
 #XXX: should use lwp callback hook so we dont slurp 5M+ into memory
 for my $url (keys %other_files) {
-    verify(\GET_BODY($url), $other_files{$url});
+    verify($url, $other_files{$url});
 }
 
 sub verify {
-    my($str, $file) = @_;
-    my $slen = length($$str);
+    my($url, $file) = @_;
+
+    my $res = GET $url;
+    my $str = $res->content_ref; #avoid an extra copy
+
+    my $slen = length $$str;
     my $flen = -s $file;
+
     print "downloaded $slen bytes, file is $flen bytes\n";
+
     ok $slen == $flen;
 }
