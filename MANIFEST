@@ -1,3 +1,12 @@
+Changes
+CONTRIBUTORS
+LICENSE
+MANIFEST
+Makefile.PL
+README
+SUPPORT
+ToDo
+install-pl
 lib/Apache/Test.pm
 lib/Apache/Test5005compat.pm
 lib/Apache/TestBuild.pm
@@ -10,8 +19,8 @@ lib/Apache/TestConfigParse.pm
 lib/Apache/TestConfigPerl.pm
 lib/Apache/TestHandler.pm
 lib/Apache/TestHarness.pm
-lib/Apache/TestMM.pm
 lib/Apache/TestMB.pm
+lib/Apache/TestMM.pm
 lib/Apache/TestPerlDB.pm
 lib/Apache/TestReport.pm
 lib/Apache/TestReportPerl.pm
@@ -27,18 +36,10 @@ lib/Apache/TestTrace.pm
 lib/Apache/TestUtil.pm
 lib/Bundle/ApacheTest.pm
 t/TEST.PL
-t/conf/extra.conf.in
 t/bad_coding.t
+t/conf/extra.conf.in
 t/ping.t
 t/redirect.t
 t/request.t
-install-pl
-Changes
-MANIFEST
-LICENSE
-Makefile.PL
-README
-SUPPORT
-ToDo
 
 META.yml                                 Module meta-data (added by MakeMaker)
