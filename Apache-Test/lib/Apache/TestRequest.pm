@@ -261,7 +261,7 @@ sub lwp_call {
         $r = $UA->request($r);
     }
 
-    if ($DebugLWP) {
+    if ($DebugLWP and not $shortcut) {
         my($url, @rest) = @_;
         $name = (split '::', $name)[-1]; #strip HTTP::Request::Common::
         $url = resolve_url($url);
