@@ -246,7 +246,8 @@ sub configure_pm_tests {
             my($base, $sub) =
               map { s/^test//i; $_ } split '::', $module;
 
-            my $hook = $hooks{$sub} || $hooks{$subdir} || $subdir;
+            my $hook = ($subdir eq 'Hooks' ? $hooks{$sub} : '')
+              || $hooks{$subdir} || $subdir;
 
             if ($hook eq 'OutputFilter' and $pm =~ /^i/) {
                 #XXX: tmp hack
