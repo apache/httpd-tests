@@ -544,19 +544,25 @@ sub httpd_conf_template {
 sub generate_extra_conf {
     my $self = shift;
 
-    my $extra_conf = catfile $self->{vars}->{t_conf}, 'extra.conf';
-    return $extra_conf if -e $extra_conf;
+    my @extra_conf;
+    my $t_conf = $self->{vars}->{t_conf};
 
-    my $extra_conf_in = join '.', $extra_conf, 'in';
-    open(my $in, $extra_conf_in) or return;
+    for my $file (<$t_conf/*.conf.in>) {
+        (my $generated = $file) =~ s/\.in$//;
+        push @extra_conf, $generated;
+        print "FILE=$file\n";
+        next if -e $generated;
 
-    my $out = $self->genfile($extra_conf, 1);
-    $self->replace_vars($in, $out);
+        open(my $in, $file) or next;
 
-    close $in;
-    close $out;
+        my $out = $self->genfile($generated, 1);
+        $self->replace_vars($in, $out);
 
-    return $extra_conf;
+        close $in;
+        close $out;
+    }
+
+    return \@extra_conf;
 }
 
 sub generate_httpd_conf {
@@ -571,7 +577,9 @@ sub generate_httpd_conf {
     }
 
     if (my $extra_conf = $self->generate_extra_conf) {
-        $self->postamble(Include => qq("$extra_conf"));
+        for my $file (@$extra_conf) {
+            $self->postamble(Include => qq("$file"));
+        }
     }
 
     my $conf_file = $self->{vars}->{t_conf_file};
