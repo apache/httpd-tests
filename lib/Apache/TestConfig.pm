@@ -318,8 +318,6 @@ sub configure_httpd {
             $vars->{httpd} = $httpd;
             last;
         }
-
-        $vars->{httpd} ||= $self->default_httpd;
     }
 
     if ($vars->{httpd}) {
