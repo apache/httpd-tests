@@ -760,8 +760,6 @@ If no arguments are passed, the reference to the variables hash is
 returned. If one or more arguments are passed the corresponding values
 are returned.
 
-=back
-
 =head1 Test::More Integration
 
 There are a few caveats if you want to use I<Apache::Test> with 
