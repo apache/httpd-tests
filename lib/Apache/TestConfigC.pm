@@ -192,12 +192,14 @@ EOF
 sub cmodules_write_makefile_aix {
     my($self, $mod) = @_;
 
-    my $dversion = $self->server->dversion;
     my $name = $mod->{name};
     my $makefile = catfile $mod->{dir}, 'Makefile';
     my $apxsflags = '';
 
-    if ($dversion =~ 'APACHE1') {
+    #
+    # Only do this for Apache 1.*
+    #
+    if ($self->server->{rev} == 1) {
         $apxsflags = "-Wl,-bE:$name.exp";
         my $expfile = catfile $mod->{dir}, "$name.exp";
         if (! -f $expfile) {
