@@ -220,6 +220,8 @@ sub httpd_version {
 
     my $version;
     my $cmd = "$httpd -v";
+    # untaint 
+    $ENV{PATH} = '/bin:/usr/bin';
     open my $v, '-|', $cmd or die "$cmd failed: $!";
 
     local $_;
