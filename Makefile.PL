@@ -35,7 +35,7 @@ if (TOP_LEVEL) {
     add_Apache__test_target();
 }
 
-Apache::TestRun::custom_config_file_stub_write();
+Apache::TestConfig::custom_config_file_stub_write();
 
 WriteMakefile(
     NAME      => 'Apache::Test',

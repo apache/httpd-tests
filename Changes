@@ -8,6 +8,13 @@ Changes - Apache::Test change logfile
 
 =item 1.13-dev
 
+move the custom config code into Apache::TestConfig, split the config
+object creation in 2 parts - first not requiring the knowledge of
+httpd location, the second requiring one, refactor the custom config
+interactive prompting into the second phase, if failed to find
+httpd. Reshuffle the code to run first bits not requiring the
+knowledge of httpd location. [Stas]
+
 fix Apache::TestCommonPost::lwp_do to work with LWP 5.800
 ($res->content() doesn't allow CODE refs anymore, instead used
 content_ref to avoid huge strings copy) [Stas]

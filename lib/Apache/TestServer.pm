@@ -53,6 +53,13 @@ sub new {
 
     $self->{port_counter} = $self->{config}->{vars}->{port};
 
+    $self;
+}
+
+# call this when you already know where httpd is
+sub post_config {
+    my($self) = @_;
+
     $self->{version} = $self->{config}->httpd_version || '';
     $self->{mpm}     = $self->{config}->httpd_mpm     || '';
 
@@ -88,6 +95,9 @@ sub new {
 
 sub version_of {
     my($self, $thing) = @_;
+    die "Can't figure out what Apache server generation we are running"
+        unless $self->{rev};
+
     $thing->{$self->{rev}};
 }
 
