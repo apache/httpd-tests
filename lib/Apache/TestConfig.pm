@@ -299,15 +299,24 @@ sub new {
     $vars->{serveradmin}  ||= $self->default_serveradmin;
 
     $vars->{minclients}   ||= 1;
-    my $maxclientspreset = $vars->{maxclients} || 0;
+    $vars->{maxclients_preset} = $vars->{maxclients} || 0;
+    # if maxclients wasn't explicitly passed try to
     # prevent 'server reached MaxClients setting' errors
     $vars->{maxclients}   ||= $vars->{minclients} + 1;
+
+    # if a preset maxclients valus is smaller than minclients,
+    # maxclients overrides minclients
+    if ($vars->{maxclients_preset} &&
+        $vars->{maxclients_preset} < $vars->{minclients}) {
+        $vars->{minclients} = $vars->{maxclients_preset};
+    }
+
     # for threaded mpms MaxClients must be a multiple of
     # ThreadsPerChild (i.e. maxclients % minclients == 0)
     # so unless -maxclients was explicitly specified use a double of
     # minclients
-    $vars->{maxclientsthreadedmpm} = 
-        $maxclientspreset || $vars->{minclients} * 2;
+    $vars->{maxclientsthreadedmpm} =
+        $vars->{maxclients_preset} || $vars->{minclients} * 2;
 
     $vars->{proxy}        ||= 'off';
     $vars->{proxyssl_url} ||= '';
@@ -481,8 +490,10 @@ sub configure_proxy {
 
     #if we proxy to ourselves, must bump the maxclients
     if ($vars->{proxy} =~ /^on$/i) {
-        $vars->{minclients}++;
-        $vars->{maxclients}++;
+        unless ($vars->{maxclients_preset}) {
+            $vars->{minclients}++;
+            $vars->{maxclients}++;
+        }
         $vars->{proxy} = $self->{vhosts}->{'mod_proxy'}->{hostport};
         return $vars->{proxy};
     }
@@ -1277,8 +1288,10 @@ sub check_vars {
         }
 
         if ($vars->{proxyssl_url}) {
-            $vars->{minclients}++;
-            $vars->{maxclients}++;
+            unless ($vars->{maxclients_preset}) {
+                $vars->{minclients}++;
+                $vars->{maxclients}++;
+            }
         }
     }
 }
