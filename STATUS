@@ -1,9 +1,15 @@
 httpd-test/perl-framework STATUS:				-*-text-*-
-Last modified at [$Date: 2002/02/06 15:08:13 $]
+Last modified at [$Date: 2002/02/06 15:46:26 $]
 
 Stuff to do:
     * finish the t/TEST exit code issue (ORed with 0x2C if
       framework failed)
+
+    * change existing tests that frob the DocumentRoot (e.g.,
+      t/modules/access.t) to *not* do that; instead, have
+      Makefile.PL prepare appropriate subdirectory configs
+      for them.  Why?  So t/TEST can be used to test a
+      remote server.
 
 Tests to be written:
 
