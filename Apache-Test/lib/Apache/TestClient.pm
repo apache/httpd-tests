@@ -23,10 +23,12 @@ sub request {
     $url     ||= '/';
     $headers ||= {};
 
+    my $hostport = Apache::TestRequest::hostport($config);
+    $headers->{Host} = (split ':', $hostport)[0];
+
     my $s = Apache::TestRequest::vhost_socket();
 
     unless ($s) {
-        my $hostport = Apache::TestRequest::hostport($config);
         warn "cannot connect to $hostport: $!";
         return undef;
     }
