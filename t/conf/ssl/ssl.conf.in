@@ -46,19 +46,6 @@ SSLRandomSeed connect builtin
 SSLLog      @ServerRoot@/logs/ssl_engine_log
 #SSLLogLevel debug
 
-##
-## SSL Virtual Host Context
-##
-
-<VirtualHost _default_:@ssl_module_name@>
-
-#  General setup for the virtual host
-#ErrorLog logs/error_log
-#TransferLog logs/access_log
-#   SSL Engine Switch:
-#   Enable/Disable SSL for this virtual host.
-SSLEngine on
-
 #   SSL Cipher Suite:
 #   List the ciphers that the client is permitted to negotiate.
 #   See the mod_ssl documentation for a complete list.
@@ -109,6 +96,19 @@ SSLCACertificateFile @ServerRoot@/conf/ssl/certs/ca-bundle.crt
 #         Makefile to update the hash symlinks after changes.
 #SSLCARevocationPath @ServerRoot@/conf/ssl/ssl.crl
 SSLCARevocationFile @ServerRoot@/conf/ssl/crl/ca-bundle.crl
+
+##
+## SSL Virtual Host Context
+##
+
+<VirtualHost _default_:@ssl_module_name@>
+
+#  General setup for the virtual host
+#ErrorLog logs/error_log
+#TransferLog logs/access_log
+#   SSL Engine Switch:
+#   Enable/Disable SSL for this virtual host.
+SSLEngine on
 
 #   Client Authentication (Type):
 #   Client certificate verification type and depth.  Types are
