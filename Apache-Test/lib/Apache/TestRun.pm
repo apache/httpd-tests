@@ -42,6 +42,7 @@ use subs qw(exit_shell exit_perl);
 
 my $orig_command;
 my $orig_cwd;
+my $orig_conf_opts;
 
 my %core_files  = ();
 my %original_t_perms = ();
@@ -231,6 +232,7 @@ sub getopts {
     my $req_wanted_args = Apache::TestRequest::wanted_args();
     my @argv = ();
     my %req_args = ();
+
     while (@ARGV) {
         my $val = shift @ARGV;
         if ($val =~ /^--?(.+)/) { # must have a leading - or --
@@ -248,6 +250,9 @@ sub getopts {
         # to be processed later
         push @argv, $val;
     }
+
+    # save the orig args (make a deep copy)
+    $orig_conf_opts = { %conf_opts };
 
     # fixup the filepath options on win32 (spaces, short names, etc.)
     if (Apache::TestConfig::WIN32) {
@@ -746,11 +751,32 @@ sub run {
 }
 
 sub rerun {
+    my $vars = shift;
+
+    # in %$vars
+    # - httpd will be always set
+    # - apxs is optional
+
     $orig_cwd ||= Cwd::cwd();
     chdir $orig_cwd;
-    warning "rerunning '$orig_command' with new config opts";
+    my $new_opts = " -httpd $vars->{httpd}";
+    $new_opts .= " -apxs $vars->{apxs}" if $vars->{apxs};
+
+    my $new_command = $orig_command;
+
+    # strip any old bogus -httpd/-apxs
+    $new_command =~ s/--?httpd\s+$orig_conf_opts->{httpd}//
+        if $orig_conf_opts->{httpd};
+    $new_command =~ s/--?httpd\s+$orig_conf_opts->{httpd}//
+        if $orig_conf_opts->{httpd} and $vars->{apxs};
+
+    # add new opts
+    $new_command .= $new_opts;
+
+    warning "running with new config opts: $new_command";
+
     # use 'or die' to avoid warnings due to possible overrides of die
-    exec $orig_command or die "exec $orig_command has failed";
+    exec $new_command or die "exec $new_command has failed";
 }
 
 
