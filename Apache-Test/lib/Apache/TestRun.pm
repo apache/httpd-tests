@@ -3,13 +3,6 @@ package Apache::TestRun;
 use strict;
 use warnings FATAL => 'all';
 
-BEGIN {
-    #Apache likes everything to be in /unix/path/file.ext format
-    $INC{'File/Spec.pm'} = __FILE__;
-    require File::Spec::Unix;
-    @File::Spec::ISA = qw(File::Spec::Unix);
-}
-
 use Apache::TestConfig ();
 use Apache::TestConfigC ();
 use Apache::TestRequest ();
