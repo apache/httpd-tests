@@ -224,13 +224,13 @@ sub install_sighandlers {
     #must eval "" to "install" this END block, otherwise it will
     #always run, a subclass might not want that
 
-    eval "END {
-             local \$?; # preserve the exit status
+    eval 'END {
+             local $?; # preserve the exit status
              eval {
                 Apache::TestRun->new(test_config =>
                                      Apache::TestConfig->thaw)->scan;
              };
-         }";
+         }';
 }
 
 #throw away cached config and start fresh
