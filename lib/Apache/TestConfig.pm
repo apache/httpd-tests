@@ -495,6 +495,12 @@ sub cpfile {
     $self->{clean}->{files}->{$to} = 1;
 }
 
+sub symlink {
+    my($self, $from, $to) = @_;
+    CORE::symlink($from, $to);
+    $self->{clean}->{files}->{$to} = 1;
+}
+
 sub gendir {
     my($self, $dir) = @_;
 
@@ -630,8 +636,11 @@ sub generate_ssl_conf {
 
     if (-d $ssl_conf and not -d $conf) {
         $self->gendir($conf);
-        for (qw(ssl.conf.in server.key server.cert)) {
+        for (qw(ssl.conf.in)) {
             $self->cpfile("$ssl_conf/$_", "$conf/$_");
+        }
+        for (qw(certs keys crl)) {
+            $self->symlink("$ssl_conf/$_", "$conf/$_");
         }
     }
 }
