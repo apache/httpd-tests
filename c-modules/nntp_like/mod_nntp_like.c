@@ -14,12 +14,12 @@
     NNTPLike On
 </VirtualHost>
 
-<VirtualHost mod_nntp_like_ssl>
-    NNTPLike On
-    <IfModule @ssl_module@>
-         SSLEngine On
-    </IfModule>
-</VirtualHost>
+<IfModule @ssl_module@>
+    <VirtualHost mod_nntp_like_ssl>
+        NNTPLike On
+        SSLEngine On
+    </VirtualHost>
+</IfModule>
 
 #endif
 

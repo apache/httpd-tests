@@ -323,10 +323,10 @@ LimitRequestFields    32
         ProtocolEcho On
     </VirtualHost>
 
-    <VirtualHost mod_echo_ssl>
-        ProtocolEcho On
-        <IfModule @ssl_module@>
+    <IfModule @ssl_module@>
+        <VirtualHost mod_echo_ssl>
+            ProtocolEcho On
             SSLEngine On
-        </IfModule>
-    </VirtualHost>
+        </VirtualHost>
+    </IfModule>
 </IfModule>
