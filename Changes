@@ -8,6 +8,8 @@ Changes - Apache::Test change logfile
 
 =item 1.17-dev
 
+fix Apache::TestConfig::open_cmd to run properly under -T [Stas]
+
 require Cwd 2.06 or higher (to solve File::Spec::rel2abs problems
 under -T). Enforce the modules version requirements for those who
 aren't running under CPAN/CPANPLUS shell) [Stas]
