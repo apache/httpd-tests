@@ -20,8 +20,13 @@ use Apache::TestTrace;
 local $ENV{APACHE_TEST_INTERACTIVE_CONFIG_TEST} = 1;
 
 my @configs = test_configs();
-my $tests_per_config = 11;
-plan tests => $tests_per_config * @configs + 1;
+if ($configs[0]{repos_type} eq 'mp2_core') {
+    plan skip_all => "modperl2 doesn't run interactive config";
+}
+else {
+    my $tests_per_config = 11;
+    plan tests => $tests_per_config * @configs + 1;
+}
 
 my $orig_dir = go_in();
 
