@@ -224,7 +224,7 @@ sub have_perl_iolayers {
     if (my $ext = $Config{extensions}) {
         #XXX: better test?  might need to test patchlevel
         #if support depends bugs fixed in bleedperl
-        return $ext =~ m:PerlIO/Scalar:;
+        return $ext =~ m:PerlIO/scalar:;
     }
     0;
 }
