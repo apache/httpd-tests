@@ -11,11 +11,11 @@ use Apache::TestConfig ();
 
 # some debuggers use the same syntax as others, so we reuse the same
 # code by using the following mapping
-my %debuggers =
-    (
-     gdb => 'gdb',
-     ddd => 'gdb',
-    );
+my %debuggers = (
+    gdb    => 'gdb',
+    ddd    => 'gdb',
+    strace => 'strace',
+);
 
 sub trace {
     shift->{config}->trace(@_);
@@ -100,6 +100,31 @@ sub default_gdbinit {
     $gdbinit;
 }
 
+sub strace_cmd {
+    my($self, $strace, $file) = @_;
+    #XXX truss, ktrace, etc.
+    "$strace -f -o $file -s1024";
+}
+
+sub start_strace {
+    my $self = shift;
+    my $opts = shift;
+
+    my $config      = $self->{config};
+    my $args        = $self->args;
+    my $one_process = $self->version_of(\%one_process);
+    my $file        = catfile $config->{vars}->{t_logs}, 'strace.log';
+    my $strace_cmd  = $self->strace_cmd($opts->{debugger}, $file);
+    my $httpd       = $config->{vars}->{httpd};
+
+    $config->genfile($file, 1); #just mark for cleanup
+
+    my $command = "$strace_cmd $httpd $one_process $args";
+
+    debug $command;
+    system $command;
+}
+
 sub start_gdb {
     my $self = shift;
     my $opts = shift;
@@ -158,7 +183,7 @@ sub start_debugger {
         die("\n");
     }
 
-    my $method = "start_".$debuggers{ $opts->{debugger} };
+    my $method = "start_" . $debuggers{ $opts->{debugger} };
     $self->$method($opts);
 }
 

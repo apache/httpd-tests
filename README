@@ -89,6 +89,9 @@ GET url (only print headers, e.g. useful to just check Content-length)
 start server under gdb
 % t/TEST -debug
 
+start server under strace (outputs to t/logs/strace.log)
+% t/TEST -d strace
+
 run .t test under the perl debugger
 % t/TEST -d perl t/modules/access.t
 
