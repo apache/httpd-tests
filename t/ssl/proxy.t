@@ -4,13 +4,20 @@ use warnings FATAL => 'all';
 use Apache::Test;
 use Apache::TestRequest;
 use Apache::TestUtil;
+use Apache::TestCommon ();
 
 my %modules = (
     proxyssl     => 'http',
     proxyssl_ssl => 'https',
 );
 
-plan tests => 6 * keys %modules, ['mod_proxy'];
+my $num_modules = scalar keys %modules;
+my $post_module = 'eat_post';
+
+my $post_tests = have_module($post_module) ?
+  Apache::TestCommon::run_post_test_sizes() : 0;
+
+plan tests => (6 + $post_tests) * $num_modules, ['mod_proxy'];
 
 for my $module (sort keys %modules) {
 
@@ -20,21 +27,29 @@ for my $module (sort keys %modules) {
 
     my $hostport = Apache::TestRequest::hostport();
 
-    ok t_cmp(200,
-             GET('/')->code,
-             "/ with $module ($scheme)");
+    sok {
+        t_cmp(200,
+              GET('/')->code,
+              "/ with $module ($scheme)");
+    };
 
-    ok t_cmp(200,
-             GET('/verify')->code,
-             "using valid proxyssl client cert");
+    sok {
+        t_cmp(200,
+              GET('/verify')->code,
+              "using valid proxyssl client cert");
+    };
 
-    ok t_cmp(403,
-             GET('/require/snakeoil')->code,
-             "using invalid proxyssl client cert");
+    sok {
+        t_cmp(403,
+              GET('/require/snakeoil')->code,
+              "using invalid proxyssl client cert");
+    };
 
     my $res = GET('/require-ssl-cgi/env.pl');
 
-    ok t_cmp(200, $res->code, "protected cgi script");
+    sok {
+        t_cmp(200, $res->code, "protected cgi script");
+    };
 
     my $body = $res->content || "";
 
@@ -45,11 +60,17 @@ for my $module (sort keys %modules) {
         $vars{$key} = $val || "";
     }
 
-    ok t_cmp($hostport,
-             $vars{HTTP_X_FORWARDED_HOST},
-             "X-Forwarded-Host header");
+    sok {
+        t_cmp($hostport,
+              $vars{HTTP_X_FORWARDED_HOST},
+              "X-Forwarded-Host header");
+    };
 
-    ok t_cmp('client_ok',
-             $vars{SSL_CLIENT_S_DN_CN},
-             "client subject common name");
+    sok {
+        t_cmp('client_ok',
+              $vars{SSL_CLIENT_S_DN_CN},
+              "client subject common name");
+    };
+
+    Apache::TestCommon::run_post_test($post_module) if $post_tests;
 }
