@@ -46,7 +46,7 @@ sub set_version {
 sub MY::postamble {
     my $self = shift;
 
-    my $string = $self->MY::postamble;
+    my $string = $self->MM::postamble;
 
     $string .= <<'EOF';
 cvs_tag :
