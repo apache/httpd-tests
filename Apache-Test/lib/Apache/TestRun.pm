@@ -389,7 +389,8 @@ sub try_exit_opts {
     for (@exit_opts) {
         next unless exists $self->{opts}->{$_};
         my $method = "opt_$_";
-        exit_perl $self->$method();
+        my $rc = $self->$method();
+        exit_perl $rc if $rc;
     }
 
     if ($self->{opts}->{'stop-httpd'}) {
@@ -401,7 +402,7 @@ sub try_exit_opts {
         else {
             warning "server $self->{server}->{name} is not running";
         }
-        exit_perl $ok ;
+        exit_perl $ok;
     }
 }
 
