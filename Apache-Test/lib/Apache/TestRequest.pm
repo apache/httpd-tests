@@ -21,6 +21,7 @@ unless ($have_lwp) {
 
 sub install_http11 {
     eval {
+        local *strict::import = sub {}; #XXX bug in lwp 5.53
         require LWP::Protocol::http11;
         LWP::Protocol::implementor('http', 'LWP::Protocol::http11');
     };
