@@ -106,8 +106,14 @@ sub split_test_args {
                 push @tests, "$arg.t";
                 next;
             }
-            elsif (/^\d+$/) {
-                push @{ $self->{subtests} }, $_;
+            elsif (/^[\d.]+$/) {
+                my @t = $_;
+                #support range of subtests: t/TEST t/foo/bar 60..65
+                if (/^(\d+)\.\.(\d+)$/) {
+                    @t =  $1..$2;
+                }
+
+                push @{ $self->{subtests} }, @t;
                 next;
             }
         }
