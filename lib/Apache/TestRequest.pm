@@ -385,6 +385,8 @@ for my $name (@EXPORT) {
     my $method = "HTTP::Request::Common::$name";
     no strict 'refs';
 
+    next unless defined &$method; #else fallback a few below
+
     *$name = sub {
         my($url, $pass, $keep) = prepare(@_);
         return lwp_call($method, undef, $url, @$pass);
@@ -406,7 +408,7 @@ push @EXPORT, qw(UPLOAD_BODY);
 #this is intended to be a fallback if LWP is not installed
 #so at least some tests can be run, it is not meant to be robust
 
-for my $name (qw(GET HEAD)) {
+for my $name (qw(GET_BODY GET_STR HEAD_STR)) {
     next if defined &$name;
     no strict 'refs';
     *$name = sub {

@@ -1042,7 +1042,13 @@ sub need_reconfiguration {
 
 #shortcuts
 
-my %include_headers = (GET => 1, HEAD => 2);
+my %include_headers = (
+    GET      => 1,
+    GET_STR  => 1,
+    GET_BODY => 0,
+    HEAD     => 2,
+    HEAD_STR => 2,
+);
 
 sub http_raw_get {
     my($self, $url, $h) = @_;
