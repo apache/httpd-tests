@@ -61,15 +61,6 @@ sub cmodules_configure {
     $self->cmodules_httpd_conf;
 }
 
-sub cmodules_generate_include {
-    my $self = shift;
-    my $fh = $self->genfile("$self->{cmodules_dir}/apache_httpd_test.h");
-    while (read Apache::TestConfigC::DATA, my $buf, 1024) {
-        print $fh $buf;
-    }
-    close $fh;
-}
-
 sub cmodules_makefile_vars {
     return <<EOF;
 MAKE = $Config{make}
@@ -209,16 +200,146 @@ sub cmodules_clean {
     unlink "$self->{cmodules_dir}/Makefile";
 }
 
+#try making it easier for test modules to compile with both 1.x and 2.x
+sub cmodule_define_name {
+    my $name = shift;
+    $name eq 'NULL' ? $name : "APACHE_HTTPD_TEST_\U$name";
+}
+
+sub cmodule_define {
+    my $hook = cmodule_define_name(@_);
+    "#ifndef $hook\n#define $hook NULL\n#endif\n";
+}
+
+my @cmodule_config_names = qw(per_dir_create per_dir_merge
+                              per_srv_create per_srv_merge
+                              commands);
+
+my @cmodule_config_defines = map {
+    cmodule_define($_);
+} @cmodule_config_names;
+
+my $cmodule_config_hooks = join ",\n    ", map {
+    cmodule_define_name($_);
+} @cmodule_config_names;
+
+my @cmodule_phases = qw(post_read_request translate_name header_parser
+                        access_checker check_user_id auth_checker
+                        type_checker fixups handler log_transaction
+                        child_init);
+
+my $cmodule_hooks_1 = join ",\n    ", map {
+    cmodule_define_name($_);
+} qw(translate_name check_user_id auth_checker access_checker
+     type_checker fixups log_transaction header_parser
+     child_init NULL post_read_request);
+
+my $cmodule_template_1 = <<"EOF",
+static const handler_rec name ## _handlers[] =
+{
+    {#name, APACHE_HTTPD_TEST_HANDLER}, /* ok if handler is NULL */
+    {NULL}
+};
+
+module MODULE_VAR_EXPORT name ## _module =
+{
+    STANDARD_MODULE_STUFF,
+    NULL,			/* initializer */
+    $cmodule_config_hooks,
+    name ## _handlers,	        /* handlers */
+    $cmodule_hooks_1
+}
+EOF
+
+my @cmodule_hooks = map {
+    my $hook = cmodule_define_name($_);
+    <<EOF;
+    if ($hook)
+        ap_hook_$_($hook,
+                   NULL, NULL,
+                   APACHE_HTTPD_TEST_HOOK_ORDER);
+EOF
+} @cmodule_phases;
+
+my @cmodule_hook_defines = map {
+    cmodule_define($_);
+} @cmodule_phases;
+
+my $cmodule_template_2 = <<"EOF";
+static void name ## _register_hooks(apr_pool_t *p)
+{
+@cmodule_hooks
+}
+
+module AP_MODULE_DECLARE_DATA name ## _module = {
+    STANDARD20_MODULE_STUFF,
+    $cmodule_config_hooks,
+    name ## _register_hooks, /* register hooks */
+}
+EOF
+
+my %cmodule_templates = (1 => $cmodule_template_1, 2 => $cmodule_template_2);
+
+sub cmodules_module_template {
+    my $self = shift;
+    my $template = $self->server->version_of(\%cmodule_templates);
+    chomp $template;
+
+    $template =~ s,$, \\,mg;
+    $template =~ s, \\$,,s;
+
+    local $" = ', ';
+
+    return <<EOF;
+#define APACHE_HTTPD_TEST_MODULE(name) \\
+    $template
+EOF
+}
+
+sub cmodules_generate_include {
+    my $self = shift;
+
+    my $file = "$self->{cmodules_dir}/apache_httpd_test.h";
+    my $fh = $self->genfile($file);
+
+    while (read Apache::TestConfigC::DATA, my $buf, 1024) {
+        print $fh $buf;
+    }
+
+    print $fh @cmodule_hook_defines, @cmodule_config_defines;
+
+    print $fh $self->cmodules_module_template;
+
+    close $fh;
+}
+
 package Apache::TestConfigC; #Apache/TestConfig.pm also has __DATA__
 1;
 __DATA__
 #ifndef APACHE_HTTPD_TEST_H
 #define APACHE_HTTPD_TEST_H
 
+/* headers present in both 1.x and 2.x */
+#include "httpd.h"
+#include "http_config.h"
+#include "http_protocol.h"
+#include "http_request.h"
+#include "http_log.h"
+#include "http_main.h"
+#include "http_core.h"
+#include "ap_config.h"
+
 #ifdef APACHE1
 #define AP_METHOD_BIT  1
 typedef size_t apr_size_t;
+typedef array_header apr_array_header_t;
 #endif /* APACHE1 */
+
+#ifdef APACHE2
+#ifndef APACHE_HTTPD_TEST_HOOK_ORDER
+#define APACHE_HTTPD_TEST_HOOK_ORDER APR_HOOK_MIDDLE
+#endif
+#endif /* APACHE2 */
 
 #endif /* APACHE_HTTPD_TEST_H */
 
