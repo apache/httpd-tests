@@ -61,7 +61,7 @@ sub resolve_url {
 }
 
 my %wanted_args = map {$_, 1} qw(username password realm content filename
-                                 redirect_ok);
+                                 redirect_ok cert);
 
 sub wanted_args {
     \%wanted_args;
@@ -121,6 +121,9 @@ sub prepare {
     }
     if (exists $keep->{redirect_ok}) {
         $RedirectOK = $keep->{redirect_ok};
+    }
+    if ($keep->{cert}) {
+        set_client_cert($keep->{cert});
     }
 
     return ($url, $pass, $keep);
@@ -274,6 +277,15 @@ sub http_raw_get {
 sub to_string {
     my $obj = shift;
     ref($obj) ? $obj->as_string : $obj;
+}
+
+sub set_client_cert {
+    my $name = shift;
+    my $config = test_config();
+    my $dir = "$config->{vars}->{t_conf}/ssl";
+
+    $ENV{HTTPS_CERT_FILE} = "$dir/certs/$name.crt";
+    $ENV{HTTPS_KEY_FILE}  = "$dir/keys/$name.pem";
 }
 
 #want news: urls to work with the LWP shortcuts
