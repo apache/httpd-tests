@@ -1449,6 +1449,11 @@ HostnameLookups Off
     MaxRequestsPerChild  0
 </IfModule>
 
+<IfModule mpm_winnt.c>
+    ThreadsPerChild      10
+    MaxRequestsPerChild  0
+</IfModule>
+
 <Location /server-info>
     SetHandler server-info
 </Location>
