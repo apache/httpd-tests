@@ -217,7 +217,7 @@ static unsigned iterate_pieces(request_rec *r, const test_uri_t *pieces, int row
         }
         *strp = 0;
 
-        apr_pool_sub_make(&sub, r->pool, NULL);
+        apr_pool_create_ex(&sub, r->pool, NULL, NULL);
         status = apr_uri_parse(sub, input_uri, &result);
         if (status == APR_SUCCESS) {
 #define CHECK(f)                                                        \
