@@ -263,7 +263,7 @@ sub stop {
 
         if ($pid = $self->pid and !$tried_kill++) {
             if (kill TERM => $pid) {
-                warning "server $self->{name} shutdown (pid=$pid)";
+                warning "server $self->{name} shutdown";
                 sleep 1;
 
                 for (1..4) {
@@ -392,7 +392,7 @@ sub start {
     }
 
     if (my $pid = $self->pid) {
-        print "server $self->{name} started (pid=$pid)\n";
+        print "server $self->{name} started\n";
 
         my $vh = $config->{vhosts};
         my $by_port = sub { $vh->{$a}->{port} <=> $vh->{$b}->{port} };
