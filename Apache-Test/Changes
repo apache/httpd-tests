@@ -14,6 +14,9 @@ bigger than ThreadsPerChild (minclients), since if we don't do that,
 Apache will reduce MaxClients to the same value as
 ThreadsPerChild. [Stas]
 
+Renamed generate_test_script() to generate_script() in Apache::TestMB
+to match the naming convention used in Apache::TestMM and elsewhere.
+[David]
 
 
 =item 1.12 - June 28, 2004
