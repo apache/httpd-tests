@@ -1,0 +1,7 @@
+<!--#if expr="($SERVER_PORT = 80) && ($p_ssl = 0)"-->
+pass
+<!--#elif expr="($SERVER_PORT = 443) && ($p_ssl = 1)"-->
+pass
+<!--#else-->
+fail
+<!--#endif-->
