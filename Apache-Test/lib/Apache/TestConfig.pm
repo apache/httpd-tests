@@ -2404,6 +2404,7 @@ DocumentRoot "@DocumentRoot@"
 
 PidFile     @t_logs@/httpd.pid
 ErrorLog    @t_logs@/error_log
+Lockfile    @t_logs@/accept.lock
 LogLevel    debug
 
 <IfModule mod_log_config.c>
