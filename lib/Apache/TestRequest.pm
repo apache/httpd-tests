@@ -780,6 +780,21 @@ But note that redirection will B<not> work with C<POST> unless LWP is
 installed. It's best, therefore, to check C<have_lwp> before running
 tests that rely on a redirection from C<POST>.
 
+Sometimes it is desireable to have C<Apache::TestRequest> remember
+cookies sent by the pages you are testing and send them back to the
+server on subsequent requests. This is especially necessary when
+testing pages whose functionality relies on sessions or the presence
+of preferences stored in cookies.
+
+By default, C<LWP::UserAgent> does B<not> remember cookies between
+requests. You can tell it to remember cookies between request by
+adding:
+
+  Apache::TestRequest::user_agent(cookie_jar => {});
+
+before issuing the requests.
+
+
 =head1 FUNCTIONS
 
 C<Apache::TestRequest> exports a number of functions that will likely
@@ -836,6 +851,11 @@ test server via C<UPLOAD()> and its friends.
 
 Sends a simple GET request to the Apache test server. Returns an
 C<HTTP::Response> object.
+
+You can also supply additional headers to be sent with the request by
+adding their name/value pairs after the C<url> parameter, for example:
+
+  my $res = GET $url, 'Accept-Language' => 'de,en-us,en;q=0.5';
 
 =head3 GET_STR
 
