@@ -1070,7 +1070,7 @@ sub generate_script {
     Apache::Test::config()->write_perlscript($opts{file}, $body);
 }
 
-# in idiomatic perl functions return 1 on success 0 on
+# in idiomatic perl functions return 1 on success and 0 on
 # failure. Shell expects the opposite behavior. So this function
 # reverses the status.
 sub exit_perl {
