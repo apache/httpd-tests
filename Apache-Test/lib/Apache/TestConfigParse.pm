@@ -84,6 +84,8 @@ my %modname_alias = (
     'mod_modperl.c'       => 'mod_perl.c',
 );
 
+sub should_load_module { 1 }
+
 #inherit LoadModule
 sub inherit_load_module {
     my($self, $c, $directive) = @_;
@@ -100,8 +102,16 @@ sub inherit_load_module {
         my $name = basename $args->[1];
         $name =~ s/\.s[ol]$/.c/;  #mod_info.so => mod_info.c
         $name =~ s/^lib/mod_/; #libphp4.so => mod_php4.c
-        debug "LoadModule $modname $name";
+
         $name = $modname_alias{$name} if $modname_alias{$name};
+
+        unless ($self->should_load_module($name)) {
+            debug "Skipping LoadModule of $name";
+            next;
+        }
+
+        debug "LoadModule $modname $name";
+
         $self->{modules}->{$name} = 1;
 
         $self->preamble($directive => qq($modname "$file"));
