@@ -192,6 +192,7 @@ EOF
 sub cmodules_write_makefile_aix {
     my($self, $mod) = @_;
 
+    my $dversion = $self->server->dversion;
     my $name = $mod->{name};
     my $makefile = catfile $mod->{dir}, 'Makefile';
     my $apxsflags = '';
