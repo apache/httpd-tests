@@ -113,7 +113,7 @@ sub module2url {
     my $scheme   = $opt->{scheme} || 'http';
     my $path     = $opt->{path}   || module2path($module);
 
-    Apache::TestRequest::module($module);
+    module($module);
 
     my $config   = Apache::Test::config();
     my $hostport = hostport($config);
