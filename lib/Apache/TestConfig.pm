@@ -149,7 +149,7 @@ sub new {
 
     #regenerating config, so forget old
     if ($args->{save}) {
-        for (qw(vhosts inherit_config modules inc)) {
+        for (qw(vhosts inherit_config modules inc cmodules)) {
             delete $thaw->{$_} if exists $thaw->{$_};
         }
     }
