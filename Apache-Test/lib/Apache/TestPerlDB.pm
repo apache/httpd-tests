@@ -5,8 +5,15 @@ sub Apache::TestPerlDB::lwpd {
     print Apache::TestRequest::lwp_debug(shift || 1);
 }
 
+sub Apache::TestPerlDB::bok {
+    my $n = shift || 1;
+    print "breakpoint set at test $n\n";
+    DB::cmd_b_sub('ok', "\$Test::ntest == $n");
+}
+
 my %help = (
     lwpd => 'Set the LWP debug level for Apache::TestRequest',
+    bok  => 'Set breakpoint at test n',
 );
 
 my $setup_db_aliases = sub {
