@@ -8,6 +8,10 @@ Changes - Apache::Test change logfile
 
 =item 1.13-dev
 
+When APACHE_TEST_NO_STICKY_PREFERENCES=1 is used don't even try to
+interactively configure the server, as we don't save any config it was
+entering an infinite loop. [Stas]
+
 If a directory t/lib exists from where the tests are run, adjust
 @INC so that this directory is added when running the tests,
 both within t/TEST and within t/conf/modperl_inc.pl.
