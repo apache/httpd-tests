@@ -5,10 +5,20 @@ use Apache::Test;
 use Apache::TestUtil;
 use Apache::TestRequest ();
 
-my @test_strings = ("0","AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",);
-my @resp_strings = ("HTTP/1.1 200 OK","HTTP/1.1 413 Request Entity Too Large",);
+my @test_strings = ("0",
+                    "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
+                    );
+my @req_strings =  ("/echo_post_chunk",
+                    "/i_do_not_exist_in_your_wildest_imagination");
 
-my $tests = 2 * @test_strings + 1;
+# This is expanded out.
+my @resp_strings = ("HTTP/1.1 200 OK",
+                    "HTTP/1.1 404 Not Found",
+                    "HTTP/1.1 413 Request Entity Too Large",
+                    "HTTP/1.1 413 Request Entity Too Large",
+                   );
+
+my $tests = 4 * @test_strings + 1;
 my $vars = Apache::Test::vars();
 my $module = 'default';
 my $cycle = 0;
@@ -18,12 +28,13 @@ plan tests => $tests;
 print "testing $module\n";
 
 for my $data (@test_strings) {
+  for my $request_uri (@req_strings) {
     my $sock = Apache::TestRequest::vhost_socket($module);
     ok $sock;
 
     Apache::TestRequest::socket_trace($sock);
 
-    $sock->print("POST /echo_post_chunk HTTP/1.0\n");
+    $sock->print("POST $request_uri HTTP/1.0\n");
     $sock->print("Transfer-Encoding: chunked\n");
     $sock->print("\n");
     $sock->print("$data\n");
@@ -45,4 +56,5 @@ for my $data (@test_strings) {
         chomp($response = Apache::TestRequest::getline($sock));
         ok t_cmp("$$", $response, "trailer (pid)");
     }
+  }
 }
