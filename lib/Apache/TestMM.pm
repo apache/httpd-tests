@@ -105,7 +105,7 @@ sub generate_script {
     close $in;
 
     info "generating script $file";
-    Apache::Test::config()->write_perlscript($file, $body);
+    Apache::Test::basic_config()->write_perlscript($file, $body);
 }
 
 sub filter_args {

@@ -193,8 +193,10 @@ sub new {
     # httpd-independent components
     my $self = $class->new_common(@_);
 
+    my $vars = $self->{vars};
+
     # components requiring httpd knowledge
-    $self->httpd_config;
+    $self->httpd_config unless $vars->{no_httpd_config};
 
     $self;
 }

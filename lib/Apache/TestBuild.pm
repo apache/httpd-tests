@@ -604,7 +604,7 @@ sub generate_script {
 
     my $content = join '', <DATA>;
 
-    Apache::Test::config()->write_perlscript($file, $content);
+    Apache::Test::basic_config()->write_perlscript($file, $content);
 }
 
 unless (caller) {
