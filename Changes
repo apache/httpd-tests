@@ -7,7 +7,13 @@ Changes - Apache::Test change logfile
 =over 3
 
 =item 1.19-dev
-  
+
+Apache-Test/META.yml is excluded from mp2 distro to make PAUSE indexer
+happy, but then perl Makefile.PL complains about a missing META.yml,
+so autogenerate it if it wasn't in the distro [Stas]
+
+
+
 =item 1.18 - December 23, 2004
 
 fix a bug in A-T config generation, when a vhost entry was in

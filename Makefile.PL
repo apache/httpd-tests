@@ -61,11 +61,16 @@ my %prereq = (
     'Cwd'        => '2.06',
 );
 
+# Apache-Test/META.yml is excluded from mp2 distro to make PAUSE
+# indexer happy, but then perl Makefile.PL complains about a missing
+# META.yml, so autogenerate it if it wasn't in the distro
+my $no_meta = TOP_LEVEL ? 1 : 0;
+
 WriteMakefile(
     NAME      => 'Apache::Test',
     VERSION   => $VERSION,
     PREREQ_PM => \%prereq,
-    NO_META   => 1,
+    NO_META   => $no_meta,
     dist      => {
         COMPRESS => 'gzip -9f', SUFFIX => 'gz',
     },
