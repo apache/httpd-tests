@@ -25,6 +25,29 @@ sub inc_fixup {
     }
 }
 
+#skip tests listed in t/SKIP
+sub skip {
+    my($self, $file) = @_;
+    $file ||= 'SKIP';
+
+    return unless -e $file;
+
+    open my $fh, $file or die "open $file: $!";
+    my @skip;
+    local $_;
+
+    while (<$fh>) {
+        chomp;
+        s/^\s+//; s/\s+$//; s/^\#.*//;
+        next unless $_;
+        s/\*/.*/g;
+        push @skip, $_;
+    }
+
+    close $fh;
+    return join '|', @skip;
+}
+
 sub run {
     my $self = shift;
     my $args = shift || {};
@@ -60,6 +83,10 @@ sub run {
                       }, '.');
             @tests = sort @tests;
         }
+    }
+
+    if (my $skip = $self->skip) {
+        @tests = grep { not /(?:$skip)/ } @tests;
     }
 
     Apache::TestSort->run(\@tests, $args);
