@@ -739,6 +739,11 @@ my %servername_config = (
     },
 );
 
+sub servername_config {
+    my $self = shift;
+    $self->server->version_of(\%servername_config)->(@_);
+}
+
 sub parse_vhost {
     my($self, $line) = @_;
 
@@ -751,11 +756,13 @@ sub parse_vhost {
         return undef;
     }
 
+    my $vars = $self->{vars};
+
     #if module ends with _ssl it is either the ssl module itself
     #or another module that has a port for itself and another
     #for itself with SSLEngine On, see mod_echo in extra.conf.in for example
     my $have_module = $module =~ /_ssl$/ ?
-      $self->{vars}->{ssl_module} : "$module.c";
+      $vars->{ssl_module} : "$module.c";
 
     #don't allocate a port if this module is not configured
     if ($module =~ /^mod_/ and not $self->{modules}->{$have_module}) {
@@ -766,8 +773,8 @@ sub parse_vhost {
     my $port = $self->new_vhost($module);
 
     #extra config that should go *inside* the <VirtualHost ...>
-    my $in_cfg = $self->server->version_of(\%servername_config);
-    my @in_config = $in_cfg->($self->{vars}->{servername}, $port);
+    my @in_config = $self->servername_config($vars->{servername},
+                                             $port);
 
     #extra config that should go *outside* the <VirtualHost ...>
     my @out_config = ([Listen => $port]);
@@ -980,8 +987,8 @@ sub generate_httpd_conf {
     #2.0: ServerName $ServerName:$Port
     #1.3: ServerName $ServerName
     #     Port       $Port
-    my $scfg = $self->server->version_of(\%servername_config);
-    my @name_cfg = $scfg->($vars->{servername}, $vars->{port});
+    my @name_cfg = $self->servername_config($vars->{servername},
+                                            $vars->{port});
     for my $pair (@name_cfg) {
         print $out "@$pair\n";
     }
