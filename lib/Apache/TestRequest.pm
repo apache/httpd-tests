@@ -284,8 +284,15 @@ sub set_client_cert {
     my $config = test_config();
     my $dir = "$config->{vars}->{t_conf}/ssl";
 
-    $ENV{HTTPS_CERT_FILE} = "$dir/certs/$name.crt";
-    $ENV{HTTPS_KEY_FILE}  = "$dir/keys/$name.pem";
+    if ($name) {
+        $ENV{HTTPS_CERT_FILE} = "$dir/certs/$name.crt";
+        $ENV{HTTPS_KEY_FILE}  = "$dir/keys/$name.pem";
+    }
+    else {
+        for (qw(CERT KEY)) {
+            delete $ENV{"HTTPS_${_}_FILE"};
+        }
+    }
 }
 
 #want news: urls to work with the LWP shortcuts
