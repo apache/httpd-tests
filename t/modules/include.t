@@ -11,6 +11,9 @@ use constant WINFU => Apache::TestConfig::WINFU;
 my ($doc);
 my $dir = "/modules/include/";
 my $have_apache_2 = have_apache 2;
+my $vars = Apache::Test::vars();
+my $docroot = $vars->{documentroot};
+
 
 my %test = (
 "echo.shtml"            =>    "echo.shtml",
@@ -63,10 +66,11 @@ if (WINFU) {
 
 #
 # in addition to $tests, there are 1 GET test, 9 XBitHack tests,
-# 2 exec cgi tests, and 2 malformed-ssi-directive tests
+# 2 exec cgi tests, 2 malformed-ssi-directive tests, and 6 tests
+# that use mod_bucketeer to construct brigades for mod_include
 #
 my $tests = keys %test;
-plan tests => $tests + 14, have_module 'include';
+plan tests => $tests + 20, have_module 'include';
 
 foreach $doc (sort keys %test) {
     ok t_cmp($test{$doc},
@@ -181,6 +185,69 @@ ok t_cmp("Has Last-modified date ; <BODY> inc-two.shtml body  </BODY>",
          "XBitHack full [0554]"
         );
 
+
+### MOD_BUCKETEER+MOD_INCLUDE TESTS
+# we can use mod_bucketeer to create edge conditions for mod_include, since
+# it allows us to create bucket and brigade boundaries wherever we want
+if (have_module 'mod_bucketeer') {
+
+    $expected = "____ _____ _____ ___________________ </table>  ".
+                "##################################1/8</tr> ".
+                "##################################2/8</tr> ".
+                "##################################3/8</tr> ".
+                "##################################4/8</tr> ".
+                "##################################5/8</tr> ".
+                "##################################6/8$docroot</tr> ".
+                "##################################7/8</tr> ".
+                "##################################8/8</tr> ".
+                "@@@@@@@@ @@@@@@@@@@@@@@@@@@@@@@@@";
+
+    $doc = "bucketeer/y.shtml";
+    ok t_cmp($expected,
+             super_chomp(GET_BODY "$dir$doc"),
+             "GET $dir$doc"
+            );
+
+    $expected = "____ ___________________________________".
+                "________________________________________".
+                "___ ____________________________________".
+                "________________________________________".
+                "__________ ___________________ </table>  ".
+                "#####################################</tr> ".
+                "#####################################</tr> ".
+                "#####################################</tr> ".
+                "#####################################</tr> ".
+                "#####################################</tr> ".
+                "#####################################</tr> ".
+                "#####################################</tr> ".
+                "#####################################</tr> ".
+                "@@@@@@@@ @@@@@@@@@@@@@@@@@@@@@@@@";
+
+    for (0..3) {
+        $doc = "bucketeer/y$_.shtml";
+        my ($body) = super_chomp(GET_BODY "$dir$doc");
+        $body =~ s/\002/^B/g;
+        $body =~ s/\006/^F/g;
+        $body =~ s/\020/^P/g;
+        ok t_cmp($expected,
+                 $body,
+                 "GET $dir$doc"
+                );
+    }
+
+    $expected = "[an error occurred while processing this directive]";
+    $doc = "bucketeer/y4.shtml";
+    ok t_cmp($expected,
+             super_chomp(GET_BODY "$dir$doc"),
+             "GET $dir$doc"
+            );
+
+}
+else {
+    for (1..6) {
+        skip "Skipping bucket boundary tests, no mod_bucketeer", 1;
+    }
+}
 
 sub super_chomp {
     my ($body) = shift;

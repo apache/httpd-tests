@@ -142,15 +142,13 @@
 
 <IfModule mod_include.c>
 
+    AddType text/html .shtml
+
     <IfDefine APACHE1>
-        AddType text/html .shtml
         AddHandler server-parsed .shtml
     </IfDefine>
-
     <IfDefine APACHE2>
-        <Files ~ *.shtml>
-            SetOutputFilter INCLUDES
-        </Files>
+        AddOutputFilter INCLUDES .shtml
     </IfDefine>
 
     <Directory @SERVERROOT@/htdocs/modules/include>
@@ -170,6 +168,15 @@
     <Directory @SERVERROOT@/htdocs/modules/include/exec/on>
         Options Includes
     </Directory>
+
+    <IfDefine APACHE2>
+    <IfModule mod_bucketeer.c>
+        <Directory @SERVERROOT@/htdocs/modules/include/bucketeer>
+            SetOutputFilter BUCKETEER
+        </Directory>
+    </IfModule>
+    </IfDefine>
+
 </IfModule>
 
 ##
