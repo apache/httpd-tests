@@ -275,6 +275,13 @@ sub stop {
     my $self = shift;
     my $aborted = shift;
 
+    if (Apache::TestConfig::WIN32) {
+        if ($self->{config}->{win32obj}) {
+            $self->{config}->{win32obj}->Kill(-1);
+            return 1;
+        }
+    }
+
     my $pid = 0;
     my $tries = 3;
     my $tried_kill = 0;
@@ -378,7 +385,21 @@ sub start {
     }
 
     print "$cmd\n";
-    system "$cmd &";
+
+    if (WIN32) {
+        require Win32::Process;
+        my $obj;
+        Win32::Process::Create($obj,
+                               $httpd,
+                               $cmd,
+                               0,
+                               Win32::Process::NORMAL_PRIORITY_CLASS(),
+                               '.') || die Win32::Process::ErrorReport();
+        $config->{win32obj} = $obj;
+    }
+    else {
+        system "$cmd &";
+    }
 
     while ($old_pid and $old_pid == $self->pid) {
         warning "old pid file ($old_pid) still exists\n";
