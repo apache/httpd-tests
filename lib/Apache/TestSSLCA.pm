@@ -23,8 +23,8 @@ my $CA = 'asf';
 my $Config; #global Apache::TestConfig object
 
 my $days     = '-days 365';
-my $cakey    = 'keys/cakey.pem';
-my $cacert   = 'certs/cacert.crt';
+my $cakey    = 'keys/ca.pem';
+my $cacert   = 'certs/ca.crt';
 my $capolicy = '-policy policy_anything';
 my $cacrl    = 'crl/ca-bundle.crl';
 
@@ -215,7 +215,9 @@ sub new_ca {
               $basic_auth_password);
 
     openssl req => "-new -x509 -keyout $cakey -out $cacert $days",
-                   config('cacert');
+                   config('ca');
+
+    export_cert('ca'); #useful for importing into IE
 }
 
 sub new_key {
