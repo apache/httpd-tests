@@ -14,6 +14,8 @@ use File::Spec::Functions qw(catfile);
 use Getopt::Long qw(GetOptions);
 use Config;
 
+use constant STARTUP_TIMEOUT => 300; # secs (good for extreme debug cases)
+
 my @std_run      = qw(start-httpd run-tests stop-httpd);
 my @others       = qw(verbose configure clean help ssl http11);
 my @flag_opts    = (@std_run, @others);
@@ -416,7 +418,11 @@ sub start {
         exit 1 unless $server->start;
     }
     elsif ($opts->{'run-tests'}) {
-        if (!$server->ping) {
+        my $is_up = $server->ping
+            || (exists $self->{opts}->{ping}
+                && $self->{opts}->{ping}  eq 'block'
+                && $server->wait_till_is_up(STARTUP_TIMEOUT));
+        unless ($is_up) {
             error "server is not ready yet, try again.";
             exit;
         }
@@ -635,24 +641,8 @@ sub opt_ping {
         return $exit;
     }
 
-    my $opt = $self->{opts}->{ping} || '';
-    if ($opt eq 'block') {
-        my $wait_secs = 300; # should be enough for extreme debug cases
-        my $start_time = time;
-        my $preamble = "\rwaiting for server $name to come up: ";
-        while (1) {
-            my $delta = time - $start_time;
-            print $preamble, sprintf "%02d:%02d", (gmtime $delta)[1,0];
-            sleep 1;
-            if ($server->ping) {
-                print $preamble, "\rserver $name is now up (waited $delta secs)    \n";
-                last;
-            }
-            elsif ($delta > $wait_secs) {
-                print $preamble, "giving up after $delta secs\n";
-                last;
-            }
-        }
+    if (exists $self->{opts}->{ping} && $self->{opts}->{ping} eq 'block') {
+        $server->wait_till_is_up(STARTUP_TIMEOUT);
     }
     else {
         warning "no server is running on $name";
