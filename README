@@ -1,5 +1,15 @@
 
                   Testing Apache with the Perl Test Harness
+Prerequisites
+-------------
+You'll need to install the CPAN modules listed in:
+Apache-Test/lib/Bundle/ApacheTest.pm
+
+Which are also available in one tarball here:
+http://perl.apache.org/~dougm/httpd-test-bundle-0.01.tar.gz
+
+Note: Crypt::SSLeay requires OpenSSL to be installed (only required
+for t/TEST -ssl): http://www.openssl.org/
 
 Quick Start 
 ----------- 
