@@ -36,6 +36,15 @@ sub verify {
     my($env, $expect, $ne) = @_;
 
     while (my($key, $val) = each %$expect) {
+        if (Apache::TestConfig::WIN32) {
+            #perl uppercases all %ENV keys
+            #which causes SSL_*_DN_Email lookups to fail
+            $key = uc $key;
+        }
+        unless ($ne || $env->{$key}) {
+            print "#$key does not exist\n";
+            $env->{$key} = ""; #prevent use of unitialized value
+        }
         ok $ne ? not exists $env->{$key} : $env->{$key} eq $val;
     }
 }
@@ -45,7 +54,7 @@ sub getenv {
 
     my %env;
 
-    for my $line (split /\n/, $str) {
+    for my $line (split /[\r\n]+/, $str) {
         my($key, $val) = split /\s*=\s*/, $line, 2;
         next unless $key and $val;
         $env{$key} = $val;
