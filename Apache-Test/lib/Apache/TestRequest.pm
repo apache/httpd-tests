@@ -3,7 +3,10 @@ package Apache::TestRequest;
 use strict;
 use warnings FATAL => 'all';
 
-BEGIN { $ENV{PERL_LWP_USE_HTTP_10} = 1; } #default to http/1.0
+BEGIN { 
+    $ENV{PERL_LWP_USE_HTTP_10}   = 1;    # default to http/1.0
+    $ENV{APACHE_TEST_HTTP_09_OK} ||= 0;  # 0.9 responses are ok
+}
 
 use Apache::Test ();
 use Apache::TestConfig ();
@@ -438,7 +441,8 @@ sub lwp_call {
                 $error = "response had no protocol (is LWP broken or something?)";
             }
             if ($1 ne "1.0" && $1 ne "1.1") {
-                $error = "response had protocol HTTP/$1 (headers not sent?)";
+                $error = "response had protocol HTTP/$1 (headers not sent?)"
+                    unless ($1 eq "0.9" && $ENV{APACHE_TEST_HTTP_09_OK});
             }
         }
     }
@@ -1006,6 +1010,13 @@ If the environment variable C<APACHE_TEST_PRETEND_NO_LWP> is set to a
 true value, C<Apache::TestRequest> will pretend that LWP is not
 available so one can test whether the test suite will survive on a
 system which doesn't have libwww-perl installed.
+
+=item APACHE_TEST_HTTP_09_OK
+
+If the environment variable C<APACHE_TEST_HTTP_09_OK> is set to a
+true value, C<Apache::TestRequest> will allow HTTP/0.9 responses
+from the server to proceed.  The default behavior is to die if
+the response protocol is not either HTTP/1.0 or HTTP/1.1.
 
 =back
 

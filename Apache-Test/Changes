@@ -8,6 +8,9 @@ Changes - Apache::Test change logfile
 
 =item 1.08_dev
 
+HTTP/0.9 responses no longer croak, provided $ENV{APACHE_TEST_HTTP_09_OK} 
+is true.  [Geoffrey Young]
+
 Hard-code listen directive to 127.0.0.1, solving problems for people
 with IPv4 & IPv6 address until a better solution is found [Gozer]
 
