@@ -6,6 +6,8 @@ Changes - Apache::Test change logfile
 
 =over 3
 
+=item 1.08_dev
+
 =item 1.07 - Decemeber 22, 2003
 
 allow conditional C module compilation on a more granular level.
