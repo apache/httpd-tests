@@ -81,6 +81,13 @@ sub ACTION_testcover {
     $self->do_system('cover');
 }
 
+sub ACTION_test_config {
+    my $self = shift;
+    $self->do_system($self->perl, $self->_bliblib,
+                     $self->localize_file_path($self->apache_test_script),
+                     '-conf', '-verbose=' . ($self->verbose || 0));
+}
+
 sub _bliblib {
     my $self = shift;
     return (
@@ -101,6 +108,7 @@ sub _cmodules {
     die "The cmodules" . ( $action ne 'all' ? "_$action" : '')
       . " action is not yet implemented";
     # XXX TBD.
+    $self->depends_on('test_config');
     my $start_dir = $self->cwd;
     chdir $self->localize_file_path('c-modules');
     # XXX How do we get Build.PL to be generated instead of Makefile?
