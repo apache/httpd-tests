@@ -61,6 +61,9 @@ run as user nobody:
 run on a different port:
 % t/TEST -Port 8799
 
+run on a different server:
+% t/TEST -servername example.com
+
 configure an httpd other than the default (that apxs figures out)
 % t/TEST -httpd ~/ap/httpd-2.0/httpd
 
@@ -130,10 +133,12 @@ run all test through mod_proxy
 ----------------------------------------------------------------------
 Batch mode:
 
-When running in the batch mode and logging to a file set the
-APACHE_TEST_NO_COLOR=1 env var, to avoid spurious prints, used during
-interactive run.
-
+When running in the batch mode and redirecting STDOUT to a file, this
+state is automagically detected and the no color mode is turned on,
+under which the program generates a minimal output to make the log
+files useful. If this doesn't work and you still get all the mess
+printed during the interactive run, set the APACHE_TEST_NO_COLOR=1 env
+var.
 
 ----------------------------------------------------------------------
 Stress testing:
