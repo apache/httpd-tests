@@ -14,3 +14,31 @@ ExpiresByType image/gif A120
 ExpiresByType image/jpeg A86400
 </Directory>
 </IfModule>
+
+<IfModule mod_mime.c>
+AddLanguage en .en
+AddLanguage fr .fr
+AddLanguage de .de
+AddLanguage fu .fu
+AddHandler type-map .var
+
+<IfModule mod_negotiation.c>
+CacheNegotiatedDocs
+<Directory @SERVERROOT@/htdocs/modules/negotiation/en>
+Options +MultiViews
+LanguagePriority en fr de fu
+</Directory>
+<Directory @SERVERROOT@/htdocs/modules/negotiation/de>
+Options +MultiViews
+LanguagePriority de en fr fu
+</Directory>
+<Directory @SERVERROOT@/htdocs/modules/negotiation/fr>
+Options +MultiViews
+LanguagePriority fr en de fu
+</Directory>
+<Directory @SERVERROOT@/htdocs/modules/negotiation/fu>
+Options +MultiViews
+LanguagePriority fu fr en de
+</Directory>
+</IfModule>
+</IfModule>
