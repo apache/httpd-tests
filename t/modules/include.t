@@ -5,6 +5,8 @@ use Apache::Test;
 use Apache::TestRequest;
 use Apache::TestUtil;
 
+use constant WINFU => Apache::TestConfig::WINFU;
+
 ## mod_include tests
 my ($doc);
 my $dir = "/modules/include/";
@@ -52,6 +54,11 @@ my %test = (
 "exec/on/cmd.shtml"     =>    "pass"
 );
 
+#this test does not work on win32 (<!--#exec cmd="echo pass"-->)
+if (WINFU) {
+    delete $test{'exec/on/cmd.shtml'};
+}
+
 #
 # in addition to $tests, there is 1 GET test, 9 XBitHack tests,
 # and 2 exec cgi tests
@@ -93,6 +100,12 @@ foreach $doc (sort keys %execcgitest) {
     }
 }
 
+if (WINFU) {
+    for (1..9) {
+        skip "Skipping XBitHack tests on this platform", 1;
+    }
+    exit;
+}
 
 ### XBITHACK TESTS
 # test xbithack off
