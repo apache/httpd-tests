@@ -97,12 +97,13 @@
 #define MAX_SEGMENT     32
 #define ONE_WEIGHT      (256-32)
 
+#define WANT_HTTPD_TEST_SPLIT_QS_NUMBERS
+#include "httpd_test_util.c"
+
 static int random_chunk_handler(request_rec *r)
 {
-    const char *args;
-    char *endptr;
-    unsigned int seed;
-    unsigned int count;
+    unsigned int seed = 0;
+    unsigned int count = 0;
     int i;
     char buf[MAX_SEGMENT + 1];
     unsigned int len;
@@ -131,20 +132,13 @@ static int random_chunk_handler(request_rec *r)
         return OK;
     }
 
-    args = r->args;
-    if (!args) {
-error:
+    httpd_test_split_qs_numbers(r, &seed, &count, NULL);
+
+    if (!count) {
         ap_rputs("Must include args! ... "
                  "of the form <code>?seed,count</code>", r);
         return 0;
     }
-
-    seed = strtol(args, &endptr, 0);
-    if (!endptr || *endptr != ',') {
-        goto error;
-    }
-    ++endptr;
-    count = strtol(endptr, &endptr, 0);
 
     srandom(seed); /* XXX: apr-ize */
 
