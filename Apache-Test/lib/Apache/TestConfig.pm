@@ -1090,6 +1090,11 @@ sub find_in_inc {
     return "";
 }
 
+sub prepare_t_conf {
+    my $self = shift;
+    $self->gendir($self->{vars}->{t_conf});
+}
+
 sub generate_httpd_conf {
     my $self = shift;
     my $vars = $self->{vars};
@@ -1098,9 +1103,7 @@ sub generate_httpd_conf {
     $self->generate_types_config;
     $self->generate_index_html;
 
-    for (qw(t_logs t_conf)) {
-        $self->gendir($self->{vars}->{$_});
-    }
+    $self->gendir($vars->{t_logs});
 
     if (my $extra_conf = $self->generate_extra_conf) {
         for my $file (@$extra_conf) {
