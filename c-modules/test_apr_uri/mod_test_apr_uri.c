@@ -286,25 +286,25 @@ static int test_apr_uri_handler(request_rec *r)
     r->content_type = "text/html";              
 
     ap_rputs(
-DOCTYPE_HTML_2_0 "
-<html><body>
-<p>Key:
-<dl>
-<dt>row
-<dd>entry number in the uri_tests array
-<dt>u
-<dd>fields under test
-<dt>expected
-<dd>fields expected in the result
-<dt>status
-<dd>response from parse_uri_components, or 500 if unexpected results
-<dt>input uri
-<dd>the uri given to parse_uri_components
-</dl>
-<p>The remaining fields are the pieces returned from parse_uri_components, and
-the values we expected for each piece (resp.).
-<p>Only failures are displayed.
-<p>
+DOCTYPE_HTML_2_0 "\n\
+<html><body>\n\
+<p>Key:\n\
+<dl>\n\
+<dt>row\n\
+<dd>entry number in the uri_tests array\n\
+<dt>u\n\
+<dd>fields under test\n\
+<dt>expected\n\
+<dd>fields expected in the result\n\
+<dt>status\n\
+<dd>response from parse_uri_components, or 500 if unexpected results\n\
+<dt>input uri\n\
+<dd>the uri given to parse_uri_components\n\
+</dl>\n\
+<p>The remaining fields are the pieces returned from parse_uri_components, and\n\
+the values we expected for each piece (resp.).\n\
+<p>Only failures are displayed.\n\
+<p>\n\
 <table><tr><th>row</th><th>u</th><th>expect</th><th>status</th><th>input uri</th>", r);
 #define HEADER(f) ap_rprintf(r, "<th>" #f "<br>0x%02x</th>", T_##f)
     HEADER(scheme);
