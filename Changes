@@ -8,6 +8,8 @@ Changes - Apache::Test change logfile
 
 =item 1.09-dev
 
+Updated to the new Apache License Version 2.0 [Gozer]
+
 handle cases on Win32 when supplied paths have spaces in their
 names [Stas]
 
