@@ -29,9 +29,6 @@
  * that mod_ssl.h normally would
  */
 
-char *ssl_var_lookup(apr_pool_t *p, server_rec *s, conn_rec *c,
-                     request_rec *r, char *var);
-
 APR_DECLARE_OPTIONAL_FN(char *, ssl_var_lookup,
                         (apr_pool_t *, server_rec *,
                          conn_rec *, request_rec *,
