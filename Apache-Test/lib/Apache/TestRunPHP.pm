@@ -111,7 +111,11 @@ C<httpd> installation you would invoke C<Makefile.PL> as follows
   $ perl Makefile.PL -httpd /my/local/apache/bin/httpd
 
 and C</my/local/apache/bin/httpd> will be propagated throughout the
-rest of the process.
+rest of the process.  note that PHP needs to be active within Apache
+prior to configuring the test framework as shown above, either by 
+virtue of PHP being compiled into the C<httpd> binary statically or
+through an active C<LoadModule> statement within the configuration
+located in C</my/local/apache/conf/httpd.conf>.
 
 now, like with C<Apache::TestRun> and C<Apache::TestRunPerl>, you can
 place client-side Perl test scripts under C<t/>, such as C<t/01basic.t>,
@@ -187,7 +191,8 @@ a PHP script in C<t/response/TestFoo/bar.php> to send some
 results out to the testing engine.  issuing C<make test>
 would start Apache, issue the request to C<bar.php>, generate
 a report, and shut down Apache.  the report would look like 
-something like this
+something like this after running the tests in verbose mode
+(eg C<make test TEST_VERBOSE=1>):
 
   t/php/foo....1..6
   ok 1 - foo is equal to foo
@@ -204,7 +209,6 @@ something like this
   ok 7 - baz is a baz
   FAILED tests 2, 4, 7
           Failed 3/6 tests, 50.00% okay
-  Failed Test Stat Wstat Total Fail  Failed  List of Failed
   Failed Test Stat Wstat Total Fail  Failed  List of Failed
   -------------------------------------------------------------------------------
   t/php/foo.t                6    3  50.00%  2 4 7
