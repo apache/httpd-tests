@@ -248,7 +248,7 @@ sub add_module_config {
 #modules can add their own configuration using __DATA__
 
 my %hooks = map { $_, ucfirst $_ }
-    qw(trans headerparser access authen authz type fixup log);
+    qw(init trans headerparser access authen authz type fixup log);
 $hooks{Protocol} = 'ProcessConnection';
 $hooks{Filter}   = 'OutputFilter';
 
