@@ -2,6 +2,7 @@ package Apache::TestUtil;
 
 use strict;
 use warnings FATAL => 'all';
+
 use File::Find ();
 use File::Path ();
 use Exporter ();
@@ -13,11 +14,11 @@ our @EXPORT  = qw(t_cmp t_write_file t_open_file t_mkdir t_rmtree);
 our %CLEAN = ();
 
 sub t_cmp {
-    my ($expect, $received, $comment) = @_;
+    my ($expected, $received, $comment) = @_;
     print "testing : $comment\n" if defined $comment;
-    print "expected: $expect\n";
-    print "received: $received\n";
-    defined $expect && defined $received && $expect eq $received;
+    print "expected: " . (defined $expected ? $expected : "undef") . "\n";
+    print "received: " . (defined $received ? $received : "undef") . "\n";
+    defined $expected && defined $received && $expected eq $received;
 }
 
 sub t_write_file {
@@ -54,10 +55,17 @@ sub t_rmtree {
 
 END{
 
-    # cleanup first files than dirs
-    map { unlink $_    } grep {-e $_ && -f _ } keys %{ $CLEAN{files} };
-    map { t_rmtree($_) } grep {-e $_ && -d _ } keys %{ $CLEAN{dirs}  };
+    # remove files that were created via this package
+    for (grep {-e $_ && -f _ } keys %{ $CLEAN{files} } ) {
+        print "removing file: $_\n";
+        unlink $_;
+    }
 
+    # remove dirs that were created via this package
+    for (grep {-e $_ && -d _ } keys %{ $CLEAN{dirs} } ) {
+        print "removing dir tree: $_\n";
+        t_rmtree($_);
+    }
 }
 
 1;
@@ -92,13 +100,13 @@ directories and files at the end of the test.
 
 =head1 FUNCTIONS
 
-=over 
+=over
 
 =item t_cmp()
 
-  t_cmp($expect, $received, $comment);
+  t_cmp($expected, $received, $comment);
 
-t_cmp() prints the values of I<$comment>, I<$expect> and
+t_cmp() prints the values of I<$comment>, I<$expected> and
 I<$received>. e.g.:
 
   t_cmp(1, 1, "1 == 1?");
@@ -109,12 +117,13 @@ prints:
   expected: 1
   received: 1
 
-then it returns the result of comparison of the I<$expect> and the
+then it returns the result of comparison of the I<$expected> and the
 I<$received> variables. Usually, the return value of this function is
 fed directly to the ok() function, like this:
 
   ok t_cmp(1, 1, "1 == 1?");
 
+the third argument (I<$comment>) is optional, but a nice to use.
 
 =item t_write_file()
 
