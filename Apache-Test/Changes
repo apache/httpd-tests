@@ -8,6 +8,13 @@ Changes - Apache::Test change logfile
 
 =item 1.10-dev
 
+make the project's test suite relocatable, handling the case where
+after Apache-Test configuration was created and not cleaned up before
+the directory was moved. This is especially important for those cases
+where users try to run 'make test' as root from /root, A-T tells them
+that they can't do that (because of the perms) and suggests to try
+again, afer moving the whole project under /tmp or similar. [Stas]
+
 When running as 'root' make the client side drop the root permissions
 and run with the same permissions as the server side
 (e.g. nobody). This is needed in case the client side creates any
