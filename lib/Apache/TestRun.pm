@@ -610,6 +610,7 @@ sub scan_core {
     my $times = 0;
 
     finddepth(sub {
+        return unless -f $_;
         return unless /$core_pat/o;
         my $core = "$File::Find::dir/$_";
         if (exists $core_files{$core} && $core_files{$core} == -M $core) {
@@ -634,6 +635,7 @@ sub warn_core {
     %core_files = (); # reset global
 
     finddepth(sub {
+        return unless -f $_;
         return unless /$core_pat/o;
         my $core = "$File::Find::dir/$_";
         info "consider removing an old $core file before running tests";
