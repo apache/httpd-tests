@@ -5,11 +5,12 @@ use warnings FATAL => 'all';
 
 use Test qw(ok skip);
 use Exporter ();
+use Config;
 use Apache::TestConfig ();
 
 our @ISA = qw(Exporter);
 our @EXPORT = qw(ok skip sok plan have_lwp have_http11 have_cgi
-                 have_module have_apache);
+                 have_module have_apache have_perl);
 our $VERSION = '0.01';
 
 our %SubTests;
@@ -130,6 +131,15 @@ sub have_apache {
     my $version = shift;
     my $cfg = Apache::Test::config();
     $cfg->{server}->{rev} == $version;
+}
+
+sub have_perl {
+    my $thing = shift;
+    #XXX: $thing could be a version
+    for my $key ($thing, "use$thing") {
+        return 1 if $Config{$key} and $Config{$key} eq 'define';
+    }
+    return 0;
 }
 
 package Apache::TestToString;
