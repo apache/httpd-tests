@@ -1397,6 +1397,16 @@ sub need_reconfiguration {
         }
     }
 
+    # if special env variables are used (since they can change any time)
+    # XXX: may be we could check whether they have changed since the
+    # last run and thus avoid the reconfiguration?
+    {
+        my $passenv = passenv();
+        if (my @env_vars = grep { $ENV{$_} } keys %$passenv) {
+            push @reasons, "environment variables (@env_vars) are set";
+        }
+    }
+
     return @reasons;
 }
 
