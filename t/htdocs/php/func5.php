@@ -1,6 +1,6 @@
 <?php
 
-$file = "$SCRIPT_FILENAME.ran";
+$file = $argv[0];
 
 function foo()
 {
