@@ -2,6 +2,7 @@ use strict;
 use warnings FATAL => 'all';
 
 use Apache::Test;
+use Apache::TestUtil;
 use Apache::TestRequest;
 use Apache::TestConfig ();
 
@@ -21,9 +22,8 @@ my $vars   = Apache::TestRequest::vars();
 local $vars->{port} = $config->port('mod_vhost_alias');
 
 ## test environment setup ##
-$config->gendir($root);
+t_mkdir($root);
 
-my @d = ();
 foreach (@vh) {
     my @part = split /\./, $_;
     my $d = "$root/";
@@ -35,7 +35,7 @@ foreach (@vh) {
     } else {
         $d .= "_";
     }
-    $config->gendir($d);
+    t_mkdir($d);
 
     $d .= "/";
     ## %1.4 ##
@@ -44,7 +44,7 @@ foreach (@vh) {
     } else {
         $d .= substr($part[0], 3, 1);
     }
-    $config->gendir($d);
+    t_mkdir($d);
 
     $d .= "/";
     ## %-2 ##
@@ -53,7 +53,7 @@ foreach (@vh) {
     } else {
         $d .= "_";
     }
-    $config->gendir($d);
+    t_mkdir($d);
 
     $d .= "/";
     ## %2+ ##
@@ -61,18 +61,14 @@ foreach (@vh) {
         $d .= $part[$i];
         $d .= "." if $part[$i+1];
     }
-    $config->gendir($d);
-
-    ## save directory for later deletion ##
-    push @d, $d;
+    t_mkdir($d);
 
     ## write index.html for the VirtualDocumentRoot ##
-    write_file("$d$url",$_);
+    t_write_file("$d$url",$_);
 
     ## create directories for VirtualScriptAlias tests ##
     $d = "$root/$_";
-    $config->gendir($d);
-    push @d, $d;
+    t_mkdir($d);
     $d .= "/";
 
     ## write cgi ##
@@ -83,61 +79,27 @@ echo
 echo $cgi_string $_
 SCRIPT
 
-    write_file("$d$cgi_name",$cgi_content);
+    t_write_file("$d$cgi_name",$cgi_content);
     chmod 0755, "$d$cgi_name";
 
 }
 
-
 ## run tests ##
 foreach (@vh) {
     ## test VirtalDocumentRoot ##
-    my $expected = $_;
-    my $actual = GET_BODY $url, Host => $_;
-    print "[VirtalDocumentRoot test]\n";
-    print "expected: ->$expected<-\nactual  : ->$actual<-\n";
-    ok $actual eq $expected;
+    ok t_cmp($_,
+             GET_BODY($url, Host => $_),
+             "VirtalDocumentRoot test"
+            );
 
     ## test VirtualScriptAlias ##
     my $cgi_uri = "/cgi-bin/$cgi_name";
-    $expected = "$cgi_string $_";
-    $actual = GET_BODY $cgi_uri, Host => $_;
+    my $actual  = GET_BODY $cgi_uri, Host => $_;
     chomp $actual;
-    print "[VirtualScriptAlias test]\n";
-    print "expected: ->$expected<-\nactual  : ->$actual<-\n";
-    ok $actual eq $expected;
+    ok t_cmp("$cgi_string $_",
+             $actual,
+             "VirtualScriptAlias test"
+            );
 }
 
-## clean up ##
-foreach (@d) {
-    unlink "$_/index.html" if -e "$_/index.html";
-    unlink "$_/$cgi_name" if -e "$_/$cgi_name";
 
-    my @del = ();
-    my $dir = '';
-    foreach my $sd (split /\//, $_) {
-        $dir .= "$sd/";
-        next unless $dir =~ /^htdocs\/modules\/vhost_alias\/\w+/;
-
-        push(@del, $dir);
-    }
-
-    while (1) {
-        for (my $i = 0; $i < @del;$i++) {
-            splice(@del, $i, 1)
-                if defined $del[$i] and rmdir $del[$i];
-        }
-
-        last unless @del;
-
-    }
-}
-rmdir $root;
-
-sub write_file{
-    my $file = shift;
-    open my $fh, ">$file" or die "can't open $file: $!";
-    print "writing $file\n";
-    print $fh join '', @_ if @_;
-    close $fh;
-}
