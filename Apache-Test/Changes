@@ -6,6 +6,8 @@ Changes - Apache::Test change logfile
 
 =over 3
 
+=item 1.06-dev
+
 =item 1.05 - October 23, 2003
 
 core scanning changes [Stas]
