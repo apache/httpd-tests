@@ -198,8 +198,12 @@ sub config {
     $config;
 }
 
+use constant PASSWORD_CLEARTEXT =>
+    Apache::TestConfig::WIN32 || Apache::TestConfig::NETWARE;
+
 #http://www.modssl.org/docs/2.8/ssl_reference.html#ToC21
-my $basic_auth_password = 'xxj31ZMTZzkVA';
+my $basic_auth_password =
+    PASSWORD_CLEARTEXT ? 'password': 'xxj31ZMTZzkVA';
 my $digest_auth_hash    = '$1$OXLyS...$Owx8s2/m9/gfkcRVXzgoE/';
 
 sub new_ca {
