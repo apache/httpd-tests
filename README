@@ -7,6 +7,9 @@ see Makefile.PL for howto enable 'make test'
 
 see t/TEST as an example test harness
 
+For an extensive documentation see
+modperl-2.0/docs/src/devel/writing_tests/writing_tests.pod.
+
 see t/*.t for example tests
 
 if the file t/conf/httpd.conf.in exists, it will be used instead of
@@ -45,16 +48,16 @@ reconfigure the server, do not run tests
 % t/TEST -configure
 
 run as user nobody:
-% t/TEST User nobody
+% t/TEST -User nobody
 
 run on a different port:
-% t/TEST Port 8799
+% t/TEST -Port 8799
 
 configure an httpd other than the default (that apxs figures out)
-% t/TEST httpd ~/ap/httpd-2.0/httpd
+% t/TEST -httpd ~/ap/httpd-2.0/httpd
 
 switch to another apxs
-% t/TEST apxs ~/ap/httpd-2.0-prefork/bin/apxs
+% t/TEST -apxs ~/ap/httpd-2.0-prefork/bin/apxs
 
 turn on tracing
 % t/TEST -preamble "PerlTrace all"
@@ -69,19 +72,19 @@ HEAD (no url defaults to /)
 % t/TEST -head
 
 GET url with authentication credentials
-% t/TEST -get /server-info username dougm password foo
+% t/TEST -get /server-info -username dougm -password foo
 
 POST url (read content from string)
-% t/TEST -post /TestApache::post content 'name=dougm&company=covalent'
+% t/TEST -post /TestApache::post -content 'name=dougm&company=covalent'
 
 POST url (read content from stdin)
-% t/TEST -post /TestApache::post content - < foo.txt
+% t/TEST -post /TestApache::post -content - < foo.txt
 
 POST url (generate a body of data 1024 bytes in length)
-% t/TEST -post /TestApache::post content x1024
+% t/TEST -post /TestApache::post -content x1024
 
 POST url (only print headers, e.g. useful to just check Content-length)
-% t/TEST -post -head /TestApache::post content x100000
+% t/TEST -post -head /TestApache::post -content x100000
 
 GET url (only print headers, e.g. useful to just check Content-length)
 % t/TEST -get -head /foo
