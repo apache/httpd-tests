@@ -6,7 +6,7 @@ Changes - Apache::Test change logfile
 
 =over 3
 
-=item 1.20-dev
+=item 1.20 - January 22, 2005
 
 instead of trying to match various custom server name variations (each
 vendor seems to replace "Apache" in 'httpd -v' with their own name),
