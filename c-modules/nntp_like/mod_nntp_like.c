@@ -101,7 +101,14 @@ static apr_status_t nntp_like_send_welcome(conn_rec *c)
 
 static int nntp_like_pre_connection(conn_rec *c, void *csd)
 {
-    apr_socket_timeout_set(csd, c->base_server->keep_alive_timeout);
+    nntp_like_srv_cfg_t *cfg =
+        ap_get_module_config(c->base_server->module_config,
+                             &nntp_like_module);
+
+    if (cfg->enabled) {
+        apr_socket_timeout_set(csd, c->base_server->keep_alive_timeout);
+    }
+
     return DECLINED;
 }
 
