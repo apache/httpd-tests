@@ -964,7 +964,10 @@ sub generate_extra_conf {
 sub sslca_can {
     my($self, $check) = @_;
 
-    return 0 unless $self->{modules}->{ $self->{vars}->{ssl_module} };
+    my $vars = $self->{vars};
+    return 0 unless $self->{modules}->{ $vars->{ssl_module} };
+    return 0 unless -d "$vars->{t_conf}/ssl";
+
     require Apache::TestSSLCA;
 
     if ($check) {
