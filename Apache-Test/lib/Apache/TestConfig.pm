@@ -553,8 +553,7 @@ sub genfile {
 }
 
 # gen + write file
-sub writefile{
-
+sub writefile {
     my($self, $file, $content, $warn) = @_;
 
     my $name = abs2rel $file, $self->{vars}->{t_dir};
