@@ -350,6 +350,25 @@ sub lwp_debug {
     }
 }
 
+sub lwp_trace {
+    my $r = shift;
+
+    unless ($r->request->protocol) {
+        #lwp always sends a request, but never sets
+        #$r->request->protocol, happens deeper in the
+        #LWP::Protocol::http* modules
+        my $proto = user_agent_request_num($r) ? "1.1" : "1.0";
+        $r->request->protocol("HTTP/$proto");
+    }
+
+    my $want_body = $DebugLWP > 1;
+    print "#lwp request:\n",
+      lwp_as_string($r->request, $want_body);
+
+    print "#server response:\n",
+      lwp_as_string($r, $want_body);
+}
+
 sub lwp_call {
     my($name, $shortcut) = (shift, shift);
 
@@ -371,22 +390,7 @@ sub lwp_call {
     }
 
     if ($DebugLWP and not $shortcut) {
-        my($url, @rest) = @_;
-
-        unless ($r->request->protocol) {
-            #lwp always sends a request, but never sets
-            #$r->request->protocol, happens deeper in the
-            #LWP::Protocol::http* modules
-            my $proto = user_agent_request_num($r) ? "1.1" : "1.0";
-            $r->request->protocol("HTTP/$proto");
-        }
-
-        my $want_body = $DebugLWP > 1;
-        print "#lwp request:\n",
-              lwp_as_string($r->request, $want_body);
-
-        print "#server response:\n",
-              lwp_as_string($r, $want_body);
+        lwp_trace($r);
     }
 
     die $error if $error;
