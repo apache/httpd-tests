@@ -132,7 +132,6 @@ EOE
 #so Perl's Test.pm can be run inside mod_perl
 sub test_pm_refresh {
     if (@testmore) {
-        
         Test::Builder->reset;
 
         Test::Builder->output(\*STDOUT);
