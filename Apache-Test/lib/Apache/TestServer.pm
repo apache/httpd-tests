@@ -228,7 +228,7 @@ sub ping {
 sub failed_msg {
     my $self = shift;
     my $log = $self->{config}->error_log(1);
-    print "@_ (please examine $log)\n";
+    error "@_ (please examine $log)";
 }
 
 sub start {
