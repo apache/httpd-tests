@@ -32,6 +32,9 @@ httpd.conf as a mod_perl file (PerlRequire)
 some examples of what i find handy:
 see TEST -help for more options
 
+test verbosely
+% t/TEST -verbose
+
 start the server
 % t/TEST -start
 
@@ -116,6 +119,14 @@ run .t test under the perl debugger
 
 run .t test under the perl debugger (nonstop mode, output to t/logs/perldb.out)
 % t/TEST -d perl=nostop t/modules/access.t
+
+control how much noise Apache::Test should produce. to print all the
+debug messages: 
+% t/TEST -trace=debug
+to print only warnings and higher trace levels:
+% t/TEST -trace=warning
+the available modes are:
+  emerg alert crit error warning notice info debug
 
 turn on -v and LWP trace (1 is the default) mode in Apache::TestRequest
 % t/TEST -d lwp t/modules/access.t
