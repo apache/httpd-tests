@@ -37,7 +37,7 @@ my $server_dn = dn_oneline(\%server_dn);
 my %server_i_dn = %client_i_dn;
 my $server_i_dn = $client_i_dn;
 
-my $cert_datefmt = '^\w{3} \d{2} \d{2}:\d{2}:\d{2} \d{4} GMT$';
+my $cert_datefmt = '^\w{3} {1,2}\d{1,2} \d{2}:\d{2}:\d{2} \d{4} GMT$';
 
 while (<DATA>) {
     chomp;
