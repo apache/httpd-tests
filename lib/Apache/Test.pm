@@ -682,13 +682,13 @@ Requires mod_cgi or mod_cgid to be installed.
 
   plan tests => 5, need_php;
 
-Requires mod_php4 or mod_php5 to be installed.
+Requires a PHP module to be installed (version 4 or 5).
 
 =item need_php4
 
-    plan tests => 5, need_php4;
+  plan tests => 5, need_php4;
 
-Requires mod_php4 to be installed.
+Requires a PHP version 4 module to be installed.
 
 =item need_apache
 
@@ -815,7 +815,7 @@ at once. All requirements must be satisfied.
 need()'s argument is a list of things to test. The list can include
 scalars, which are passed to need_module(), and hash references. If
 hash references are used, the keys, are strings, containing a reason
-for a failure to satisfy this particular entry, the valuees are the
+for a failure to satisfy this particular entry, the values are the
 condition, which are satisfaction if they return true. If the value is
 0 or 1, it used to decide whether the requirements very satisfied, so
 you can mix special C<need_*()> functions that return 0 or 1. For
@@ -830,7 +830,7 @@ at the time of check and its return value is used to check the
 condition. If the condition check fails, the provided (in a key)
 reason is used to tell user why the test was skipped.
 
-In the presented example, we require the presense of the C<LWP> Perl
+In the presented example, we require the presence of the C<LWP> Perl
 module, C<mod_cgid>, that we run under perl E<gt>= 5.7.3 on Win32.
 
 It's possible to put more than one requirement into a single hash
