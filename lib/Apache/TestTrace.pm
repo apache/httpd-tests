@@ -3,8 +3,6 @@ package Apache::TestTrace;
 use strict;
 use warnings FATAL => 'all';
 
-use Apache::TestConfig ();
-
 use Exporter ();
 use vars qw(@Levels @Utils @Subs @ISA @EXPORT $VERSION $Level $LogFH);
 
@@ -24,10 +22,11 @@ $Level = undef;
 $LogFH = \*STDERR;
 
 # private data
+use constant COLOR   => ($ENV{APACHE_TEST_COLOR} && -t STDOUT) ? 1 : 0;
 use constant HAS_COLOR  => eval {
     #XXX: another way to color WINFU terms?
     !(grep { $^O eq $_ } qw(MSWin32 cygwin NetWare)) and
-    Apache::TestConfig::COLOR and require Term::ANSIColor;
+    COLOR and require Term::ANSIColor;
 };
 use constant HAS_DUMPER => eval { require Data::Dumper;    };
 
