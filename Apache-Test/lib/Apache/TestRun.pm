@@ -138,7 +138,7 @@ sub die_on_invalid_args {
     # at this stage $self->{argv} should be empty
     my @invalid_argv = @{ $self->{argv} };
     if (@invalid_argv) {
-        error "unknown opts or test names: @invalid_argv";
+        error "unknown opts or test names: @invalid_argv\n-help will list options\n";
         exit_perl 0;
     }
 
