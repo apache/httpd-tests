@@ -1,4 +1,4 @@
-package Apache::TestConfig;
+package Apache::TestConfig; #not TestConfigC on purpose
 
 use strict;
 use warnings FATAL => 'all';
@@ -153,6 +153,8 @@ sub cmodules_httpd_conf {
 
 sub cmodules_clean {
     my $self = shift;
+
+    return unless $self->{cmodules_dir};
 
     $self->cmodules_make('clean');
 
