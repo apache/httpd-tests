@@ -284,6 +284,8 @@ sub configure_apxs {
 
     return unless $self->{APXS};
 
+    $self->{APXS} =~ s{/}{\\}g if WIN32;
+
     my $vars = $self->{vars};
 
     $vars->{bindir}   ||= $self->apxs('BINDIR', 1);

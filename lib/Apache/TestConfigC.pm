@@ -9,6 +9,8 @@ use Apache::TestConfigPerl ();
 use Apache::TestTrace;
 use File::Find qw(finddepth);
 
+use constant WIN32 => Apache::TestConfig::WIN32;
+
 sub cmodule_find {
     my($self, $mod) = @_;
 
@@ -76,7 +78,8 @@ MAKE = $Config{make}
 EOF
 }
 
-my %lib_dir = (1 => "", 2 => ".libs/");
+my %lib_dir = WIN32 ? (1 => "", 2 => "") :
+    (1 => "", 2 => ".libs/");
 
 sub cmodules_build_so {
     my($self, $name) = @_;
@@ -126,6 +129,13 @@ sub cmodules_write_makefiles {
 }
 
 sub cmodules_write_makefile {
+    my ($self, $mod) = @_;
+    my $write = \&{"cmodules_write_makefile_$^O"};
+    $write = \&cmodules_write_makefile_default unless defined &$write;
+    $write->($self, $mod);
+}
+
+sub cmodules_write_makefile_default {
     my($self, $mod) = @_;
 
     my $dversion = $self->server->dversion;
@@ -147,6 +157,35 @@ $lib: $name.c
 
 clean:
 	-rm -rf $name.o $name.lo $name.slo $name.la .libs
+EOF
+
+    close $fh or die "close $makefile: $!";
+}
+
+sub cmodules_write_makefile_MSWin32 {
+    my($self, $mod) = @_;
+
+    my $dversion = $self->server->dversion;
+    my $name = $mod->{name};
+    my $makefile = "$mod->{dir}/Makefile";
+    debug "writing $makefile";
+
+    my $lib = $self->cmodules_build_so($name);
+    my $extras = ' -llibhttpd -p ';
+    my $goners = join ' ', (map {$name . '.' . $_} qw(exp lib so lo));
+
+    my $fh = Symbol::gensym();
+    open $fh, ">$makefile" or die "open $makefile: $!";
+
+    print $fh <<EOF;
+APXS=$self->{APXS}
+all: $lib
+
+$lib: $name.c
+	\$(APXS) $dversion -I$self->{cmodules_dir} $extras -c $name.c
+
+clean:
+	-erase $goners
 EOF
 
     close $fh or die "close $makefile: $!";
