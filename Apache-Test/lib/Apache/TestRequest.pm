@@ -758,7 +758,7 @@ array and allow redirects if the array contains more than one value or
 if there is only one value and that value is not "POST":
 
   # Always allow redirection.
-  my $redir = have_lwp ? [qw(GET HEAD POST)] : 1;
+  my $redir = have_lwp() ? [qw(GET HEAD POST)] : 1;
   Apache::TestRequest::user_agent(reset => 1,
                                   requests_redirectable => $redir);
 
