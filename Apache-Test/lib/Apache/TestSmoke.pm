@@ -7,11 +7,14 @@ use Apache::Test ();
 use Apache::TestConfig ();
 use Apache::TestTrace;
 
+use Apache::TestHarness ();
 use Apache::TestRun (); # for core scan functions
 
 use Getopt::Long qw(GetOptions);
 use File::Spec::Functions qw(catfile);
 use FindBin;
+use POSIX ();
+use Symbol ();
 
 #use constant DEBUG => 1;
 
@@ -27,7 +30,7 @@ use constant MAX_REDUCTION_TRIES => 50;
 
 my @num_opts  = qw(times iterations);
 my @string_opts  = qw(order report);
-my @flag_opts = qw(help);
+my @flag_opts = qw(help verbose bug_mode);
 
 my %order = map {$_ => 1} qw(random repeat rotate);
 
@@ -40,6 +43,10 @@ my %usage = (
                         ' (default: random)',
    'report=FILENAME' => 'save report in a filename' .
                         ' (default: smoke-report-<date>.txt)',
+   'verbose[=1]'     => 'verbose output' .
+                        ' (default: 0)',
+   'bug_mode'        => 'bug report mode' .
+                        ' (default: 0)',
 );
 
 sub new {
@@ -49,7 +56,7 @@ sub new {
         seen    => {}, # seen sequences and tried them md5 hash
         results => {}, # final reduced sequences md5 hash
         smoking_completed         => 0,
-        start_with_tests          => [],
+        tests                     => [],
         total_iterations          => 0,
         total_reduction_attempts  => 0,
         total_reduction_successes => 0,
@@ -63,8 +70,9 @@ sub new {
 
     chdir "$FindBin::Bin/..";
 
-    $self->{times} = $opts->{times} || DEFAULT_TIMES;
-    $self->{order} = $opts->{order} || 'random';
+    $self->{times}   = $opts->{times}   || DEFAULT_TIMES;
+    $self->{order}   = $opts->{order}   || 'random';
+    $self->{verbose} = $opts->{verbose} || 0;
 
     # it doesn't make sense to run a known sequence more than once
     if ($self->{order} eq 'random') {
@@ -75,13 +83,48 @@ sub new {
         $self->{run_iter} = 1;
     }
 
-    $self->{base_command}    = "t/TEST";
-    $self->{first_time_args} = "-order=$self->{order} -times=$self->{times}";
+    # this is like 'make test' but produces an output to be used in
+    # the bug report
+    if ($opts->{bug_mode}) {
+        $self->{bug_mode} = 1;
+        $self->{run_iter} = 1;
+        $self->{times}    = 1;
+        $self->{verbose}  = 1;
+        $self->{order}    = 'rotate';
+        $self->{trace}    = 'debug';
+    }
 
-    $self->{start_command} = join " ",
-        $self->{base_command},
-        $self->{first_time_args},
-        @{ $self->{start_with_tests} };
+    # server is run from under t/
+    Apache::TestHarness->chdir_t;
+
+    # specific tests end up in $self->{tests} and $self->{subtests};
+    # and get removed from $self->{argv}
+    $self->Apache::TestRun::split_test_args();
+
+    my $test_opts = {
+        #verbose  => $self->{verbose},
+        tests    => $self->{tests},
+        times    => $self->{times},
+        order    => $self->{order},
+        subtests => $self->{subtests} || [],
+    };
+
+    @{ $self->{tests} } = $self->get_tests($test_opts);
+
+    $self->{base_command} = "./TEST";
+
+    # options common to all
+    $self->{base_command} .= " -verbose" if $self->{verbose};
+
+    # options specific to the startup
+    $self->{start_command} = "$self->{base_command} -start";
+    $self->{start_command} .= " -trace=" . $self->{trace} if $self->{trace};
+
+    # options specific to the run
+    $self->{run_command} = "$self->{base_command} -run";
+
+    # options specific to the stop
+    $self->{stop_command} = "$self->{base_command} -stop";
 
     $self;
 }
@@ -111,12 +154,17 @@ sub getopts {
         exit;
     }
 
-    # copy ARGV away
-    push @{ $self->{start_with_tests} }, @ARGV if @ARGV;
-
     # min
     $self->{opts} = \%opts;
+
+    $self->{argv} = [@ARGV];
 }
+
+# XXX: need proper sub-classing
+# from Apache::TestHarness
+sub skip      { Apache::TestHarness::skip(@_); }
+sub prune     { Apache::TestHarness::prune(@_); }
+sub get_tests { Apache::TestHarness::get_tests(@_);}
 
 sub install_sighandlers {
     my $self = shift;
@@ -135,7 +183,6 @@ END {
     };
 }
 
-
 sub run {
     my($self) = shift;
 
@@ -147,9 +194,18 @@ sub run {
     $self->install_sighandlers;
 
     $self->report_start();
-    my $iter = 0;
-    while ($iter++ < $self->{run_iter}) {
-        $self->run_iter($iter);
+
+    if ($self->{bug_mode}) {
+        # 'make test', but useful for bug reports
+        $self->run_bug_mode();
+    }
+    else {
+         # normal smoke
+        my $iter = 0;
+        while ($iter++ < $self->{run_iter}) {
+            my $last = $self->run_iter($iter);
+            last if $last;
+        }
     }
     $self->{smoking_completed} = 1;
     $self->report_finish();
@@ -157,7 +213,7 @@ sub run {
 }
 
 sub sep {
-    my ($char, $title) = @_;
+    my($char, $title) = @_;
     my $width = 60;
     if ($title) {
         my $side = int( ($width - length($title) - 2) / 2);
@@ -169,28 +225,118 @@ sub sep {
     }
 }
 
+my %log_files = ();
+use constant FH  => 0;
+use constant POS => 1;
+sub logs_init {
+    my($self, @log_files) = @_;
+
+    for my $path (@log_files) {
+        my $fh = Symbol::gensym();
+        open $fh, "<$path" or die "Can't open $path: $!";
+        seek $fh, 0, POSIX::SEEK_END();
+        $log_files{$path}[FH]  = $fh;
+        $log_files{$path}[POS] = tell $fh;
+    }
+}
+
+sub logs_end {
+    for my $path (keys %log_files) {
+        close $log_files{$path}[FH];
+    }
+}
+
+sub log_diff {
+    my($self, $path) = @_;
+
+    my $log = $log_files{$path};
+    die "no such log file: $path" unless $log;
+
+    my $fh = $log->[FH];
+    # no checkpoints were made yet?
+    unless (defined $log->[POS]) {
+        seek $fh, 0, POSIX::SEEK_END();
+        $log->[POS] = tell $fh;
+        return '';
+    }
+
+    seek $fh, $log->[POS], POSIX::SEEK_SET(); # not really needed
+    local $/; # slurp mode
+    my $diff = <$fh>;
+    seek $fh, 0, POSIX::SEEK_END(); # not really needed
+    $log->[POS] = tell $fh;
+
+    return $diff || '';
+}
+
+# this is a special mode, which really just runs 't/TEST -start;
+# t/TEST -run; t/TEST -stop;' but it runs '-run' separately for each
+# test, and checks whether anything bad has happened after the run 
+# of each test (i.e. either a test has failed, or a test may be successful,
+# but server may have dumped a core file, we detect that).
+sub run_bug_mode {
+    my($self) = @_;
+
+    my $iter = 0;
+
+    warning "running t/TEST in the bug report mode";
+
+    my $reduce_iter = 0;
+    my @good = ();
+
+    # first time run all tests, or all specified tests
+    my @tests = @{ $self->{tests} }; # copy
+    my $bad = $self->run_test($iter, $reduce_iter, \@tests, \@good);
+    $self->{total_iterations}++;
+
+}
+
+
+# returns true if for some reason no more iterations should be made
 sub run_iter {
     my($self, $iter) = @_;
 
+    my $stop_now = 0;
     my $reduce_iter = 0;
     my @good = ();
     warning "\n" . sep("-");
     warning sprintf "[%03d-%02d-%02d] trying all tests $self->{times} times",
         $iter, $reduce_iter, 0;
 
-    my $command = $self->{start_command};
-
-    # first time run all tests (so we don't specify them)
-    my $bad = $self->run_test($iter, $reduce_iter, $command, \@good);
+    # first time run all tests, or all specified tests
+    my @tests = @{ $self->{tests} }; # copy 
+    my $bad = $self->run_test($iter, $reduce_iter, \@tests, \@good);
     unless ($bad) {
         $self->{total_iterations}++;
-        return;
+        return $stop_now;
     }
-    error "recorded a positive failure, will try to minimize the input now";
+    error "recorded a positive failure ('$bad'), " .
+        "will try to minimize the input now";
+
+    my $command = $self->{base_command};
+
+    # does the test fail on its own
+    {
+        $reduce_iter++;
+        warning sprintf "[%03d-%02d-%02d] trying '$bad' on its own",
+            $iter, $reduce_iter, 1;
+        my @good = ();
+        my @tests = ($bad);
+        my $bad = $self->run_test($iter, $reduce_iter, \@tests, \@good);
+        # if a test is failing on its own there is no point to
+        # continue looking for other sequences
+        if ($bad) {
+            $stop_now = 1;
+            $self->{total_iterations}++;
+            unless ($self->sequence_seen($self->{results}, [@good, $bad])) {
+                $self->report_success($iter, $reduce_iter, "$command $bad", 1);
+            }
+            return $stop_now;
+        }
+    }
 
     # positive failure
     my $ok_tests = @good;
-    $command = $self->{base_command};
     my $reduction_success = 0;
     my $done = 0;
     while (@good > 1) {
@@ -207,12 +353,11 @@ sub run_iter {
                 last;
             }
 
-            my $try_command = "$command @try $bad";
             warning sprintf "\n[%03d-%02d-%02d] trying %d tests",
                 $iter, $reduce_iter, $tries, scalar(@try);
             my @ok = ();
-            my $new_bad = $self->run_test($iter, $reduce_iter,
-                                          $try_command, \@ok);
+            my @tests = (@try, $bad);
+            my $new_bad = $self->run_test($iter, $reduce_iter, \@tests, \@ok);
             if ($new_bad) {
                 # successful reduction
                 $reduction_success++;
@@ -248,6 +393,7 @@ sub run_iter {
 
     $self->{total_iterations}++;
 
+    return $stop_now;
 }
 
 # my $sub = $self->reduce_stream(\@items);
@@ -312,31 +458,172 @@ sub sequence_seen {
 }
 
 sub run_test {
-    my($self, $iter, $count, $command, $ra_ok) = @_;
+    my($self, $iter, $count, $tests, $ra_ok) = @_;
     my $bad = '';
+    my $ra_nok = [];
 
-    warning $command;
+    #warning "$self->{base_command} @$tests";
 
     #$SIG{PIPE} = 'IGNORE';
     $SIG{PIPE} = sub { die "pipe broke" };
-    open my $pipe, "$command 2>&1|" or die "cannot fork: $!";
-    my $oldfh = select $pipe; $| = 1; select $oldfh;
 
-    while (my $t = <$pipe>) {
-        next unless $t =~ /^(\S+?)\.+(ok|FAILED)/;
-        $self->{total_tests_run}++;
-        push(@$ra_ok, $1), next if $2 eq 'ok';
-
-        # failure
-        $bad = $1;
-#error "$1: $2";
-        last;
+    # start server
+    {
+        my $command = $self->{start_command};
+        open my $pipe, "$command 2>&1|" or die "cannot fork: $!";
+        my $oldfh = select $pipe; $| = 1; select $oldfh;
+        # XXX: check startup success?
+        my $started_ok = 0;
+        my $log = '';
+        while (my $t = <$pipe>) {
+            $started_ok = 1 if $t =~ /started/;
+            $log .= $t;
+        }
+        close $pipe;
+        unless ($started_ok) {
+            error "failed to start server\n $log";
+            exit 1;
+        }
     }
-    # it's normal for $command to exit with a failure status if tests
-    # fail, so we don't die/report it
-    close $pipe; 
+
+    my $t_logs  = $self->{test_config}->{vars}->{t_logs};
+    my @log_files = map { catfile $t_logs, $_ } qw(error_log access_log);
+    $self->logs_init(@log_files);
+
+    # run tests
+    {
+        my $command = $self->{run_command};
+
+        my $max_len = 1;
+        for my $test (@$tests) {
+            $max_len = length $test if length $test > $max_len;
+        }
+
+        for my $test (@$tests) {
+            (my $test_name = $test) =~ s/\.t$//;
+            my $fill = "." x ($max_len - length $test_name);
+            $self->{total_tests_run}++;
+
+            open my $pipe, "$command $test 2>&1|" or die "cannot fork: $!";
+            my $oldfh = select $pipe; $| = 1; select $oldfh;
+
+            my $ok = 0;
+            my $log = '';
+            while (<$pipe>) {
+                $log .= $_;
+
+                $ok = 1 if /All tests successful/;
+            }
+            # it's normal for $command to exit with a failure status if tests
+            # fail, so we don't die/report it
+            close $pipe;
+
+            my @core_files_msg = $self->Apache::TestRun::scan_core_incremental;
+
+            # if the test has caused core file(s) it's not ok
+            $ok = 0 if @core_files_msg;
+
+            if ($ok) {
+                push @$ra_ok, $test;
+                if ($self->{verbose}) {
+                    print STDERR "$test_name${fill}ok\n";
+                }
+                # need to run log_diff to reset the position of the fh
+                my %log_diffs = map { $_ => $self->log_diff($_) } @log_files;
+
+            }
+            else {
+                push @$ra_nok, $test;
+                $bad = $test;
+
+                if ($self->{verbose}) {
+                    print STDERR "$test_name${fill}FAILED\n";
+                    error sep("-");
+
+                    # give server some time to finish the
+                    # logging. it's ok to wait long time since we have
+                    # to deal with an error
+                    sleep 5;
+                    my %log_diffs = map { $_ => $self->log_diff($_) } @log_files;
+
+                    # client log
+                    error "\t\t*** run log ***";
+                    $log =~ s/^/    /mg;
+                    print STDERR "$log\n";
+
+                    # server logs
+                    for my $path (@log_files) {
+                        next unless length $log_diffs{$path};
+                        error "\t\t*** $path ***";
+                        $log_diffs{$path} =~ s/^/    /mg;
+                        print STDERR "$log_diffs{$path}\n";
+                    }
+                }
+                if (@core_files_msg) {
+                    unless ($self->{verbose}) {
+                        # currently the output of 'run log' already
+                        # includes the information about core files once
+                        # Test::Harness::Straps allows us to run callbacks
+                        # after each test, and we move back to run all
+                        # tests at once, we will log the message here
+                        error "$test_name caused core";
+                        print STDERR join "\n", @core_files_msg, "\n";
+                    }
+                }
+
+                if ($self->{verbose}) {
+                    error sep("-");
+                }
+
+                unless ($self->{bug_mode}) {
+                    # normal smoke stop the run, but in the bug_mode
+                    # we want to complete all the tests
+                    last;
+                }
+            }
+
+
+        }
+    }
+
+    $self->logs_end();
+
+    # stop server
+    {
+        my $command = $self->{stop_command};
+        open my $pipe, "$command 2>&1|" or die "cannot fork: $!";
+        my $oldfh = select $pipe; $| = 1; select $oldfh;
+        # XXX: check stopup success?
+        my $stopped_ok = 0;
+        my $log = '';
+        while (my $t = <$pipe>) {
+            $stopped_ok = 1 if $t =~ /shutdown/;
+            $log .= $t;
+        }
+        close $pipe;
+        unless ($stopped_ok) {
+            error "failed to stop server\n $log";
+            exit 1;
+        }
+    }
+
+    # double check that we killed them all?
     $self->kill_proc();
-    return $bad;
+
+    if ($self->{bug_mode}) {
+        warning sep("-");
+        if (@$ra_nok == 0) {
+            printf STDERR "All tests successful (%d)\n", scalar @$ra_ok;
+        }
+        else {
+            error sprintf "error running %d tests out of %d\n",
+                scalar(@$ra_nok), scalar @$ra_ok + @$ra_nok;
+        }
+    }
+    else {
+        return $bad;
+    }
+
 
 }
 
@@ -347,7 +634,7 @@ sub report_start {
     $self->{start_time} = $time;
     $time =~ s/\s/_/g;
     $time =~ s/:/-/g; # winFU
-    my $file = $self->{opts}->{report} || "smoke-report-$time.txt";
+    my $file = $self->{opts}->{report} || "../smoke-report-$time.txt";
 
     open my $fh, ">$file" or die "cannot open $file for writing: $!";
     $self->{fh} = $fh;
@@ -358,7 +645,7 @@ sub report_start {
 $title
 $sep
 First iteration used:
-$self->{start_command}
+$self->{base_command} @{$self->{tests}}
 $sep
 EOM
 
@@ -405,13 +692,17 @@ sub report_finish {
         }
 
         my $title = sep('=', "Summary");
+
+        my $iter_made = sprintf "Iterations (%s) made : %d",
+            $self->{order}, $self->{total_iterations};
+
         print $fh <<EOM;
 
 $title
-Completion              : $completion
-Status                  : $status
-Tests run               : $self->{total_tests_run}
-Random iterations made  : $self->{total_iterations}
+Completion               : $completion
+Status                   : $status
+Tests run                : $self->{total_tests_run}
+$iter_made
 EOM
 
         if ($attempts > 0 && $failures) {
@@ -516,6 +807,15 @@ Apache::TestSmoke - Special Tests Sequence Failure Finder
   # run once a sequence of tests in a non-random mode
   # e.g. when trying to reduce a known long sequence that fails
   % t/SMOKE -order=rotate -times=1 foo/bar foo/tar
+
+  # show me each currently running test
+  # it's not the same as running the tests in the verbose mode
+  % t/SMOKE -verbose
+
+  # run t/TEST, but show any problems after *each* tests is run
+  # useful for bug reports (it actually runs t/TEST -start, then
+  # t/TEST -run for each test separately and finally t/TEST -stop
+  % t/SMOKE -bug_mode
 
   # now read the created report file
 
