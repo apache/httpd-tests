@@ -8,8 +8,10 @@ Changes - Apache::Test change logfile
 
 =item 1.00
 
-new Apache::Test function: have_min_apache_version, to require a
-minimal Apache version. [Stas]
+new Apache::Test functions: 
+have_min_apache_version - to require a minimal Apache version. 
+have_apache_version     - to require a specific Apache version. 
+[Stas]
 
 Apache::TestUtil API change:
 write_perl_script  => t_write_perl_script
