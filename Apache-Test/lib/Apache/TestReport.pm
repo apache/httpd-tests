@@ -35,7 +35,7 @@ sub generate_script {
     $file ||= catfile 't', 'REPORT';
 
     my $content = join "\n",
-        "BEGIN { eval { require blib; } }",
+        "BEGIN { eval { require blib && blib->import; } }",
         Apache::TestConfig->modperl_2_inc_fixup,
         Apache::TestConfig->perlscript_header,
         "use $class;",

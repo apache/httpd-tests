@@ -1229,7 +1229,7 @@ sub generate_script {
         $opts{file} ||= catfile 't', 'TEST';
     }
 
-    my $body = "BEGIN { eval { require blib; } }\n";
+    my $body = "BEGIN { eval { require blib && blib->import; } }\n";
 
     $body .= Apache::TestConfig->modperl_2_inc_fixup;
 

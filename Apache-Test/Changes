@@ -8,6 +8,9 @@ Changes - Apache::Test change logfile
 
 =item 1.14-dev
 
+fix 'require blib' in scripts to also call 'blib->import', required to
+have an effect under perl 5.6.x. [Stas]
+
 Make sure that when Apache-Test is a part of modperl-2.0 checkout, the
 interactive configuration is properly run (it must not be run when
 mod_perl 2.0 is tested since it should have all the info needed to run
