@@ -75,6 +75,14 @@ my $cert_dn = {
     },
 };
 
+#generate DSA versions of the server certs/keys
+while (my($key, $val) = each %$cert_dn) {
+    next unless $key =~ /^server/;
+    my $name = join '_', $key, 'dsa';
+    $cert_dn->{$name} = { %$val }; #copy
+    $cert_dn->{$name}->{OU} =~ s/rsa/dsa/;
+}
+
 sub ca_dn {
     $ca_dn = shift if @_;
     $ca_dn;
@@ -248,7 +256,19 @@ sub new_key {
 
     my $encrypt = @_ ? "@_ $passout" : "";
 
-    openssl genrsa => "-out keys/$name.pem $encrypt 1024";
+    my $out = "-out keys/$name.pem $encrypt";
+
+    if ($name =~ /dsa/) {
+        #this takes a long time so just do it once
+        #don't do this in real life
+        unless (-e 'dsa-param') {
+            openssl dsaparam => '-inform PEM -out dsa-param 1024';
+        }
+        openssl gendsa => "dsa-param $out";
+    }
+    else {
+        openssl genrsa => "$out 1024";
+    }
 }
 
 sub new_cert {
@@ -317,7 +337,7 @@ sub setup {
 
     for my $name (@names) {
         my @key_args = ();
-        if ($name =~ /_des3$/) {
+        if ($name =~ /_des3/) {
             push @key_args, '-des3';
         }
 
