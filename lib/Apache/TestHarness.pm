@@ -49,7 +49,8 @@ sub skip {
 sub run_t {
     my($self, $file) = @_;
     my $ran = 0;
-    my $cmd = "$^X -Mlib=../Apache-Test/lib $file";
+    my $lib = catfile Apache::Test::vars('top_dir'), qw(Apache-Test lib);
+    my $cmd = "$^X -Mlib=$lib $file";
 
     my $h = Symbol::gensym();
     open $h, "$cmd|" or die "open $cmd: $!";
