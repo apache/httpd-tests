@@ -530,7 +530,7 @@ sub run {
 
     # if configure() fails for some reason before it has flushed the
     # config to a file, save it so -clean will be able to clean
-    eval { $self->configure; };
+    eval { $self->configure } unless $self->{opts}->{clean};
     if ($@) {
         error "configure() has failed:\n$@";
         warning "forcing Apache::TestConfig object save";
