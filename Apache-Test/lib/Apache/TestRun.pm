@@ -500,7 +500,9 @@ sub set_ulimit_via_sh {
     }
     close $sh;
 
-    my $command = "ulimit -c unlimited; $0 @ARGV";
+    # reconstruct argv, preserve multiwords args, eg 'PerlTrace all'
+    my $argv = join " ", map { /^-/ ? $_ : qq['$_'] } @ARGV;
+    my $command = "ulimit -c unlimited; $0 $argv";
     warning "setting ulimit to allow core files\n$command";
     exec $command;
     die "exec $command has failed"; # shouldn't be reached
