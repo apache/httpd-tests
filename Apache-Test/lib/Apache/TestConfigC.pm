@@ -49,10 +49,6 @@ sub cmodules_configure {
 
     $self->{cmodules_disabled} = {}; #for have_module to check
 
-    unless ($self->{APXS}) {
-        warning "cannot build c-modules without apxs";
-    }
-
     $dir ||= catfile $self->{vars}->{top_dir}, 'c-modules';
 
     unless (-d $dir) {
@@ -64,6 +60,7 @@ sub cmodules_configure {
     finddepth(sub { cmodule_find($self, $_) }, $dir);
 
     unless ($self->{APXS}) {
+        warning "cannot build c-modules without apxs";
         return;
     }
 
