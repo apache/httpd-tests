@@ -36,7 +36,7 @@ sub new {
     $self->{name} = join ':',
       map { $self->{config}->{vars}->{$_} } qw(servername port);
 
-    $self->{port_counter} = $self->{config}->{vars}->{port} + 1;
+    $self->{port_counter} = $self->{config}->{vars}->{port};
 
     $self->{version} = $self->{config}->httpd_version || '';
     $self->{mpm}     = $self->{config}->httpd_mpm     || '';
@@ -270,9 +270,8 @@ sub select_next_port {
 
     my $max_tries = 100; #XXX
     while ($max_tries-- > 0) {
-        my $port = $self->{port_counter};
-        $self->{port_counter}++;
-        return $port if $self->port_available($port);
+        return $self->{port_counter}
+            if $self->port_available(++$self->{port_counter});
     }
 
     return 0;
