@@ -20,6 +20,7 @@ use constant STARTUP_TIMEOUT => 300; # secs (good for extreme debug cases)
 use subs qw(exit_shell exit_perl);
 
 my %core_files  = ();
+my %original_t_perms = ();
 
 my @std_run      = qw(start-httpd run-tests stop-httpd);
 my @others       = qw(verbose configure clean help ssl http11);
@@ -451,6 +452,8 @@ sub start {
         }
     }
 
+    $self->adjust_t_perms();
+
     if ($opts->{'start-httpd'}) {
         exit_perl 0 unless $server->start;
     }
@@ -488,6 +491,8 @@ sub run_tests {
 
 sub stop {
     my $self = shift;
+
+    $self->restore_t_perms;
 
     return $self->{server}->stop if $self->{opts}->{'stop-httpd'};
 }
@@ -645,6 +650,47 @@ sub warn_core {
         # old core file at the end of the run and not complain then
         $core_files{$core} = -M $core;
     }, $vars->{top_dir});
+}
+
+# this function handles the cases when the test suite is run under
+# 'root':
+#
+# 1. When user 'bar' is chosen to run Apache with, files and dirs
+#    created by 'root' might be not writable/readable by 'bar'
+#
+# 2. when the source is extracted as user 'foo', and the chosen user
+#    to run Apache under is 'bar', in which case normally 'bar' won't
+#    have the right permissions to write into the fs created by 'foo'.
+#
+# We solve that by 'chown -R bar.bar t/' in a portable way.
+sub adjust_t_perms {
+    my $self = shift;
+    %original_t_perms = (); # reset global
+
+    my $user = getpwuid($>) || '';
+    if ($user eq 'root') {
+        my $vars = $self->{test_config}->{vars};
+        my $user = $vars->{user};
+        my($uid, $gid) = (getpwnam($user))[2..3]
+            or die "Can't find out uid/gid of '$user'";
+        warning "root mode: changing the fs ownership to '$user' ($uid:$gid)";
+        finddepth(sub {
+            $original_t_perms{$File::Find::name} = [(stat $_)[4..5]];
+            chown $uid, $gid, $_;
+        }, $vars->{t_dir});
+    }
+}
+
+sub restore_t_perms {
+    my $self = shift;
+
+    if (%original_t_perms) {
+        my $vars = $self->{test_config}->{vars};
+        while (my($file, $ids) = each %original_t_perms) {
+            next unless -e $file; # files could be deleted
+            chown @$ids, $file;
+        }
+    }
 }
 
 sub run_request {
