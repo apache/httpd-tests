@@ -758,15 +758,21 @@ sub parse_vhost {
     }
 
     my $vars = $self->{vars};
+    my $mods = $self->{modules};
+    my $have_module = "$module.c";
+    my $ssl_module = $vars->{ssl_module};
 
-    #if module ends with _ssl it is either the ssl module itself
-    #or another module that has a port for itself and another
-    #for itself with SSLEngine On, see mod_echo in extra.conf.in for example
-    my $have_module = $module =~ /_ssl$/ ?
-      $vars->{ssl_module} : "$module.c";
+    #if module ends with _ssl and it is not the module that implements ssl,
+    #then assume this module is a vhost with SSLEngine On (or similar)
+    #see mod_echo in extra.conf.in for example
+    if ($module =~ /^(mod_\w+)_ssl$/ and $have_module ne $ssl_module) {
+        $have_module = "$1.c"; #e.g. s/mod_echo_ssl.c/mod_echo.c/
+        return undef unless $mods->{$ssl_module};
+    }
 
     #don't allocate a port if this module is not configured
-    if ($module =~ /^mod_/ and not $self->{modules}->{$have_module}) {
+    #assumes the configuration is inside an <IfModule $have_module>
+    if ($module =~ /^mod_/ and not $mods->{$have_module}) {
         return undef;
     }
 
