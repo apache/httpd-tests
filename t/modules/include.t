@@ -90,6 +90,7 @@ my %test = (
 "exec/off/cgi.shtml"    =>    "[an error occurred while processing this ".
                               "directive]",
 "exec/on/cgi.shtml"     =>    "perl cgi",
+"ranged-virtual.shtml"  =>    "x"x32768,
 );
 
 # now, assuming 2.1 has the proper behavior across the board,
@@ -144,6 +145,11 @@ unless ($have_apache_20) {
 
     # none at the moment, but the syntax here would be
     # $test{"errmsg5.shtml"} = delete $todo{"errmsg5.shtml"};
+}
+
+if ($have_apache_20) {
+    # this test doesn't work in 2.0 yet but should work in 1.3 and 2.1
+    delete $test{"ranged-virtual.shtml"};
 }
 
 unless ($have_apache_21) {
@@ -215,6 +221,17 @@ foreach $doc (sort keys %tests) {
                  "GET $dir$doc"
                 );
     }
+    elsif ($doc =~ m/ranged/) {
+        if (have_cgi) {
+            ok t_cmp(GET_BODY("$dir$doc", Range => "bytes=0-"),
+                     $tests{$doc},
+                     "GET $dir$doc with Range"
+                     );
+        }
+        else {
+            skip "Skipping virtual-range test; no cgi module", 1;
+        }
+    }
     elsif ($doc =~ m/cgi/) {
         if (have_cgi) {
             ok t_cmp(super_chomp(GET_BODY "$dir$doc"),
@@ -246,7 +263,7 @@ foreach $doc (sort keys %tests) {
     # rendered in K (which it is).  if size.shtml is made much
     # larger or smaller this formatting will need to change too
     my $abbrev = sprintf("%.1fK", $size/1024);
-                                                                                                                             
+
     # and commify for <!--#config sizefmt="bytes"-->
     my $bytes = commify($size);
 
@@ -325,7 +342,7 @@ $str = $res->content;
 ok $str;
 
 for my $pat (@patterns) {
-    ok t_cmp($str, qr{$pat}, "/$pat/");
+    ok t_cmp($str, qr/$pat/, "/$pat/");
 }
 
 ### MOD_BUCKETEER+MOD_INCLUDE TESTS
