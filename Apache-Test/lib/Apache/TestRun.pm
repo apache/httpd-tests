@@ -391,8 +391,10 @@ sub configure_opts {
         $ENV{APACHE_TEST_HTTP11} = 1;
     }
 
-    if (my @reasons = 
-        $self->{test_config}->need_reconfiguration($self->{conf_opts})) {
+    # unless we are already reconfiguring, check for .conf.in files changes
+    if (!$$save &&
+        (my @reasons =
+         $self->{test_config}->need_reconfiguration($self->{conf_opts}))) {
         warning "forcing re-configuration:";
         warning "\t- $_." for @reasons;
         unless ($refreshed) {
@@ -402,7 +404,8 @@ sub configure_opts {
         }
     }
 
-    if (exists $opts->{proxy}) {
+    # unless we are already reconfiguring, check for -proxy
+    if (!$$save && exists $opts->{proxy}) {
         my $max = $test_config->{vars}->{maxclients};
         $opts->{proxy} ||= 'on';
 
