@@ -192,11 +192,17 @@ sub get_httpd_defines {
     open my $proc, '-|', $cmd or die "$cmd failed: $!";
 
     while (<$proc>) {
-        next unless s/^\s*-D\s*//;
-        s/\s+$//;
         chomp;
-        my($key, $val) = split '=', $_, 2;
-        $self->{httpd_defines}->{$key} = $val ? strip_quotes($val) : 1;
+        if( s/^\s*-D\s*//) {
+            s/\s+$//;
+            my($key, $val) = split '=', $_, 2;
+            $self->{httpd_defines}->{$key} = $val ? strip_quotes($val) : 1;
+        }
+        elsif (/(version|built|module magic number):\s+(.*)/i) {
+            my $val = $2;
+            (my $key = uc $1) =~ s/\s/_/g;
+            $self->{httpd_info}->{$key} = $val;
+        }
     }
 
     close $proc;
