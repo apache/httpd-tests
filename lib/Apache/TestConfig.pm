@@ -1094,6 +1094,9 @@ sub generate_types_config {
     }
 }
 
+# various dup bugs in older perl and perlio in perl < 5.8.4 need a
+# workaround to explicitly rewind the dupped DATA fh before using it
+my $DATA_pos = tell DATA;
 sub httpd_conf_template {
     my($self, $try) = @_;
 
@@ -1102,7 +1105,10 @@ sub httpd_conf_template {
         return $in;
     }
     else {
-        return \*DATA;
+        my $dup = Symbol::gensym();
+        open $dup, "<&DATA" or die "Can't dup DATA: $!";
+        seek $dup, $DATA_pos, 0; # rewind to the beginning
+        return $dup; # so we don't close DATA
     }
 }
 
