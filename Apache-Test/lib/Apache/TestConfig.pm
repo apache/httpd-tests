@@ -306,7 +306,7 @@ sub configure_httpd {
     my $self = shift;
     my $vars = $self->{vars};
 
-    $vars->{target} ||= (WIN32 ? 'Apache.exe' : 'httpd');
+    $vars->{target} ||= (WIN32 ? 'Apache.EXE' : 'httpd');
 
     unless ($vars->{httpd}) {
         #sbindir should be bin/ with the default layout
@@ -516,7 +516,7 @@ sub default_httpd {
     if (my $build_config = modperl_build_config()) {
         if (my $p = $build_config->{MP_AP_PREFIX}) {
             for my $bindir (qw(bin sbin)) {
-                my $httpd = "$p/$bindir/$vars->{target}";
+                my $httpd = catfile $p, $bindir, $vars->{target};
                 return $httpd if -e $httpd;
             }
         }
