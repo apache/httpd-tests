@@ -15,7 +15,8 @@ sub pre_configure {
     my $self = shift;
 
     # don't pick up 'LoadModule ... mod_perl.so' from the global
-    # httpd.conf, when using the locally built .so in the tests
+    # httpd.conf, when using the locally built .so in the mod_perl 2.0
+    # 'make test'
     if (Apache::TestConfig::IS_MOD_PERL_2_BUILD()) {
         Apache::TestConfig::config_parse_skip_module_add('mod_perl.c');
     }
