@@ -25,7 +25,6 @@ sub inc_fixup {
 sub skip {
     my($self, $file) = @_;
     $file ||= catfile Apache::Test::vars('serverroot'), 'SKIP';
-    error "*** file is :$file:";
 
     return unless -e $file;
 
