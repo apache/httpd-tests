@@ -145,12 +145,17 @@
     </IfDefine>
 
     <Directory @SERVERROOT@/htdocs/modules/include>
-        Options +Includes IncludesNOEXEC
+        Options +IncludesNOEXEC
     </Directory>
 
-    <Directory @SERVERROOT@/htdocs/modules/include/xbithack>
-        Options +Includes IncludesNOEXEC
+    <Directory @SERVERROOT@/htdocs/modules/include/xbithack/on>
+        Options +IncludesNOEXEC
         XBitHack on
+    </Directory>
+
+    <Directory @SERVERROOT@/htdocs/modules/include/xbithack/full>
+        Options +IncludesNOEXEC
+        XBitHack full
     </Directory>
 
     <Directory @SERVERROOT@/htdocs/modules/include/exec>

@@ -3,25 +3,11 @@ use warnings FATAL => 'all';
 
 use Apache::Test;
 use Apache::TestRequest;
+use Apache::TestUtil;
 
 ## mod_include tests
-my ($doc, $actual, $expected);
+my ($doc);
 my $dir = "/modules/include/";
-
-## 1: <!--#echo var="DOCUMENT_NAME" -->
-## 2: <!--#set var="message" value="set works"-->
-## 3: <!--#include file="inc-two.shtml"-->
-## 4: <!--#include virtual="/modules/include/inc-two.shtml"-->
-## 5: <!--#include file="inc-one.shtml"--> (which in turn includes inc-two)
-## 6: <!--#include virtual="/modules/include/inc-one.shtml"-->
-## 7: <!--#include file="inc-three.shtml"--> (which in turn includes two more)
-## 8: <!--#include virtual="/modules/include/inc-one.shtml"-->
-## 9: <!--#foo virtual="/inc-two.shtml"-->
-## 10: <!--#include file="/inc-two.shtml"-->
-## 11: <!--#include virtual="/inc-two.shtml"-->
-## 12-15: various tests for <!--#config errmsg="errmsg"-->
-## 16-20: various if, if else, if elif, etc
-## 21: big fat test
 
 my %test = (
 "echo.shtml"            =>    "echo.shtml",
@@ -62,32 +48,88 @@ my %test = (
     "inc-extra2.shtml body  inc-extra1.shtml body  abs-path.shtml body"
 );
 
+#
+# in addition to %test, there are 1 GET test and 9 XBitHack tests
+#
 my $tests = keys %test;
-plan tests => $tests + 1, have_module 'include';
+plan tests => $tests + 10, have_module 'include';
 
-foreach (sort keys %test) {
-    $doc = $_;
-    $expected = $test{$_};
-    my $url = "$dir$doc";
-    $actual = GET_BODY $url;
-
-    ## super chomp - all leading and trailing \n (and \r for win32)
-    $actual =~ s/^[\n\r]*//;
-    $actual =~ s/[\n\r]*$//;
-    ## and all the rest change to spaces
-    $actual =~ s/\n/ /g;
-    $actual =~ s/\r//g; #rip out all remaining \r's
-
-    my $ok = $actual eq $expected;
-
-    unless ($ok) {
-        print "GET $url\n";
-        print "expected:\n->$expected<-\n";
-        print "actual:\n->$actual<-\n";
-    }
-
-    ok $ok;
+foreach $doc (sort keys %test) {
+    ok t_cmp($test{$doc},
+             &super_chomp(GET_BODY "$dir$doc"),
+             "GET $dir$doc"
+            );
 }
 
 $doc = "printenv.shtml";
-ok GET_OK "$dir$doc";
+ok t_cmp("200",
+         GET("$dir$doc")->code,
+         "GET $dir$doc"
+        );
+
+### XBITHACK TESTS
+# test xbithack off
+$doc = "xbithack/off/test.html";
+foreach ("0444", "0544", "0554") {
+    chmod oct($_), "htdocs/$dir$doc";
+    ok t_cmp("<BODY> <!--#include virtual=\"../../inc-two.shtml\"--> </BODY>",
+             &super_chomp(GET_BODY "$dir$doc"),
+             "XBitHack off [$_]"
+            );
+}
+
+# test xbithack on
+$doc = "xbithack/on/test.html";
+chmod 0444, "htdocs$dir$doc";
+ok t_cmp("<BODY> <!--#include virtual=\"../../inc-two.shtml\"--> </BODY>",
+         &super_chomp(GET_BODY "$dir$doc"),
+         "XBitHack on [0444]"
+        );
+
+foreach ("0544", "0554") {
+    chmod oct($_), "htdocs/$dir$doc";
+    ok t_cmp("No Last-modified date ; <BODY> inc-two.shtml body  </BODY>",
+             &check_xbithack(GET "$dir$doc"),
+             "XBitHack on [$_]"
+            );
+}
+
+# test xbithack full
+$doc = "xbithack/full/test.html";
+chmod 0444, "htdocs/$dir$doc";
+ok t_cmp("<BODY> <!--#include virtual=\"../../inc-two.shtml\"--> </BODY>",
+         &super_chomp(GET_BODY "$dir$doc"),
+         "XBitHack full [0444]"
+        );
+chmod 0544, "htdocs/$dir$doc";
+ok t_cmp("No Last-modified date ; <BODY> inc-two.shtml body  </BODY>",
+         &check_xbithack(GET "$dir$doc"),
+         "XBitHack full [0544]"
+        );
+chmod 0554, "htdocs/$dir$doc";
+ok t_cmp("Has Last-modified date ; <BODY> inc-two.shtml body  </BODY>",
+         &check_xbithack(GET "$dir$doc"),
+         "XBitHack full [0554]"
+        );
+
+
+sub super_chomp {
+    my ($body) = shift;
+
+    ## super chomp - all leading and trailing \n (and \r for win32)
+    $body =~ s/^[\n\r]*//;
+    $body =~ s/[\n\r]*$//;
+    ## and all the rest change to spaces
+    $body =~ s/\n/ /g;
+    $body =~ s/\r//g; #rip out all remaining \r's
+
+    $body;
+}
+
+sub check_xbithack {
+    my ($resp) = shift;
+    my ($body) = &super_chomp($resp->content);
+    my ($lastmod) = ($resp->last_modified)
+                      ? "Has Last-modified date" : "No Last-modified date";
+    "$lastmod ; $body";
+}
