@@ -1,3 +1,6 @@
+- consider not using the __DIE__ sighandler, but instead wrap the
+  potentially failing code in the eval trap blocks.
+
 - print STDERR is buffered in test handlers, whereas warn() works
   normally. select() helps, but STDERR should be unbuffered in first
   place.
