@@ -75,11 +75,12 @@
         </Location>
 
         #t/ssl/require.t
-        Alias /require/asf       @DocumentRoot@
-        Alias /require/snakeoil  @DocumentRoot@
-        Alias /ssl-fakebasicauth @DocumentRoot@
-        Alias /ssl-cgi           @DocumentRoot@/modules/cgi
-        Alias /require-ssl-cgi   @DocumentRoot@/modules/cgi
+        Alias /require/asf        @DocumentRoot@
+        Alias /require/snakeoil   @DocumentRoot@
+        Alias /ssl-fakebasicauth  @DocumentRoot@
+        Alias /ssl-fakebasicauth2 @DocumentRoot@
+        Alias /ssl-cgi            @DocumentRoot@/modules/cgi
+        Alias /require-ssl-cgi    @DocumentRoot@/modules/cgi
 
         <Location /require/asf>
             SSLVerifyClient require
@@ -119,6 +120,22 @@
                 AuthUserFile         @SSLCA@/asf/ssl.htpasswd
                 require              valid-user
             </Location>
+        </IfModule>
+
+        # specific to 2.1
+        <IfModule mod_authn_anon.c>
+            <IfModule mod_auth_basic.c>
+                <Location /ssl-fakebasicauth2>
+                    SSLVerifyClient      require
+                    SSLRequire           %{SSL_CLIENT_VERIFY} eq "SUCCESS"
+                    SSLOptions           +FakeBasicAuth +StdEnvVars
+                    AuthName             "Snake Oil Authentication"
+                    AuthType             Basic
+                    AuthBasicProvider    anon
+                    Anonymous            dummy "*"
+                    require              valid-user
+                </Location>
+            </IfModule>
         </IfModule>
 
     </VirtualHost>
