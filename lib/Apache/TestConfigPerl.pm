@@ -498,29 +498,12 @@ sub configure_pm_tests {
                 }
             }
 
-            my $args_hash = list_to_hash_of_lists(\@args);
-            $self->postamble($self->$container($module),
-                $args_hash) if @args;
+            $self->postamble($self->$container($module), \@args) if @args;
         }
 
         $self->write_pm_test($module, lc $base, lc $sub);
     }
 }
-
-# turn a balanced (key=>val) list with potentially multiple indentical
-# keys into a hash of lists.
-#############
-sub list_to_hash_of_lists {
-    my $arr = shift;
-    my %hash = ();
-    my $pairs = @$arr / 2;
-    for my $i (0..($pairs-1)) {
-        my ($key, $val) = ($arr->[$i*2], $arr->[$i*2+1]);
-        push @{ $hash{$key} }, $val;
-    }
-    return \%hash;
-}
-
 
 # scan tests for interesting information
 sub run_apache_test_config_scan {
