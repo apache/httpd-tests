@@ -308,3 +308,20 @@ LimitRequestFields    32
 <Directory @SERVERROOT@/htdocs/limits>
     LimitRequestBody  65536
 </Directory>
+
+##
+## mod_echo test config
+##
+
+<IfModule mod_echo.c>
+    <VirtualHost _default_:mod_echo>
+        ProtocolEcho On
+    </VirtualHost>
+
+    <VirtualHost _default_:mod_echo_ssl>
+        ProtocolEcho On
+        <IfModule @ssl_module@>
+            SSLEngine On
+        </IfModule>
+    </VirtualHost>
+</IfModule>
