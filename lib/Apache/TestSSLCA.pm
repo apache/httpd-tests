@@ -172,7 +172,9 @@ sub config_file {
     return $file if -e $file;
 
     my $dn = dn($name);
-    my $db = SSLCA_DB;
+    my $db = sslca_db($name);
+
+    writefile($db, '', 1);
 
     writefile($file, <<EOF);
 [ req ]
@@ -245,7 +247,6 @@ my $basic_auth_password =
 my $digest_auth_hash    = '$1$OXLyS...$Owx8s2/m9/gfkcRVXzgoE/';
 
 sub new_ca {
-    writefile(SSLCA_DB, '', 1);
     writefile('serial', "01\n", 1);
 
     writefile('ssl.htpasswd',
@@ -306,6 +307,11 @@ sub export_cert {
                       "-out export/$name.p12", $passin, $passout;
 }
 
+sub sslca_db {
+    my $name = shift;
+    return "$name-" . SSLCA_DB;
+}
+
 sub revoke_cert {
     my $name = shift;
 
@@ -314,11 +320,12 @@ sub revoke_cert {
     #revokes in the SSLCA_DB database
     openssl ca => "-revoke certs/$name.crt", @args;
 
-    unless (-e SSLCA_DB) {
+    my $db = sslca_db($name);
+    unless (-e $db) {
         #hack required for win32
-        my $new = join '.', SSLCA_DB, 'new';
+        my $new = join '.', $db, 'new';
         if (-e $new) {
-            cp $new, SSLCA_DB;
+            cp $new, $db;
         }
     }
 

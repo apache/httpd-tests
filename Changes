@@ -8,6 +8,10 @@ Changes - Apache::Test change logfile
 
 =item 1.04-dev - 
 
+fix Apache::TestSSLCA to generate a separate index.txt file for each
+module, as on certain platforms openssl fails to re-use the same
+file. [Stas]
+
 remove the unused example section from t/conf/extra.conf.in, it made
 an assumption that mod_auth is available [Stas]
 
