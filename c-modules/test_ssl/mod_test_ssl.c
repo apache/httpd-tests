@@ -2,9 +2,13 @@
 
 #if CONFIG_FOR_HTTPD_TEST
 
-<Location /test_ssl_var_lookup>
-   SetHandler test-ssl-var-lookup
-</Location>
+<IfModule mod_ssl.c>
+    <Location /test_ssl_var_lookup>
+        SetHandler test-ssl-var-lookup
+        SSLVerifyClient require
+        SSLVerifyDepth  10
+    </Location>
+</IfModule>
 
 #endif
 
