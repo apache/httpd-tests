@@ -9,6 +9,7 @@ use Apache::TestRequest ();
 use Apache::TestHarness ();
 use Apache::TestTrace;
 
+use File::Find qw(finddepth);
 use File::Spec::Functions qw(catfile);
 use Getopt::Long qw(GetOptions);
 use Config;
@@ -206,6 +207,7 @@ sub install_sighandlers {
         }
         warning "\nhalting tests";
         $server->stop if $opts->{'start-httpd'};
+        $self->scan;
         exit;
     };
 }
@@ -356,6 +358,20 @@ sub run {
     $self->run_tests;
 
     $self->stop;
+
+    $self->scan;
+}
+
+sub scan {
+    my $self = shift;
+    my $vars = $self->{test_config}->{vars};
+
+    finddepth(sub {
+        return unless /^core$/;
+        my $core = "$File::Find::dir/$_";
+        error "uh,oh server dumped core";
+        error "for stacktrace, run: gdb $vars->{httpd} -core $core";
+    }, $vars->{top_dir});
 }
 
 sub run_request {
