@@ -145,10 +145,10 @@ sub getopts {
     my @argv = ();
     while (@ARGV) {
         my $val = shift @ARGV;
-        $val =~ s/^--?//;
         # a known config option?
-        if (exists $Apache::TestConfig::Usage{lc $val}) {
-            $conf_opts{lc $val} = shift @ARGV || '';
+        if ($val =~ /^--?(.+)/ # must have a leading - or --
+            && exists $Apache::TestConfig::Usage{lc $1}) {
+            $conf_opts{lc $1} = shift @ARGV || '';
         }
         else {
             push @argv, $val;

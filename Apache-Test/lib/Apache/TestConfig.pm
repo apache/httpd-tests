@@ -65,8 +65,9 @@ sub filter_args {
     }
 
     while (my($key, $val) = splice @filter, 0, 2) {
-        if ($wanted_args->{$key}) {
-            $keep{$key} = $val;
+        if ($key =~ /^-?-?(.+)/ # optinal - or -- prefix
+            && exists $wanted_args->{$1}) {
+            $keep{$1} = $val;
         }
         else {
             push @pass, $key, $val;
