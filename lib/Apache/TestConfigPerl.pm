@@ -27,10 +27,15 @@ sub configure_libmodperl {
 
     $vars->{libmodperl} ||= $self->find_apache_module($libname);
 
-    my $cfg;
+    my $cfg = '';
 
     if (-e $vars->{libmodperl}) {
-        $cfg = {LoadModule => qq(perl_module "$vars->{libmodperl}")};
+        if (Apache::TestConfig::WIN32) {
+            my $lib = "$Config{installbin}\\$Config{libperl}";
+            $lib =~ s/lib$/dll/;
+            $cfg = 'LoadFile ' . qq("$lib"\n) if -e $lib;
+	}
+        $cfg .= 'LoadModule ' . qq(perl_module "$vars->{libmodperl}"\n);
     }
     else {
         my $msg = "unable to locate $libname\n";
