@@ -24,7 +24,8 @@ my $file_prefix = 'ai-test';
 my ($C,$O);
 my $cfg = Apache::Test::config();
 my $have_apache_2 = have_apache 2;
-my $hr = '<hr>';
+my $have_apache_21 = have_min_apache_version "2.1.0";
+my $hr = $have_apache_21 ? '<hr>' : '<hr />';
 
 my %file =
 (
