@@ -13,7 +13,7 @@ my $root       = "htdocs/modules/vhost_alias";
 
 my @vh = qw(www.vha-test.com big.server.name.from.heck.org ab.com w-t-f.net);
 
-plan tests => @vh * 2, ['vhost_alias'] && \&have_cgi;
+plan tests => @vh * 2, sub { have_module('vhost_alias') && have_cgi() };
 
 Apache::TestRequest::scheme('http'); #ssl not listening on this vhost
 
