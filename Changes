@@ -8,6 +8,10 @@ Changes - Apache::Test change logfile
 
 =item 1.06-dev
 
+add support for a new subclass method 'bug_report', which if provided
+will be called when 'make test' fails. we use it in mod_perl to print
+the pointers on how to proceed when the failure occurs. [Stas]
+
 sudo and su -u aren't portable, therefore use a simple setuid/setguid
 perl program instead, to check whether the root directory of the test
 suite is rwx by the user/group apache is going to run under (when
