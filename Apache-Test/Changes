@@ -8,6 +8,12 @@ Changes - Apache::Test change logfile
 
 =item 1.08_dev
 
+Instrument A-T with an optional successful (shell-wise) abort of the
+test suite, by asking the user whether they want to continue w/o
+completing the test suite. Use it in places where we know that the
+test suite will certaionly fail (e.g. running from /root as 'root', or
+not providing httpd/apxs locations). [Stas]
+
 In order to make Apache-Test compatible with the rest of Perl testing
 frameworks, we no longer chdir into t/, but run from the root of the
 project (where t/ resides). A test needing to know where it's running
