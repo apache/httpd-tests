@@ -149,12 +149,9 @@ run all tests through mod_proxy
 ----------------------------------------------------------------------
 Batch mode:
 
-When running in the batch mode and redirecting STDOUT to a file, this
-state is automagically detected and the no color mode is turned on,
-under which the program generates a minimal output to make the log
-files useful. If this doesn't work and you still get all the mess
-printed during the interactive run, set the APACHE_TEST_NO_COLOR=1 env
-var.
+When running in the batch mode and redirecting STDOUT to a file, make
+sure that the environment variable C<APACHE_TEST_COLOR> is set to 0 or
+not set at all.
 
 ----------------------------------------------------------------------
 Stress testing:
