@@ -428,10 +428,10 @@ But this won't hint the reason for skipping therefore it's better to
 use have():
 
   plan tests => 5,
-      have 'LWP',
-           { "perl >= 5.7.3 is required" => sub { $] >= 5.007003 } };
+      have 'LWP', 
+           { "not Win32" => sub { $^O eq 'MSWin32'} };
 
-see have() for more info.
+see C<have()> for more info.
 
 =item * an C<ARRAY> reference
 
@@ -559,7 +559,7 @@ Used to require a minimum version of Perl.
 
 For example:
 
-  plan tests => 5, have_min_perl_version("5.00801");
+  plan tests => 5, have_min_perl_version("5.008001");
 
 requires Perl 5.8.1 or higher.
 
