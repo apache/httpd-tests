@@ -210,9 +210,17 @@ sub install_sighandlers {
         }
         warning "\nhalting tests";
         $server->stop if $opts->{'start-httpd'};
-        $self->scan;
         exit;
     };
+
+    #try to make sure we scan for core no matter what happens
+    #must eval "" to "install" this END block, otherwise it will
+    #always run, a subclass might not want that
+    eval "END { eval {
+                  Apache::TestRun->new(test_config =>
+                                       Apache::TestConfig->thaw)->scan;
+                };
+         }";
 }
 
 sub configure_opts {
@@ -367,8 +375,6 @@ sub run {
     $self->run_tests;
 
     $self->stop;
-
-    $self->scan;
 }
 
 sub scan {
