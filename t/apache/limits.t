@@ -8,6 +8,7 @@ use warnings FATAL => 'all';
 use Apache::Test;
 use Apache::TestRequest;
 use Apache::TestUtil;
+use LWP;
 
 #
 # These values are chosen to exceed the limits in extra.conf, namely:
@@ -35,9 +36,19 @@ my $res;
 
 #
 # Two tests for each of the conditions, plus two more for the
-# chunked version of the body-too-large test.
+# chunked version of the body-too-large test IFF we have the
+# appropriate level of LWP support.
 #
-plan tests => (@conditions * 2) + 2;
+my $subtests = (@conditions * 2);
+if ($LWP::VERSION >= 5.60) {
+    $subtests += 2;
+}
+else {
+    print "# Chunked upload tests will NOT be performed;\n",
+          "# LWP 5.60 or later is required and you only have ",
+          "$LWP::VERSION installed.\n";
+}
+plan tests => $subtests;
 
 my $testnum = 1;
 foreach my $cond (@conditions) {
@@ -58,12 +69,48 @@ foreach my $cond (@conditions) {
             $testnum++;
         }
         elsif ($cond eq 'bodysize') {
-            foreach my $chunked qw(disabled enabled) {
+            #
+            # Make sure the last situation is keepalives off..
+            #
+            my @chunk_settings;
+            if ($LWP::VERSION < 5.60) {
+                @chunk_settings = (0);
+            }
+            else {
+                @chunk_settings = (qw(1 0));
+            }
+            foreach my $chunked (@chunk_settings) {
                 print "# Testing LimitRequestBodySize; should $goodbad\n";
-                set_chunking($chunked eq 'enabled');
-                ok t_cmp(($goodbad eq 'succeed' ? 200 : 413),
-                         GET_RC('/', content => $param),
-                         "Test #$testnum");
+                set_chunking($chunked);
+                #
+                # Note that this tests different things depending upon
+                # the chunking state.  The content-body will not even
+                # be counted if the Content-Length of an unchunked
+                # request exceeds the server's limit; it'll just be
+                # drained and discarded.
+                #
+                if ($chunked) {
+                    my ($req, $resp, $url);
+                    $url = Apache::TestRequest::resolve_url('/');
+                    $req = HTTP::Request->new(GET => $url);
+                    $req->content_type('text/plain');
+                    $req->content(chunk_it($param));
+                    $resp = Apache::TestRequest::user_agent->request($req);
+                    ok t_cmp(($goodbad eq 'succeed' ? 200 : 413),
+                             $resp->code,
+                             "Test #$testnum");
+                    if (! $resp->is_success) {
+                        my $str = $resp->as_string;
+                        $str =~ s:\n:\n# :gs;
+                        print "# Failure details from server:\n# $str";
+                    }
+                }
+                else {
+                    ok t_cmp(($goodbad eq 'succeed' ? 200 : 413),
+                             GET_RC('/', content_type => 'text/plain',
+                                    content => $param),
+                             "Test #$testnum");
+                }
                 $testnum++;
             }
         }
@@ -81,6 +128,18 @@ foreach my $cond (@conditions) {
                      "Test #$testnum");
             $testnum++;
         }
+    }
+}
+
+sub chunk_it {
+    my $str = shift;
+    my $delay = shift;
+
+    $delay = 1 unless defined $delay;
+    return sub {
+        select(undef, undef, undef, $delay) if $delay;
+        my $l = length($str);
+        return substr($str, 0, ($l > 102400 ? 102400 : $l), "");
     }
 }
 
