@@ -5,7 +5,9 @@ use Apache::Test;
 use Apache::TestUtil;
 use Apache::TestRequest;
 
-plan tests => 2;
+$SIG{PIPE} = 'IGNORE';
+
+plan tests => 2, need_min_apache_version('2.0');
 
 my $sock = Apache::TestRequest::vhost_socket('default');
 ok $sock;
@@ -23,10 +25,10 @@ $sock->print("GET /index.html HTTP/1.0\r\n");
 
 my $n = $sock->print("Hello:\r\n");
 foreach (1..100) {
-    $n = $sock->send(" "x500 . "\r\n") if $sock->connected;
+    $n = $sock->print(" "x500 . "\r\n") if $sock->connected;
 }
 
-$sock->send("\r\n") if $sock->connected;
+$sock->print("\r\n") if $sock->connected;
 
 my $line = Apache::TestRequest::getline($sock) || '';
 
