@@ -12,7 +12,7 @@ use constant COLOR   => ($ENV{APACHE_TEST_COLOR} && -t STDOUT) ? 1 : 0;
 use constant DEFAULT_PORT => 8529;
 
 use constant IS_MOD_PERL_2       =>
-    eval { require mod_perl } && $mod_perl::VERSION >= 1.99;
+    eval { require mod_perl && $mod_perl::VERSION >= 1.99 } || 0;
 
 use constant IS_MOD_PERL_2_BUILD => IS_MOD_PERL_2 &&
     require Apache::Build && Apache::Build::IS_MOD_PERL_BUILD();
