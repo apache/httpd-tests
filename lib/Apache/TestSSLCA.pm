@@ -150,7 +150,7 @@ sub openssl {
     }
 }
 
-my @dirs = qw(keys newcerts certs crl export csr conf);
+my @dirs = qw(keys newcerts certs crl export csr conf proxy);
 
 sub init {
     for my $dir (@dirs) {
@@ -319,6 +319,32 @@ sub revoke_cert {
     openssl ca => "-gencrl -out $cacrl", @args;
 }
 
+sub make_proxy_cert {
+    my $name = shift;
+
+    my $from = "certs/$name.crt";
+    my $to = "proxy/$name.pem";
+
+    info "generating proxy cert: $to";
+
+    my $fh_to = Symbol::gensym();
+    my $fh_from = Symbol::gensym();
+
+    open $fh_to, ">$to" or die "open $to: $!";
+    open $fh_from, $from or die "open $from: $!";
+
+    cp $fh_from, $fh_to;
+
+    $from = "keys/$name.pem";
+
+    open $fh_from, $from or die "open $from: $!";
+
+    cp $fh_from, $fh_to;
+
+    close $fh_from;
+    close $fh_to;
+}
+
 sub setup {
     $CA = shift;
 
@@ -346,6 +372,10 @@ sub setup {
 
         if ($name =~ /_revoked$/) {
             revoke_cert($name);
+        }
+
+        if ($name =~ /^client_/) {
+            make_proxy_cert($name);
         }
     }
 }
