@@ -1315,10 +1315,12 @@ sub generate_httpd_conf {
 EOF
     }
 
+    print $out "<IfModule mod_alias.c>\n";
     for (keys %aliases) {
         next unless $vars->{$aliases{$_}};
-        print $out "Alias /getfiles-$_ $vars->{$aliases{$_}}\n";
+        print $out "    Alias /getfiles-$_ $vars->{$aliases{$_}}\n";
     }
+    print $out "</IfModule>\n";
 
     print $out "\n";
 
