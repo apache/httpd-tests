@@ -131,8 +131,8 @@ REQUEST_URI                 $url
 
 #mod_ssl specific variables
 TIME_YEAR                    $time->year()+1900
-TIME_MON                     $time->mon()+1
-TIME_DAY                     $time->mday()
+TIME_MON                     sprintf "%02d", $time->mon()+1
+TIME_DAY                     sprintf "%02d", $time->mday()
 TIME_WDAY                    $time->wday()
 TIME
 TIME_HOUR
