@@ -70,11 +70,11 @@ if (WINFU) {
 
 #
 # in addition to $tests, there are 1 GET test, 9 XBitHack tests,
-# 2 exec cgi tests, 2 malformed-ssi-directive tests, and 8 tests
+# 2 exec cgi tests, 2 malformed-ssi-directive tests, and 9 tests
 # that use mod_bucketeer to construct brigades for mod_include
 #
 my $tests = keys %test;
-plan tests => $tests + 22, have_module 'include';
+plan tests => $tests + 23, have_module 'include';
 
 foreach $doc (sort keys %test) {
     ok t_cmp($test{$doc},
@@ -91,7 +91,7 @@ ok t_cmp("200",
 
 
 ### MALFORMED DIRECTIVE TESTS
-# also test a couple of malformed SSI's that used to cause Apache 1.3 to
+# also test a couple of malformed SSIs that used to cause Apache 1.3 to
 # segfault
 #
 
@@ -257,6 +257,14 @@ if (have_module 'mod_bucketeer') {
 
     $expected= "BeforeIfElseBlockAfterIf";
     $doc = "bucketeer/y6.shtml";
+    ok t_cmp($expected,
+             super_chomp(GET_BODY "$dir$doc"),
+             "GET $dir$doc"
+            );
+
+    $expected= "Before If <!-- comment -->SomethingElse".
+               "<!-- right after if -->After if";
+    $doc = "bucketeer/y7.shtml";
     ok t_cmp($expected,
              super_chomp(GET_BODY "$dir$doc"),
              "GET $dir$doc"
