@@ -66,6 +66,7 @@ sub test_all_vars {
         write_htaccess($conf_str);
         $expected = set_expect($exp_modifier, $conf_str);
         $actual = GET_BODY $page;
+        $actual =~ s/\r//sg; #win32
 
         print "---\n";
         print "conf:\n$conf_str\n";
