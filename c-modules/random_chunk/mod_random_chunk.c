@@ -102,8 +102,8 @@
 
 static int random_chunk_handler(request_rec *r)
 {
-    unsigned int seed = 0;
-    unsigned int count = 0;
+    apr_size_t seed = 0;
+    apr_size_t count = 0;
     int i;
     char buf[MAX_SEGMENT + 1];
     unsigned int len;
