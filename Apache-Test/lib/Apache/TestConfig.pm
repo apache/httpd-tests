@@ -1754,7 +1754,7 @@ sub as_string {
 # escape quotes)
 sub shell_ready {
     my $arg = shift;
-    $arg =~ s/"/\"/g;
+    $arg =~ s!\\?"!\\"!g;
     return qq["$arg"];
 }
 
