@@ -88,6 +88,7 @@ sub split_test_args {
     my(@tests);
 
     my $argv = $self->{argv};
+    my @leftovers = ();
     for (@$argv) {
         my $arg = $_;
         #need the t/ for stat-ing, but dont want to include it in test output
@@ -117,9 +118,23 @@ sub split_test_args {
                 next;
             }
         }
+        push @leftovers, $_;
     }
 
     $self->{tests} = \@tests;
+    $self->{argv}  = \@leftovers;
+}
+
+sub die_on_invalid_args {
+    my($self) = @_;
+
+    # at this stage $self->{argv} should be empty
+    my @invalid_argv = @{ $self->{argv} };
+    if (@invalid_argv) {
+        error "unknown opts or test names: @invalid_argv";
+        exit;
+    }
+
 }
 
 sub passenv {
@@ -526,6 +541,8 @@ sub run {
     $self->default_run_opts;
 
     $self->split_test_args;
+
+    $self->die_on_invalid_args;
 
     $self->start;
 
