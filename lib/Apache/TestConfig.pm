@@ -349,16 +349,16 @@ sub add_config {
             while (my($k,$v) = each %$hash) {
                 if (ref($v) eq 'ARRAY') {
                     for (@$v) {
-                        $args .= "   $k $_\n";
+                        $args .= "    $k $_\n";
                     }
                 }
                 else {
-                    $args .= "   $k $v\n";
+                    $args .= "    $k $v\n";
                 }
             }
         }
         else {
-            $args .= "   $hash";
+            $args .= "    $hash";
         }
         $args .= "</$directive>\n";
     }
