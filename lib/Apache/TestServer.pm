@@ -252,6 +252,14 @@ sub pid {
     open $fh, $file or do {
         return 0;
     };
+
+    # try to avoid the race condition when the pid file was created
+    # but not yet written to
+    for (1..8) {
+        last if -s $file > 0;
+        select undef, undef, undef, 0.25;
+    }
+
     chomp(my $pid = <$fh>);
     $pid;
 }
