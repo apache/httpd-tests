@@ -1284,6 +1284,9 @@ sub exit_shell {
 sub skip_test_suite {
     my $no_doubt = shift;
 
+    # we can't prompt when there is no STDIN;
+    $no_doubt = 1 unless -t STDIN;
+
     print qq[
 
 Running the test suite is important to make sure that the module that
