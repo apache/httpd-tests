@@ -21,10 +21,10 @@ static int client_add_filter_header(void *data,
     request_rec *r = (request_rec *)data;
 
     if (strcasecmp(key, "X-AddInputFilter") == 0) {
-        ap_add_input_filter(val, NULL, r, NULL);
+        ap_add_input_filter(val, NULL, r, r->connection);
     }
     else if (strcasecmp(key, "X-AddOutputFilter") == 0) {
-        ap_add_output_filter(val, NULL, r, NULL);
+        ap_add_output_filter(val, NULL, r, r->connection);
     }
 
     return 1;

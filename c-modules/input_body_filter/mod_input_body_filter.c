@@ -142,7 +142,7 @@ static void input_body_filter_insert_filter(request_rec *r)
                              &input_body_filter_module);
 
     if (dcfg->enabled) {
-        ap_add_input_filter(INPUT_BODY_FILTER_NAME, NULL, r, NULL);
+        ap_add_input_filter(INPUT_BODY_FILTER_NAME, NULL, r, r->connection);
     }
 }
 
@@ -159,7 +159,7 @@ static void input_body_filter_register_hooks(apr_pool_t *p)
 
     ap_register_input_filter(INPUT_BODY_FILTER_NAME,
                              input_body_filter_handler, 
-                             AP_FTYPE_CONTENT);  
+                             AP_FTYPE_RESOURCE);  
 }
 
 static const command_rec input_body_filter_cmds[] = {
