@@ -615,6 +615,12 @@ sub clean_add_path {
     }
 }
 
+sub genfile_trace {
+    my($self, $file) = @_;
+    my $name = abs2rel $file, $self->{vars}->{t_dir};
+    $self->trace("generating $name");
+}
+
 sub genfile {
     my($self, $file) = @_;
 
@@ -622,8 +628,7 @@ sub genfile {
     my $dir = dirname $file;
     $self->makepath($dir);
 
-    my $name = abs2rel $file, $self->{vars}->{t_dir};
-    $self->trace("generating $name");
+    $self->genfile_trace($file);
 
     my $fh = Symbol::gensym();
     open $fh, ">$file" or die "open $file: $!";
@@ -645,8 +650,7 @@ sub writefile {
     my $dir = dirname $file;
     $self->makepath($dir);
 
-    my $name = abs2rel $file, $self->{vars}->{t_dir};
-    $self->trace("generating $name");
+    $self->genfile_trace($file);
 
     my $fh = Symbol::gensym();
     open $fh, ">$file" or die "open $file: $!";
@@ -674,8 +678,7 @@ sub write_perlscript {
     my $dir = dirname $file;
     $self->makepath($dir);
 
-    my $name = abs2rel $file, $self->{vars}->{t_dir};
-    $self->trace("generating $name");
+    $self->genfile_trace($file);
 
     my $fh = Symbol::gensym();
     open $fh, ">$file" or die "open $file: $!";
