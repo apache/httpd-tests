@@ -8,6 +8,8 @@
 
 #endif
 
+#include "apache_httpd_test.h"
+
 #include "httpd.h"
 #include "http_config.h"
 #include "http_protocol.h"
