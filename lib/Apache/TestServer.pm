@@ -284,7 +284,9 @@ sub start {
     my $self = shift;
     my $old_pid = $self->stop;
     my $cmd = $self->start_cmd;
-    my $httpd = $self->{config}->{vars}->{httpd} || 'unknown';
+    my $config = $self->{config};
+    my $vars = $config->{vars};
+    my $httpd = $vars->{httpd} || 'unknown';
 
     if ($old_pid == -1) {
         return 0;
@@ -307,7 +309,7 @@ sub start {
     }
 
     my $version = $self->{version};
-    my $mpm = $self->{config}->{mpm} || "";
+    my $mpm = $config->{mpm} || "";
     $mpm = "($mpm MPM)" if $mpm;
     print "using $version $mpm\n";
 
@@ -338,8 +340,13 @@ sub start {
 
     if (my $pid = $self->pid) {
         print "server $self->{name} started (pid=$pid)\n";
-        while (my($module, $cfg) = each %{ $self->{config}->{vhosts} }) {
+        while (my($module, $cfg) = each %{ $config->{vhosts} }) {
             print "server $cfg->{name} listening ($module)\n",
+        }
+        if ($config->{modules}->{'mod_ssl.c'} and
+            !$self->port_available($vars->{sslport})) {
+            my $hostport = join ':', $vars->{servername}, $vars->{sslport};
+            print "server $hostport listening (mod_ssl)\n";
         }
     }
     else {
@@ -349,7 +356,7 @@ sub start {
 
     my $server_up = sub {
         local $SIG{__WARN__} = sub {}; #avoid "cannot connect ..." warnings
-        $self->{config}->http_raw_get('/index.html');
+        $config->http_raw_get('/index.html');
     };
 
     if ($server_up->()) {
