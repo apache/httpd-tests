@@ -107,6 +107,21 @@ sub module2path {
     return $path;
 }
 
+sub module2url {
+    my $module   = shift;
+    my $opt      = shift || {};
+    my $scheme   = $opt->{scheme} || 'http';
+    my $path     = $opt->{path}   || module2path($module);
+
+    Apache::TestRequest::module($module);
+
+    my $config   = Apache::Test::config();
+    my $hostport = hostport($config);
+
+    $path =~ s|^/||;
+    return "$scheme://$hostport/$path";
+}
+
 sub user_agent {
     my $args = {@_};
 
