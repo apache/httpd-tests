@@ -77,7 +77,7 @@ sub filter_args {
     return (\@pass, \%keep);
 }
 
-my $RedirectOK = 1;
+our $RedirectOK = 1;
 
 sub redirect_ok {
     my($self, $request) = @_;
