@@ -243,8 +243,9 @@ sub inherit_config_file_or_directory {
         (my $directive, $_) = split /\s+/, $_, 2;
 
         if ($directive eq "Include") {
-            my $include = $self->server_file_rel2abs($_);
-            $self->inherit_config_file_or_directory($include);
+            foreach my $include (glob($self->server_file_rel2abs($_))) {
+                $self->inherit_config_file_or_directory($include);
+            }
         }
 
         #parse what we want

@@ -8,6 +8,9 @@ Changes - Apache::Test change logfile
 
 =item 1.07-dev
 
+Fix Apache::TestConfigParse to handle glob includes, like Include
+conf/*.conf on RedHat [Philippe M. Chiasson]
+
 Fix Apache::TestConfig::add_config not to append " " at the end of the
 config lines. This was a problem with config sections imported from
 .pm files, the appended "" made it impossible to have multi-line
