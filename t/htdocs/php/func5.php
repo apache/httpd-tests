@@ -1,8 +1,21 @@
 <?php
 
+$file = "$SCRIPT_FILENAME.ran";
+
 function foo()
 {
-        error_log("foo() has been called.", 0);
+        global $file;
+
+        $fp = fopen($file, "w");
+        if( $fp )
+        {
+                fclose($fp);
+        }
+        else
+        {
+                // Attempt to alert the user
+                error_log("can't write $file.", 0);
+        }
 }
 
 register_shutdown_function("foo");
