@@ -64,7 +64,7 @@ foreach (keys %test) {
 
 	unless ($actual eq $expected) {
 		$bung++;
-		open (FOO, ">bung$bung");
+		open (FOO, ">failed-include$bung");
 		print FOO "$_\n";
 		print FOO "expected:\n->$expected<-\n";
 		print FOO "actual:\n->$actual<-\n";
