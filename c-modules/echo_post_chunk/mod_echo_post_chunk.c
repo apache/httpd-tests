@@ -56,7 +56,7 @@ static int echo_post_chunk_handler(request_rec *r)
         total += nrd;
     }
 
-    trailer_header = ap_table_get(r->headers_in, "X-Chunk-Trailer");
+    trailer_header = apr_table_get(r->headers_in, "X-Chunk-Trailer");
     if (!trailer_header) {
         trailer_header = "No chunked trailer available!";
     }
