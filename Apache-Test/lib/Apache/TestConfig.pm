@@ -73,13 +73,19 @@ sub filter_args {
         push @pass, shift @filter;
     }
 
-    while (my($key, $val) = splice @filter, 0, 2) {
-        if ($key =~ /^-?-?(.+)/ # optinal - or -- prefix
-            && exists $wanted_args->{$1}) {
-            $keep{$1} = $val;
+    while (@filter) {
+        my $key = shift @filter;
+        # optinal - or -- prefix
+        if ($key =~ /^-?-?(.+)/ && exists $wanted_args->{$1}) {
+            if (@filter) {
+                $keep{$1} = shift @filter;
+            }
+            else {
+                die "key $1 requires a matching value";
+            }
         }
         else {
-            push @pass, $key, $val;
+            push @pass, $key;
         }
     }
 
