@@ -228,6 +228,7 @@ __DATA__
 display_startup_errors = On
 html_errors = Off
 @error_log@
+output_buffering = Off
                                                                                                                              
 ; the rest of php.ini-recommended, unaltered, save for
 ; some tidying like the removal of comments and blank lines
@@ -239,7 +240,7 @@ short_open_tag = On
 asp_tags = Off
 precision    =  14
 y2k_compliance = On
-output_buffering = 4096
+;output_buffering = 4096
 zlib.output_compression = Off
 implicit_flush = Off
 unserialize_callback_func=
