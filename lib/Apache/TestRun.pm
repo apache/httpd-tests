@@ -276,7 +276,9 @@ sub install_sighandlers {
     #must eval "" to "install" this END block, otherwise it will
     #always run, a subclass might not want that
 
-    eval 'END {
+    eval 'my $parent_pid = $$;
+          END {
+             return unless $$ == $parent_pid; # because of fork
              local $?; # preserve the exit status
              eval {
                 Apache::TestRun->new(test_config =>
