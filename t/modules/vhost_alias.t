@@ -13,6 +13,8 @@ my @vh = qw(www.vha-test.com big.server.name.from.heck.org ab.com w-t-f.net);
 
 plan tests => @vh * 2, ['vhost_alias'] && \&have_cgi;
 
+Apache::TestRequest::scheme('http'); #ssl not listening on this vhost
+
 my $config = Apache::TestRequest::test_config();
 my $vars = Apache::TestRequest::vars();
 local $vars->{port} = $config->port('mod_vhost_alias');
