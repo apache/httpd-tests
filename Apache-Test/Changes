@@ -8,6 +8,8 @@ Changes - Apache::Test change logfile
 
 =item 1.17-dev
 
+new Apache::TestConfig wrapper untaint_path() [Randy Kobes]
+
 fix the config thaw() functionality (when top_dir wasn't in @INC the
 saved config won't be loaded and tests will blow) [Stas]
 
