@@ -233,3 +233,13 @@ Options +Includes
 AllowOverride All
 </Directory>
 </IfModule>
+
+##
+## mod_dav test config
+##
+<IfModule mod_dav.c>
+DAVLockDB @SERVERROOT@/logs/davlock.db
+<Directory @SERVERROOT@/htdocs/modules/dav>
+DAV On
+</Directory>
+</IfModule>
