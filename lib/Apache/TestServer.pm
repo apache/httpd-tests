@@ -11,7 +11,9 @@ use Apache::TestTrace;
 use Apache::TestConfig ();
 use Apache::TestRequest ();
 
-my $CTRL_M = $ENV{APACHE_TEST_NO_COLOR} ? "\n" : "\r";
+use constant COLOR => Apache::TestConfig::COLOR;
+
+my $CTRL_M = COLOR ? "\r" : "\n";
 
 # some debuggers use the same syntax as others, so we reuse the same
 # code by using the following mapping
@@ -435,7 +437,7 @@ sub start {
     my $preamble = "${CTRL_M}waiting for server to start: ";
     while (1) {
         my $delta = time - $start_time;
-        unless ($ENV{APACHE_TEST_NO_COLOR}) {
+        if (COLOR) {
             print $preamble, sprintf "%02d:%02d", (gmtime $delta)[1,0];
         }
         sleep 1;
@@ -495,7 +497,7 @@ sub wait_till_is_up {
     my $preamble = "${CTRL_M}still waiting for server to warm up: ";
     while (1) {
         my $delta = time - $start_time;
-        unless ($ENV{APACHE_TEST_NO_COLOR}) {
+        if (COLOR) {
             print $preamble, sprintf "%02d:%02d", (gmtime $delta)[1,0];
         }
         sleep $sleep_interval;
