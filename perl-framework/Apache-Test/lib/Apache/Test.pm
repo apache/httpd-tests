@@ -3,11 +3,11 @@ package Apache::Test;
 use strict;
 use warnings FATAL => 'all';
 
-use Test qw(ok);
+use Test qw(ok skip);
 use Exporter ();
 
 our @ISA = qw(Exporter);
-our @EXPORT = qw(ok plan have_lwp);
+our @EXPORT = qw(ok skip plan have_lwp);
 our $VERSION = '0.01';
 
 #so Perl's Test.pm can be run inside mod_perl
@@ -95,16 +95,17 @@ Apache::Test -- Run tests with mod_perl-enabled Apache server
     # plan 3 tests
     plan tests => 3, \&condition;
 
-    # if condition() returns false, the tests are skipped. 
-    # e.g.: skip tests if lwp is not available
-    plan tests => 4, \&have_lwp;
+    # if condition() returns false, all the tests are skipped. 
+    # e.g.: skip all tests if LWP is not available
+    plan tests => 5, \&have_lwp;
 
-    # ok is exported from Test.pm (see Test.pm manpage)
-    ok 'mod_perl rules'; # test 1 passed (the string is true)
-    ok 42;               # test 2 passed (42 is always true)
+    # ok() and skip() are imported from Test.pm (see Test.pm manpage)
+    ok 'mod_perl rules'; # test 1 is passed (the string is true)
+    ok 42;               # test 2 is passed (42 is always true)
+    skip "why 42?"       # test 3 is skipped (print the reason: "why 42?")
     my @a = qw(a b);
-    ok $a[0] eq $a[1];   # test 3 failed ('a' ne 'b')
-    ok ++$a[0] eq $a[1]; # test 4 passed ('b' eq 'b')
+    ok $a[0] eq $a[1];   # test 4 is failed ('a' ne 'b')
+    ok ++$a[0] eq $a[1]; # test 5 is passed ('b' eq 'b')
 
 =cut
 
