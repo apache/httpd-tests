@@ -310,7 +310,7 @@ sub start {
     $mpm = "($mpm MPM)" if $mpm;
     print "using $version $mpm\n";
 
-    my $tries = 8;
+    my $tries = 5;
 
     for (1..$tries) {
         my $pid = $self->pid;
