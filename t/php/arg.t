@@ -3,6 +3,7 @@ use warnings FATAL => 'all';
 
 use Apache::Test;
 use Apache::TestRequest;
+use Apache::TestUtil;
 
 plan tests => 1, have_module 'php4';
 
@@ -27,4 +28,7 @@ foreach (@testargs) {
 chop($testargs); ## get rid of trailing '+'
 
 my $result = GET_BODY "/php/arg.php?$testargs";
-ok $result eq $expected;
+ok t_cmp($expected,
+         $result,
+         "GET request for /php/arg.php?$testargs"
+        );

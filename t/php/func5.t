@@ -3,6 +3,7 @@ use warnings FATAL => 'all';
 
 use Apache::Test;
 use Apache::TestRequest;
+use Apache::TestUtil;
 
 plan tests => 2, have_module 'php4';
 
@@ -15,12 +16,16 @@ foo() will be called on shutdown...
 EXPECT
 
 my $result = GET_BODY "/php/func5.php?$file";
-print "GET /php/func5.php?$file\n";
-print "expect:\n$expected\nactual:\n$result\n";
-ok $result eq $expected;
+ok t_cmp($expected,
+         $result,
+         "GET request for /php/func5.php?$file"
+        );
 
 sleep 1;
-ok -e $file;
+ok t_cmp(1,
+         -e $file,
+         "$file exists"
+        );
 
 # Clean up
 unlink $file if -e $file;
