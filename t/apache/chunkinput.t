@@ -18,17 +18,17 @@ my @req_strings =  ("/echo_post_chunk",
 my @resp_strings;
 if (have_apache(1)) {
    @resp_strings = ("HTTP/1.1 200 OK",
-                       "HTTP/1.1 404 Not Found",
-		       "HTTP/1.1 400 Bad Request",
-		       "HTTP/1.1 400 Bad Request",
-		       );
+                    "HTTP/1.1 404 Not Found",
+                    "HTTP/1.1 400 Bad Request",
+                    "HTTP/1.1 400 Bad Request",
+		   );
 } 
 else {
    @resp_strings = ("HTTP/1.1 200 OK",
-                       "HTTP/1.1 404 Not Found",
-		       "HTTP/1.1 413 Request Entity Too Large",
-		       "HTTP/1.1 413 Request Entity Too Large",
-		       );
+                    "HTTP/1.1 404 Not Found",
+                    "HTTP/1.1 413 Request Entity Too Large",
+                    "HTTP/1.1 413 Request Entity Too Large",
+                   );
 }
 
 my $tests = 4 * @test_strings + 1;
