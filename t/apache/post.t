@@ -12,15 +12,17 @@ plan tests => scalar @sizes, [qw(echo_post LWP)];
 my $location = "/echo_post";
 
 for my $size (@sizes) {
-    my $value = 'a' x ($size * 1024);
-    my $length = length $value;
+    sok {
+        my $value = 'a' x ($size * 1024);
+        my $length = length $value;
 
-    print "posting $length bytes of data\n";
+        print "posting $length bytes of data\n";
 
-    my $str = POST_BODY $location, content => $value;
+        my $str = POST_BODY $location, content => $value;
 
-    ok $str eq $value;
+        printf "read %d bytes of POST data\n", length $str;
 
-    printf "read %d bytes of POST data\n", length $str;
+        $str eq $value;
+    };
 }
 
