@@ -49,6 +49,7 @@ use vars qw(%Usage);
    httpd_conf    => 'inherit config from this file (default is apxs derived)',
    maxclients    => 'maximum number of concurrent clients (default is 1)',
    perlpod       => 'location of perl pod documents (for testing downloads)',
+   proxyssl_url  => 'url for testing ProxyPass / https (default is localhost)',
    sslca         => 'location of SSL CA (default is $t_conf/ssl/ca)',
    sslcaorg      => 'SSL CA organization to use for tests (default is asf)',
    (map { $_ . '_module_name', "$_ module name"} qw(cgi ssl thread)),
@@ -218,6 +219,7 @@ sub new {
     $vars->{serveradmin}  ||= $self->default_serveradmin;
     $vars->{maxclients}   ||= 1;
     $vars->{proxy}        ||= 'off';
+    $vars->{proxyssl_url} ||= '';
 
     $self->configure_apxs;
     $self->configure_httpd;
@@ -973,6 +975,24 @@ sub httpd_conf_template {
     }
 }
 
+#certain variables may not be available until certain config files
+#are generated.  for example, we don't know the ssl port until ssl.conf.in
+#is parsed.  ssl port is needed for proxyssl testing
+
+sub check_vars {
+    my $self = shift;
+    my $vars = $self->{vars};
+
+    unless ($vars->{proxyssl_url}) {
+        $vars->{proxyssl_url} ||=
+          $self->{vhosts}->{ $vars->{ssl_module_name} }->{hostport};
+
+        if ($vars->{proxyssl_url}) {
+            $vars->{maxclients}++;
+        }
+    }
+}
+
 sub generate_extra_conf {
     my $self = shift;
 
@@ -1012,6 +1032,8 @@ sub generate_extra_conf {
 
         close $in;
         close $out;
+
+        $self->check_vars;
     }
 
     #we changed order to give ssl the first port after DEFAULT_PORT
