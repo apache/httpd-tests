@@ -417,26 +417,27 @@ sub start {
     }
     else {
         # XXX: try not to be POSIX dependent
-        require POSIX;
+#        require POSIX;
         $old_sig = $SIG{CHLD};
-        $SIG{CHLD} = sub {
-            while ((my $child = waitpid(-1, POSIX::WNOHANG())) > 0) {
-                my $status  = $? >> 8;
-                #error "got child exit $status";
-                if ($status) {
-                    $self->failed_msg("\nserver has died with status $status");
-                    kill SIGTERM => $$;
-                }
-            }
-        };
+#XXX: this is not working well on solaris or hpux
+#        $SIG{CHLD} = sub {
+#            while ((my $child = waitpid(-1, POSIX::WNOHANG())) > 0) {
+#                my $status  = $? >> 8;
+#                #error "got child exit $status";
+#                if ($status) {
+#                    $self->failed_msg("\nserver has died with status $status");
+#                    kill SIGTERM => $$;
+#                }
+#            }
+#        };
 
         defined(my $pid = fork) or die "Can't fork: $!";
         unless ($pid) { # child
             my $status = system "$cmd";
-            if ($status) {
-                $status  = $? >> 8;
-                #error "httpd didn't start! $status";
-            }
+#            if ($status) {
+#                $status  = $? >> 8;
+#                #error "httpd didn't start! $status";
+#            }
             CORE::exit $status;
         }
     }
