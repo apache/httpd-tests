@@ -13,6 +13,7 @@ use Apache::TestTrace;
 
 use File::Find qw(finddepth);
 use File::Spec::Functions qw(catfile);
+use File::Basename qw(basename);
 use Getopt::Long qw(GetOptions);
 use Config;
 
@@ -638,9 +639,11 @@ sub scan_core_incremental {
     my $times = 0;
     my @msg = ();
 
-    finddepth(sub {
+    finddepth({ no_chdir => 1,
+                wanted   => sub {
         return unless -f $_;
-        return unless /$core_pat/o;
+        my $file = basename $File::Find::name;
+        return unless $file =~ /$core_pat/o;
         my $core = $File::Find::name;
         unless (exists $core_files{$core} && $core_files{$core} == -M $core) {
             # new core file!
@@ -658,7 +661,7 @@ sub scan_core_incremental {
             push @msg, "oh $oh, server dumped core $again",
                 "for stacktrace, run: gdb $vars->{httpd} -core $core";
         }
-    }, $vars->{top_dir});
+    }}, $vars->{top_dir});
 
     return @msg;
 
@@ -669,9 +672,11 @@ sub scan_core {
     my $vars = $self->{test_config}->{vars};
     my $times = 0;
 
-    finddepth(sub {
+    finddepth({ no_chdir => 1,
+                wanted   => sub {
         return unless -f $_;
-        return unless /$core_pat/o;
+        my $file = basename $File::Find::name;
+        return unless $file =~ /$core_pat/o;
         my $core = $File::Find::name;
         if (exists $core_files{$core} && $core_files{$core} == -M $core) {
             # we have seen this core file before the start of the test
@@ -683,7 +688,7 @@ sub scan_core {
             error "oh $oh, server dumped core $again";
             error "for stacktrace, run: gdb $vars->{httpd} -core $core";
         }
-    }, $vars->{top_dir});
+    }}, $vars->{top_dir});
 }
 
 # warn the user that there is a core file before the tests
