@@ -33,6 +33,16 @@ my $phpclient = eval {
   Test::Harness->VERSION(2.38);
   push @ISA, qw(Test::Harness::Straps);
   $Test::Harness::Strap = __PACKAGE__->new;
+
+  # yes, this is ugly, ugly, ugly
+  $Test::Harness::Strap->{callback} = sub {
+    my($self, $line, $type, $totals) = @_;
+    print $line if $Test::Harness::Verbose;
+                                                                                                                             
+    my $meth = *Handlers{$type};
+    $meth->($self, $line, $type, $totals) if $meth;
+  };
+
   1;
 };
 
