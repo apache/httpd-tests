@@ -258,7 +258,7 @@ sub configure_httpd {
     my $self = shift;
     my $vars = $self->{vars};
 
-    $vars->{target} ||= 'httpd';
+    $vars->{target} ||= (WIN32 ? 'Apache.exe' : 'httpd');
 
     unless ($vars->{httpd}) {
         #sbindir should be bin/ with the default layout

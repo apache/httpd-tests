@@ -37,7 +37,7 @@ sub test {
 
     my $env = Apache::TestConfig->passenv_makestr();
 
-    my $preamble = <<EOF;
+    my $preamble = Apache::TestConfig::WIN32 ? "" : <<EOF;
 PASSENV = $env
 EOF
 
