@@ -51,15 +51,16 @@ sub configure_modperl {
     } else {
         eval { require mod_perl };
     }
+
+    my $mp_ver = $mod_perl::VERSION;
     if ($@) {
         error "You are using mod_perl response handlers ",
             "but do not have a mod_perl capable Apache.";
         Apache::TestRun::exit_perl(0);
     }
-    if (($rev == 1 and $mod_perl::VERSION >= 1.99) ||
-        ($rev == 2 and $mod_perl::VERSION < 1.99)) {
-        error "Found mod_perl/$mod_perl::VERSION, " .
-            "but it can't be used with $ver";
+    if (($rev == 1 && $mp_ver >= 1.99) ||
+        ($rev == 2 && $mp_ver <  1.99)) {
+        error "Found mod_perl/$mp_ver, but it can't be used with $ver";
         Apache::TestRun::exit_perl(0);
     }
 
