@@ -6,7 +6,7 @@ Changes - Apache::Test change logfile
 
 =over 3
 
-=item 1.12-dev
+=item 1.12 - June 28, 2004
 
 Force projects that use Apache::TestReportPerl to implement
 report_to() if they use t/REPORT in their projects. [Stas]
