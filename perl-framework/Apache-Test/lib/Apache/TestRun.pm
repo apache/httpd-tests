@@ -180,10 +180,10 @@ sub install_sighandlers {
 
     $SIG{INT} = sub {
         if ($caught_sig_int++) {
-            warning "\ncaught SIGINT\n";
+            warning "\ncaught SIGINT";
             exit;
         }
-        notice "\nhalting tests\n";
+        notice "\nhalting tests";
         $server->stop if $opts->{'start-httpd'};
         exit;
     };
@@ -351,12 +351,12 @@ sub opt_ping {
         }
         else {
             my $version = $server->{version};
-            notice "server $name running (pid=$pid, version=$version)\n";
+            warning "server $name running (pid=$pid, version=$version)";
         }
         return;
     }
 
-    warning "no server is running on $name\n";
+    warning "no server is running on $name";
 }
 
 sub opt_debug {
