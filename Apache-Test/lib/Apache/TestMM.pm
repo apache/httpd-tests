@@ -4,6 +4,7 @@ use strict;
 use warnings FATAL => 'all';
 
 use Config;
+use Apache::TestLoad ();
 use Apache::TestConfig ();
 use Apache::TestTrace;
 
@@ -72,7 +73,7 @@ sub generate_script {
 
     unlink $file if -e $file;
 
-    my $body = "use blib;\n";
+    my $body = "BEGIN { eval { require blib; } }\n";
 
     $body .= Apache::TestConfig->modperl_2_inc_fixup;
 
