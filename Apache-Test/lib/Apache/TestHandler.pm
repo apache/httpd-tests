@@ -25,6 +25,10 @@ use Apache::Const -compile => qw(OK NOT_FOUND SERVER_ERROR);
 #some utility handlers for testing hooks other than response
 #see modperl-2.0/t/hooks/TestHooks/authen.pm
 
+if ($ENV{MOD_PERL} && require mod_perl && $mod_perl::VERSION > 1.99) {
+    require Apache::RequestIO; # puts
+}
+
 #compat with 1.xx
 my $send_http_header = Apache->can('send_http_header') || sub {};
 my $print = Apache->can('print') || Apache::RequestRec->can('puts');
