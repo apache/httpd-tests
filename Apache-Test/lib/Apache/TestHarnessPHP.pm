@@ -20,17 +20,20 @@ use warnings FATAL => 'all';
 use File::Spec::Functions qw(catfile catdir);
 use File::Find qw(finddepth);
 use Apache::TestHarness ();
+use Apache::TestTrace;
 
 use vars qw(@ISA);
 @ISA = qw(Apache::TestHarness);
 
-# Test::Harness didn't start using Test::Harness::Straps until 5.8.0
-# everything except t/foo.php with earlier perls, so let things
-# go for the moment
-eval {
-  require Test::Harness::Straps;
+# Test::Harness didn't start using Test::Harness::Straps until 2.38
+# everything except t/foo.php with earlier versions, so let things go
+# on without it
+my $phpclient = eval {
+  require Test::Harness;
+  Test::Harness->VERSION(2.38);
   push @ISA, qw(Test::Harness::Straps);
   $Test::Harness::Strap = __PACKAGE__->new;
+  1;
 };
 
 sub get_tests {
@@ -62,7 +65,7 @@ sub get_tests {
         }
         else {
             finddepth(sub {
-                          return unless /(\.t|\.php)$/;
+                          return unless /\.(t|php)$/;
                           my $t = catfile $File::Find::dir, $_;
                           my $dotslash = catfile '.', "";
                           $t =~ s:^\Q$dotslash::;
@@ -86,6 +89,18 @@ sub get_tests {
     #when running 't/TEST t/dir' shell tab completion adds a /
     #dir//foo output is annoying, fix that.
     s:/+:/:g for @tests;
+
+    # remove *.php tests unless we can run them with php
+    if (! Apache::TestConfig::which('php')) {
+        warning(join ' - ', 'skipping *.php tests',
+                            'make sure php is in your PATH');
+        @tests = grep { not /\.php$/ } @tests;
+    }
+    elsif (! $phpclient) {
+        warning(join ' - ', 'skipping *.php tests',
+                            'Test::Harness 2.38 not available');
+        @tests = grep { not /\.php$/ } @tests;
+    }
 
     return @tests;
 }
