@@ -1218,7 +1218,7 @@ sub find_and_load_module {
     my ($sym) = $name =~ m/mod_(\w+)\./;
 
     if ($mod_path && -e $mod_path) {
-        $self->preamble(IfModule => "!$name",
+        $self->preamble(IfModule => "!mod_$sym.c",
                         qq{LoadModule ${sym}_module "$mod_path"\n});
     }
     return 1;
