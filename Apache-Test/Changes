@@ -8,6 +8,10 @@ Changes - Apache::Test change logfile
 
 =item 1.09-dev
 
+remove the dependency on APR::UUID (i.e. mod_perl 2.0) in the
+same_interpreter framework (use plain time/rand/$$ concatenation)
+[Stas]
+
 Updated to the new Apache License Version 2.0 [Gozer]
 
 handle cases on Win32 when supplied paths have spaces in their

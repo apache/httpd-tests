@@ -76,8 +76,8 @@ sub same_interp_fixup {
     my $id = $same_interp_id;
     if ($interp eq 'tie') { #first request for an interpreter instance
         # unique id for this instance
-        require APR::UUID;
-        $same_interp_id = $id = APR::UUID->new->format;
+        $same_interp_id = $id =
+            unpack "H*", pack "Nnn", time, $$, int(rand(60000));
         $same_interp_counter = 0; #reset the counter
     }
     elsif ($interp ne $same_interp_id) {
