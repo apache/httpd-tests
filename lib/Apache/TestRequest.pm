@@ -189,6 +189,10 @@ sub upload_file {
 #mainly useful for POST_HEAD
 sub header_string {
     my $r = shift;
+    unless ($r->header('Content-length')) {
+        $r->header('Content-length' => length $r->content);
+        $r->header('X-Content-length-note' => 'added by Apache::TestReqest');
+    }
     $r->content("");
     $r->as_string;
 }
