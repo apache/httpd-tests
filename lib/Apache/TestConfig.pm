@@ -509,7 +509,7 @@ sub hostport {
         }
     }
 
-    join ':', $$resolve, $self->port($module);
+    join ':', $$resolve || 'localhost', $self->port($module || '');
 }
 
 #look for mod_foo.so
