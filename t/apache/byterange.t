@@ -25,7 +25,8 @@ else {
 
 my %other_files;
 
-plan tests => @pods + keys(%other_files), sub { $perlpod };
+plan tests => @pods + keys(%other_files), 
+    skip_unless(sub { $vars->{perlpod} }, "dir $vars->{perlpod} doesn't exist");
 
 for my $url (keys %other_files) {
     verify($url, $other_files{$url});

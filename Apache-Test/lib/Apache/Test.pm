@@ -8,14 +8,15 @@ use Exporter ();
 use Config;
 use Apache::TestConfig ();
 
-use vars qw(@ISA @EXPORT $VERSION %SubTests);
+use vars qw(@ISA @EXPORT $VERSION %SubTests @SkipReasons);
 
 @ISA = qw(Exporter);
-@EXPORT = qw(ok skip sok plan have_lwp have_http11 have_cgi
-             have_module have_apache have_perl);
+@EXPORT = qw(ok skip sok plan skip_unless have_lwp have_http11
+             have_cgi have_module have_apache have_perl);
 $VERSION = '0.01';
 
 %SubTests = ();
+@SkipReasons = ();
 
 if (my $subtests = $ENV{HTTPD_TEST_SUBTESTS}) {
     %SubTests = map { $_, 1 } split /\s+/, $subtests;
@@ -67,9 +68,27 @@ sub init_test_pm {
     test_pm_refresh();
 }
 
-#caller will need to have required Apache::TestRequest
-*have_http11 = \&Apache::TestRequest::install_http11;
-*have_lwp = \&Apache::TestRequest::has_lwp;
+sub have_http11 {
+    require Apache::TestRequest;
+    if (Apache::TestRequest::install_http11()) {
+        return 1;
+    }
+    else {
+        push @SkipReasons, "LWP cannot handle HTTP 1.1";
+        return 0;
+    }
+}
+
+sub have_lwp {
+    require Apache::TestRequest;
+    if (Apache::TestRequest::has_lwp()) {
+        return 1;
+    }
+    else {
+        push @SkipReasons, "must have LWP installed";
+        return 0;
+    }
+}
 
 sub plan {
     init_test_pm(shift) if ref $_[0];
@@ -90,49 +109,83 @@ sub plan {
                 #plan tests $n, [qw(php4 rewrite)];
                 $meets_condition = have_module($condition);
             }
+            else {
+                die "don't know how to handle a condition of type $ref";
+            }
         }
         else {
             # we have the verdict already: true/false
             $meets_condition = $condition ? 1 : 0;
         }
 
+        # tryint to emulate a dual variable (ala errno)
         unless ($meets_condition) {
-            print "1..0\n";
+            push @SkipReasons, "no reason given" unless @SkipReasons;
+            print "1..0 # skipped: " . join(', ', @SkipReasons) . "\n";
             exit; #XXX: Apache->exit
         }
     }
+    @SkipReasons = (); # reset
 
     Test::plan(@_);
+}
+
+sub skip_unless {
+    my $condition = shift;
+    my $reason = shift || "no reason given";
+
+    if (ref $condition eq 'CODE' and $condition->()) {
+        return 1;
+    }
+    else {
+        push @SkipReasons, $reason;
+        return 0;
+    }
 }
 
 sub have_module {
     my $cfg = config();
     my @modules = ref($_[0]) ? @{ $_[0] } : @_;
 
+    my @reasons = ();
     for (@modules) {
+        my $reason;
         if (/^[a-z0-9_]+$/) {
             my $mod = $_;
             $mod = 'mod_' . $mod unless $mod =~ /^mod_/;
             $mod .= '.c' unless $mod =~ /\.c$/;
             next if $cfg->{modules}->{$mod};
+            if (exists $cfg->{cmodules_disabled}->{$mod}) {
+                push @SkipReasons, $cfg->{cmodules_disabled}->{$mod};
+                return 0;
+            }
         }
         die "bogus module name $_" unless /^[\w:.]+$/;
         eval "require $_";
         #print $@ if $@;
-        return 0 if $@;
+        if ($@) {
+            push @SkipReasons, "cannot find $_";
+            return 0;
+        }
     }
 
     return 1;
 }
 
 sub have_cgi {
-    [have_module('cgi') || have_module('cgid')];
+    have_module('cgi') || have_module('cgid');
 }
 
 sub have_apache {
     my $version = shift;
     my $cfg = Apache::Test::config();
-    $cfg->{server}->{rev} == $version;
+    if ($cfg->{server}->{rev} == $version) {
+        return 1;
+    }
+    else {
+        push @SkipReasons, "need apache $version, but this is $cfg->{server}->{rev}";
+        return 0;
+    }
 }
 
 sub have_perl {
@@ -141,6 +194,7 @@ sub have_perl {
     for my $key ($thing, "use$thing") {
         return 1 if $Config{$key} and $Config{$key} eq 'define';
     }
+    push @SkipReasons, "Perl was built with neither $thing nor use$thing";
     return 0;
 }
 

@@ -20,7 +20,8 @@ my %other_files = map {
     ("/getfiles-binary-$_", $vars->{$_})
 } qw(httpd perl);
 
-plan tests => @pods + keys(%other_files), sub { $perlpod };
+plan tests => @pods + keys(%other_files),
+    skip_unless(sub { $vars->{perlpod} }, "dir $vars->{perlpod} doesn't exist");
 
 my $location = "/getfiles-perl-pod";
 
