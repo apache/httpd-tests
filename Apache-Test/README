@@ -156,3 +156,15 @@ rotate all tests 10 times (a, b, c, a, b, c)
 
 repeat all tests 10 times (a, a, b, b, c, c)
 % t/TEST -times=10 -order=repeat
+
+When certain tests fail when running with -times option, you want to
+find out the minimal sequence of tests that lead to the
+failure. Apache::TestSmoke helps to ease this task, simply run:
+% t/SMOKE
+
+which trying various sequences and at the end reports the shortest
+sequences it has found.
+
+for more options do:
+% t/SMOKE -help
+
