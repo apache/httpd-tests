@@ -10,11 +10,11 @@ use ModPerl::Config ();
 use vars qw(@ISA);
 @ISA = qw(Apache::TestReport);
 
-sub build_config_as_string {
+sub config {
     ModPerl::Config::as_string();
 }
 
-sub report_to { 'modperl-dev@perl.apache.org' }
+sub report_to { 'dev@perl.apache.org' }
 
 1;
 __END__
