@@ -298,8 +298,7 @@ sub try_exit_opts {
     for (@exit_opts) {
         next unless $self->{opts}->{$_};
         my $method = "opt_$_";
-        $self->$method();
-        exit;
+        exit if $self->$method();
     }
 
     if ($self->{opts}->{'stop-httpd'}) {
@@ -457,6 +456,7 @@ sub opt_clean {
     my $test_config = $self->{test_config};
     $test_config->server->stop;
     $test_config->clean;
+    1;
 }
 
 sub opt_ping {
@@ -476,10 +476,11 @@ sub opt_ping {
             my $version = $server->{version};
             warning "server $name running (pid=$pid, version=$version)";
         }
-        return;
+        return 1;
     }
 
     warning "no server is running on $name";
+    return 1; #means call exit()
 }
 
 sub test_inc {
@@ -501,17 +502,25 @@ sub opt_debug {
         $debug_opts->{$_} = $opts->{$_};
     }
 
-    if ($opts->{debugger} and $opts->{debugger} eq 'perl') {
-        $opts->{'run-tests'} = 1;
-        $self->start; #if not already running
-        $self->set_perl5lib;
-        system $^X, '-MApache::TestPerlDB', '-d', @{ $self->{tests} };
-        $self->stop;
-        exit;
+    if ($opts->{debugger}) {
+        if ($opts->{debugger} eq 'perl') {
+            $opts->{'run-tests'} = 1;
+            $self->start; #if not already running
+            $self->set_perl5lib;
+            system $^X, '-MApache::TestPerlDB', '-d', @{ $self->{tests} };
+            $self->stop;
+            return 1;
+        }
+        elsif ($opts->{debugger} =~ s/^lwp[=:]?//) {
+            $ENV{APACHE_TEST_DEBUG_LWP} = $opts->{debugger} || 1;
+            $opts->{verbose} = 1;
+            return 0;
+        }
     }
 
     $server->stop;
     $server->start_debugger($debug_opts);
+    1;
 }
 
 sub opt_help {
@@ -529,6 +538,7 @@ EOM
     print "\n   configuration options:\n";
 
     Apache::TestConfig->usage;
+    1;
 }
 
 1;

@@ -93,6 +93,8 @@ my %credentials;
 sub new {
     my $self = shift->SUPER::new(@_);
 
+    lwp_debug(); #init from %ENV (set by Apache::TestRun)
+
     my $config = test_config();
     if (my $proxy = $config->{vars}->{proxy}) {
         #t/TEST -proxy
@@ -217,6 +219,25 @@ sub header_string {
 
 our $DebugLWP; #1 == print METHOD URL and header response for all requests
                #2 == #1 + response body
+               #other == passed to LWP::Debug->import
+
+sub lwp_debug {
+    package main; #wtf: else package in perldb changes
+    my $val = $_[0] || $ENV{APACHE_TEST_DEBUG_LWP};
+
+    return unless $val;
+
+    if ($val =~ /^\d+$/) {
+        $Apache::TestRequest::DebugLWP = $val;
+        return "\$Apache::TestRequest::DebugLWP = $val\n";
+    }
+    else {
+        my(@args) = @_ ? @_ : split /\s+/, $val;
+        require LWP::Debug;
+        LWP::Debug->import(@args);
+        return "LWP::Debug->import(@args)\n";
+    }
+}
 
 my %shortcuts = (RC   => sub { shift->code },
                  OK   => sub { shift->is_success },

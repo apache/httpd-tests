@@ -2,16 +2,7 @@
 use strict;
 
 sub Apache::TestPerlDB::lwpd {
-    my $val = $_[0] || 1;
-    if ($val =~ /^\d+$/) {
-        $Apache::TestRequest::DebugLWP = $val;
-        print "\$Apache::TestRequest::DebugLWP = $val\n";
-    }
-    else {
-        require LWP::Debug;
-        LWP::Debug->import(@_);
-        print "LWP::Debug->import(@_)\n";
-    }
+    print Apache::TestRequest::lwp_debug(shift || 1);
 }
 
 my %help = (
