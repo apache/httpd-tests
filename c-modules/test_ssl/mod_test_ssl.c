@@ -8,6 +8,12 @@
         SSLVerifyClient require
         SSLVerifyDepth  10
     </Location>
+
+    <Location /test_ssl_ext_lookup>
+        SetHandler test-ssl-ext-lookup
+        SSLVerifyClient require
+        SSLVerifyDepth  10
+    </Location>
 </IfModule>
 
 #endif
@@ -19,15 +25,17 @@
 #include "ap_config.h"
 #include "apr_optional.h"
 
-#if 0
-/* if you have ssl installed, just need to include this file */
+#if AP_MODULE_MAGIC_AT_LEAST(20040425, 0) /* simply include mod_ssl.h if using >= 2.1.0 */
+
 #include "mod_ssl.h"
 
-#else
+#if AP_MODULE_MAGIC_AT_LEAST(20050127, 0) /* approx. when ssl_ext_lookup was added */
+#define HAVE_SSL_EXT_LOOKUP
+static APR_OPTIONAL_FN_TYPE(ssl_ext_lookup) *ext_lookup;
+#endif
 
-/* but for testing purposes, we'll hardcode the required stuff
- * that mod_ssl.h normally would
- */
+#else
+/* For use of < 2.0.x, inline the declaration: */
 
 APR_DECLARE_OPTIONAL_FN(char *, ssl_var_lookup,
                         (apr_pool_t *, server_rec *,
@@ -41,7 +49,41 @@ static APR_OPTIONAL_FN_TYPE(ssl_var_lookup) *var_lookup;
 static void import_ssl_var_lookup(void)
 {
     var_lookup = APR_RETRIEVE_OPTIONAL_FN(ssl_var_lookup);
+#ifdef HAVE_SSL_EXT_LOOKUP
+    ext_lookup = APR_RETRIEVE_OPTIONAL_FN(ssl_ext_lookup);
+#endif
 }
+
+#ifdef HAVE_SSL_EXT_LOOKUP
+static int test_ssl_ext_lookup(request_rec *r)
+{
+    const char *value;
+
+    if (strcmp(r->handler, "test-ssl-ext-lookup")
+        || r->method_number != M_GET) {
+        return DECLINED;
+    }
+
+    if (!r->args) {
+        ap_rputs("no query", r);
+        return OK;
+    }
+
+    if (!ext_lookup) {
+        ap_rputs("ssl_ext_lookup not available", r);
+        return OK;
+    }
+
+    value = ext_lookup(r->pool, r->connection, 1, r->args);
+
+    if (!value) value = "NULL";
+    
+    ap_rputs(value, r);
+    
+    return OK;
+}
+
+#endif
 
 static int test_ssl_var_lookup(request_rec *r)
 {
@@ -83,6 +125,9 @@ static int test_ssl_var_lookup(request_rec *r)
 static void test_ssl_register_hooks(apr_pool_t *p)
 {
     ap_hook_handler(test_ssl_var_lookup, NULL, NULL, APR_HOOK_MIDDLE);
+#ifdef HAVE_SSL_EXT_LOOKUP
+    ap_hook_handler(test_ssl_ext_lookup, NULL, NULL, APR_HOOK_MIDDLE);
+#endif
     ap_hook_optional_fn_retrieve(import_ssl_var_lookup,
                                  NULL, NULL, APR_HOOK_MIDDLE);
 }
