@@ -1352,7 +1352,7 @@ sub need_reconfiguration {
     my @reasons = ();
     my $vars = $self->{vars};
 
-    if (my $port = $conf_opts->{port} || $vars->{port}) {
+    if (my $port = $conf_opts->{port} || $Apache::TestConfig::Argv{port}) {
         push @reasons, "'-port $port' requires reconfiguration";
     }
 
