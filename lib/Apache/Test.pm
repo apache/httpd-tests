@@ -11,7 +11,7 @@ use Apache::TestConfig ();
 use vars qw(@ISA @EXPORT $VERSION %SubTests @SkipReasons);
 
 @ISA = qw(Exporter);
-@EXPORT = qw(ok skip sok plan skip_unless have_lwp have_http11
+@EXPORT = qw(ok skip sok plan have have_lwp have_http11
              have_cgi have_module have_apache have_perl);
 $VERSION = '0.01';
 
@@ -127,7 +127,7 @@ sub plan {
             $meets_condition = $condition ? 1 : 0;
         }
 
-        # tryint to emulate a dual variable (ala errno)
+        # trying to emulate a dual variable (ala errno)
         unless ($meets_condition) {
             my $reason = join ', ',
               @SkipReasons ? @SkipReasons : "no reason given";
@@ -140,33 +140,26 @@ sub plan {
     Test::plan(@_);
 }
 
-sub skip_unless {
-    my $should_skip = 0;
+sub have {
+    my $have_all = 1;
     for my $cond (@_) {
         if (ref $cond eq 'HASH') {
-            while (my($code, $reason) = each %$cond) {
-                $reason = "no reason given" unless defined $reason;
-                if (ref $code eq 'CODE' and $code->()) {
+            while (my($reason, $code) = each %$cond) {
+                if (ref $code eq 'CODE' && $code->()) {
                     next;
                 }
                 else {
                     push @SkipReasons, $reason;
-                    $should_skip++;
+                    $have_all = 0;
                 }
             }
         }
         else {
-            $should_skip++ unless have_module($cond);
+            $have_all = 0 unless have_module($cond);
         }
     }
+    return $have_all;
 
-    if ($should_skip) {
-        my $reason = join ', ',
-            @SkipReasons ? @SkipReasons : "no reason given";
-        print "1..0 # skipped: $reason\n";
-        exit; #XXX: Apache->exit
-    }
-    @SkipReasons = (); # reset
 }
 
 sub have_module {
@@ -190,7 +183,6 @@ sub have_module {
         #print $@ if $@;
         if ($@) {
             push @reasons, "cannot find module '$_'";
-            next;
         }
     }
     if (@reasons) {
@@ -339,12 +331,13 @@ the test is skipped if the scalar has a false value. For example:
   plan tests => 5, 0;
 
 But this won't hint the reason for skipping therefore it's better to
-use skip_unless()
+use have():
 
-  skip_unless({sub { $a == $b } => "$a != $b"}, 'LWP');
-  plan tests => 5;
+  plan tests => 5,
+      have 'LWP',
+           { "perl >= 5.7.3 is required" => sub { $] >= 5.007003 } };
 
-see skip_unless() for more info.
+see have() for more info.
 
 =item * an C<ARRAY> reference
 
@@ -384,34 +377,106 @@ only sub-tests 1 and 3 will be run, the rest will be skipped.
 
 Same as I<Test::skip>, see I<Test.pm> documentation.
 
-=item skip_unless
-
-  skip_unless({sub {$a==$b} => "$a != $b!"
-               sub {$a==1}  => "$a != 1!"},
-              'LWP',
-              'cgi_d',
-               {sub {0} => "forced to be skipped"},
-             );
-
-skip_unless() can be called before plan(), to decide whether to skip the
-whole test or not. plan() won't be reached if skip_unless decides to skip
-the test.
-
-skip_unless()'s argument is a list of things to test. The list can
-include scalars, which are passed to have_module(), and hash
-references. The hash references have a condition code reference as a
-key and a reason for failure as a value. The condition code is run and
-if it fails the provided reason is used to tell user why the test was
-skipped.
-
-Also see plan().
-
 =item test_pm_refresh
 
 Normally called by I<Apache::Test::plan>, this function will refresh
 the global state maintained by I<Test.pm>, allowing C<plan> and
 friends to be called more than once per-process.  This function is not
 exported.
+
+=back
+
+Functions that can be used as a last argument to the extended plan():
+
+=over have_http11
+
+  plan tests => 5, &have_http11;
+
+Require HTTP/1.1 support.
+
+=item have_ssl
+
+  plan tests => 5, &have_ssl;
+
+Require SSL support.
+
+Not exported by default.
+
+=item have_lwp
+
+  plan tests => 5, &have_lwp;
+
+Require LWP support.
+
+=item have_cgi
+
+  plan tests => 5, &have_cgi;
+
+Requires mod_cgi or mod_cgid to be installed.
+
+=item have_apache
+
+  plan tests => 5, have_apache 2;
+
+Requires httpd-2.x (apache-2.x).
+
+  plan tests => 5, have_apache 1;
+
+Requires apache-1.3.x.
+
+=item have_perl
+
+  plan tests => 5, have_perl 'iolayers';
+  plan tests => 5, have_perl 'ithreads';
+
+Requires a perl extension to be present, or perl compiled with certain
+capabilities.
+
+The first example tests whether C<PerlIO> is available, the second
+whether:
+
+  $Config{useithread} eq 'define';
+
+=item have_module
+
+  plan tests => 5, have_module 'CGI';
+  plan tests => 5, have_module qw(CGI Find::File);
+  plan tests => 5, have_module ['CGI', 'Find::File', 'cgid'];
+
+Requires Apache C and Perl modules. In case of C modules, the test
+will be done by prefixing I<mod_>. The function accept a list of
+arguments or a reference to a list.
+
+=item have
+
+  plan tests => 5,
+      have 'LWP',
+           { "perl >= 5.7.3 is required" => sub { $] >= 5.007003   } },
+           { "not Win32"                 => sub { $^O eq 'MSWin32' } },
+           'cgid';
+
+have() is more generic function which can impose multiple requirements
+at once. All requirements must be satisfied.
+
+have()'s argument is a list of things to test. The list can include
+scalars, which are passed to have_module(), and hash references. The
+hash references have a condition code reference as a value and a
+reason for failure as a key. The condition code is run and if it fails
+the provided reason is used to tell user why the test was skipped.
+
+In the presented example, we require the presense of the C<LWP> Perl
+module, C<mod_cgid>, that we run under perl E<gt>= 5.7.3 on Win32.
+
+It's possible to put more than one requirement into a single hash
+reference, but be careful that the keys will be different:
+
+      have 'LWP',
+           { "perl >= 5.7.3 is required" => sub { $] >= 5.007003   },
+             "not Win32"                 => sub { $^O eq 'MSWin32' },
+           },
+           'cgid';
+
+Also see plan().
 
 =back
 
