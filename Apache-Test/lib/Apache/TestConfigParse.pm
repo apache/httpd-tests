@@ -81,7 +81,7 @@ sub inherit_load_module {
         my $file = $self->server_file($args->[1]);
 
         my $name = basename $args->[1];
-        $name =~ s/\.so$/.c/;  #mod_info.so => mod_info.c
+        $name =~ s/\.s[ol]$/.c/;  #mod_info.so => mod_info.c
         $name =~ s/^lib/mod_/; #libphp4.so => mod_php4.c
         $self->trace("LoadModule $modname $name");
         $name = $modname_alias{$name} if $modname_alias{$name};
