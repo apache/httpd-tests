@@ -7,7 +7,7 @@ use Apache::TestRequest;
 #1k..9k, 10k..50k, 100k, 300k, 500k, 2Mb, 4Mb, 6Mb, 10Mb
 my @sizes = (1..9, 10..50, 100); #300, 500, 2000, 4000, 6000, 10_000);
                                  #XXX: ssl currently falls over here
-plan tests => scalar @sizes, [qw(echo_post LWP)];
+plan tests => scalar @sizes, [qw(echo_post)];
 
 my $location = "/echo_post";
 

@@ -4,7 +4,7 @@ use warnings FATAL => 'all';
 use Apache::Test;
 use Apache::TestRequest;
 
-plan tests => 2, [qw(input_body_filter LWP)];
+plan tests => 2, [qw(input_body_filter)];
 
 my $location = '/input_body_filter';
 
