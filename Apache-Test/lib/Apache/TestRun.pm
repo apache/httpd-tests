@@ -49,7 +49,8 @@ my %core_files  = ();
 my %original_t_perms = ();
 
 my @std_run      = qw(start-httpd run-tests stop-httpd);
-my @others       = qw(verbose configure clean help ssl http11 bugreport save);
+my @others       = qw(verbose configure clean help ssl http11 bugreport 
+                      save no-httpd);
 my @flag_opts    = (@std_run, @others);
 my @string_opts  = qw(order trace);
 my @ostring_opts = qw(proxy ping);
@@ -68,6 +69,7 @@ my %usage = (
    'order=mode'      => 'run the tests in one of the modes: ' .
                         '(repeat|rotate|random|SEED)',
    'stop-httpd'      => 'stop the test server',
+   'no-httpd'        => 'run the tests without configuring or starting httpd',
    'verbose[=1]'     => 'verbose output',
    'configure'       => 'force regeneration of httpd.conf ' .
                         ' (tests will not be run)',
@@ -475,6 +477,11 @@ sub pre_configure { }
 sub configure {
     my $self = shift;
 
+    if ($self->{opts}->{'no-httpd'}) {
+        warning "skipping httpd configuration";
+        return;
+    }
+
     # create the conf dir as early as possible
     $self->{test_config}->prepare_t_conf();
 
@@ -745,11 +752,11 @@ sub run {
 
     $self->die_on_invalid_args;
 
-    $self->start;
+    $self->start unless $self->{opts}->{'no-httpd'};
 
     $self->run_tests;
 
-    $self->stop;
+    $self->stop unless $self->{opts}->{'no-httpd'};
 }
 
 # make it easy to move the whole distro w/o running

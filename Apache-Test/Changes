@@ -8,6 +8,11 @@ Changes - Apache::Test change logfile
 
 =item 1.12-dev
 
+add -no-httpd runtime option to allow tests to run without configuring,
+starting, or stopping Apache.  this essentially provides a direct
+Test::Harness interface through t/TEST, useful for running single tests
+that do not depend on Apache.  [Geoffrey Young]
+
 Add support for Module::Build, with a new module: Apache::TestMB (a
 "clone" of Apache::TestMM for ExtUtils::MakeMaker). [David Wheeler
 <david@kineticode.com>]
