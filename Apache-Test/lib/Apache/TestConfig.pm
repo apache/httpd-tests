@@ -934,8 +934,9 @@ sub parse_vhost {
     #first is when we parse test .pm and .c files
     #second is when we scan *.conf.in
     my $form_postamble = sub {
+        my $indent = shift;
         for my $pair (@_) {
-            $self->postamble(@$pair);
+            $self->postamble("$indent@$pair");
         }
     };
 
@@ -944,13 +945,14 @@ sub parse_vhost {
         join "\n", map { "$indent@$_\n" } @_;
     };
 
+    my $double_indent = $indent ? $indent x 2 : ' ' x 4;
     return {
         port          => $port,
         #used when parsing .pm and .c test modules
-        in_postamble  => sub { $form_postamble->(@in_config) },
+        in_postamble  => sub { $form_postamble->($double_indent, @in_config) },
         out_postamble => sub { $form_postamble->(@out_config) },
         #used when parsing *.conf.in files
-        in_string     => $form_string->($indent x 2, @in_config),
+        in_string     => $form_string->($double_indent, @in_config),
         out_string    => $form_string->($indent, @out_config),
         line          => "$indent<VirtualHost _default_:$port>",
     };
