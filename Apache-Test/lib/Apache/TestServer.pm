@@ -67,14 +67,8 @@ sub post_config {
     # string and various variations made by distributions which mangle
     # that string
 
-    # Apache/2.0.50-dev
-    ($self->{rev})   = $self->{version} =~ m|^Apache/(\d)\.|;
-
-    # Apache-AdvancedExtranetServer/1.3.29 (Mandrake Linux/1mdk)
-    ($self->{rev}) ||= $self->{version} =~ m|^Apache.*?/(\d)\.|;
-
-    # IBM_HTTP_SERVER/1.3.19  Apache/1.3.20 (Unix)
-    ($self->{rev}) ||= $self->{version} =~ m|^.*?Apache.*?/(\d)\.|;
+    # Foo-Apache-Bar/x.y.z
+    ($self->{rev}) = $self->{version} =~ m|/(\d)\.|;
 
     if ($self->{rev}) {
         debug "Matched Apache revision $self->{version} $self->{rev}";

@@ -8,6 +8,11 @@ Changes - Apache::Test change logfile
 
 =item 1.20-dev
 
+instead of trying to match various custom server name variations (each
+vendor seems to replace "Apache" in 'httpd -v' with their own name),
+just try to match the "/x.y" in "Foo-Apache-Bar/x.y.z" to figure out
+the server generation (rev). [Stas]
+
 extend Apache::TestConfig::which() to search under perl's bin
 directory (in the case of local perl install many utils get installed
 there, but won't be in PATH). [Stas]
