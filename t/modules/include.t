@@ -59,6 +59,8 @@ my %test = (
     "[an error occurred while processing this directive]",
 "exec/on/cmd.shtml"     =>    "pass",
 "notreal.shtml"         =>    "pass <!--",
+"parse1.shtml"          =>    "-->",
+"parse2.shtml"          =>    "\""
 );
 
 #this test does not work on win32 (<!--#exec cmd="echo pass"-->)
