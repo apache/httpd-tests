@@ -439,7 +439,10 @@ sub configure_pm_tests {
 
         debug "configuring $module";
 
-        unless ($directives->{noautoconfig}) {
+        if ($directives->{noautoconfig}) {
+            $self->postamble(""); # which adds "\n"
+        }
+        else {
             if (my $cv = $add_hook_config{$hook}) {
                 $self->$cv($module, \@args);
             }
