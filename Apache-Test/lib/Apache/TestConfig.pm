@@ -370,25 +370,25 @@ sub configure_proxy {
 sub add_config {
     my $self = shift;
     my $where = shift;
-    my($directive, $arg, $hash) = @_;
+    my($directive, $arg, $data) = @_;
     my $args = "";
 
-    if ($hash) {
+    if ($data) {
         $args = "<$directive $arg>\n";
-        if (ref($hash)) {
-            while (my($k,$v) = each %$hash) {
-                if (ref($v) eq 'ARRAY') {
-                    for (@$v) {
-                        $args .= "    $k $_\n";
-                    }
-                }
-                else {
-                    $args .= "    $k $v\n";
-                }
+        if (ref($data) eq 'HASH') {
+            while (my($k,$v) = each %$data) {
+                $args .= "    $k $v\n";
+            }
+        }
+        elsif (ref($data) eq 'ARRAY') {
+            # balanced (key=>val) list
+            my $pairs = @$data / 2;
+            for my $i (0..($pairs-1)) {
+                $args .= sprintf "    %s %s\n", $data->[$i*2], $data->[$i*2+1];
             }
         }
         else {
-            $args .= "    $hash";
+            $args .= "    $data";
         }
         $args .= "</$directive>\n";
     }
