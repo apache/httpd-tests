@@ -69,9 +69,12 @@ if (WINFU) {
 # 1.3 gets slightly modified versions, since it cannot parse some files
 # written for 2.x (requires spaces before end_seq)
 if ($have_apache_2) {
-    $test{"if8.shtml"}  = "pass";
-    $test{"if9.shtml"}  = "pass   pass";
-    $test{"if10.shtml"} = "pass";
+    $test{"if8.shtml"}   = "pass";
+    $test{"if9.shtml"}   = "pass   pass";
+    $test{"if10.shtml"}  = "pass";
+
+    # regex captures are 2.x only
+    $test{"regex.shtml"} = "(none)  1 (none)";
 }
 else {
     $test{"if8a.shtml"}  = "pass";
