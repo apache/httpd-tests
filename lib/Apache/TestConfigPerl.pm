@@ -250,31 +250,8 @@ sub configure_pm_tests {
             my $module = abs2rel $file, $dir;
             $module =~ s,\.pm$,,;
             $module = join '::', splitdir $module;
-
-            # We have to test whether tests have
-            # APACHE_TEST_CONFIGURE() in them and run it if found at
-            # this stage, so when the server starts everything is
-            # ready.
-            # XXX: however we cannot use a simple require() because
-            # some tests won't require() outside of mod_perl
-            # environment. Therefore we scan the slurped file in.  and
-            # if APACHE_TEST_CONFIGURE has been found we require the
-            # file and run this function.
-
-            {
-                local $/;
-                open my $fh, $file or die "cannot open $file: $!";
-                my $content = <$fh>;
-                close $fh;
-                if ($content =~ /APACHE_TEST_CONFIGURE/m) {
-                    require $file;
-                    # double check that it's a real sub
-                    if ($module->can('APACHE_TEST_CONFIGURE')) {
-                        eval { $module->APACHE_TEST_CONFIGURE(); };
-                        warn $@ if $@;
-                    }
-                }
-            }
+            
+            $self->run_apache_test_config($file, $module);
 
             my($base, $sub) =
               map { s/^test//i; $_ } split '::', $module;
@@ -316,5 +293,30 @@ sub configure_pm_tests {
         }, $dir);
     }
 }
+
+# We have to test whether tests have APACHE_TEST_CONFIGURE() in them
+# and run it if found at this stage, so when the server starts
+# everything is ready.
+# XXX: however we cannot use a simple require() because some tests
+# won't require() outside of mod_perl environment. Therefore we scan
+# the slurped file in.  and if APACHE_TEST_CONFIGURE has been found we
+# require the file and run this function.
+sub run_apache_test_config {
+    my ($self, $file, $module) = @_;
+
+    local $/;
+    open my $fh, $file or die "cannot open $file: $!";
+    my $content = <$fh>;
+    close $fh;
+    if ($content =~ /APACHE_TEST_CONFIGURE/m) {
+        require $file;
+        # double check that it's a real sub
+        if ($module->can('APACHE_TEST_CONFIGURE')) {
+            eval { $module->APACHE_TEST_CONFIGURE(); };
+            warn $@ if $@;
+        }
+    }
+}
+
 
 1;
