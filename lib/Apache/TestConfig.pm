@@ -5,7 +5,8 @@ use warnings FATAL => 'all';
 
 use constant WIN32 => $^O eq 'MSWin32';
 
-use File::Spec::Functions qw(catfile abs2rel splitdir);
+use File::Spec::Functions qw(catfile abs2rel splitdir
+                             catdir file_name_is_absolute);
 use Cwd qw(fastcwd);
 
 use Apache::TestConfigPerl ();
@@ -155,6 +156,7 @@ sub new {
     $self->configure_apxs;
     $self->configure_httpd;
     $self->inherit_config; #see TestConfigParse.pm
+    $self->configure_httpd_eapi; #must come after inherit_config
 
     $self->{hostport} = $self->hostport;
 
@@ -201,6 +203,25 @@ sub configure_httpd {
     my $sem = catfile $vars->{t_logs}, 'apache_runtime_status.sem';
     unless (-e $sem) {
         $self->{clean}->{files}->{$sem} = 1;
+    }
+}
+
+sub configure_httpd_eapi {
+    my $self = shift;
+    my $vars = $self->{vars};
+
+    #deal with EAPI_MM_CORE_PATH if defined.
+    if (defined($self->{httpd_defines}->{EAPI_MM_CORE_PATH})) {
+        my $path = $self->{httpd_defines}->{EAPI_MM_CORE_PATH};
+
+        #ensure the directory exists
+        my @chunks = splitdir $path;
+        pop @chunks; #the file component of the path
+        $path = catdir @chunks;
+        unless (file_name_is_absolute $path) {
+            $path = catdir $vars->{serverroot}, $path;
+        }
+        $self->gendir($path);
     }
 }
 
