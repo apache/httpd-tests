@@ -31,36 +31,42 @@ use constant HAS_DUMPER => eval { require Data::Dumper;    };
 # emerg => 1, alert => 2, crit => 3, ...
 my %levels; @levels{@Levels} = 1..@Levels;
 $levels{todo} = $levels{debug};
-my $default_level = 'warning'; # to prevent user typos
+my $default_level = 'info'; # to prevent user typos
 
 my %colors = ();
 
 if (HAS_COLOR) {
-    $Term::ANSIColor::AUTORESET = 1;
-    %colors = (emerg   => 'bold white on_blue',
-               alert   => 'bold blue on_yellow',
-               crit    => 'reverse',
-               error   => 'bold red',
-               warning => 'yellow',
-               notice  => 'green',
-               info    => 'cyan',
-               debug   => 'magenta',
-               reset   => 'reset',
-               todo    => 'underline',
-              );
-    $colors{$_} = Term::ANSIColor::color($colors{$_}) for keys %colors;
-} else {
     %colors = (
-               emerg   => '&&&',
-               alert   => '$$$',
-               crit    => '%%%',
-               error   => '!!!',
-               warning => '***',
-               notice  => '---',
-               info    => '___',
-               debug   => '==>',
-               todo    => 'todo',
-              );
+        emerg   => 'bold white on_blue',
+        alert   => 'bold blue on_yellow',
+        crit    => 'reverse',
+        error   => 'bold red',
+        warning => 'yellow',
+        notice  => 'green',
+        info    => 'cyan',
+        debug   => 'magenta',
+        reset   => 'reset',
+        todo    => 'underline',
+    );
+
+    $Term::ANSIColor::AUTORESET = 1;
+
+    for (keys %colors) {
+        $colors{$_} = Term::ANSIColor::color($colors{$_});
+    }
+}
+else {
+    %colors = (
+        emerg   => '&&&',
+        alert   => '$$$',
+        crit    => '%%%',
+        error   => '!!!',
+        warning => '***',
+        notice  => '---',
+        info    => '___',
+        debug   => '==>',
+        todo    => 'todo',
+    );
 }
 
 *expand = HAS_DUMPER ?
