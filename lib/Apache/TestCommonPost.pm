@@ -65,20 +65,30 @@ sub lwp_init {
 
 sub lwp_do {
     my $length = shift;
-    my $remain = $length;
-
-    use constant BUF_SIZE => 8192;
-
-    my $content = sub {
-        my $bytes = $remain < BUF_SIZE ? $remain : BUF_SIZE;
-        my $buf = 'a' x $bytes;
-        $remain -= $bytes;
-        $buf;
-    };
 
     my $request = HTTP::Request->new(POST => $Location);
     $request->header('Content-length' => $length);
-    $request->content($content);
+
+    if (LWP->VERSION >= 5.800) {
+        $request->content_ref(\('a' x $length));
+    } else {
+        # before LWP 5.800 there was no way to tell HTTP::Message not
+        # to copy the string, there is a settable content_ref since
+        # 5.800
+        use constant BUF_SIZE => 8192;
+
+        my $remain = $length;
+        my $content = sub {
+            my $bytes = $remain < BUF_SIZE ? $remain : BUF_SIZE;
+            my $buf = 'a' x $bytes;
+            $remain -= $bytes;
+            $buf;
+        };
+
+        $request->content($content);
+    }
+
+
 
     my $response = $UA->request($request);
 

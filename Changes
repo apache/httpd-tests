@@ -8,6 +8,10 @@ Changes - Apache::Test change logfile
 
 =item 1.13-dev
 
+fix Apache::TestCommonPost::lwp_do to work with LWP 5.800
+($res->content() doesn't allow CODE refs anymore, instead used
+content_ref to avoid huge strings copy) [Stas]
+
 add @PHP_MODULE@ extra.conf.in substitution variable, which selects
 mod_php4 or mod_php5 as appropriate.  [Geoffrey Young]
 
