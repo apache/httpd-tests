@@ -282,8 +282,15 @@ sub new {
     $vars->{serveradmin}  ||= $self->default_serveradmin;
 
     $vars->{minclients}   ||= 1;
+    my $maxclientspreset = $vars->{maxclients} || 0;
     # prevent 'server reached MaxClients setting' errors
     $vars->{maxclients}   ||= $vars->{minclients} + 1;
+    # for threaded mpms MaxClients must be a multiple of
+    # ThreadsPerChild (i.e. maxclients % minclients == 0)
+    # so unless -maxclients was explicitly specified use a double of
+    # minclients
+    $vars->{maxclientsthreadedmpm} = 
+        $maxclientspreset || $vars->{minclients} * 2;
 
     $vars->{proxy}        ||= 'off';
     $vars->{proxyssl_url} ||= '';
@@ -1863,7 +1870,7 @@ HostnameLookups Off
     MinSpareThreads      @MinClients@
     MaxSpareThreads      @MinClients@
     ThreadsPerChild      @MinClients@
-    MaxClients           @MaxClients@
+    MaxClients           @MaxClientsThreadedMPM@
     MaxRequestsPerChild  0
 </IfModule>
 
