@@ -691,6 +691,15 @@ HostnameLookups Off
     MaxRequestsPerChild  0
 </IfModule>
 
+<IfModule perchild.c>
+    NumServers           1
+    StartThreads         1
+    MinSpareThreads      1
+    MaxSpareThreads      1
+    MaxThreadsPerChild   2
+    MaxRequestsPerChild  0
+</IfModule>
+
 <IfModule prefork.c>
     StartServers         1
     MaxClients           1
