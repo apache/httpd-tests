@@ -1,3 +1,5 @@
+# This is a config file for testing Apache-Test
+
 %Apache::TestItSelf::Config = (
     perl_exec     => '/home/stas/perl/5.8.5-ithread/bin/perl5.8.5',
     mp_gen        => '2.0',
