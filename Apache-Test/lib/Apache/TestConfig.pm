@@ -634,19 +634,8 @@ sub hostport {
     my $module = shift || '';
 
     my $name = $vars->{servername};
-    my $resolve = \$self->{resolved}->{$name};
 
-    unless ($$resolve) {
-        if (gethostbyname $name) {
-            $$resolve = $name;
-        }
-        else {
-            $$resolve = $self->default_loopback;
-            warn "lookup $name failed, using $$resolve for client tests\n";
-        }
-    }
-
-    join ':', $$resolve || 'localhost', $self->port($module || '');
+    join ':', $name , $self->port($module || '');
 }
 
 #look for mod_foo.so
@@ -1004,7 +993,7 @@ sub parse_vhost {
     my @out_config = ();
     if ($self->{vhosts}->{$module}->{namebased} < 2) {
         #extra config that should go *outside* the <VirtualHost ...>
-        @out_config = ([Listen => '127.0.0.1:' . $port]);
+        @out_config = ([Listen => $vars->{servername} . ':' . $port]);
 
         if ($self->{vhosts}->{$module}->{namebased}) {
             push @out_config => [NameVirtualHost => "*:$port"];
@@ -1772,7 +1761,7 @@ perl(1), Apache::Test(3)
 
 
 __DATA__
-Listen     127.0.0.1:@Port@
+Listen     @ServerName@:@Port@
 
 ServerRoot   "@ServerRoot@"
 DocumentRoot "@DocumentRoot@"
