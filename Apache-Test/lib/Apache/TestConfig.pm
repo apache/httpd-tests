@@ -201,11 +201,6 @@ sub new {
     $self->default_module(cgi    => [qw(mod_cgi mod_cgid)]);
     $self->default_module(thread => [qw(worker threaded)]);
 
-    if ($self->{vars}->{thread_module} eq 'worker.c') {
-        #XXX: not sure why
-        $vars->{maxclients}++;
-    }
-
     $self->{hostport} = $self->hostport;
 
     $self->{server} = $self->new_test_server;
