@@ -8,8 +8,8 @@ see Makefile.PL for howto enable 'make test'
 see t/TEST as an example test harness
 
 For an extensive documentation see
-modperl-2.0/docs/devel/writing_tests/writing_tests.pod or
-http://cvs.apache.org/viewcvs.cgi/modperl-docs/src/docs/2.0/devel/writing_tests/writing_tests.pod
+modperl-2.0/docs/devel/testing/testing.pod or
+http://cvs.apache.org/viewcvs.cgi/modperl-docs/src/docs/2.0/devel/testing/testing.pod
 
 see t/*.t for example tests
 
@@ -121,12 +121,12 @@ run all tests through mod_ssl
 % t/TEST -ssl
 
 run all tests with HTTP/1.1 (keep alive) requests
-% t/TEST -http11
+% t/TEST -http11 -ssl
 
 run all tests with HTTP/1.1 (keep alive) requests through mod_ssl
 % t/TEST -http11
 
-run all test through mod_proxy
+run all tests through mod_proxy
 % t/TEST -proxy
 
 ----------------------------------------------------------------------
@@ -161,8 +161,8 @@ find out the minimal sequence of tests that lead to the
 failure. Apache::TestSmoke helps to ease this task, simply run:
 % t/SMOKE
 
-which trying various sequences and at the end reports the shortest
-sequences it has found.
+which tries various sequences of tests and at the end reports the
+shortest sequences found that lead to the same failure.
 
 for more options do:
 % t/SMOKE -help
