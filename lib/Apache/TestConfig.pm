@@ -1109,13 +1109,11 @@ sub pop_dir {
 sub add_inc {
     my $self = shift;
     require lib;
-    # make sure that the ./Apache::Test dev libs will be first, followed
-    # by modperl ./lib, followed by ./blib and finally core Perl libs.
-    my @libs = map { "$_/Apache-Test/lib" } qw(. ..);
-    lib::->unimport(@libs);
+    # make sure that the Apache-Test dev libs will be first in @INC,
+    # followed by modperl's lib, followed by blib and finally core
+    # Perl libs.
     lib::->import(map "$self->{vars}->{top_dir}/$_",
-                  qw(lib blib/lib blib/arch));
-    lib::->import(@libs);
+                  qw(Apache-Test/lib lib blib/lib blib/arch));
     #print join "\n", "add_inc", @INC, "";
 }
 
