@@ -8,6 +8,10 @@ Changes - Apache::Test change logfile
 
 =item 1.14-dev
 
+add -one-process runtime argument, which will start the server
+in single-server mode (httpd -X in Apache 1.X or 
+httpd -D ONE_PROCESS in 2.X) [Geoffrey Young]
+
 In open_cmd, sanitize PATH instead of clearing it [Gozer]
 
 Allow / \ and \\ path delimiters in SKIP file [Markus Wichitill
