@@ -45,7 +45,7 @@ BEGIN {
 
 sub lwp_init {
     use vars qw($UA $Location);
-    $UA = Apache::TestRequest::user_agent(reset => 1);
+    $UA = Apache::TestRequest::user_agent();
     $Location = shift;
 }
 
