@@ -74,7 +74,6 @@ EOF
     close $fh or die "close $t: $!";
 }
 
-
 sub startup_pl_code {
     my $self = shift;
     my $serverroot = $self->{vars}->{serverroot};
@@ -180,10 +179,11 @@ sub add_module_config {
     open(my $fh, $module) or return;
 
     while (<$fh>) {
-        last if /^__(DATA|END)__/;
+        last if /^(__(DATA|END)__|\#if CONFIG_FOR_HTTPD_TEST)/;
     }
 
     while (<$fh>) {
+        last if /^\#endif/; #for .c modules
         next unless /\S+/;
         chomp;
         $self->replace;
