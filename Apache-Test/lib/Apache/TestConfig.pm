@@ -29,7 +29,7 @@ use constant IS_MOD_PERL_2       =>
     eval { require mod_perl && $mod_perl::VERSION >= 1.99 } || 0;
 
 use constant IS_MOD_PERL_2_BUILD => IS_MOD_PERL_2 &&
-    eval { require Apache::Build && Apache::Build::IS_MOD_PERL_BUILD() } || 0;
+    require Apache::Build && Apache::Build::IS_MOD_PERL_BUILD();
 
 use constant IS_APACHE_TEST_BUILD =>
     grep { -e "$_/lib/Apache/TestConfig.pm" } qw(Apache-Test . ..);
