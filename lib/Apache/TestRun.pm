@@ -29,7 +29,7 @@ use Cwd;
 use ExtUtils::MakeMaker;
 use File::Find qw(finddepth);
 use File::Path;
-use File::Spec::Functions qw(catfile catdir);
+use File::Spec::Functions qw(catfile catdir canonpath);
 use File::Basename qw(basename dirname);
 use Getopt::Long qw(GetOptions);
 use Config;
@@ -150,9 +150,9 @@ sub split_test_args {
     my @leftovers = ();
     for (@$argv) {
         my $arg = $_;
-        # need the t/ for stat-ing, but don't want to include it in
-        # test output
-        $arg =~ s@^(?:\./)?t/@@;
+        # need the t/ (or t\) for stat-ing, but don't want to include
+        # it in test output
+        $arg =~ s@^(?:\.[\\/])?t[\\/]@@;
         my $file = catfile $t_dir, $arg;
         if (-d $file and $_ ne '/') {
             my @files = <$file/*.t>;
@@ -185,7 +185,7 @@ sub split_test_args {
         push @leftovers, $_;
     }
 
-    $self->{tests} = \@tests;
+    $self->{tests} = [ map { canonpath($_) } @tests ];
     $self->{argv}  = \@leftovers;
 }
 
