@@ -104,9 +104,8 @@ my %one_process = (1 => '-X', 2 => '-DONE_PROCESS');
 sub start_cmd {
     my $self = shift;
     #XXX: threaded mpm does not respond to SIGTERM with -DONE_PROCESS
-    my $one = $self->{rev} == 1 ? '-X' : '';
     my $args = $self->args;
-    return "$self->{config}->{vars}->{httpd} $one $args";
+    return "$self->{config}->{vars}->{httpd} $args";
 }
 
 sub default_gdbinit {

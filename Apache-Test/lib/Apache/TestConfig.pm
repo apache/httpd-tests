@@ -1711,6 +1711,12 @@ HostnameLookups Off
     MaxRequestsPerChild  0
 </IfModule>
 
+<IfDefine APACHE1>
+    StartServers         1
+    MaxClients           @MaxClients@
+    MaxRequestsPerChild  0
+</IfDefine>
+
 <IfModule mpm_winnt.c>
     ThreadsPerChild      20
     MaxRequestsPerChild  0
