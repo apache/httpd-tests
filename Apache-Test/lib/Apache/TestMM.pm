@@ -4,7 +4,6 @@ use strict;
 use warnings FATAL => 'all';
 
 use Config;
-use Apache::TestLoad ();
 use Apache::TestConfig ();
 use Apache::TestTrace;
 
