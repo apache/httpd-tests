@@ -35,6 +35,10 @@ my %test = (
         'rc' => 500,
         'expect' => 'none'
     },
+    'nph-test.pl' => {
+        'rc' => 200,
+        'expect' => 'ok'
+    },
     'sh.sh' => {
         'rc' => 200,
         'expect' => 'sh cgi'
