@@ -5,7 +5,7 @@ use Apache::Test;
 use Apache::TestRequest;
 use Apache::TestUtil;
 
-plan tests => 9, have_php;
+plan tests => 9, need_php;
 
 ok t_cmp(GET_BODY("/php/safemode/system.php"),
          "Hello World\n");
