@@ -4,6 +4,7 @@ use strict;
 use warnings FATAL => 'all';
 
 use Test::Harness ();
+use Apache::Test ();
 use Apache::TestSort ();
 use Apache::TestTrace;
 use File::Spec::Functions qw(catfile catdir);
@@ -23,7 +24,8 @@ sub inc_fixup {
 #skip tests listed in t/SKIP
 sub skip {
     my($self, $file) = @_;
-    $file ||= 'SKIP';
+    $file ||= catfile Apache::Test::vars('serverroot'), 'SKIP';
+    error "*** file is :$file:";
 
     return unless -e $file;
 
