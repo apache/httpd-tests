@@ -64,7 +64,7 @@ Instructions for Apache-Test Release Manager
   c. bump up version numbers in this file to make it easier to do the
      next release.
 
-   perl -pi -e 's/\.18/.18/g' RELEASE
+   perl -pi -e 's/\.18/.19/g' RELEASE
    perl -pi -e 's/\.17/.18/g' RELEASE
 
      now reload this file and bump up the last number of the first
