@@ -3,7 +3,6 @@ use warnings FATAL => 'all';
 
 use Apache::Test;
 use Apache::TestRequest;
-use Apache::TestConfig;
 use File::stat;
 
 ## mod_cgi test
@@ -42,12 +41,13 @@ my %test = (
     }
 );
 
-plan tests => (keys %test) * 2 + @post_content * 3 + 3, test_module 'cgi';
+plan tests => ((keys %test) * 2) + (@post_content * 3) + 4, test_module 'cgi';
 
 my ($expected, $actual);
 my $path = "/modules/cgi";
-my $config = Apache::TestConfig->thaw;
-my $cgi_log = "$config->{vars}->{t_logs}/mod_cgi.log";
+my $vars = Apache::TestRequest::vars();
+my $t_logs = $vars->{t_logs};
+my $cgi_log = "$t_logs/mod_cgi.log";
 my ($bogus,$log_size,$stat) = (0,0,0);
 
 unlink $cgi_log if -e $cgi_log;
@@ -171,6 +171,8 @@ GET_RC "$path/bogus-perl.pl";
 $stat = stat($cgi_log);
 print "verifying log did not grow after making another bogus request.\n";
 ok ($log_size eq $$stat[7]);
+
+ok HEAD_RC("$path/perl.pl") == 200;
 
 ## clean up
 unlink $cgi_log;
