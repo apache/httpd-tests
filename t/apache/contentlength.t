@@ -56,7 +56,7 @@ for my $data (@test_strings) {
     # until 2.1.0.
     skip 
       $data eq "" && !have_min_apache_version('2.1.0') ? 
-         "skipping tests with empty Content-Length" : 0,
+         "skipping tests with empty C-L for httpd < 2.1.0" : 0,
       t_cmp($response, $resp_strings[$cycle],
              "response codes POST for $request_uri with Content-Length: $data");
 
