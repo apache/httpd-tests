@@ -27,7 +27,7 @@ Instructions for Apache-Test Release Manager
      - add release date
 
   b. rerun:
-     % perl Makefile.PL MP_INST_APACHE2=1
+     % perl Makefile.PL
      make sure tag looks right
      % make -n cvs_tag
 
