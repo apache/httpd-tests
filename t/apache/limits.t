@@ -95,11 +95,10 @@ foreach my $cond (@conditions) {
                 #
                 if ($chunked) {
                     if ($LWP::VERSION < 5.60) {
-                        my $msg = '# Chunked upload not tested; '
+                        my $msg = 'Chunked upload not tested; '
                             . 'not supported by this version of LWP';
-                        print $msg;
+                        print "#  $msg\n";
                         skip $msg, 1;
-                        $testnum++;
                     }
                     else {
                         my ($req, $resp, $url);
