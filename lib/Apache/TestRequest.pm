@@ -907,6 +907,10 @@ L<Optional Parameters|/Optional
 Parameters> can follow the optional array reference of parameters, or after
 C<$uri>.
 
+To upload a chunk of data, simply use:
+
+  my $res = POST $uri, content => $data;
+
 =head3 POST_STR
 
 A shortcut function for C<POST($uri, @args)-E<gt>content>.
