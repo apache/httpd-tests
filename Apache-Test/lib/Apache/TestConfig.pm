@@ -64,7 +64,7 @@ use vars qw(%Usage);
 sub usage {
     for my $hash (\%Usage) {
         for (sort keys %$hash){
-            printf "   -%-16s %s\n", $_, $hash->{$_};
+            printf "   -%-18s %s\n", $_, $hash->{$_};
         }
     }
 }
