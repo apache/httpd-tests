@@ -308,6 +308,20 @@ sub configure_httpd {
 
     $vars->{target} ||= (WIN32 ? 'Apache.exe' : 'httpd');
 
+    unless ($vars->{httpd}) {
+        #sbindir should be bin/ with the default layout
+        #but its eaiser to workaround apxs than fix apxs
+        for my $dir (map { $vars->{$_} } qw(sbindir bindir)) {
+            next unless defined $dir;
+            my $httpd = catfile $dir, $vars->{target};
+            next unless -x $httpd;
+            $vars->{httpd} = $httpd;
+            last;
+        }
+
+        $vars->{httpd} ||= $self->default_httpd;
+    }
+
     if ($vars->{httpd}) {
         my @chunks = splitdir $vars->{httpd};
         #handle both $prefix/bin/httpd and $prefix/Apache.exe
