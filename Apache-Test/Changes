@@ -8,6 +8,12 @@ Changes - Apache::Test change logfile
 
 =item 1.08_dev
 
+if $self->{reconfigure} is true, make sure to perform a complete
+reconfiguration, to solve the bug where conf.in files weren't reparsed
+and vhost hostport info was getting lost on subsequent runs when
+APACHE env var was set (one of the cases when $self->{reconfigure} is
+true). [Stas]
+
 handle "Include conf/*conf" cases when inheriting httpd.conf in a
 cleaner way, don't complain that "*conf" doesn't exist, since it's a
 glob pattern. Instead check try to resolve the base directory. [Stas]
