@@ -816,8 +816,9 @@ sub run_root_fs_test {
 
     # first must change gid and egid ("$gid $gid" for an empty
     # setgroups() call as explained in perlvar.pod)
-    $( = $) = "$gid $gid";
-    die "failed to change gid to $gid" unless $( == $gid;
+    my $groups = "$gid $gid";
+    $( = $) = $groups;
+    die "failed to change gid to $gid" unless $( eq $groups && $) eq $groups;
 
     # only now can change uid and euid
     $< = $> = $uid+0;
