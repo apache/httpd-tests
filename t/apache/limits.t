@@ -61,7 +61,7 @@ plan tests => $subtests, \&have_lwp;
 
 my $testnum = 1;
 foreach my $cond (@conditions) {
-    foreach my $goodbad qw(succeed fail) {
+    foreach my $goodbad (qw(succeed fail)) {
         my $param = $params{"$cond-$goodbad"};
         my $expected_rc = $xrcs{"$cond-$goodbad"};
         my $resp;
