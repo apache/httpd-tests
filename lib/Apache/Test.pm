@@ -13,8 +13,8 @@ use vars qw(@ISA @EXPORT $VERSION %SubTests @SkipReasons);
 @ISA = qw(Exporter);
 @EXPORT = qw(ok skip sok plan have have_lwp have_http11
              have_cgi have_access have_auth have_module have_apache
-             have_min_apache_version have_perl have_threads 
-             under_construction);
+             have_min_apache_version have_apache_version have_perl 
+             have_threads under_construction);
 $VERSION = '1.0';
 
 %SubTests = ();
@@ -231,6 +231,22 @@ sub have_min_apache_version {
     (my $current) = $cfg->{server}->{version} =~ m:^Apache/(\d\.\d+\.\d+):;
 
     if ($current lt $wanted) {
+        push @SkipReasons,
+          "apache version $wanted or higher is required," .
+          " this is version $current";
+        return 0;
+    }
+    else {
+        return 1;
+    }
+}
+
+sub have_apache_version {
+    my $wanted = shift;
+    my $cfg = Apache::Test::config();
+    (my $current) = $cfg->{server}->{version} =~ m:^Apache/(\d\.\d+\.\d+):;
+
+    if ($current ne $wanted) {
         push @SkipReasons,
           "apache version $wanted or higher is required," .
           " this is version $current";
@@ -484,9 +500,21 @@ See also C<have_min_apache_version()>.
 
 Used to require a minimum version of Apache.
 
+For example:
+
   plan tests => 5, have_min_apache_version("2.0.40");
 
-Requires Apache 2.0.40 or higher.
+requires Apache 2.0.40 or higher.
+
+=item have_apache_version
+
+Used to require a specific version of Apache.
+
+For example:
+
+  plan tests => 5, have_apache_version("2.0.40");
+
+requires Apache 2.0.40.
 
 =item have_perl
 
