@@ -28,7 +28,7 @@ WriteMakefile(
     PREREQ_PM => \%prereq,
     VERSION   => "0.01",
     NORECURS  => 1, # don't descend into Apache-TestMe
-
+    DIR       => [], # NORECURS is broken in older MM
     dist      => {
         COMPRESS => 'gzip -9f', SUFFIX=>'gz',
     },

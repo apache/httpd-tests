@@ -8,6 +8,10 @@ Changes - Apache::TestItSelf changes logfile
 
 =item 0.01
 
+Fix Makefile.PL to make sure that MakeMaker won't descend into
+Apache-TestMe. NORECURS doesn't work in older MM versions, so use the
+DIR attr as a workaround [Stas]
+
 new test: minmaxclients.t: testing a bug with vhosts reproducable by
 t/TEST -conf followed by t/TEST -maxclients 1 [Stas]
 
