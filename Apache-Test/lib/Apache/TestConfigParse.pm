@@ -93,7 +93,7 @@ my %skip_modules = map { $_, 1 } qw(mod_jk.c);
 # mod_perl already configures LoadModule and it's certainly found in
 # the existing httpd.conf installed system-wide.
 sub config_parse_skip_module_add {
-    my($self, $name) = @_;
+    my($name) = @_;
     $skip_modules{$name} = 1;
 }
 
