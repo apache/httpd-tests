@@ -272,7 +272,7 @@ if (have_module 'mod_bucketeer') {
 
 }
 else {
-    for (1..8) {
+    for (1..9) {
         skip "Skipping bucket boundary tests, no mod_bucketeer", 1;
     }
 }
