@@ -568,6 +568,9 @@ sub run {
 
     $self->{test_config} = $self->new_test_config;
 
+    # make it easy to move the whole distro
+    $self->refresh unless -e $self->{test_config}->{vars}->{top_dir};
+
     $self->warn_core();
 
     $self->{server} = $self->{test_config}->server;
