@@ -369,7 +369,7 @@ sub start {
     my $file = $server->debugger_file;
     if (-e $file and $opts->{'start-httpd'}) {
         warning "server is running under the debugger, defaulting to -run";
-        $opts->{'start-httpd'} = 0;
+        $opts->{'start-httpd'} = $opts->{'stop-httpd'} = 0;
     }
 
     if ($opts->{'start-httpd'}) {
