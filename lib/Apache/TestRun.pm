@@ -221,6 +221,7 @@ sub install_sighandlers {
     #always run, a subclass might not want that
 
     eval "END {
+             local $?; # preserve the exit status
              eval {
                 Apache::TestRun->new(test_config =>
                                      Apache::TestConfig->thaw)->scan;
