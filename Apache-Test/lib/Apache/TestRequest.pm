@@ -33,6 +33,16 @@ sub module {
     $Apache::TestRequest::Module;
 }
 
+sub scheme {
+    my $scheme = shift;
+    $Apache::TestRequest::Scheme = $scheme if $scheme;
+    $Apache::TestRequest::Scheme;
+}
+
+sub vars {
+    test_config()->{vars};
+}
+
 sub hostport {
     my $config = shift || test_config();
     my $hostport = $config->hostport;
