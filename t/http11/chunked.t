@@ -38,7 +38,9 @@ sub expect_chunked {
 
         ok $res->protocol eq 'HTTP/1.1';
 
-        my $enc = $res->header('Transfer-Encoding') || '';
+        my $enc = $res->header('Transfer-Encoding') || 
+                  $res->header('Client-Transfer-Encoding') || #lwp 5.61+
+                  '';
         ok $enc eq 'chunked';
         ok ! $res->header('Content-Length');
 
