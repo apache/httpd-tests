@@ -116,11 +116,14 @@ sub user_agent {
     if (exists $args->{requests_redirectable}) {
         my $redir = $args->{requests_redirectable};
         if (ref $redir and (@$redir > 1 or $redir->[0] ne 'POST')) {
-            $RedirectOK = 1;
+            $RedirectOK = $have_lwp ? undef : 1;
         } elsif ($redir) {
-            $args->{requests_redirectable} = [ qw/GET HEAD POST/ ]
-                if $have_lwp;
-            $RedirectOK = 1;
+            if ($have_lwp) {
+                $args->{requests_redirectable} = [ qw/GET HEAD POST/ ];
+                $RedirectOK = undef;
+            } else {
+                $RedirectOK = 1;
+            }
         } else {
             $RedirectOK = 0;
         }
@@ -200,7 +203,8 @@ $RedirectOK = 1;
 
 sub redirect_ok {
     my $self = shift;
-    return $self->SUPER::redirect_ok(@_) if $have_lwp;
+    return $self->SUPER::redirect_ok(@_)
+      if $have_lwp && ! defined $RedirectOK;
     return 0 if shift->method eq 'POST';
     $RedirectOK;
 }
