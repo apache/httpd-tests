@@ -38,6 +38,7 @@ if (TOP_LEVEL) {
 WriteMakefile(
     NAME      => 'Apache::Test',
     VERSION   => $VERSION,
+    PREREQ_PM => { 'File::Spec' => '0.8' },
     dist      => {
         COMPRESS => 'gzip -9f', SUFFIX=>'gz',
     },

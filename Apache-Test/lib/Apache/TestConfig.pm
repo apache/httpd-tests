@@ -23,7 +23,7 @@ use File::Find qw(finddepth);
 use File::Basename qw(dirname);
 use File::Path ();
 use File::Spec::Functions qw(catfile abs2rel splitdir canonpath
-                             catdir file_name_is_absolute);
+                             catdir file_name_is_absolute devnull);
 use Cwd qw(fastcwd);
 
 use Apache::TestConfigPerl ();
@@ -1420,7 +1420,8 @@ sub which {
 sub apxs {
     my($self, $q, $ok_fail) = @_;
     return unless $self->{APXS};
-    my $val = qx($self->{APXS} -q $q 2>/dev/null);
+    my $devnull = devnull();
+    my $val = qx($self->{APXS} -q $q 2>$devnull);
     chomp $val if defined $val; # apxs post-2.0.40 adds a new line
     unless ($val) {
         if ($ok_fail) {
