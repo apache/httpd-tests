@@ -159,10 +159,20 @@ sub args {
 my %one_process = (1 => '-X', 2 => '-D ONE_PROCESS');
 
 sub start_cmd {
-    my $self = shift;
+    my $self  = shift;
+
+    my $args   = $self->args;
+    my $config = $self->{config};
+    my $vars   = $config->{vars};
+    my $httpd  = $vars->{httpd};
+
+    my $one_process = $self->{run}->{opts}->{'one-process'}
+        ? $self->version_of(\%one_process)
+        : '';
+
     #XXX: threaded mpm does not respond to SIGTERM with -D ONE_PROCESS
-    my $args = $self->args;
-    return "$self->{config}->{vars}->{httpd} $args";
+
+    return "$httpd $one_process $args";
 }
 
 sub default_gdbinit {
