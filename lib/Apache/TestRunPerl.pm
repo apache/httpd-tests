@@ -59,7 +59,7 @@ sub configure_modperl {
     if (($rev == 1 and $mod_perl::VERSION >= 1.99) ||
         ($rev == 2 and $mod_perl::VERSION < 1.99)) {
         error "Found mod_perl/$mod_perl::VERSION, " .
-            "but it can't be used with Apache/$ver";
+            "but it can't be used with $ver";
         Apache::TestRun::exit_perl(0);
     }
 
