@@ -631,6 +631,8 @@ sub hostport {
 sub find_apache_module {
     my($self, $module) = @_;
 
+    die "find_apache_module: module name argument is required" unless $module;
+
     my $vars = $self->{vars};
     my $sroot = $vars->{serverroot};
 
