@@ -81,6 +81,19 @@ sub start_cmd {
     return "$self->{config}->{vars}->{httpd} $dversion $one $args";
 }
 
+sub default_gdbinit {
+    my $gdbinit = "";
+    my @sigs = qw(PIPE);
+
+    for my $sig (@sigs) {
+        for my $flag (qw(pass nostop)) {
+            $gdbinit .= "handle SIG$sig $flag\n";
+        }
+    }
+
+    $gdbinit;
+}
+
 sub start_gdb {
     my $self = shift;
     my $opts = shift;
@@ -93,6 +106,8 @@ sub start_gdb {
 
     my $file = catfile $config->{vars}->{serverroot}, '.gdb-test-start';
     my $fh   = $config->genfile($file, 1);
+
+    print $fh default_gdbinit();
 
     if (@breakpoints) {
         print $fh "b ap_run_pre_config\n";
