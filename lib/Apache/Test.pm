@@ -18,13 +18,17 @@ if (my $subtests = $ENV{HTTPD_TEST_SUBTESTS}) {
     %SubTests = map { $_, 1 } split /\s+/, $subtests;
 }
 
-sub sok (&) {
+sub sok (&;$) {
+    my $sub = shift;
+    my $nok = shift || 1; #allow sok to have 'ok' within
+
     if (%SubTests and not $SubTests{ $Test::ntest }) {
-        skip "skipping this subtest";
+        for my $n (1..$nok) {
+            skip "skipping this subtest";
+        }
         return;
     }
 
-    my $sub = shift;
     ok $sub->();
 }
 
