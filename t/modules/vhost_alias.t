@@ -6,9 +6,10 @@ use Apache::TestUtil;
 use Apache::TestRequest;
 
 my $url        = '/index.html';
-my $cgi_name   = "test-cgi.sh";
+my $cgi_name   = "test-cgi";
 my $cgi_string = "test cgi for";
 my $root       = "htdocs/modules/vhost_alias";
+my $ext;
 
 my @vh = qw(www.vha-test.com big.server.name.from.heck.org ab.com w-t-f.net);
 
@@ -72,15 +73,14 @@ foreach (@vh) {
 
     ## write cgi ##
     my $cgi_content = <<SCRIPT;
-#!/bin/sh
 echo Content-type: text/html
 echo
 echo $cgi_string $_
 SCRIPT
 
-    t_write_file("$d$cgi_name",$cgi_content);
+    $ext = Apache::TestUtil::write_shell_script("$d$cgi_name",
+                                                $cgi_content);
     chmod 0755, "$d$cgi_name";
-
 }
 
 ## run tests ##
@@ -92,9 +92,9 @@ foreach (@vh) {
             );
 
     ## test VirtualScriptAlias ##
-    my $cgi_uri = "/cgi-bin/$cgi_name";
+    my $cgi_uri = "/cgi-bin/$cgi_name.$ext";
     my $actual  = GET_BODY $cgi_uri, Host => $_;
-    chomp $actual;
+    $actual =~ s/[\r\n]+$//;
     ok t_cmp("$cgi_string $_",
              $actual,
              "VirtualScriptAlias test"
