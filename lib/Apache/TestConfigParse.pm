@@ -14,7 +14,7 @@ sub strip_quotes {
 }
 
 my %wanted_config = (
-    TAKE1 => {map { $_, 1 } qw(ServerRoot ServerAdmin TypesConfig)},
+    TAKE1 => {map { $_, 1 } qw(ServerRoot ServerAdmin TypesConfig DocumentRoot)},
     TAKE2 => {map { $_, 1 } qw(LoadModule)},
 );
 
@@ -26,6 +26,7 @@ my %spec_init = (
 my %spec_apply = (
     TypesConfig => \&inherit_server_file,
     ServerRoot  => sub {}, #dont override $self->{vars}->{serverroot}
+    DocumentRoot => \&inherit_directive_var,
     LoadModule  => \&inherit_load_module,
 );
 
@@ -47,6 +48,12 @@ sub server_file {
     my $f = rel2abs $file, $base;
 
     return qq("$f");
+}
+
+sub inherit_directive_var {
+    my($self, $c, $directive) = @_;
+
+    $self->{vars}->{"inherit_\L$directive"} = $c->{$directive};
 }
 
 sub inherit_server_file {
