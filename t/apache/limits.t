@@ -23,16 +23,24 @@ use LWP;
 
 my @conditions = qw(requestline fieldsize fieldcount bodysize);
 
-my %fail_inputs =    ('requestline' => ("/" . ('a' x 256)),
-                      'fieldsize'   => ('a' x 2048),
-                      'bodysize'    => ('a' x 131072),
-                      'fieldcount'  => 64
-                      );
-my %succeed_inputs = ('requestline' => '/',
-                      'fieldsize'   => 'short value',
-                      'bodysize'    => ('a' x 1024),
-                      'fieldcount'  => 1
-                      );
+my %params = ('requestline-succeed' => "/limits/",
+              'requestline-fail'    => ("/limits/" . ('a' x 256)),
+              'fieldsize-succeed'   => 'short value',
+              'fieldsize-fail'      => ('a' x 2048),
+              'fieldcount-succeed'  => 1,
+              'fieldcount-fail'     => 64,
+              'bodysize-succeed'    => ('a' x 1024),
+              'bodysize-fail'       => ('a' x 131072)
+              );
+my %xrcs = ('requestline-succeed' => 200,
+            'requestline-fail'    => 414,
+            'fieldsize-succeed'   => 200,
+            'fieldsize-fail'      => 400,
+            'fieldcount-succeed'  => 200,
+            'fieldcount-fail'     => 400,
+            'bodysize-succeed'    => 200,
+            'bodysize-fail'       => 413
+            );
 
 my $res;
 
@@ -41,48 +49,42 @@ my $res;
 # chunked version of the body-too-large test IFF we have the
 # appropriate level of LWP support.
 #
-my $subtests = (@conditions * 2);
-if ($LWP::VERSION >= 5.60) {
-    $subtests += 2;
-}
-else {
+
+if ($LWP::VERSION < 5.60) {
     print "# Chunked upload tests will NOT be performed;\n",
           "# LWP 5.60 or later is required and you only have ",
           "$LWP::VERSION installed.\n";
 }
+my $subtests = (@conditions * 2) + 2;
 plan tests => $subtests;
 
 my $testnum = 1;
 foreach my $cond (@conditions) {
     foreach my $goodbad qw(succeed fail) {
-        my $param;
-        $param = ($goodbad eq 'succeed')
-            ? $succeed_inputs{$cond}
-            : $fail_inputs{$cond};
+        my $param = $params{"$cond-$goodbad"};
+        my $expected_rc = $xrcs{"$cond-$goodbad"};
+        my $resp;
         if ($cond eq 'fieldcount') {
             my %fields;
             for (my $i = 1; $i <= $param; $i++) {
                 $fields{"X-Field-$i"} = "Testing field $i";
             }
             print "# Testing LimitRequestFields; should $goodbad\n";
-            ok t_cmp(($goodbad eq 'fail' ? 400 : 200),
-                     GET_RC("/", %fields, 'X-Subtest' => $testnum),
+            $resp = GET('/limits/', %fields, 'X-Subtest' => $testnum);
+            ok t_cmp($expected_rc,
+                     $resp->code,
                      "Test #$testnum");
+            if ($resp->code != $expected_rc) {
+                print_response($resp);
+            }
             $testnum++;
         }
         elsif ($cond eq 'bodysize') {
             #
             # Make sure the last situation is keepalives off..
             #
-            my @chunk_settings;
-            if ($LWP::VERSION < 5.60) {
-                @chunk_settings = (0);
-            }
-            else {
-                @chunk_settings = (qw(1 0));
-            }
-            foreach my $chunked (@chunk_settings) {
-                print "# Testing LimitRequestBodySize; should $goodbad\n";
+            foreach my $chunked (qw(1 0)) {
+                print "# Testing LimitRequestBody; should $goodbad\n";
                 set_chunking($chunked);
                 #
                 # Note that this tests different things depending upon
@@ -92,45 +94,63 @@ foreach my $cond (@conditions) {
                 # drained and discarded.
                 #
                 if ($chunked) {
-                    my ($req, $resp, $url);
-                    $url = Apache::TestRequest::resolve_url('/limits/');
-                    $req = HTTP::Request->new(GET => $url);
-                    $req->content_type('text/plain');
-                    $req->header('X-Subtest' => $testnum);
-                    $req->content(chunk_it($param));
-                    $resp = Apache::TestRequest::user_agent->request($req);
-                    ok t_cmp(($goodbad eq 'succeed' ? 200 : 413),
-                             $resp->code,
-                             "Test #$testnum");
-                    if (! $resp->is_success) {
-                        my $str = $resp->as_string;
-                        $str =~ s:\n:\n# :gs;
-                        print "# Failure details from server:\n# $str";
+                    if ($LWP::VERSION < 5.60) {
+                        my $msg = '# Chunked upload not tested; '
+                            . 'not supported by this version of LWP';
+                        print $msg;
+                        skip $msg, 1;
+                        $testnum++;
+                    }
+                    else {
+                        my ($req, $resp, $url);
+                        $url = Apache::TestRequest::resolve_url('/limits/');
+                        $req = HTTP::Request->new(GET => $url);
+                        $req->content_type('text/plain');
+                        $req->header('X-Subtest' => $testnum);
+                        $req->content(chunk_it($param));
+                        $resp = Apache::TestRequest::user_agent->request($req);
+                        ok t_cmp($expected_rc,
+                                 $resp->code,
+                                 "Test #$testnum");
+                        if ($resp->code != $expected_rc) {
+                            print_response($resp);
+                        }
                     }
                 }
                 else {
-                    ok t_cmp(($goodbad eq 'succeed' ? 200 : 413),
-                             GET_RC('/limits/', content_type => 'text/plain',
-                                    content => $param,
-                                    'X-Subtest' => $testnum),
+                    $resp = GET('/limits/', content_type => 'text/plain',
+                                content => $param, 'X-Subtest' => $testnum);
+                    ok t_cmp($expected_rc,
+                             $resp->code,
                              "Test #$testnum");
+                    if ($resp->code != $expected_rc) {
+                        print_response($resp);
+                    }
                 }
                 $testnum++;
             }
         }
         elsif ($cond eq 'fieldsize') {
+            $resp = GET('/limits/', 'X-Subtest' => $testnum,
+                        'X-overflow-field' => $param);
             print "# Testing LimitRequestFieldSize; should $goodbad\n";
-            ok t_cmp(($goodbad eq 'fail' ? 400 : 200),
-                     GET_RC("/", 'X-Subtest' => $testnum,
-                            'X-overflow-field' => $param),
+            ok t_cmp($expected_rc,
+                     $resp->code,
                      "Test #$testnum");
+            if ($resp->code != $expected_rc) {
+                print_response($resp);
+            }
             $testnum++;
         }
         elsif ($cond eq 'requestline') {
+            $resp = GET($param, 'X-Subtest' => $testnum);
             print "# Testing LimitRequestLine; should $goodbad\n";
-            ok t_cmp(($goodbad eq 'fail' ? 414 : 200),
-                     GET_RC($param, 'X-Subtest' => $testnum),
+            ok t_cmp($expected_rc,
+                     $resp->code,
                      "Test #$testnum");
+            if ($resp->code != $expected_rc) {
+                print_response($resp);
+            }
             $testnum++;
         }
     }
@@ -154,4 +174,11 @@ sub set_chunking {
     print "# Chunked transfer-encoding ",
           ($setting ? "enabled" : "disabled"), "\n";
     Apache::TestRequest::user_agent(keep_alive => ($setting ? 1 : 0));
+}
+
+sub print_response {
+    my ($resp) = @_;
+    my $str = $resp->as_string;
+    $str =~ s:\n:\n# :gs;
+    print "# Server response:\n# $str\n";
 }
