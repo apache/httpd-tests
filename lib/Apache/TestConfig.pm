@@ -511,6 +511,9 @@ sub gendir {
 sub clean {
     my $self = shift;
 
+    $self->new_test_server->clean;
+    $self->cmodules_clean;
+
     for (keys %{ $self->{clean}->{files} }) {
         if (-e $_) {
             $self->trace("unlink $_");
@@ -531,9 +534,6 @@ sub clean {
             rmdir $_;
         }
     }
-
-    $self->new_test_server->clean;
-    $self->cmodules_clean;
 }
 
 sub replace {

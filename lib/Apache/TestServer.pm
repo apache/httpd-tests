@@ -46,12 +46,17 @@ sub version_of {
     $thing->{$self->{rev}};
 }
 
+my @apache_logs = qw(
+error_log access_log httpd.pid
+apache_runtime_status ssl_engine_log
+);
+
 sub clean {
     my $self = shift;
 
     my $dir = $self->{config}->{vars}->{t_logs};
 
-    for (qw(error_log access_log httpd.pid)) {
+    for (@apache_logs) {
         my $file = catfile $dir, $_;
         if (unlink $file) {
             $self->trace("unlink $file");
