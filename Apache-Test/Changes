@@ -8,16 +8,20 @@ Changes - Apache::Test change logfile
 
 =item 1.15-dev
 
-add automatic core dump backtrace generation in t/REPORT if
-Devel::GDB is installed [Gozer]
-
-add 'testcover' make target for running tests with Devel::Cover
-[Geoffrey Young]
+add new test_config make target, equivalent to t/TEST -conf,
+and make it a prerequisite for the cmodules make target.  now
+you can 'make cmodules' to build the things in c-modules/
+without running t/TEST -conf first.  [Geoffrey Young]
 
 add -withtestmore import action, which allows Test::More >= 0.49
 to replace Test.pm as the engine for server-side tests
 [Geoffrey Young]
 
+add automatic core dump backtrace generation in t/REPORT if
+Devel::GDB is installed [Gozer]
+
+add 'testcover' make target for running tests with Devel::Cover
+[Geoffrey Young]
 
 
 
