@@ -76,7 +76,7 @@ sub have_module {
     my @modules = ref($_[0]) ? @{ $_[0] } : @_;
 
     for (@modules) {
-        if (/^[a-z]+$/) {
+        if (/^[a-z0-9]+$/) {
             my $mod = $_;
             $mod = 'mod_' . $mod unless $mod =~ /^mod_/;
             $mod .= '.c' unless $mod =~ /\.c$/;
