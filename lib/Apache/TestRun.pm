@@ -352,7 +352,8 @@ sub configure_opts {
         $ENV{APACHE_TEST_HTTP11} = 1;
     }
 
-    if (my @reasons = $self->{test_config}->need_reconfiguration) {
+    if (my @reasons = 
+        $self->{test_config}->need_reconfiguration($self->{conf_opts})) {
         warning "forcing re-configuration:";
         warning "\t- $_." for @reasons;
         unless ($refreshed) {
