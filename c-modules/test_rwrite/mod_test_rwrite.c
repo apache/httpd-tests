@@ -15,9 +15,9 @@
 
 static int test_rwrite_handler(request_rec *r)
 {
-    long total=0, remaining=1;
+    size_t total=0, remaining=1;
     char *buff;
-    int buff_size = 8192;
+    size_t buff_size = 8192;
 
     if (strcmp(r->handler, "test_rwrite")) {
         return DECLINED;

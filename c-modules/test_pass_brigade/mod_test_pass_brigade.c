@@ -24,9 +24,9 @@
 static int test_pass_brigade_handler(request_rec *r)
 {
     conn_rec *c = r->connection;
-    long total=0, remaining=1;
+    size_t total=0, remaining=1;
     char *buff;
-    int buff_size = 8192;
+    size_t buff_size = 8192;
 
     if (strcmp(r->handler, "test_pass_brigade")) {
         return DECLINED;
@@ -38,7 +38,7 @@ static int test_pass_brigade_handler(request_rec *r)
     httpd_test_split_qs_numbers(r, &buff_size, &remaining, NULL);
 
     fprintf(stderr, "[mod_test_pass_brigade] "
-            "going to echo %ld bytes with buffer size=%d\n",
+            "going to echo %lu bytes with buffer size=%lu\n",
             remaining, buff_size);
 
     buff = malloc(buff_size);
