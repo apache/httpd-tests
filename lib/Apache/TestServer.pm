@@ -72,7 +72,9 @@ sub pid_file {
 sub args {
     my $self = shift;
     my $vars = $self->{config}->{vars};
-    "-d $vars->{serverroot} -f $vars->{t_conf_file}";
+    my $dversion = "-DAPACHE$self->{rev}"; #for .conf version conditionals
+
+    "-d $vars->{serverroot} -f $vars->{t_conf_file} $dversion";
 }
 
 my %one_process = (1 => '-X', 2 => '-DONE_PROCESS');
@@ -82,8 +84,7 @@ sub start_cmd {
     #XXX: threaded mpm does not respond to SIGTERM with -DONE_PROCESS
     my $one = $self->{rev} == 1 ? '-X' : '';
     my $args = $self->args;
-    my $dversion = "-DAPACHE$self->{rev}"; #for .conf version conditionals
-    return "$self->{config}->{vars}->{httpd} $dversion $one $args";
+    return "$self->{config}->{vars}->{httpd} $one $args";
 }
 
 sub default_gdbinit {
