@@ -8,6 +8,8 @@ Changes - Apache::Test change logfile
   
 =item 1.18-dev
 
+add Apache-TestItSelf and Apache-TestMe sub-projects. [Stas]
+
 add various straps to aid the new Apache-TestItSelf sub-project, which
 is used to test A-T config options [Stas]
 

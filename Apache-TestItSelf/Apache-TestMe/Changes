@@ -1,0 +1,17 @@
+=head1 NAME
+
+Changes - Apache::TestMe changes logfile
+
+=head1 Changes
+
+=over 4
+
+=item 0.01
+
+write a basic mod_perl test: basic/hello.t
+
+starting the config test suite used by Apache::TestItSelf
+
+=back
+
+=cut

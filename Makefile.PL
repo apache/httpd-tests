@@ -30,6 +30,7 @@ Apache::TestMM::filter_args();
 my @scripts = qw(t/TEST);
 
 finddepth(sub {
+    return if $_ eq 'Apache-TestItSelf';
     return unless /(.*?\.pl)\.PL$/;
     push @scripts, "$File::Find::dir/$1";
 }, '.');

@@ -12,6 +12,5 @@ no_index:
     package:
         - HTTP::Request::Common
         - warnings
-
-
-
+    directory:
+        - Apache-TestItSelf
