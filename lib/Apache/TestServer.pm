@@ -261,7 +261,7 @@ sub pid {
         select undef, undef, undef, 0.25;
     }
 
-    chomp(my $pid = <$fh>);
+    chomp(my $pid = <$fh> || '');
     $pid;
 }
 
