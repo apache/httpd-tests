@@ -3,6 +3,7 @@ package Apache::TestRun;
 use strict;
 use warnings FATAL => 'all';
 
+use Apache::Test ();
 use Apache::TestConfig ();
 use Apache::TestConfigC ();
 use Apache::TestRequest ();
@@ -739,5 +740,29 @@ EOM
     Apache::TestConfig->usage;
     1;
 }
+
+# generate t/TEST script (or a different filename) which will drive
+# Apache::TestRun
+sub generate_script {
+    my ($class, $file) = @_;
+
+    $file ||= catfile 't', 'TEST';
+
+    my $content = <<'EOM';
+use strict;
+use warnings FATAL => 'all';
+
+use FindBin;
+use lib "$FindBin::Bin/../Apache-Test/lib";
+
+use Apache::TestRun ();
+
+Apache::TestRun->new->run(@ARGV);
+EOM
+
+    Apache::Test::config()->write_perlscript($file, $content);
+
+}
+
 
 1;
