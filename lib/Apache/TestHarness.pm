@@ -96,8 +96,6 @@ sub run {
         # nothing
     }
 
-    error \@tests;
-
     Test::Harness::runtests(@tests);
 }
 
