@@ -822,7 +822,7 @@ usage: TEST [options ...]
 EOM
 
     for (sort keys %usage){
-        printf "   -%-16s %s\n", $_, $usage{$_};
+        printf "  -%-13s %s\n", $_, $usage{$_};
     }
 
     print "\n   configuration options:\n";
