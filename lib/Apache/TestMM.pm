@@ -16,8 +16,9 @@ sub import {
         }
         no strict 'refs';
         my $sub = "MY::$section";
-        #e.g. modperl-2.0/Makefile.PL pulls in Apache-Test/Makefile.PL
-        next if defined &$sub;
+        # Force aliasing, since previous WriteMakefile might have
+        # moved it
+        undef &$sub if defined &$sub;
         *$sub = \&{$section};
     }
 }
