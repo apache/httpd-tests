@@ -13,18 +13,18 @@ our @EXPORT  = qw(t_cmp t_write_file t_open_file t_mkdir t_rmtree);
 
 our %CLEAN = ();
 
+use constant HAS_DUMPER => eval { require Data::Dumper; };
+use constant INDENT     => 4;
+
 sub t_cmp {
-    my ($expected, $received, $comment) = @_;
-    print "testing : $comment\n" if defined $comment;
-    print "expected: " . (defined $expected ? $expected : "undef") . "\n";
-    print "received: " . (defined $received ? $received : "undef") . "\n";
-    if (defined $expected && defined $received) {
-        return $expected eq $received;
-    }
-    else {
-        # undef == undef! a valid test
-        return (defined $expected || defined $received) ? 0 : 1;
-    }
+    die join(":", (caller)[1..2]) . 
+        ' usage: $res = t_cmp($expected, $received, [$comment])'
+            if @_ < 2 || @_ > 3;
+
+    print "testing : ", pop ,"\n" if @_ == 3;
+    print "expected: ", struct_as_string(0, $_[0]), "\n";
+    print "received: ", struct_as_string(0, $_[1]), "\n";
+    return is_equal(@_);
 }
 
 sub t_write_file {
@@ -57,6 +57,86 @@ sub t_mkdir {
 sub t_rmtree {
     die "must pass a dirname" unless defined $_[0];
     File::Path::rmtree((@_ > 1 ? \@_ : $_[0]), 0, 1);
+}
+
+# $string = struct_as_string($indent_level, $var);
+#
+# return any nested datastructure via Data::Dumper or ala Data::Dumper
+# as a string. undef() is a valid arg.
+#
+# $indent_level should be 0 (used for nice indentation during
+# recursive datastructure traversal)
+sub struct_as_string{
+    return "???"   unless @_ == 2;
+    my $level = shift;
+    return "undef" unless defined $_[0];
+    my $pad  = ' ' x (($level + 1) * INDENT);
+    my $spad = ' ' x ($level       * INDENT);
+
+    if (HAS_DUMPER) {
+        local $Data::Dumper::Terse = 1;
+        $Data::Dumper::Terse = $Data::Dumper::Terse; # warn
+        my $data = Data::Dumper::Dumper(@_);
+        $data =~ s/\n$//; # \n is handled by the caller
+        return $data;
+    }
+    else {
+        if (ref($_[0]) eq 'ARRAY') {
+            my @data = ();
+            for my $i (0..$#{ $_[0] }) {
+                push @data,
+                    struct_as_string($level+1, $_[0]->[$i]);
+            }
+            return join "\n", "[", map({"$pad$_,"} @data), "$spad\]";
+        } elsif ( ref($_[0])eq 'HASH') {
+            my @data = ();
+            for my $key (keys %{ $_[0] }) {
+                push @data,
+                    "$key => " .
+                    struct_as_string($level+1, $_[0]->{$key});
+            }
+            return join "\n", "{", map({"$pad$_,"} @data), "$spad\}";
+        } else {
+            return $_[0];
+        }
+    }
+}
+
+# compare any two datastructures (must pass references for non-scalars)
+# undef()'s are valid args
+sub is_equal {
+    my ($a, $b) = @_;
+    return 0 unless @_ == 2;
+
+    if (defined $a && defined $b) {
+        my $ref_a = ref $a;
+        my $ref_b = ref $b;
+        if (!$ref_a && !$ref_b) {
+            return $a eq $b;
+        }
+        elsif ($ref_a eq 'ARRAY' && $ref_b eq 'ARRAY') {
+            return 0 unless @$a == @$b;
+            for my $i (0..$#$a) {
+                is_equal($a->[$i], $b->[$i]) || return 0;
+            }
+        }
+        elsif ($ref_a eq 'HASH' && $ref_b eq 'HASH') {
+            return 0 unless (keys %$a) == (keys %$b);
+            for my $key (sort keys %$a) {
+                return 0 unless exists $b->{$key};
+                is_equal($a->{$key}, $b->{$key}) || return 0;
+            }
+        }
+        else {
+            # try to compare the references
+            return $a eq $b;
+        }
+    }
+    else {
+        # undef == undef! a valid test
+        return (defined $a || defined $b) ? 0 : 1;
+    }
+    return 1;
 }
 
 END{
@@ -136,6 +216,15 @@ It is valid to use I<undef> as an expected value. Therefore:
   1 == t_cmp(undef, undef, "undef == undef?");
 
 is true.
+
+You can compare any two data-structures with t_cmp(). Just make sure
+that if you pass non-scalars, you have to pass their references. The
+datastructures can be deeply nested. For example you can compare:
+
+  t_cmp({1 => [2..3,{5..8}], 4 => [5..6]},
+        {1 => [2..3,{5..8}], 4 => [5..6]},
+        "hash of array of hashes");
+
 
 =item t_write_file()
 
