@@ -702,6 +702,9 @@ into a string.  Example:
 
 =head1 SEE ALSO
 
+The Apache-Test tutorial:
+L<http://perl.apache.org/docs/general/testing/testing.html>.
+
 L<Apache::TestRequest|Apache::TestRequest> subclasses LWP::UserAgent and
 exports a number of useful functions for sending request to the Apache test
 server. You can then test the results of those requests.
