@@ -28,7 +28,12 @@ sub config {
     ModPerl::Config::as_string();
 }
 
-sub report_to { 'dev@perl.apache.org' }
+sub report_to {
+    my $self = shift;
+    my $pkg  = ref $self;
+    die "you need to implement $pkg\::report_to() to return the " .
+        "contact email address of your project";
+}
 
 1;
 __END__
