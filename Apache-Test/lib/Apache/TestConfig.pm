@@ -1239,13 +1239,40 @@ sub error_log {
 
 #utils
 
-#duplicating small bits of Apache::Build so we dont require it
+#For Win32 systems, stores the extensions used for executable files
+
+my @path_ext = ();
+
+if (WIN32) {
+    if ($ENV{PATHEXT}) {
+        push @path_ext, split ';', $ENV{PATHEXT};
+    }
+    else {
+        #Win9X: doesn't have PATHEXT
+        push @path_ext, qw(com exe bat);
+    }
+}
+
 sub which {
-    foreach (map { catfile $_, $_[0] } File::Spec->path) {
-        return $_ if -x;
+    my $program = shift;
+
+    return undef unless $program;
+
+    my @results = ();
+
+    for my $base (map { catfile($_, $program) } File::Spec->path()) {
+        if ($ENV{HOME} and not WIN32) {
+            # only works on Unix, but that's normal:
+            # on Win32 the shell doesn't have special treatment of '~'
+            $base =~ s/~/$ENV{HOME}/o;
+        }
+
+        return $base if -x $base;
+
         if (WIN32) {
-            my $exe = "$_.exe";
-            return $exe if -x $exe;
+            for my $ext (@path_ext) {
+                return "$base.$ext" if -x "$base.$ext";
+            }
         }
     }
 }
