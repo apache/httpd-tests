@@ -17,7 +17,7 @@ my $post_module = 'eat_post';
 my $post_tests = have_module($post_module) ?
   Apache::TestCommon::run_post_test_sizes() : 0;
 
-plan tests => (6 + $post_tests) * $num_modules, ['mod_proxy'];
+plan tests => (7 + $post_tests) * $num_modules, ['mod_proxy'];
 
 for my $module (sort keys %modules) {
 
@@ -70,6 +70,22 @@ for my $module (sort keys %modules) {
         t_cmp('client_ok',
               $vars{SSL_CLIENT_S_DN_CN},
               "client subject common name");
+    };
+
+    sok {
+        #test that ProxyPassReverse rewrote the Location header
+        #to use the frontend server rather than downstream server
+        my $uri = '/modules';
+        my $ruri = Apache::TestRequest::resolve_url($uri) . '/';
+
+        #tell lwp not to follow redirect so we can see the Location header
+        local $Apache::TestRequest::RedirectOK = 0;
+
+        $res = GET($uri);
+
+        my $location = $res->header('Location') || 'NONE';
+
+        t_cmp($ruri, $location, 'ProxyPassReverse Location rewrite');
     };
 
     Apache::TestCommon::run_post_test($post_module) if $post_tests;
