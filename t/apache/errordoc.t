@@ -59,8 +59,7 @@ plan tests => 14, have_lwp;
              '/redefine/notfound.html code');
 
     # 1.3 requires quotes for hard-coded messages
-    my $expected = have_min_apache_version('2.1') ? qr/Not Found/ : 
-                   have_apache(2)                 ? 'default'     :
+    my $expected = have_apache(2) ? qr/Not Found/ : 
                    qr/Additionally, a 500/;
 
     ok t_cmp($content,
