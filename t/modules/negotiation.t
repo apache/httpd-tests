@@ -8,11 +8,39 @@ use Apache::TestRequest;
 ##
 ## extra.conf.in:
 ##
+## <IfModule mod_mime.c>
+## AddLanguage en .en
+## AddLanguage fr .fr
+## AddLanguage de .de
+## AddLanguage fu .fu
+## AddHandler type-map .var
+## 
+## <IfModule mod_negotiation.c>
+## CacheNegotiatedDocs
+## <Directory @SERVERROOT@/htdocs/modules/negotiation/en>
+## Options +MultiViews
+## LanguagePriority en fr de fu
+## </Directory>
+## <Directory @SERVERROOT@/htdocs/modules/negotiation/de>
+## Options +MultiViews
+## LanguagePriority de en fr fu
+## </Directory>
+## <Directory @SERVERROOT@/htdocs/modules/negotiation/fr>
+## Options +MultiViews
+## LanguagePriority fr en de fu
+## </Directory>
+## <Directory @SERVERROOT@/htdocs/modules/negotiation/fu>
+## Options +MultiViews
+## LanguagePriority fu fr en de
+## </Directory>
+## </IfModule>
+## </IfModule>
+
 
 my ($en, $fr, $de, $fu, $bu) = qw(en fr de fu bu);
 my @language = ($en, $fr, $de, $fu);
 
-plan tests => (@language * 3) + (@language * @language * 5) + 4;
+plan tests => (@language * 3) + (@language * @language * 5) + 6;
 
 my $actual;
 foreach (@language) {
@@ -70,6 +98,11 @@ $actual = GET_BODY "/modules/negotiation/$en/two/index",
 chomp $actual;
 ok ($actual eq "index.$fu.html");
 
+$actual = GET_BODY "/modules/negotiation/$en/compressed/",
+	'Accept-Language' => "$en; q=0.1, $fr; q=0.4, $fu; q=0.9, $de; q=0.2";
+chomp $actual;
+ok ($actual eq "index.html.$fu.gz");
+
 ## 'bu' has the highest quality rating, but is non-existant,
 ## so we expect the next highest rated 'fr' content to be returned.
 $actual = GET_BODY "/modules/negotiation/$en/",
@@ -81,3 +114,8 @@ $actual = GET_BODY "/modules/negotiation/$en/two/index",
 	'Accept-Language' => "$en; q=0.1, $fr; q=0.4, $bu; q=1.0";
 chomp $actual;
 ok ($actual eq "index.$fr.html");
+
+$actual = GET_BODY "/modules/negotiation/$en/compressed/",
+	'Accept-Language' => "$en; q=0.1, $fr; q=0.4, $bu; q=1.0";
+chomp $actual;
+ok ($actual eq "index.html.$fr.gz");
