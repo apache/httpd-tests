@@ -13,10 +13,25 @@ use Cwd ();
 
 use constant DRYRUN => 0;
 
+my @min_modules = qw(access auth log-config env mime setenvif
+                     mime autoindex dir alias);
+
+my %shared_modules = (
+    min  => join(' ', @min_modules),
+);
+
 my %configs = (
     all => {
         'apache-1.3' => [],
         'httpd-2.0' => enable20(qw(modules=all proxy)),
+    },
+    most => {
+        'apache-1.3' => [],
+        'httpd-2.0' => enable20(qw(modules=most)),
+    },
+    min => {
+        'apache-1.3' => [],
+        'httpd-2.0' => enable20(@min_modules),
     },
     exp => {
         'apache-1.3' => [],
@@ -47,7 +62,19 @@ my %builds = (
      shared => {
          config =>  {
              'apache-1.3' => [],
-             'httpd-2.0'  => [qw(--enable-mods-shared=all)],
+             'httpd-2.0'  => enable20_shared('all'),
+         },
+     },
+     mostshared => {
+         config =>  {
+             'apache-1.3' => [],
+             'httpd-2.0'  => enable20_shared('most'),
+         },
+     },
+     minshared => {
+         config =>  {
+             'apache-1.3' => [],
+             'httpd-2.0'  => enable20_shared('min'),
          },
      },
      static => {
@@ -65,6 +92,12 @@ my @dirs = qw(build tar src install);
 
 sub enable20 {
     [ map { "--enable-$_" } @_ ];
+}
+
+sub enable20_shared {
+    my $name = shift;
+    my $modules = $shared_modules{$name} || $name;
+    enable20(qq(mods-shared="$modules"));
 }
 
 sub default_mpms {
