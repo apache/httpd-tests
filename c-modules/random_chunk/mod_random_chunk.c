@@ -131,15 +131,6 @@ static int random_chunk_handler(request_rec *r)
 	return OK;
     }
 
-    /* trigger ap_set_keepalive to test if r->chunked gets set*/
-    ap_rputs("", r);
-    ap_rflush(r);
-
-    if (!r->chunked) {
-	ap_rputs("Not chunked!", r);
-	return OK;
-    }
-
     args = r->args;
     if (!args) {
 error:
