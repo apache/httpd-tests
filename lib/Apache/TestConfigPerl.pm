@@ -64,7 +64,7 @@ sub write_pm_test {
     return if -e $t;
 
     $self->gendir($dir);
-    my $fh = $self->genfile($t, 1);
+    my $fh = $self->genfile($t);
 
     print $fh <<EOF;
 use Apache::TestConfig ();
@@ -98,7 +98,7 @@ sub configure_startup_pl {
     #but this will work for both 2.0 and 1.xx
     if (my $inc = $self->{inc}) {
         my $include_pl = catfile $self->{vars}->{t_conf}, 'modperl_inc.pl';
-        my $fh = $self->genfile($include_pl, 1);
+        my $fh = $self->genfile($include_pl);
         for (@$inc) {
             print $fh "use lib '$_';\n";
         }
@@ -112,7 +112,7 @@ sub configure_startup_pl {
     my $startup_pl = catfile $self->{vars}->{t_conf}, 'modperl_startup.pl';
 
     unless (-e $startup_pl) {
-        my $fh = $self->genfile($startup_pl, 1);
+        my $fh = $self->genfile($startup_pl);
         print $fh $self->startup_pl_code;
         close $fh;
     }
@@ -227,7 +227,7 @@ sub add_module_config {
 #modules can add their own configuration using __DATA__
 
 my %hooks = map { $_, ucfirst $_ }
-  qw(trans access authen authz type fixup log);
+    qw(trans access authen authz type fixup log);
 $hooks{Protocol} = 'ProcessConnection';
 $hooks{Filter}   = 'OutputFilter';
 
