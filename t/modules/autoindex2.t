@@ -18,14 +18,15 @@ my $vars = Apache::Test::config()->{vars};
 my $documentroot = $vars->{documentroot};
 my $base_dir = catdir $documentroot, "modules", "autoindex2";
 my $base_uri = "/modules/autoindex2";
+my $have_apache_2 = have_apache 2;
 
 # which sub-dir listings should be seen in mod_autoindex's output
 # 1 == should appear
 # 0 == should not appear
 my %dirs = (
    dir_normal    => 1, # obvious
-   dir_protected => 0, # 
-   dir_broken    => 0, # 
+   dir_protected => $have_apache_2?0:1, # 
+   dir_broken    => $have_apache_2?0:1, # 
 );
 
 plan tests => 3, ['autoindex'];
