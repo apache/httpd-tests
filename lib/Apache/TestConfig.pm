@@ -113,7 +113,9 @@ sub passenv_makestr {
 sub server { shift->{server} }
 
 sub modperl_2_inc_fixup {
-    (eval { require mod_perl } && $mod_perl::VERSION >= 1.99)
+
+    (eval { require mod_perl } && $mod_perl::VERSION >= 1.99 &&
+     eval { require Apache::Build } && !Apache::Build::IS_MOD_PERL_BUILD())
         ? "use Apache2;\n" 
         : '';
 }
