@@ -875,6 +875,12 @@ sub generate_httpd_conf {
 
     $self->preamble_run($out);
 
+    if ($self->server->{rev} == 1) {
+        for my $name (qw(port)) {
+            print $out "\u$name    $vars->{$name}\n";
+        }
+    }
+
     for my $name (qw(user group)) { #win32/cygwin do not support
         if ($vars->{$name}) {
             print $out "\u$name    $vars->{$name}\n";
@@ -1160,7 +1166,6 @@ ServerRoot   "@ServerRoot@"
 DocumentRoot "@DocumentRoot@"
 
 Listen     @Port@
-Port       @Port@
 ServerName @ServerName@
 
 PidFile     @t_logs@/httpd.pid
