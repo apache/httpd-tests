@@ -128,9 +128,9 @@ sub configure_inc {
 }
 
 sub write_pm_test {
-    my($self, $module, $base, $sub) = @_;
+    my($self, $module, $sub, @base) = @_;
 
-    my $dir = catfile $self->{vars}->{t_dir}, $base;
+    my $dir = catfile $self->{vars}->{t_dir}, @base;
     my $t = catfile $dir, "$sub.t";
     return if -e $t;
 
@@ -501,8 +501,10 @@ sub configure_pm_tests {
 
         $self->run_apache_test_configure($file, $module, $status);
 
-        my($base, $sub) =
+        my @base =
             map { s/^test//i; $_ } split '::', $module;
+
+        my $sub = pop @base;
 
         my $hook = ($subdir eq 'Hooks' ? $hooks{$sub} : '')
             || $hooks{$subdir} || $subdir;
@@ -544,7 +546,7 @@ sub configure_pm_tests {
             $self->postamble($self->$container($module), \@args) if @args;
         }
 
-        $self->write_pm_test($module, lc $base, lc $sub);
+        $self->write_pm_test($module, lc $sub, map { lc } @base);
     }
 }
 
