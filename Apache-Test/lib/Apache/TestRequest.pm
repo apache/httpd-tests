@@ -94,6 +94,10 @@ sub user_agent_request_num {
       $res->header('Client-Response-Num'); #lwp 5.62+
 }
 
+sub user_agent_keepalive {
+    $ENV{APACHE_TEST_HTTP11} = shift;
+}
+
 sub do_request {
     my($ua, $method, $url, $callback) = @_;
     my $r = HTTP::Request->new($method, resolve_url($url));
