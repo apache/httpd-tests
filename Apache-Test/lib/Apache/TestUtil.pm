@@ -262,7 +262,7 @@ datastructures can be deeply nested. For example you can compare:
         {1 => [2..3,{5..8}], 4 => [5..6]},
         "hash of array of hashes");
 
-This function is automatically exported.
+This function is exported by default.
 
 =item t_debug()
 
@@ -276,6 +276,8 @@ for debug prints, since if in the future the debug printing will
 change (e.g. redirected into a file) your tests won't need to be
 changed.
 
+This function is exported by default.
+
 =item t_write_file()
 
   t_write_file($filename, @lines);
@@ -287,7 +289,7 @@ I<$filename> is passed, an empty file will be created.
 The generated file will be automatically deleted at the end of the
 program's execution.
 
-This function is automatically exported.
+This function is exported by default.
 
 =item write_shell_script()
 
@@ -310,7 +312,7 @@ file handle to the opened file.
 The generated file will be automatically deleted at the end of the
 program's execution.
 
-This function is automatically exported.
+This function is exported by default.
 
 =item t_mkdir()
 
@@ -325,7 +327,7 @@ the parent doesn't exist? or should we create t_mkpath() in addition?
 The generated directory will be automatically deleted at the end of
 the program's execution.
 
-This function is automatically exported.
+This function is exported by default.
 
 =item t_rmtree()
 
@@ -333,7 +335,7 @@ This function is automatically exported.
 
 t_rmtree() deletes the whole directories trees passed in I<@dirs>.
 
-This function is automatically exported.
+This function is exported by default.
 
 =item t_is_equal()
 
@@ -352,7 +354,7 @@ performed. For example:
 If comparing non-scalars make sure to pass the references to the
 datastructures.
 
-This function is automatically exported.
+This function is exported by default.
 
 =back
 
