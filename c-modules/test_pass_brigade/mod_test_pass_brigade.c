@@ -23,6 +23,7 @@
 
 static int test_pass_brigade_handler(request_rec *r)
 {
+    conn_rec *c = r->connection;
     long total=0, remaining=1;
     char *buff;
     int buff_size = 8192;
@@ -46,8 +47,9 @@ static int test_pass_brigade_handler(request_rec *r)
     while (total < remaining) {
         int left = (remaining - total);
         int len = left <= buff_size ? left : buff_size;
-        apr_bucket_brigade *bb = apr_brigade_create(r->pool);
-        apr_bucket *bucket = apr_bucket_heap_create(buff, len, 1);
+        apr_bucket_brigade *bb = apr_brigade_create(r->pool, c->bucket_alloc);
+        apr_bucket *bucket = apr_bucket_heap_create(buff, len, NULL,
+                                                    c->bucket_alloc);
         apr_status_t status;
 
         APR_BRIGADE_INSERT_TAIL(bb, bucket);

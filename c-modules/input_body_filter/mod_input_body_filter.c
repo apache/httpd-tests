@@ -85,13 +85,14 @@ static int input_body_filter_handler(ap_filter_t *f, apr_bucket_brigade *bb,
                                      apr_read_type_e block,
                                      apr_off_t readbytes)
 {
+    request_rec *r = f->r;
+    conn_rec *c = r->connection;
     apr_status_t rv;
-    apr_pool_t *p = f->r->pool;
     input_body_ctx_t *ctx = f->ctx;
 
     if (!ctx) {
-        f->ctx = ctx = apr_pcalloc(f->r->pool, sizeof(*ctx));
-        ctx->b = apr_brigade_create(f->r->pool);
+        f->ctx = ctx = apr_pcalloc(r->pool, sizeof(*ctx));
+        ctx->b = apr_brigade_create(r->pool, c->bucket_alloc);
     }
 
     if (APR_BRIGADE_EMPTY(ctx->b))
@@ -124,9 +125,10 @@ static int input_body_filter_handler(ap_filter_t *f, apr_bucket_brigade *bb,
         APR_BUCKET_REMOVE(bucket);
 
         if (len) {
-            char *reversed = apr_pstrndup(p, data, len);
+            char *reversed = apr_pstrndup(r->pool, data, len);
             reverse_string(reversed, len);
-            bucket = apr_bucket_pool_create(reversed, len, p);
+            bucket = apr_bucket_pool_create(reversed, len, r->pool,
+                                            c->bucket_alloc);
         }
 
         APR_BRIGADE_INSERT_TAIL(bb, bucket);

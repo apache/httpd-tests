@@ -72,7 +72,7 @@ static apr_status_t nntp_like_init_connection(conn_rec *c)
     apr_bucket_brigade *bb;
     apr_status_t rv;
 
-    bb = apr_brigade_create(c->pool);
+    bb = apr_brigade_create(c->pool, c->bucket_alloc);
 
     rv = ap_get_brigade(c->input_filters, bb, AP_MODE_INIT, 
                         APR_BLOCK_READ, 0);
@@ -85,15 +85,16 @@ static apr_status_t nntp_like_init_connection(conn_rec *c)
 static apr_status_t nntp_like_send_welcome(conn_rec *c)
 {
     apr_bucket *bucket;
-    apr_bucket_brigade *bb = apr_brigade_create(c->pool);
+    apr_bucket_brigade *bb = apr_brigade_create(c->pool, c->bucket_alloc);
 
 #define NNTP_LIKE_WELCOME \
     "200 localhost - ready\r\n"
 
-    bucket = apr_bucket_transient_create(NNTP_LIKE_WELCOME,
-                                         strlen(NNTP_LIKE_WELCOME));
+    bucket = apr_bucket_immortal_create(NNTP_LIKE_WELCOME,
+                                        sizeof(NNTP_LIKE_WELCOME)-1,
+                                        c->bucket_alloc);
     APR_BRIGADE_INSERT_TAIL(bb, bucket);
-    APR_BRIGADE_INSERT_TAIL(bb, apr_bucket_flush_create());
+    APR_BRIGADE_INSERT_TAIL(bb, apr_bucket_flush_create(c->bucket_alloc));
 
     return ap_pass_brigade(c->output_filters, bb);
 }
@@ -121,7 +122,7 @@ static int nntp_like_process_connection(conn_rec *c)
     }
 
     /* just for testing purposes, this is the same logic as mod_echo */
-    bb = apr_brigade_create(c->pool);
+    bb = apr_brigade_create(c->pool, c->bucket_alloc);
 
     for (;;) {
         if ((rv = ap_get_brigade(c->input_filters, bb,
@@ -133,7 +134,7 @@ static int nntp_like_process_connection(conn_rec *c)
             break;
         }
 
-        APR_BRIGADE_INSERT_TAIL(bb, apr_bucket_flush_create());
+        APR_BRIGADE_INSERT_TAIL(bb, apr_bucket_flush_create(c->bucket_alloc));
         ap_pass_brigade(c->output_filters, bb);    
     }
 
