@@ -22,7 +22,7 @@ use File::Copy ();
 use File::Find qw(finddepth);
 use File::Basename qw(dirname);
 use File::Path ();
-use File::Spec::Functions qw(catfile abs2rel splitdir
+use File::Spec::Functions qw(catfile abs2rel splitdir canonpath
                              catdir file_name_is_absolute);
 use Cwd qw(fastcwd);
 
@@ -773,23 +773,30 @@ sub perlscript_header {
     require FindBin;
 
     # the live 'lib/' dir of the distro (e.g. modperl-2.0/ModPerl-Registry/lib)
-    my @dirs = qw(lib);
+    my @dirs = canonpath catdir $FindBin::Bin, "lib";
 
     # the live dir of the top dir if any  (e.g. modperl-2.0/lib)
     if (-e catfile($FindBin::Bin, "..", "Makefile.PL") &&
         -d catdir($FindBin::Bin, "..", "lib") ) {
-        push @dirs, '../lib';
+        push @dirs, canonpath catdir $FindBin::Bin, "..", "lib";
     }
 
-    push @dirs, 'Apache-Test' if IS_MOD_PERL_2_BUILD;
+    for (qw(. ..)) {
+        my $dir = canonpath catdir $FindBin::Bin, $_ , "Apache-Test", "lib";
+        if (-d $dir) {
+            push @dirs, $dir;
+            last;
+        }
+    }
+
+    my $dirs = join("\n    ", '', @dirs) . "\n";;
 
     return <<"EOF";
 
 use strict;
 use warnings FATAL => 'all';
 
-use FindBin;
-use lib map "\$FindBin::Bin/../\$_", qw(@dirs);
+use lib qw($dirs);
 
 EOF
 }
