@@ -280,7 +280,8 @@ sub try_exit_opts {
     if ($self->{opts}->{'stop-httpd'}) {
         if ($self->{server}->ping) {
             $self->{server}->stop;
-        } else {
+        }
+        else {
             warning "server $self->{server}->{name} is not running";
         }
         exit;
@@ -394,7 +395,7 @@ sub scan {
         my $core = "$File::Find::dir/$_";
         my $oh = oh();
         my $again = $times++ ? "again" : "";
-        error "oh $oh server dumped core $again";
+        error "oh $oh, server dumped core $again";
         error "for stacktrace, run: gdb $vars->{httpd} -core $core";
     }, $vars->{top_dir});
 }
