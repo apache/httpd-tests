@@ -66,8 +66,10 @@ sub configure_inc {
         last;
     }
 
-    # enable live testing of the Apache-Test modules
-    unshift @$inc, catfile($top, 'Apache-Test', 'lib');
+    # enable live testing of the Apache-Test dev modules if they are
+    # located at the project's root dir
+    my $apache_test_dev_dir = catfile($top, 'Apache-Test', 'lib');
+    unshift @$inc, $apache_test_dev_dir if -d $apache_test_dev_dir;
 }
 
 sub write_pm_test {
