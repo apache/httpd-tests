@@ -49,6 +49,52 @@ $VERSION = '0.01';
 use constant HAS_DUMPER => eval { $] >= 5.6 && require Data::Dumper; };
 use constant INDENT     => 4;
 
+# because of the prototype and recursive call to itself a forward
+# declaration is needed
+sub t_is_equal ($$);
+
+# compare any two datastructures (must pass references for non-scalars)
+# undef()'s are valid args
+sub t_is_equal ($$) {
+    my ($a, $b) = @_;
+    return 0 unless @_ == 2;
+
+    if (defined $a && defined $b) {
+        my $ref_a = ref $a;
+        my $ref_b = ref $b;
+        if (!$ref_a && !$ref_b) {
+            return $a eq $b;
+        }
+        elsif ($ref_a eq 'ARRAY' && $ref_b eq 'ARRAY') {
+            return 0 unless @$a == @$b;
+            for my $i (0..$#$a) {
+                t_is_equal($a->[$i], $b->[$i]) || return 0;
+            }
+        }
+        elsif ($ref_a eq 'HASH' && $ref_b eq 'HASH') {
+            return 0 unless (keys %$a) == (keys %$b);
+            for my $key (sort keys %$a) {
+                return 0 unless exists $b->{$key};
+                t_is_equal($a->{$key}, $b->{$key}) || return 0;
+            }
+        }
+        elsif ($ref_a eq 'Regexp') {
+            return $b =~ $a;
+        }
+        else {
+            # try to compare the references
+            return $a eq $b;
+        }
+    }
+    else {
+        # undef == undef! a valid test
+        return (defined $a || defined $b) ? 0 : 1;
+    }
+    return 1;
+}
+
+
+
 sub t_cmp ($$;$) {
     Carp::carp(join(":", (caller)[1..2]) . 
         ' usage: $res = t_cmp($expected, $received, [$comment])')
@@ -57,7 +103,7 @@ sub t_cmp ($$;$) {
     t_debug("testing : " . pop) if @_ == 3;
     t_debug("expected: " . struct_as_string(0, $_[0]));
     t_debug("received: " . struct_as_string(0, $_[1]));
-    return t_is_equal(@_);
+    return t_is_equal($_[0], $_[1]);
 }
 
 *expand = HAS_DUMPER ?
@@ -243,46 +289,6 @@ sub struct_as_string{
             return $_[0];
         }
     }
-}
-
-# compare any two datastructures (must pass references for non-scalars)
-# undef()'s are valid args
-sub t_is_equal($$) {
-    my ($a, $b) = @_;
-    return 0 unless @_ == 2;
-
-    if (defined $a && defined $b) {
-        my $ref_a = ref $a;
-        my $ref_b = ref $b;
-        if (!$ref_a && !$ref_b) {
-            return $a eq $b;
-        }
-        elsif ($ref_a eq 'ARRAY' && $ref_b eq 'ARRAY') {
-            return 0 unless @$a == @$b;
-            for my $i (0..$#$a) {
-                t_is_equal($a->[$i], $b->[$i]) || return 0;
-            }
-        }
-        elsif ($ref_a eq 'HASH' && $ref_b eq 'HASH') {
-            return 0 unless (keys %$a) == (keys %$b);
-            for my $key (sort keys %$a) {
-                return 0 unless exists $b->{$key};
-                t_is_equal($a->{$key}, $b->{$key}) || return 0;
-            }
-        }
-        elsif ($ref_a eq 'Regexp') {
-            return $b =~ $a;
-        }
-        else {
-            # try to compare the references
-            return $a eq $b;
-        }
-    }
-    else {
-        # undef == undef! a valid test
-        return (defined $a || defined $b) ? 0 : 1;
-    }
-    return 1;
 }
 
 my $banner_format = 
