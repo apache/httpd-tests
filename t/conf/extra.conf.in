@@ -193,3 +193,12 @@ ScriptAliasMatch /cgi-(.*) @SERVERROOT@/htdocs/modules/alias/$1
 AllowOverride All
 </Directory>
 </IfModule>
+
+##
+## mod_dir test config
+##
+<IfModule mod_dir.c>
+<Directory @SERVERROOT@/htdocs/modules/dir/htaccess>
+AllowOverride Indexes
+</Directory>
+</IfModule>
