@@ -360,17 +360,17 @@ sub start {
         sleep 1;
     }
 
-    for (1..$tries) {
+    for my $try (1..$tries) {
         if ($server_up->()) {
             print "ok\n";
             return 1;
         }
-        elsif ($_ >= $tries) {
+        elsif ($try >= $tries) {
             print "giving up\n";
         }
         else {
             print "...";
-            sleep $_;
+            sleep $try;
         }
     }
 
