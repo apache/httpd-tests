@@ -38,10 +38,6 @@ static int echo_post_chunk_handler(request_rec *r)
         return OK;
     }
 
-#ifdef APACHE1
-    ap_send_http_header(r);
-#endif
-    
     if (r->args) {
         ap_rprintf(r, "%ld:", r->remaining);
     }
@@ -55,6 +51,16 @@ static int echo_post_chunk_handler(request_rec *r)
                 nrd, sizeof(buff), r->remaining);
         total += nrd;
     }
+
+    /* nrd < 0 is an error condition. Either the chunk size overflowed or the buffer
+     * size was insufficient. We can only deduce that the request is in error.
+     */
+    if (nrd < 0) {
+        return HTTP_BAD_REQUEST;
+    }
+#ifdef APACHE1
+    ap_send_http_header(r);
+#endif
 
 #ifdef APACHE1
     trailer_header = ap_table_get(r->headers_in, "X-Chunk-Trailer");
