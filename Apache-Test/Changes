@@ -8,6 +8,8 @@ Changes - Apache::Test change logfile
 
 =item 1.03-dev - 
 
+Apache::TestClient now handles correctly responses with no body [Stas]
+
 add skip helper shortcuts: have_min_perl_version,
 have_min_module_version [Stas]
 

@@ -92,6 +92,10 @@ sub request {
     }
     close $s;
 
+    # an empty body is a valid response
+    $res->{content} = '' 
+        unless exists $res->{content} and defined $res->{content};
+
     $res->{headers_as_string} =~ s/\015//g; #for as_string
 
     bless $res, 'Apache::TestClientResponse';
