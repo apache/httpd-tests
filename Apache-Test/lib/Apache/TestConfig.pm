@@ -1285,6 +1285,7 @@ sub apxs {
     my($self, $q, $ok_fail) = @_;
     return unless $self->{APXS};
     my $val = qx($self->{APXS} -q $q 2>/dev/null);
+    chomp $val if defined $val; # apxs post-2.0.40 adds a new line
     unless ($val) {
         if ($ok_fail) {
             return "";
