@@ -71,6 +71,10 @@ sub scheme {
 sub user_agent {
     my $args = {@_};
 
+    if (delete $args->{reset}) {
+        $UA = undef;
+    }
+
     $args->{keep_alive} ||= $ENV{APACHE_TEST_HTTP11};
 
     if ($args->{keep_alive}) {
