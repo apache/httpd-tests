@@ -1,0 +1,16 @@
+#!perl
+
+use strict;
+use warnings FATAL => 'all';
+
+use lib qw(lib ../lib);
+
+use Apache::TestRun ();
+
+package MyTest;
+
+our @ISA = qw(Apache::TestRun);
+
+sub configure_modperl {} #dont configure mod_perl for these tests
+
+MyTest->new->run(@ARGV);
