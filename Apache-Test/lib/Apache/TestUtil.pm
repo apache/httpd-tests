@@ -35,7 +35,7 @@ $VERSION = '0.01';
 @ISA     = qw(Exporter);
 
 @EXPORT = qw(t_cmp t_debug t_append_file t_write_file t_open_file
-    t_mkdir t_rmtree t_is_equal
+    t_mkdir t_rmtree t_is_equal t_filepath_cmp
     t_server_log_error_is_expected t_server_log_warn_is_expected
     t_client_log_error_is_expected t_client_log_warn_is_expected
 );
@@ -105,6 +105,18 @@ sub t_cmp ($$;$) {
     t_debug("received: " . struct_as_string(0, $_[1]));
     return t_is_equal($_[0], $_[1]);
 }
+
+# Essentially t_cmp, but on Win32, first converts pathnames
+# to their DOS long name.
+sub t_filepath_cmp ($$;$) {
+    my @a = (shift, shift);
+    if (Apache::TestConfig::WIN32) {
+        $a[0] = Win32::GetLongPathName($a[0]) if defined $a[0];
+        $a[1] = Win32::GetLongPathName($a[1]) if defined $a[1];
+    }
+    return @_ == 1 ? t_cmp($a[0], $a[1], $_[0]) : t_cmp($a[0], $a[1]);
+}
+
 
 *expand = HAS_DUMPER ?
     sub { map { ref $_ ? Data::Dumper::Dumper($_) : $_ } @_ } :
@@ -438,6 +450,17 @@ regex. Use the C<qr//> function in the first argument. For example:
 will do:
 
   "abcd" =~ /^abc/;
+
+This function is exported by default.
+
+=item t_filepath_cmp()
+
+This function is used to compare two filepaths via t_cmp().
+For non-Win32, it simply uses t_cmp() for the comparison,
+but for Win32, Win32::GetLongPathName() is invoked to convert
+the first two arguments to their DOS long pathname. This is useful
+when there is a possibility the two paths being compared
+are not both represented by their long or short pathname.
 
 This function is exported by default.
 
