@@ -5,8 +5,6 @@
     AddType application/x-x509-ca-cert .crt
     AddType application/x-pkcs7-crl    .crl
 
-    SSLPassPhraseDialog  builtin
-
     SSLSessionCache        none
     #XXX: would be nice to test these
     #SSLSessionCache        shm:@ServerRoot@/logs/ssl_scache(512000)
@@ -32,9 +30,25 @@
 
     SSLCipherSuite ALL:!ADH:RC4+RSA:+HIGH:+MEDIUM:+LOW:+SSLv2:+EXP:+eNULL
 
-    SSLCertificateFile @SSLCA@/asf/certs/server.crt
+    <IfDefine TEST_SSL_PASSPHRASE_EXEC>
+        SSLPassPhraseDialog  exec:@ServerRoot@/conf/ssl/httpd-passphrase.pl
+    </IfDefine>
+    #else the default is builtin
+    <IfDefine !TEST_SSL_PASSPHRASE_EXEC>
+        SSLPassPhraseDialog  builtin
+    </IfDefine>
 
-    SSLCertificateKeyFile @SSLCA@/asf/keys/server.pem
+    <IfDefine TEST_SSL_DES3_KEY>
+        SSLCertificateFile @SSLCA@/asf/certs/server_des3.crt
+
+        SSLCertificateKeyFile @SSLCA@/asf/keys/server_des3.pem
+    </IfDefine>
+    #else the default is an unencrypted key
+    <IfDefine !TEST_SSL_DES3_KEY>
+        SSLCertificateFile @SSLCA@/asf/certs/server.crt
+
+        SSLCertificateKeyFile @SSLCA@/asf/keys/server.pem
+    </IfDefine>
 
     #SSLCertificateChainFile @SSLCA@/asf/certs/cachain.crt
 
