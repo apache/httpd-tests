@@ -8,6 +8,13 @@ Changes - Apache::Test change logfile
 
 =item 1.12-dev
 
+switch the order of arguments in t_cmp() and t_is_equal() so that
+the order matches Test::More::is() and other Test::More functions.
+the new call is: t_cmp($received, $expected, $comment);  support
+for $expected as the first argument marked as deprecated and will
+be removed in the course of the next few release cycles.
+[Geoffrey Young]
+
 add skip_reason() to Apache::Test, which provides a mechanism for
 user-specified skip messages [Geoffrey Young]
 
