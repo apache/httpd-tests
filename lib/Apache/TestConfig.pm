@@ -448,7 +448,19 @@ sub default_group {
     #use only first value if $) contains more than one
     $gid =~ s/^(\d+).*$/$1/;
 
-    $ENV{APACHE_GROUP} || (getgrgid($gid) || "#$gid");
+    my $group = $ENV{APACHE_GROUP} || (getgrgid($gid) || "#$gid");
+
+    if ($group eq 'root') {
+        # similar to default_user, we want to avoid perms problems,
+        # when the server is started with group 'root'. When running
+        # under group root it may fail to create dirs and files,
+        # writable only by user
+        my $user = default_user();
+        my $gid = $user ? (getpwnam($user))[3] : '';
+        $group = (getgrgid($gid) || "#$gid") if $gid;
+    }
+
+    $group;
 }
 
 sub default_user {
