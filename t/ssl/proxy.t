@@ -17,7 +17,7 @@ my $post_module = 'eat_post';
 my $post_tests = have_module($post_module) ?
   Apache::TestCommon::run_post_test_sizes() : 0;
 
-plan tests => (7 + $post_tests) * $num_modules, ['mod_proxy'];
+plan tests => (7 + $post_tests) * $num_modules, [qw(mod_proxy proxy_http.c)];
 
 for my $module (sort keys %modules) {
 
