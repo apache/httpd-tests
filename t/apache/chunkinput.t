@@ -66,7 +66,8 @@ for my $data (@test_strings) {
     while ($response ne "");
 
     if ($cycle == 1) {
-        chomp($response = Apache::TestRequest::getline($sock));
+        $response = Apache::TestRequest::getline($sock);
+        chomp($response) if (defined($response));
         ok t_cmp("$$", $response, "trailer (pid)");
     }
   }
