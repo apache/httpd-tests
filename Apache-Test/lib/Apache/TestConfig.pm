@@ -75,7 +75,8 @@ use vars qw(%Usage);
    startup_timeout => 'seconds to wait for the server to start (default is 60)',
    httpd_conf      => 'inherit config from this file (default is apxs derived)',
    httpd_conf_extra=> 'inherit additional config from this file',
-   maxclients      => 'maximum number of concurrent clients (default is 1)',
+   minclients      => 'minimum number of concurrent clients (default is 1)',
+   maxclients      => 'maximum number of concurrent clients (default is minclients+1)',
    perlpod         => 'location of perl pod documents (for testing downloads)',
    proxyssl_url    => 'url for testing ProxyPass / https (default is localhost)',
    sslca           => 'location of SSL CA (default is $t_conf/ssl/ca)',
@@ -279,7 +280,11 @@ sub new {
     $vars->{user}         ||= $self->default_user;
     $vars->{group}        ||= $self->default_group;
     $vars->{serveradmin}  ||= $self->default_serveradmin;
-    $vars->{maxclients}   ||= 1;
+
+    $vars->{minclients}   ||= 1;
+    # prevent 'server reached MaxClients setting' errors
+    $vars->{maxclients}   ||= $vars->{minclients} + 1;
+
     $vars->{proxy}        ||= 'off';
     $vars->{proxyssl_url} ||= '';
     $vars->{defines}      ||= '';
@@ -403,6 +408,7 @@ sub configure_proxy {
 
     #if we proxy to ourselves, must bump the maxclients
     if ($vars->{proxy} =~ /^on$/i) {
+        $vars->{minclients}++;
         $vars->{maxclients}++;
         $vars->{proxy} = $self->{vhosts}->{'mod_proxy'}->{hostport};
         return $vars->{proxy};
@@ -1183,6 +1189,7 @@ sub check_vars {
         }
 
         if ($vars->{proxyssl_url}) {
+            $vars->{minclients}++;
             $vars->{maxclients}++;
         }
     }
@@ -1849,30 +1856,34 @@ HostnameLookups Off
 
 <IfModule @THREAD_MODULE@>
     StartServers         1
+    MinSpareThreads      @MinClients@
+    MaxSpareThreads      @MinClients@
+    ThreadsPerChild      @MinClients@
     MaxClients           @MaxClients@
-    MinSpareThreads      @MaxClients@
-    MaxSpareThreads      @MaxClients@
-    ThreadsPerChild      @MaxClients@
     MaxRequestsPerChild  0
 </IfModule>
 
 <IfModule perchild.c>
     NumServers           1
-    StartThreads         @MaxClients@
-    MinSpareThreads      @MaxClients@
-    MaxSpareThreads      @MaxClients@
+    StartThreads         @MinClients@
+    MinSpareThreads      @MinClients@
+    MaxSpareThreads      @MinClients@
     MaxThreadsPerChild   @MaxClients@
     MaxRequestsPerChild  0
 </IfModule>
 
 <IfModule prefork.c>
-    StartServers         1
+    StartServers         @MinClients@
+    MinSpareServers      @MinClients@
+    MaxSpareServers      @MinClients@
     MaxClients           @MaxClients@
     MaxRequestsPerChild  0
 </IfModule>
 
 <IfDefine APACHE1>
-    StartServers         1
+    StartServers         @MinClients@
+    MinSpareServers      @MinClients@
+    MaxSpareServers      @MinClients@
     MaxClients           @MaxClients@
     MaxRequestsPerChild  0
 </IfDefine>
