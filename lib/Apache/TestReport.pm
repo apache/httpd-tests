@@ -4,6 +4,7 @@ use strict;
 use warnings FATAL => 'all';
 
 use Apache::Test ();
+use Apache::TestConfig ();
 
 use File::Spec::Functions qw(catfile);
 
@@ -16,9 +17,12 @@ sub generate_script {
 
     local $/;
     my $content = <DATA>;
+    $content =~ s/__CLASS__/$class/g;
     Apache::Test::config()->write_perlscript($file, $content);
 
 }
+
+sub build_config_as_string { Apache::TestConfig::as_string() }
 
 1;
 __DATA__
@@ -26,11 +30,12 @@ __DATA__
 use strict;
 use FindBin qw($Bin);
 use lib "$Bin/../Apache-Test/lib";
+use lib 'lib';
 
-use Apache::TestConfig ();
+use __CLASS__ ();
 
 my %map = (
-    CONFIG     => Apache::TestConfig::as_string(),
+    CONFIG     => __CLASS__->build_config_as_string,
     EXECUTABLE => $0,
     DATE       => scalar gmtime() . " GMT",
 );
