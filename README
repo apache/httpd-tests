@@ -4,6 +4,8 @@ Prerequisites
 -------------
 You'll need to install the CPAN modules listed in:
 Apache-Test/lib/Bundle/ApacheTest.pm
+All you have to do to install them all in one shot is:
+perl -MCPAN -e 'install Bundle::ApacheTest'
 
 Which are also available in one tarball here:
 http://perl.apache.org/~dougm/httpd-test-bundle-0.01.tar.gz
