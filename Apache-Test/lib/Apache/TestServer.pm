@@ -402,8 +402,6 @@ sub start {
     }
 
     print "$cmd\n";
-    my $child_pid;
-    my $child_in_pipe;
     my $old_sig;
 
     if (Apache::TestConfig::WIN32) {
