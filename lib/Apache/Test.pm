@@ -172,6 +172,9 @@ sub plan {
     @SkipReasons = (); # reset
 
     Test::plan(@_);
+
+    # add to Test.pm verbose output
+    print "# Using Apache/Test.pm version $VERSION\n";
 }
 
 sub have {
