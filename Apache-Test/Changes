@@ -8,6 +8,12 @@ Changes - Apache::Test change logfile
 
 =item 1.21-dev
 
+add Apache::TestHarnessPHP which allows for running client-side
+scripts via php instead of perl.  [Geoffrey Young]
+
+
+
+
 =item 1.20 - January 22, 2005
 
 instead of trying to match various custom server name variations (each
