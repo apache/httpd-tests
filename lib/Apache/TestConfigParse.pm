@@ -91,9 +91,8 @@ sub server_file_rel2abs {
     else {
         warning "configuration file $result does not exist";
 
-        # fall back to relative file we started with
-        # same as older behavior which returned $file on error
-        $result = $file;
+        # old behavior was to return the resolved but non-existent
+        # file.  preserve that behavior and return $result anyway.
     }
 
     return $result;
