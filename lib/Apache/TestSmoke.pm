@@ -8,7 +8,6 @@ use Apache::TestTrace;
 
 use Getopt::Long qw(GetOptions);
 use File::Spec::Functions qw(catfile);
-use POSIX ();
 use FindBin;
 
 #use constant DEBUG => 1;
@@ -390,7 +389,7 @@ sub kill_proc {
     my $pid = `cat $file`;
     chomp $pid;
     return unless $pid;
-    kill POSIX::SIGINT(), $pid;
+    kill SIGINT => $pid;
 }
 
 sub opt_help {
