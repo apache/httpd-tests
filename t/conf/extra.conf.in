@@ -1,4 +1,13 @@
 ##
+## FileETag test config
+##
+<Directory @SERVERROOT@/htdocs/etags>
+    AllowOverride All
+    Order Deny,Allow
+#    Satisfy Any
+</Directory>
+
+##
 ## mod_php4 test config
 ##
 
