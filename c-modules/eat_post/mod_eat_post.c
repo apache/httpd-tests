@@ -22,7 +22,7 @@ static int eat_post_handler(request_rec *r)
     if (strcmp(r->handler, "eat_post")) {
         return DECLINED;
     }
-    if (r->method_number != M_POST) {
+    if ((r->method_number != M_POST) && (r->method_number != M_PUT)) {
         return DECLINED;
     }
 
