@@ -12,7 +12,8 @@ if you want to run the tests contained within the distribution
 you can point to a suitable Apache distribution via
 
   $ perl Makefile.PL -httpd /path/to/your/apache/bin/httpd
-
-then 'make' and 'make install' as usual.
+  $ make
+  $ make test
+  $ sudo make install
 
 for further directions, see the README.
