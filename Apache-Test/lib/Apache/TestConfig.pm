@@ -552,6 +552,29 @@ sub genfile {
     return $fh;
 }
 
+# gen + write file
+sub writefile{
+
+    my($self, $file, $content, $warn) = @_;
+
+    my $name = abs2rel $file, $self->{vars}->{t_dir};
+    $self->trace("generating $name");
+
+    open my $fh, '>', $file or die "open $file: $!";
+
+    if (my $msg = $self->genwarning($warn)) {
+        print $fh $msg, "\n";
+    }
+
+    if ($content) {
+        print $fh $content;
+    }
+
+    $self->{clean}->{files}->{$file} = 1;
+
+    close $fh;
+}
+
 sub cpfile {
     my($self, $from, $to) = @_;
     File::Copy::copy($from, $to);
