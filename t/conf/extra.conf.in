@@ -4,3 +4,13 @@ Alias /covalent @TOP_DIR@/apache1.3/htdocs
 AddType application/x-httpd-php .php
 AddType application/x-httpd-php-source .phps
 </IfModule>
+
+<IfModule mod_expires.c>
+<Directory @SERVERROOT@/htdocs/modules/expires>
+ExpiresActive On
+ExpiresDefault "modification plus 10 years 6 months 2 weeks 3 days 12 hours 30 minutes 19 seconds"
+ExpiresByType text/plain M60
+ExpiresByType image/gif A120
+ExpiresByType image/jpeg A86400
+</Directory>
+</IfModule>
