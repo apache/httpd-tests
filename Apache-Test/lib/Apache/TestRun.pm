@@ -1427,7 +1427,8 @@ sub custom_config_save {
     my $self = shift;
 
     if ($ENV{APACHE_TEST_NO_STICKY_PREFERENCES}) {
-        debug "skipping save of custom config data";
+        debug "APACHE_TEST_NO_STICKY_PREFERENCES=1 => " .
+            "skipping save of custom config data";
         return;
     }
 
@@ -1585,18 +1586,20 @@ my $custom_config_loaded = 0;
 sub custom_config_load {
 
     if ($ENV{APACHE_TEST_NO_STICKY_PREFERENCES}) {
-        debug "skipping load of custom config data";
+        debug "APACHE_TEST_NO_STICKY_PREFERENCES=1 => " .
+            "skipping load of custom config data";
         return;
     }
-
-    debug "trying to load custom config data";
 
     return if $custom_config_loaded;
 
     if (my $custom_config_path = custom_config_path()) {
-        debug "loading custom config path '$custom_config_path'";
+        debug "loading custom config data from: '$custom_config_path'";
         $custom_config_loaded++;
         require $custom_config_path;
+    }
+    else {
+        debug "no custom config data was loaded";
     }
 }
 
