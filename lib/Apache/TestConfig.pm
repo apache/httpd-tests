@@ -769,14 +769,27 @@ sub writefile {
 }
 
 sub perlscript_header {
-    return <<'EOF';
+
+    require FindBin;
+
+    # the live 'lib/' dir of the distro (e.g. modperl-2.0/ModPerl-Registry/lib)
+    my @dirs = qw(lib);
+
+    # the live dir of the top dir if any  (e.g. modperl-2.0/lib)
+    if (-e catfile($FindBin::Bin, "..", "Makefile.PL") &&
+        -d catdir($FindBin::Bin, "..", "lib") ) {
+        push @dirs, '../lib';
+    }
+
+    push @dirs, 'Apache-Test' if IS_MOD_PERL_2_BUILD;
+
+    return <<"EOF";
 
 use strict;
 use warnings FATAL => 'all';
 
 use FindBin;
-use lib map "$FindBin::Bin/$_",
-        qw(../Apache-Test/lib ../lib ../../lib);
+use lib map "\$FindBin::Bin/../\$_", qw(@dirs);
 
 EOF
 }
