@@ -50,16 +50,33 @@ EOF
 
 sub generate_script {
     my $file = shift;
+
     unlink $file if -e $file;
     open my $in, "$file.PL" or die "Couldn't open $file.PL: $!";
     open my $out, '>', $file or die "Couldn't open $file: $!";
+
     print "generating script...$file\n";
+
     print $out "#!$Config{perlpath}\n",
-               "# WARNING: this file is generated, edit $file.PL instead\n",
-               join '', <$in>;
+               "# WARNING: this file is generated, edit $file.PL instead\n";
+
+    if (@Apache::TestMM::Argv) {
+        print $out "\%Apache::TestConfig::Argv = qw(@Apache::TestMM::Argv);\n";
+    }
+
+    print $out join '', <$in>;
+
     close $out or die "close $file: $!";
     close $in;
     chmod 0544, $file;
+}
+
+sub filter_args {
+    my($argv, $vars) =
+      Apache::TestConfig::filter_args(\@ARGV,
+                                      \%Apache::TestConfig::Usage);
+    @ARGV = @$argv;
+    @Apache::TestMM::Argv = %$vars;
 }
 
 1;

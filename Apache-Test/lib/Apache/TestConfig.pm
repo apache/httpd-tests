@@ -15,7 +15,7 @@ use Apache::TestConfigParse ();
 use Apache::TestTrace;
 use Apache::TestServer ();
 
-my %usage = (
+our %Usage = (
    top_dir       => 'top-level directory (default is $PWD)',
    t_dir         => 'the t/ test directory (default is $top_dir/t)',
    t_conf        => 'the conf/ test directory (default is $t_dir/conf)',
@@ -36,7 +36,7 @@ my %usage = (
 );
 
 sub usage {
-    for my $hash (\%usage) {
+    for my $hash (\%Usage) {
         for (sort keys %$hash){
             printf "   -%-16s %s\n", $_, $hash->{$_};
         }
@@ -104,6 +104,14 @@ sub new {
     $args = shift if $_[0] and ref $_[0];
 
     $args = $args ? {%$args} : {@_}; #copy
+
+    #see Apache::TestMM::{filter_args,generate_script}
+    #we do this so 'perl Makefile.PL' can be passed options such as apxs
+    #without forcing regeneration of configuration and recompilation of c-modules
+    #as 't/TEST apxs /path/to/apache/bin/apxs' would do
+    while (my($key, $val) = each %Apache::TestConfig::Argv) {
+        $args->{$key} = $val;
+    }
 
     my $thaw = {};
 
