@@ -39,7 +39,7 @@ for my $server_deflate_uri (@server_deflate_uris) {
 }
 
 # mod_deflate fixes still pending to make this work...
-if (0 && have_module('cgi')) {
+if (have_module('cgi') && have_min_apache_version('2.1.0')) {
     my $sock = Apache::TestRequest::vhost_socket('default');
 
     ok $sock;
