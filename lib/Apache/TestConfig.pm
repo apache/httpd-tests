@@ -561,13 +561,15 @@ sub default_servername {
 # bind() will actually get the port. So there is a need in another
 # check and reconfiguration just before the server starts.
 #
+my $port_memoized;
 sub select_first_port {
     my $self = shift;
 
-    my $port ||= $ENV{APACHE_TEST_PORT} || $self->{vars}{port} || DEFAULT_PORT;
+    my $port ||= $port_memoized || $ENV{APACHE_TEST_PORT} 
+        || $self->{vars}{port} || DEFAULT_PORT;
 
     # memoize
-    $ENV{APACHE_TEST_PORT} = $port;
+    $port_memoized = $port;
 
     return $port unless $port eq 'select';
 
@@ -591,7 +593,7 @@ sub select_first_port {
         unless $port == DEFAULT_PORT;
 
     # memoize
-    $ENV{APACHE_TEST_PORT} = $port;
+    $port_memoized = $port;
 
     return $port;
 }
