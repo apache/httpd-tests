@@ -101,12 +101,12 @@ ok ($cgi eq GET_BODY "/modules/alias/script");
 print "verifying same file accessed at /cgi/script is executed code\n";
 ok ("$string\n" eq GET_BODY "/cgi/script");
 ## with ScriptAliasMatch ##
-print "verifying ScriptAliasMatch with /cgi-script\n";
-ok ("$string\n" eq GET_BODY "/cgi-script");
+print "verifying ScriptAliasMatch with /aliascgi-script\n";
+ok ("$string\n" eq GET_BODY "/aliascgi-script");
 
 ## failure with ScriptAliasMatch ##
 print "verifying bad script alias.\n";
-ok ('404' eq GET_RC "/cgi-nada");
+ok ('404' eq GET_RC "/aliascgi-nada");
 
 ## clean up ##
 unlink $script;
