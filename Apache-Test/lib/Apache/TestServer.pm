@@ -55,6 +55,10 @@ sub new {
     $self->{version} = $self->{config}->httpd_version || '';
     $self->{mpm}     = $self->{config}->httpd_mpm     || '';
     ($self->{rev})   = $self->{version} =~ m:^Apache/(\d)\.:;
+    ($self->{rev})   = $self->{version} =~ m:^Apache.*?/(\d)\.:
+        unless ($self->{rev});
+    ($self->{rev})   = $self->{version} =~ m:^.*?Apache.*?/(\d)\.:
+        unless ($self->{rev});
     $self->{rev}   ||= 2;
 
     $self;
