@@ -9,7 +9,8 @@ use Exporter ();
 
 our $VERSION = '0.01';
 our @ISA     = qw(Exporter);
-our @EXPORT  = qw(t_cmp t_write_file t_open_file t_mkdir t_rmtree);
+our @EXPORT = qw(t_cmp t_write_file t_open_file t_mkdir t_rmtree
+                 t_is_equal);
 
 our %CLEAN = ();
 
@@ -24,7 +25,7 @@ sub t_cmp {
     print "testing : ", pop ,"\n" if @_ == 3;
     print "expected: ", struct_as_string(0, $_[0]), "\n";
     print "received: ", struct_as_string(0, $_[1]), "\n";
-    return is_equal(@_);
+    return t_is_equal(@_);
 }
 
 sub t_write_file {
@@ -104,7 +105,7 @@ sub struct_as_string{
 
 # compare any two datastructures (must pass references for non-scalars)
 # undef()'s are valid args
-sub is_equal {
+sub t_is_equal {
     my ($a, $b) = @_;
     return 0 unless @_ == 2;
 
@@ -117,14 +118,14 @@ sub is_equal {
         elsif ($ref_a eq 'ARRAY' && $ref_b eq 'ARRAY') {
             return 0 unless @$a == @$b;
             for my $i (0..$#$a) {
-                is_equal($a->[$i], $b->[$i]) || return 0;
+                t_is_equal($a->[$i], $b->[$i]) || return 0;
             }
         }
         elsif ($ref_a eq 'HASH' && $ref_b eq 'HASH') {
             return 0 unless (keys %$a) == (keys %$b);
             for my $key (sort keys %$a) {
                 return 0 unless exists $b->{$key};
-                is_equal($a->{$key}, $b->{$key}) || return 0;
+                t_is_equal($a->{$key}, $b->{$key}) || return 0;
             }
         }
         else {
@@ -266,6 +267,18 @@ the program's execution.
 
 t_rmtree() deletes the whole directories trees passed in I<@dirs>.
 
+=item t_is_equal()
+
+  t_is_equal($a, $b);
+
+t_is_equal() compares any two datastructures and returns 1 if they are
+exactly the same, otherwise 0. The datastructures can be nested
+hashes, arrays, scalars, undefs or a combination of any of these. See
+t_cmp() for more examples.
+
+If comparing non-scalars make sure to pass the references to the
+datastructures.
+
 =back
 
 =head1 AUTHOR
@@ -275,7 +288,6 @@ Stas Bekman <stas@stason.org>
 =head1 SEE ALSO
 
 perl(1)
-
 
 =cut
 
