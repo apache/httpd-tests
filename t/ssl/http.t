@@ -19,7 +19,7 @@ local $vars->{scheme} = 'http';
 my $rurl = Apache::TestRequest::resolve_url($url);
 print "GET $rurl\n";
 
-my $str = GET_STR($url);
-ok $str;
-print $str;
+my $res = GET($url);
+ok $res->code == 400; #HTTP_BAD_REQUEST
+
 
