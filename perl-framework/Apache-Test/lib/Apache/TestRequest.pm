@@ -47,7 +47,7 @@ sub resolve_url {
     return "http://$hostport$url";
 }
 
-my %wanted_args = map {$_, 1} qw(username password realm content);
+my %wanted_args = map {$_, 1} qw(username password realm content filename);
 
 sub wanted_args {
     \%wanted_args;
@@ -121,6 +121,53 @@ sub prepare {
     return ($url, $pass, $keep);
 }
 
+sub UPLOAD {
+    my($url, $pass, $keep) = prepare(@_);
+
+    if ($keep->{filename}) {
+        return upload_file($url, $keep->{filename}, $pass);
+    }
+    else {
+        return upload_string($url, $keep->{content});
+    }
+}
+
+sub UPLOAD_BODY {
+    UPLOAD(@_)->content;
+}
+
+#lwp only supports files
+sub upload_string {
+    my($url, $data) = @_;
+
+    my $CRLF = "\015\012";
+    my $bound = 742617000027;
+    my $req = HTTP::Request->new(POST => $url);
+
+    my $content = join $CRLF,
+      "--$bound",
+      "Content-Disposition: form-data; name=\"HTTPUPLOAD\"; filename=\"b\"",
+      "Content-Type: text/plain", "",
+      $data, "--$bound--", "";
+
+    $req->header("Content-Length", length($content));
+    $req->content_type("multipart/form-data; boundary=$bound");
+    $req->content($content);
+
+    $UA->request($req);
+}
+
+sub upload_file {
+    my($url, $file, $args) = @_;
+
+    my $content = [@$args, filename => [$file]];
+
+    $UA->request(HTTP::Request::Common::POST($url,
+                 Content_Type => 'form-data',
+                 Content      => $content,
+    ));
+}
+
 my %shortcuts = (RC   => sub { shift->code },
                  OK   => sub { shift->is_success },
                  STR  => sub { shift->as_string },
@@ -145,6 +192,8 @@ my @export_std = @EXPORT;
 for my $method (@export_std) {
     push @EXPORT, map { join '_', $method, $_ } keys %shortcuts;
 }
+
+push @EXPORT, qw(UPLOAD_BODY);
 
 #this is intended to be a fallback if LWP is not installed
 #so at least some tests can be run, it is not meant to be robust
