@@ -730,8 +730,14 @@ sub replace {
 sub configure_vhost {
     my($self, $pre, $module, $post) = @_;
 
+    #if module ends with _ssl it is either the ssl module itself
+    #or another module that has a port for itself and another
+    #for itself with SSLEngine On, see mod_echo in extra.conf.in for example
+    my $have_module = $module =~ /_ssl$/ ?
+      $self->{vars}->{ssl_module} : "$module.c";
+
     #don't allocate a port if this module is not configured
-    if ($module =~ /^mod_/ and not $self->{modules}->{"$module.c"}) {
+    if ($module =~ /^mod_/ and not $self->{modules}->{$have_module}) {
         return join '', $pre, $module, $post;
     }
 
