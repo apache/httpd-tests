@@ -202,7 +202,20 @@
 
     <Directory @SERVERROOT@/htdocs/modules/cgi>
         Options +ExecCGI
+
+        <IfDefine APACHE2>
+            <Files acceptpathinfoon.sh>
+                AcceptPathInfo on
+            </Files>
+            <Files acceptpathinfooff.sh>
+                AcceptPathInfo off
+            </Files>
+            <Files acceptpathinfodefault.sh>
+                AcceptPathInfo default
+            </Files>
+        </IfDefine>
     </Directory>
+        
 </IfModule>
 
 ##
