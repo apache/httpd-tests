@@ -85,6 +85,9 @@ else {
     $test{"if8a.shtml"}  = "pass";
     $test{"if9a.shtml"}  = "pass   pass";
     $test{"if10a.shtml"} = "pass";
+
+    # malformed.shtml remains empty in 1.3
+    $test{"malformed.shtml"} = ""
 }
 
 my %t_test = ();
