@@ -778,21 +778,12 @@ sub generate_script {
         $content = "\%Apache::TestConfig::Argv = qw(@Apache::TestMM::Argv);\n";
     }
 
-    $content .= <<EOM;
-use strict;
-use warnings FATAL => 'all';
+    my $header = Apache::TestConfig->perlscript_header;
 
-use FindBin;
-use lib "\$FindBin::Bin/../Apache-Test/lib";
-use lib 'lib';
-
-use $class ();
-
-$class->new->run(\@ARGV);
-EOM
+    $content .= join "\n",
+      $header, "use $class ();", "$class->new->run(\@ARGV);";
 
     Apache::Test::config()->write_perlscript($file, $content);
-
 }
 
 # in idiomatic perl functions return 1 on success 0 on

@@ -17,7 +17,16 @@ sub generate_script {
 
     local $/;
     my $content = <DATA>;
-    $content =~ s/__CLASS__/$class/g;
+
+    my %replace = (
+        class  => $class,
+        header => Apache::TestConfig->perlscript_header,
+    );
+
+    while (my($key, $val) = each %replace) {
+        $content =~ s/__\U${key}__/$replace{$key}/g;
+    }
+
     Apache::Test::config()->write_perlscript($file, $content);
 
 }
@@ -27,10 +36,7 @@ sub build_config_as_string { Apache::TestConfig::as_string() }
 1;
 __DATA__
 
-use strict;
-use FindBin qw($Bin);
-use lib "$Bin/../Apache-Test/lib";
-use lib 'lib';
+__HEADER__
 
 use __CLASS__ ();
 
