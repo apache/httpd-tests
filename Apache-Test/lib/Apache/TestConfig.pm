@@ -950,7 +950,7 @@ sub parse_vhost {
         port          => $port,
         #used when parsing .pm and .c test modules
         in_postamble  => sub { $form_postamble->($double_indent, @in_config) },
-        out_postamble => sub { $form_postamble->(@out_config) },
+        out_postamble => sub { $form_postamble->($indent, @out_config) },
         #used when parsing *.conf.in files
         in_string     => $form_string->($double_indent, @in_config),
         out_string    => $form_string->($indent, @out_config),
