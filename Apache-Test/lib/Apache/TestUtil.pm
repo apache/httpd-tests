@@ -24,7 +24,7 @@ sub t_cmp {
         ' usage: $res = t_cmp($expected, $received, [$comment])'
             if @_ < 2 || @_ > 3;
 
-    print "testing : ", pop ,"\n" if @_ == 3;
+    print "testing : ", pop, "\n" if @_ == 3;
     print "expected: ", struct_as_string(0, $_[0]), "\n";
     print "received: ", struct_as_string(0, $_[1]), "\n";
     return t_is_equal(@_);
@@ -198,6 +198,7 @@ Apache::TestUtil - Utility functions for writing tests
   my $fh = t_open_file($filename);
   t_mkdir("/foo/bar");
   t_rmtree("/foo/bar");
+  t_is_equal($a, $b);
 
 =head1 DESCRIPTION
 
@@ -251,6 +252,7 @@ datastructures can be deeply nested. For example you can compare:
         {1 => [2..3,{5..8}], 4 => [5..6]},
         "hash of array of hashes");
 
+This function is automatically exported.
 
 =item t_write_file()
 
@@ -263,6 +265,19 @@ I<$filename> is passed, an empty file will be created.
 The generated file will be automatically deleted at the end of the
 program's execution.
 
+This function is automatically exported.
+
+=item write_shell_script()
+
+write_shell_script($filename, @lines);
+
+Similar to t_write_file() but creates a portable shell/batch
+script. The created filename is constructed from C<$filename> and an
+appropriate extension automatically selected according to the platform
+the code is running under.
+
+It returns the extension of the created file.
+
 =item t_open_file()
 
   my $fh = t_open_file($filename);
@@ -272,6 +287,8 @@ file handle to the opened file.
 
 The generated file will be automatically deleted at the end of the
 program's execution.
+
+This function is automatically exported.
 
 =item t_mkdir()
 
@@ -286,11 +303,15 @@ the parent doesn't exist? or should we create t_mkpath() in addition?
 The generated directory will be automatically deleted at the end of
 the program's execution.
 
+This function is automatically exported.
+
 =item t_rmtree()
 
   t_rmtree(@dirs);
 
 t_rmtree() deletes the whole directories trees passed in I<@dirs>.
+
+This function is automatically exported.
 
 =item t_is_equal()
 
@@ -303,6 +324,8 @@ t_cmp() for more examples.
 
 If comparing non-scalars make sure to pass the references to the
 datastructures.
+
+This function is automatically exported.
 
 =back
 
