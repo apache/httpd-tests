@@ -6,26 +6,42 @@ use Apache::TestRequest;
 use Apache::TestUtil;
 use Apache::TestCommon ();
 
-my %modules = (
-    proxyssl     => 'http',
-    proxyssl_ssl => 'https',
+my %frontend = (
+    proxy_http_https  => 'http',
+    proxy_https_https => 'https',
+    proxy_https_http  => 'https',
+);
+my %backend = (
+    proxy_http_https  => 'https',
+    proxy_https_https => 'https',
+    proxy_https_http  => 'http',
 );
 
-my $num_modules = scalar keys %modules;
+my $num_modules = scalar keys %frontend;
 my $post_module = 'eat_post';
 
 my $post_tests = have_module($post_module) ?
   Apache::TestCommon::run_post_test_sizes() : 0;
 
-plan tests => (7 + $post_tests) * $num_modules, [qw(mod_proxy proxy_http.c)];
+my $num_http_backends = 0;
+for my $module (sort keys %backend) {
+    if ($backend{$module} eq "http") {
+        $num_http_backends++;
+    }
+}
 
-for my $module (sort keys %modules) {
+plan tests => (7 + $post_tests) * $num_modules - 5 * $num_http_backends,
+              [qw(mod_proxy proxy_http.c)];
 
-    my $scheme = $modules{$module};
+for my $module (sort keys %frontend) {
+
+    my $scheme = $frontend{$module};
     Apache::TestRequest::module($module);
     Apache::TestRequest::scheme($scheme);
 
     my $hostport = Apache::TestRequest::hostport();
+    my $res;
+    my %vars;
 
     sok {
         t_cmp(200,
@@ -33,44 +49,45 @@ for my $module (sort keys %modules) {
               "/ with $module ($scheme)");
     };
 
-    sok {
-        t_cmp(200,
-              GET('/verify')->code,
-              "using valid proxyssl client cert");
-    };
+    if ($backend{$module} eq "https") {
+        sok {
+            t_cmp(200,
+                  GET('/verify')->code,
+                  "using valid proxyssl client cert");
+        };
 
-    sok {
-        t_cmp(403,
-              GET('/require/snakeoil')->code,
-              "using invalid proxyssl client cert");
-    };
+        sok {
+            t_cmp(403,
+                  GET('/require/snakeoil')->code,
+                  "using invalid proxyssl client cert");
+        };
 
-    my $res = GET('/require-ssl-cgi/env.pl');
+        $res = GET('/require-ssl-cgi/env.pl');
 
-    sok {
-        t_cmp(200, $res->code, "protected cgi script");
-    };
+        sok {
+            t_cmp(200, $res->code, "protected cgi script");
+        };
 
-    my $body = $res->content || "";
+        my $body = $res->content || "";
 
-    my %vars;
-    for my $line (split /\s*\r?\n/, $body) {
-        my($key, $val) = split /\s*=\s*/, $line, 2;
-        next unless $key;
-        $vars{$key} = $val || "";
+        for my $line (split /\s*\r?\n/, $body) {
+            my($key, $val) = split /\s*=\s*/, $line, 2;
+            next unless $key;
+            $vars{$key} = $val || "";
+        }
+
+        sok {
+            t_cmp($hostport,
+                  $vars{HTTP_X_FORWARDED_HOST},
+                  "X-Forwarded-Host header");
+        };
+
+        sok {
+            t_cmp('client_ok',
+                  $vars{SSL_CLIENT_S_DN_CN},
+                  "client subject common name");
+        };
     }
-
-    sok {
-        t_cmp($hostport,
-              $vars{HTTP_X_FORWARDED_HOST},
-              "X-Forwarded-Host header");
-    };
-
-    sok {
-        t_cmp('client_ok',
-              $vars{SSL_CLIENT_S_DN_CN},
-              "client subject common name");
-    };
 
     sok {
         #test that ProxyPassReverse rewrote the Location header

@@ -3,7 +3,7 @@
 <IfModule mod_proxy.c>
 
     #here we can test http <-> https
-    <VirtualHost proxyssl>
+    <VirtualHost proxy_http_https>
         #these are not on by default in the 1.x based mod_ssl
         <IfDefine APACHE2>
             SSLProxyEngine On
@@ -28,7 +28,7 @@
 
 
     #here we can test https <-> https
-    <VirtualHost proxyssl_ssl>
+    <VirtualHost proxy_https_https>
         SSLEngine on
 
         #these are not on by default in the 1.x based mod_ssl
@@ -45,6 +45,14 @@
 
         ProxyPass        / https://@proxyssl_url@/
         ProxyPassReverse / https://@proxyssl_url@/
+    </VirtualHost>
+
+    #here we can test https <-> http
+    <VirtualHost proxy_https_http>
+        SSLEngine on
+
+        ProxyPass        / http://@servername@:@port@/
+        ProxyPassReverse / http://@servername@:@port@/
     </VirtualHost>
 
 </IfModule>
