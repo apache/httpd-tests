@@ -13,29 +13,29 @@ my @num = qw(1 2 3 4 5 6);
 my @url = qw(forbidden gone perm temp 313);
 my $r;
 
-plan tests => @map * @num + 3;
+plan tests => @map * @num + 3, test_module 'rewrite';
 
 foreach (@map) {
-	foreach my $n (@num) {
-		## throw $_ into upper case just so we can test out internal
-		## 'tolower' map in mod_rewrite
-		$_=uc($_);
+    foreach my $n (@num) {
+        ## throw $_ into upper case just so we can test out internal
+        ## 'tolower' map in mod_rewrite
+        $_=uc($_);
 
-		$r = GET_BODY "/modules/rewrite/$n", 'Accept' => $_;
-		chomp $r;
+        $r = GET_BODY "/modules/rewrite/$n", 'Accept' => $_;
+        chomp $r;
 
-		if ($_ eq 'RND') {
-			## check that $r is just a single digit.
-			unless ($r =~ /^[\d]$/) {
-				ok 0;
-				next;
-			}
+        if ($_ eq 'RND') {
+            ## check that $r is just a single digit.
+            unless ($r =~ /^[\d]$/) {
+                ok 0;
+                next;
+            }
 
-			ok ($r =~ /^[$r-6]$/);
-		} else {
-			ok ($r eq $n);
-		}
-	}
+            ok ($r =~ /^[$r-6]$/);
+        } else {
+            ok ($r eq $n);
+        }
+    }
 }
 
 $r = GET_BODY "/modules/rewrite/", 'Accept' => 7;

@@ -24,53 +24,53 @@ my $dir = "/modules/include/";
 ## 21: big fat test
 
 my %test = (
-"echo.shtml"		=>	"echo.shtml",
-"set.shtml"		=>	"set works",
-"include1.shtml"	=>	"inc-two.shtml body  include.shtml body",
-"include2.shtml"	=>	"inc-two.shtml body  include.shtml body",
-"include3.shtml"	=>	"inc-two.shtml body  inc-one.shtml body  include.shtml body",
-"include4.shtml"	=>	"inc-two.shtml body  inc-one.shtml body  include.shtml body",
-"include5.shtml"	=>	"inc-two.shtml body  inc-one.shtml body  inc-three.shtml body  include.shtml body",
-"include6.shtml"	=>	"inc-two.shtml body  inc-one.shtml body  inc-three.shtml body  include.shtml body",
-"foo.shtml"		=>	"[an error occurred while processing this directive] foo.shtml body",
-"foo1.shtml"		=>	"[an error occurred while processing this directive] foo.shtml body",
-"foo2.shtml"		=>	"[an error occurred while processing this directive] foo.shtml body",
-"encode.shtml"		=>	"\# \%\^ \%23\%20\%25\%5e",
-"errmsg1.shtml"		=>	"errmsg",
-"errmsg2.shtml"		=>	"errmsg",
-"errmsg3.shtml"		=>	"errmsg",
-"if1.shtml"		=>	"pass",
-"if2.shtml"		=>	"pass   pass",
-"if3.shtml"		=>	"pass   pass   pass",
-"if4.shtml"		=>	"pass   pass",
-"if5.shtml"		=>	"pass  pass  pass",
-"big.shtml"		=>	"hello   pass  pass   pass     hello"
+"echo.shtml"       =>    "echo.shtml",
+"set.shtml"        =>    "set works",
+"include1.shtml"   =>    "inc-two.shtml body  include.shtml body",
+"include2.shtml"   =>    "inc-two.shtml body  include.shtml body",
+"include3.shtml"   =>    "inc-two.shtml body  inc-one.shtml body  include.shtml body",
+"include4.shtml"   =>    "inc-two.shtml body  inc-one.shtml body  include.shtml body",
+"include5.shtml"   =>    "inc-two.shtml body  inc-one.shtml body  inc-three.shtml body  include.shtml body",
+"include6.shtml"   =>    "inc-two.shtml body  inc-one.shtml body  inc-three.shtml body  include.shtml body",
+"foo.shtml"        =>    "[an error occurred while processing this directive] foo.shtml body",
+"foo1.shtml"       =>    "[an error occurred while processing this directive] foo.shtml body",
+"foo2.shtml"       =>    "[an error occurred while processing this directive] foo.shtml body",
+"encode.shtml"     =>    "\# \%\^ \%23\%20\%25\%5e",
+"errmsg1.shtml"    =>    "errmsg",
+"errmsg2.shtml"    =>    "errmsg",
+"errmsg3.shtml"    =>    "errmsg",
+"if1.shtml"        =>    "pass",
+"if2.shtml"        =>    "pass   pass",
+"if3.shtml"        =>    "pass   pass   pass",
+"if4.shtml"        =>    "pass   pass",
+"if5.shtml"        =>    "pass  pass  pass",
+"big.shtml"        =>    "hello   pass  pass   pass     hello"
 );
 
 my $tests = keys %test;
-plan tests => $tests + 1;
+plan tests => $tests + 1, test_module 'include';
 
 my $bung = 0;
 foreach (keys %test) {
-	$doc = $_;
-	$expected = $test{$_};
-	$actual = GET_BODY "$dir$doc";
+    $doc = $_;
+    $expected = $test{$_};
+    $actual = GET_BODY "$dir$doc";
 
-	## super chomp - all leading and trailing \n
-	$actual =~ s/^\n*//;
-	$actual =~ s/\n*$//;
-	## and all the rest change to spaces
-	$actual =~ s/\n/ /g;
+    ## super chomp - all leading and trailing \n
+    $actual =~ s/^\n*//;
+    $actual =~ s/\n*$//;
+    ## and all the rest change to spaces
+    $actual =~ s/\n/ /g;
 
-	unless ($actual eq $expected) {
-		$bung++;
-		open (FOO, ">failed-include$bung");
-		print FOO "$_\n";
-		print FOO "expected:\n->$expected<-\n";
-		print FOO "actual:\n->$actual<-\n";
-		close(FOO);
-	}
-	ok ($actual eq $expected);
+    unless ($actual eq $expected) {
+        $bung++;
+        open (FOO, ">failed-include$bung");
+        print FOO "$_\n";
+        print FOO "expected:\n->$expected<-\n";
+        print FOO "actual:\n->$actual<-\n";
+        close(FOO);
+    }
+    ok ($actual eq $expected);
 }
 
 $doc = "printenv.shtml";
