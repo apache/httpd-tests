@@ -19,6 +19,11 @@ sub import {
     eval { require File::Spec::Functions; } or
       die "this is only Perl $], you need to install File-Spec from CPAN";
 
+    my $min_version = 0.82;
+    unless ($File::Spec::VERSION >= $min_version) {
+        die "you need to install File-Spec-$min_version or higher from CPAN";
+    }
+
     while (my($file, $sub) = each %compat_files) {
         $sub->($file);
     }
