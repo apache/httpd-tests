@@ -42,12 +42,20 @@
         SSLCertificateFile @SSLCA@/asf/certs/server_des3.crt
 
         SSLCertificateKeyFile @SSLCA@/asf/keys/server_des3.pem
+
+#        SSLCertificateFile @SSLCA@/asf/certs/server_des3_dsa.crt
+
+#        SSLCertificateKeyFile @SSLCA@/asf/keys/server_des3_dsa.pem
     </IfDefine>
     #else the default is an unencrypted key
     <IfDefine !TEST_SSL_DES3_KEY>
         SSLCertificateFile @SSLCA@/asf/certs/server.crt
 
         SSLCertificateKeyFile @SSLCA@/asf/keys/server.pem
+
+#        SSLCertificateFile @SSLCA@/asf/certs/server_dsa.crt
+
+#        SSLCertificateKeyFile @SSLCA@/asf/keys/server_dsa.pem
     </IfDefine>
 
     #SSLCertificateChainFile @SSLCA@/asf/certs/cachain.crt
