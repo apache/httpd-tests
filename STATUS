@@ -1,7 +1,18 @@
 httpd-test/perl-framework STATUS:				-*-text-*-
-Last modified at [$Date: 2002/01/10 00:15:19 $]
+Last modified at [$Date: 2002/02/06 15:08:13 $]
+
+Stuff to do:
+    * finish the t/TEST exit code issue (ORed with 0x2C if
+      framework failed)
 
 Tests to be written:
+
+    * t/apache
+      - simulations of network failures (incomplete POST bodies,
+        chunked and unchunked; missing POST bodies; ...)
+
+    * t/modules/autoindex
+      - something seems possibly broken with inheritance on 2.0
 
     * t/ssl
       - SSLPassPhraseDialog exec:
