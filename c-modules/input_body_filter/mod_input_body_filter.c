@@ -76,25 +76,43 @@ static void reverse_string(char *string, int len)
     }
 }
 
+typedef struct input_body_ctx_t {
+    apr_bucket_brigade *b;
+} input_body_ctx_t;
+
 static int input_body_filter_handler(ap_filter_t *f, apr_bucket_brigade *bb, 
                                      ap_input_mode_t mode, apr_off_t *readbytes)
 {
     apr_status_t rv;
     apr_pool_t *p = f->r->pool;
+    input_body_ctx_t *ctx = f->ctx;
 
-    if (APR_BRIGADE_EMPTY(bb)) {
-        rv = ap_get_brigade(f->next, bb, mode, readbytes);
-        if (rv != APR_SUCCESS) {
+    if (!ctx) {
+        f->ctx = ctx = apr_pcalloc(f->r->pool, sizeof(*ctx));
+        ctx->b = apr_brigade_create(f->r->pool);
+    }
+
+    if (APR_BRIGADE_EMPTY(ctx->b))
+    {
+        if ((rv = ap_get_brigade(f->next, ctx->b, mode,
+                                 readbytes)) != APR_SUCCESS) {
             return rv;
         }
     }
 
-    while (!APR_BRIGADE_EMPTY(bb)) {
+    while (!APR_BRIGADE_EMPTY(ctx->b)) {
         const char *data;
         apr_size_t len;
         apr_bucket *bucket;
 
-        bucket = APR_BRIGADE_FIRST(bb);
+        bucket = APR_BRIGADE_FIRST(ctx->b);
+
+        if (APR_BUCKET_IS_EOS(bucket)) {
+            APR_BUCKET_REMOVE(bucket);
+            APR_BRIGADE_INSERT_TAIL(bb, bucket);
+            break;
+        }
+
         rv = apr_bucket_read(bucket, &data, &len, mode);
 
         if (rv != APR_SUCCESS) {
@@ -110,10 +128,6 @@ static int input_body_filter_handler(ap_filter_t *f, apr_bucket_brigade *bb,
         }
 
         APR_BRIGADE_INSERT_TAIL(bb, bucket);
-
-        if (APR_BUCKET_IS_EOS(bucket)) {
-            break;
-        }
     }
 
     return OK;
