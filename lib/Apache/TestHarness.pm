@@ -4,6 +4,7 @@ use strict;
 use warnings FATAL => 'all';
 
 use Test::Harness ();
+use Apache::TestTrace;
 use File::Spec::Functions qw(catfile);
 use File::Find qw(finddepth);
 
@@ -36,7 +37,7 @@ sub run {
     if (@$ts) {
 	for (@$ts) {
 	    if (-d $_) {
-		push(@tests, <$_/*.t>);
+		push(@tests, sort <$_/*.t>);
 	    }
 	    else {
 		$_ .= ".t" unless /\.t$/;
@@ -46,7 +47,7 @@ sub run {
     }
     else {
         if ($args->{tdirs}) {
-            push @tests, map { <$_/*.t> } @{ $args->{tdirs} };
+            push @tests, map { sort <$_/*.t> } @{ $args->{tdirs} };
         }
         else {
             finddepth(sub {
@@ -56,8 +57,46 @@ sub run {
                           $t =~ s:^$dotslash::;
                           push @tests, $t
                       }, '.');
+            @tests = sort @tests;
         }
     }
+
+    my $times = $args->{times} || 1;
+    my $order = $args->{order} || 'rotate';
+
+    # re-shuffle the tests according to the requested order
+    if ($order eq 'repeat') {
+        # a, a, b, b
+        @tests = map { ($_) x $times } @tests;
+    }
+    elsif ($order eq 'rotate') {
+        # a, b, a, b
+        @tests = (@tests) x $times;
+    }
+    elsif ($order eq 'random') {
+        # random
+        @tests = (@tests) x $times;
+        my $seed = $ENV{APACHE_TEST_SEED} || '';
+        if ($seed) {
+            warning "Using the seed $ENV{APACHE_TEST_SEED} from APACHE_TEST_SEED env var";
+        } else {
+           $seed = time ^ ($$ + ($$ << 15));
+           warning "Using the seed $seed";
+        }
+
+        srand($seed); # so we could reproduce the problem
+        my ($i,$j) = (0,0);
+        while ($i < @tests) {
+            $j = int rand(@tests - $i);
+            @tests[-$i,$j] = @tests[$j,-$i];
+            $i++;
+        }
+    }
+    else {
+        # nothing
+    }
+
+    error \@tests;
 
     Test::Harness::runtests(@tests);
 }
