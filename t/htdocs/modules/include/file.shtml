@@ -6,9 +6,3 @@
 <!--#config timefmt="%T"-->
 <!--#flastmod file="file.shtml"-->
 <!--#flastmod virtual="/modules/include/file.shtml"-->
-<!--#config sizefmt="bytes"-->
-<!--#fsize file="file.shtml"-->
-<!--#fsize virtual="/modules/include/file.shtml"-->
-<!--#config sizefmt="abbrev"-->
-<!--#fsize file="file.shtml"-->
-<!--#fsize virtual="/modules/include/file.shtml"-->
