@@ -7,7 +7,7 @@ use Apache::TestUtil;
 
 ## test that umask() is reset after script execution
 
-plan tests => 4, need_module 'php4';
+plan tests => 4, need_php4;
 
 my $first = GET_BODY "/php/umask.php";
 

@@ -4,7 +4,7 @@ use warnings FATAL => 'all';
 use Apache::Test;
 use Apache::TestRequest;
 
-plan tests => 2, need_module 'php4';
+plan tests => 2, need_php4;
 
 ## testing PHP OO bug (#7515)
 ## php src:
