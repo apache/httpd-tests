@@ -57,7 +57,31 @@ sub test {
 PASSENV = $env
 EOF
 
-    return $preamble . <<'EOF';
+    my $cover;
+
+    if (eval { require Devel::Cover }) {
+                                                                                                                             
+        my $atdir = File::Spec->catfile($ENV{HOME}, '.apache-test');
+
+        $cover = <<"EOF"
+
+testcover :
+	-\@cover -delete
+	-\@HARNESS_PERL_SWITCHES=-MDevel::Cover=+inc,$atdir \
+	APACHE_TEST_EXTRA_ARGS=-one-process \$(MAKE) test
+	-\@cover
+EOF
+    }
+    else {
+
+        $cover = <<'EOF';
+                                                                                                                             
+testcover :
+	@echo "Cannot run testcover action unless Devel::Cover is installed"
+EOF
+    }
+
+    return $preamble . <<'EOF' . $cover;
 TEST_VERBOSE = 0
 TEST_FILES =
 
