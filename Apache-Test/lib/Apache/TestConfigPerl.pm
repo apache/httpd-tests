@@ -122,6 +122,12 @@ EOF
     close $fh or die "close $t: $!";
 }
 
+# propogate trace overrides to the server
+sub configure_trace {
+    my $self = shift;
+    $self->postamble(PerlPassEnv => 'APACHE_TEST_TRACE_LEVEL');
+}
+
 sub startup_pl_code {
     my $self = shift;
     my $serverroot = $self->{vars}->{serverroot};
