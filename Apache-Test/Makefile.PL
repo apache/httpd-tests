@@ -58,6 +58,7 @@ sub clean_files {
             qw(lib/Apache/TestConfigData.pm
                .mypacklist
                t/TEST
+               Makefile.old
               ),
            ];
 }
