@@ -369,6 +369,9 @@ sub configure_opts {
 sub configure {
     my $self = shift;
 
+    # create the conf dir as early as possible
+    $self->{test_config}->prepare_t_conf();
+
     my $save = \$self->{conf_opts}->{save};
     $self->configure_opts($save);
 
