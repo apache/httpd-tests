@@ -20,7 +20,8 @@ if (Apache::TestConfig::WIN32) {
 plan tests => 1, @todo;
 
 my $config = Apache::Test::config();
-my $hostport = $config->{vhosts}->{mod_ssl}->{hostport};
+my $ssl_module = $config->{vars}->{ssl_module_name};
+my $hostport = $config->{vhosts}->{$ssl_module}->{hostport};
 my $rurl = "http://$hostport$url";
 
 my $res = GET($rurl);
