@@ -1,22 +1,18 @@
 use ExtUtils::MakeMaker;
 
+use 5.006;
+
 use lib qw(Apache-Test/lib);
 use Apache::TestMM qw(test);
 
-my $htdocs  = 't/htdocs';
-my $modules = "$htdocs/modules";
-my $cgi     = "$modules/cgi";
-my $rewrite = "$modules/rewrite";
+use File::Find qw(finddepth);
 
-my @cgi_scripts = map { "$cgi/$_" } qw{
-perl_echo.pl bogus1k.pl perl.pl bogus-perl.pl
-};
+my @scripts;
 
-my @rewrite_scripts = map { "$rewrite/$_" } qw{
-db.pl numbers.pl numbers2.pl
-};
-
-my @scripts = (@cgi_scripts, @rewrite_scripts);
+finddepth(sub {
+    return unless /(.*?\.pl)\.PL$/;
+    push @scripts, "$File::Find::dir/$1";
+}, '.');
 
 for my $script (@scripts) {
     Apache::TestMM::generate_script($script);
