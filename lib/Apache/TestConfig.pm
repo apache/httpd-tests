@@ -550,7 +550,9 @@ sub generate_extra_conf {
     for my $file (<$t_conf/*.conf.in>) {
         (my $generated = $file) =~ s/\.in$//;
         push @extra_conf, $generated;
-        print "FILE=$file\n";
+
+        notice "Including $generated config file";
+
         next if -e $generated;
 
         open(my $in, $file) or next;
