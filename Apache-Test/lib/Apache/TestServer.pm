@@ -361,8 +361,12 @@ sub start {
 
     if (my $pid = $self->pid) {
         print "server $self->{name} started (pid=$pid)\n";
-        while (my($module, $cfg) = each %{ $config->{vhosts} }) {
-            print "server $cfg->{name} listening ($module)\n",
+
+        my $vh = $config->{vhosts};
+        my $by_port = sub { $vh->{$a}->{port} <=> $vh->{$a}->{port} };
+
+        for my $module (sort $by_port keys %$vh) {
+            print "server $vh->{$module}->{name} listening ($module)\n",
         }
     }
     else {
