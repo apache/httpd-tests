@@ -20,6 +20,9 @@ be read using 'perldoc', for example:
 
   % perldoc Apache::TestUtil
 
+and the 'Testing mod_perl 2.0' article:
+http://www.perl.com/pub/a/2003/05/22/testing.html
+
 ##############
 # Cheat List #
 ##############
