@@ -970,7 +970,15 @@ just as C<UPLOAD_BODY> would.
 
 =item OPTIONS
 
-META: complete
+  my $res = OPTIONS $uri;
+
+Sends an C<OPTIONS> request to the Apache test server. Returns an
+C<HTTP::Response> object with the I<Allow> header, indicating which
+methods the server supports. Possible methods include C<OPTIONS>,
+C<GET>, C<HEAD> and C<POST>. This function thus can be useful for
+testing what options the Apache server supports. Consult the HTTPD 1.1
+specification, section 9.2, at
+I<http://www.faqs.org/rfcs/rfc2616.html> for more information
 
 =back
 
