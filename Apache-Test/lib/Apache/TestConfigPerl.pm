@@ -6,6 +6,7 @@ use strict;
 use warnings FATAL => 'all';
 use File::Spec::Functions qw(catfile splitdir abs2rel);
 use File::Find qw(finddepth);
+use Config;
 
 my %libmodperl  = (1 => 'libperl.so', 2 => 'libmodperl.so');
 
@@ -50,6 +51,13 @@ sub configure_inc {
 
     for (@trys) {
         push @$inc, $_ if -d $_;
+    }
+
+    # spec: If PERL5LIB is defined, PERLLIB is not used.
+    for (qw(PERL5LIB PERLLIB)) {
+        next unless exists $ENV{$_};
+        push @$inc, split /$Config{path_sep}/, $ENV{$_};
+        last;
     }
 
     # enable live testing of the Apache-Test modules
