@@ -65,23 +65,27 @@ my %usage = (
    'start-httpd'     => 'start the test server',
    'run-tests'       => 'run the tests',
    'times=N'         => 'repeat the tests N times',
-   'order=mode'      => 'run the tests in one of the modes: (repeat|rotate|random|SEED)',
+   'order=mode'      => 'run the tests in one of the modes: ' .
+                        '(repeat|rotate|random|SEED)',
    'stop-httpd'      => 'stop the test server',
    'verbose[=1]'     => 'verbose output',
-   'configure'       => 'force regeneration of httpd.conf (tests will not be run)',
+   'configure'       => 'force regeneration of httpd.conf ' .
+                        ' (tests will not be run)',
    'clean'           => 'remove all generated test files',
    'help'            => 'display this message',
    'bugreport'       => 'print the hint how to report problems',
    'preamble'        => 'config to add at the beginning of httpd.conf',
    'postamble'       => 'config to add at the end of httpd.conf',
    'ping[=block]'    => 'test if server is running or port in use',
-   'debug[=name]'    => 'start server under debugger name (e.g. gdb, ddd, ...)',
+   'debug[=name]'    => 'start server under debugger name (gdb, ddd, etc.)',
    'breakpoint=bp'   => 'set breakpoints (multiply bp can be set)',
-   'header'          => "add headers to (".join('|', @request_opts).") request",
+   'header'          => "add headers to (" .
+                         join('|', @request_opts) . ") request",
    'http11'          => 'run all tests with HTTP/1.1 (keep alive) requests',
    'ssl'             => 'run tests through ssl',
    'proxy'           => 'proxy requests (default proxy is localhost)',
-   'trace=T'         => 'change tracing default to: warning, notice, info, debug, ...',
+   'trace=T'         => 'change tracing default to: warning, notice, ' .
+                        'info, debug, ...',
    'save'            => 'save test paramaters into Apache::TestConfigData',
    (map { $_, "\U$_\E url" } @request_opts),
 );
@@ -146,7 +150,8 @@ sub split_test_args {
     my @leftovers = ();
     for (@$argv) {
         my $arg = $_;
-        #need the t/ for stat-ing, but don't want to include it in test output
+        # need the t/ for stat-ing, but don't want to include it in
+        # test output
         $arg =~ s@^(?:\./)?t/@@;
         my $file = catfile $t_dir, $arg;
         if (-d $file and $_ ne '/') {
@@ -190,7 +195,8 @@ sub die_on_invalid_args {
     # at this stage $self->{argv} should be empty
     my @invalid_argv = @{ $self->{argv} };
     if (@invalid_argv) {
-        error "unknown opts or test names: @invalid_argv\n-help will list options\n";
+        error "unknown opts or test names: @invalid_argv\n" .
+            "-help will list options\n";
         exit_perl 0;
     }
 
@@ -323,7 +329,8 @@ sub default_run_opts {
 
     unless (grep { exists $opts->{$_} } @std_run, @request_opts) {
         if (@$tests && $self->{server}->ping) {
-            #if certain tests are specified and server is running, dont restart
+            # if certain tests are specified and server is running,
+            # dont restart
             $opts->{'run-tests'} = 1;
         }
         else {
@@ -371,19 +378,18 @@ sub install_sighandlers {
     #try to make sure we scan for core no matter what happens
     #must eval "" to "install" this END block, otherwise it will
     #always run, a subclass might not want that
-
     eval 'END {
-             return unless is_parent(); # because of fork
-             $self ||=
-                 Apache::TestRun->new(test_config => Apache::TestConfig->thaw);
-             {
-                 local $?; # preserve the exit status
-                 eval {
-                    $self->scan_core;
-                 };
-             }
-             $self->try_bug_report();
-         }';
+        return unless is_parent(); # because of fork
+        $self ||=
+            Apache::TestRun->new(test_config => Apache::TestConfig->thaw);
+        {
+            local $?; # preserve the exit status
+            eval {
+               $self->scan_core;
+            };
+        }
+        $self->try_bug_report();
+    }';
     die "failed: $@" if $@;
 
 }
@@ -559,7 +565,8 @@ sub start {
     my $file = $server->debugger_file;
     if (-e $file and $opts->{'start-httpd'}) {
         if ($server->ping) {
-            warning "server is running under the debugger, defaulting to -run";
+            warning "server is running under the debugger, " .
+                "defaulting to -run";
             $opts->{'start-httpd'} = $opts->{'stop-httpd'} = 0;
         }
         else {
@@ -828,7 +835,8 @@ sub scan_core_incremental {
             next unless -f;
             next unless /$core_pat/o;
             my $core = catfile $vars->{t_dir}, $_;
-            next if exists $core_files{$core} && $core_files{$core} == -M $core;
+            next if exists $core_files{$core} &&
+                $core_files{$core} == -M $core;
             $core_files{$core} = -M $core;
             push @cores, $core;
         }
@@ -981,7 +989,8 @@ sub run_root_fs_test {
     # setgroups() call as explained in perlvar.pod)
     my $groups = "$gid $gid";
     $( = $) = $groups;
-    die "failed to change gid to $gid" unless $( eq $groups && $) eq $groups;
+    die "failed to change gid to $gid"
+        unless $( eq $groups && $) eq $groups;
 
     # only now can change uid and euid
     $< = $> = $uid+0;
@@ -1116,7 +1125,8 @@ sub opt_ping {
     my $server = $test_config->server;
     my $pid = $server->ping;
     my $name = $server->{name};
-    my $exit = not $self->{opts}->{'run-tests'}; #support t/TEST -ping=block -run ...
+    # support t/TEST -ping=block -run ...
+    my $exit = not $self->{opts}->{'run-tests'};
 
     if ($pid) {
         if ($pid == -1) {
@@ -1415,8 +1425,8 @@ sub custom_config_save {
     return 0 unless $vars->{httpd} or $Apache::TestConfigData::vars->{httpd}
         or          $vars->{apxs}  or $Apache::TestConfigData::vars->{apxs};
 
-    # it doesn't matter how these vars were set (httpd may or may not get set
-    # using the path to apxs, w/o an explicit -httpd value)
+    # it doesn't matter how these vars were set (httpd may or may not
+    # get set using the path to apxs, w/o an explicit -httpd value)
     for (@data_vars_must) {
         next unless my $var = $vars->{$_} || $conf_opts->{$_};
         $config_dump .= qq{    '$_' => '$var',\n};
@@ -1424,7 +1434,7 @@ sub custom_config_save {
 
     # save these vars only if they were explicitly set via command line
     # options. For example if someone builds A-T as user 'foo', then
-    # installs it as root and we save it, all users will now try to 
+    # installs it as root and we save it, all users will now try to
     # configure under that user 'foo' which won't quite work.
     for (@data_vars_opt) {
         next unless my $var = $conf_opts->{$_};
