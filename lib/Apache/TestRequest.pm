@@ -750,14 +750,14 @@ If you need to force an SSL request to use a particular SSL
 certificate, pass the name of the certificate via the C<cert>
 parameter:
 
-  my $res = GET $uri, cert = 'my_cert';
+  my $res = GET $uri, cert => 'my_cert';
 
 =item content
 
 If you need to add content to your request, use the C<content>
 parameter:
 
-  my $res = GET $uri, content = 'hello world!';
+  my $res = GET $uri, content => 'hello world!';
 
 =item filename
 
@@ -777,11 +777,11 @@ C<HTTP::Response> object.
 
 =head3 GET_STR
 
-A shortcut function for C<< GET($uri)->as_string >>.
+A shortcut function for C<GET($uri)-E<gt>as_string>.
 
 =head3 GET_BODY
 
-A shortcut function for C<< GET($uri)->content >>.
+A shortcut function for C<GET($uri)-E<gt>content>.
 
 =head3 GET_BODY_ASSERT
 
@@ -794,11 +794,11 @@ just as C<GET_BODY> would.
 
 =head3 GET_OK
 
-A shortcut function for C<< GET($uri)->is_success >>.
+A shortcut function for C<GET($uri)-E<gt>is_success>.
 
 =head3 GET_RC
 
-A shortcut function for C<< GET($uri)->code >>.
+A shortcut function for C<GET($uri)-E<gt>code>.
 
 =head3 GET_HEAD
 
@@ -819,11 +819,11 @@ C<HTTP::Response> object.
 
 =head3 HEAD_STR
 
-A shortcut function for C<< HEAD($uri)->as_string >>.
+A shortcut function for C<HEAD($uri)-E<gt>as_string>.
 
 =head3 HEAD_BODY
 
-A shortcut function for C<< HEAD($uri)->content >>. Of course, this
+A shortcut function for C<HEAD($uri)-E<gt>content>. Of course, this
 means that it will likely return nothing.
 
 =head3 HEAD_BODY_ASSERT
@@ -837,11 +837,11 @@ just as C<HEAD_BODY> would.
 
 =head3 HEAD_OK
 
-A shortcut function for C<< GET($uri)->is_success >>.
+A shortcut function for C<GET($uri)-E<gt>is_success>.
 
 =head3 HEAD_RC
 
-A shortcut function for C<< GET($uri)->code >>.
+A shortcut function for C<GET($uri)-E<gt>code>.
 
 =head3 HEAD_HEAD
 
@@ -862,11 +862,11 @@ C<HTTP::Response> object.
 
 =head3 PUT_STR
 
-A shortcut function for C<< PUT($uri)->as_string >>.
+A shortcut function for C<PUT($uri)-E<gt>as_string>.
 
 =head3 PUT_BODY
 
-A shortcut function for C<< PUT($uri)->content >>.
+A shortcut function for C<PUT($uri)-E<gt>content>.
 
 =head3 PUT_BODY_ASSERT
 
@@ -879,11 +879,11 @@ just as C<PUT_BODY> would.
 
 =head3 PUT_OK
 
-A shortcut function for C<< PUT($uri)->is_success >>.
+A shortcut function for C<PUT($uri)-E<gt>is_success>.
 
 =head3 PUT_RC
 
-A shortcut function for C<< PUT($uri)->code >>.
+A shortcut function for C<PUT($uri)-E<gt>code>.
 
 =head3 PUT_HEAD
 
@@ -899,20 +899,21 @@ C<Test::Harness>.
 
   my $res = POST $uri, [ arg => $val, arg2 => $val ];
 
-Sends a POST request to the Apache test server and returns an HTTP::Response
-object. An array reference of parameters passed as the second argument will be
-submitted to the Apache test server as the POST content. Parameters
-corresponding to those documented in L<Optional Parameters|/Optional
-Parameters> can follow the optional array reference of parameters, or afte
+Sends a POST request to the Apache test server and returns an
+C<HTTP::Response> object. An array reference of parameters passed as
+the second argument will be submitted to the Apache test server as the
+POST content. Parameters corresponding to those documented in
+L<Optional Parameters|/Optional
+Parameters> can follow the optional array reference of parameters, or after
 C<$uri>.
 
 =head3 POST_STR
 
-A shortcut function for C<< POST($uri, @args)->content >>.
+A shortcut function for C<POST($uri, @args)-E<gt>content>.
 
 =head3 POST_BODY
 
-A shortcut function for C<< POST($uri, @args)->content >>.
+A shortcut function for C<POST($uri, @args)-E<gt>content>.
 
 =head3 POST_BODY_ASSERT
 
@@ -925,11 +926,11 @@ just as C<POST_BODY> would.
 
 =head3 POST_OK
 
-A shortcut function for C<< POST($uri, @args)->is_success >>.
+A shortcut function for C<POST($uri, @args)-E<gt>is_success>.
 
 =head3 POST_RC
 
-A shortcut function for C<< POST($uri, @args)->code >>.
+A shortcut function for C<POST($uri, @args)-E<gt>code>.
 
 =head3 POST_HEAD
 
@@ -963,7 +964,7 @@ they would be ignored.
 
 =head3 UPLOAD_BODY
 
-A shortcut function for C<< UPLOAD($uri, @params)->content >>.
+A shortcut function for C<UPLOAD($uri, @params)-E<gt>content>.
 
 =head3 UPLOAD_BODY_ASSERT
 
