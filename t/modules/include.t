@@ -50,11 +50,11 @@ my %test = (
 my $tests = keys %test;
 plan tests => $tests + 1, test_module 'include';
 
-my $bung = 0;
 foreach (sort keys %test) {
     $doc = $_;
     $expected = $test{$_};
-    $actual = GET_BODY "$dir$doc";
+    my $url = "$dir$doc";
+    $actual = GET_BODY $url;
 
     ## super chomp - all leading and trailing \n
     $actual =~ s/^\n*//;
@@ -62,15 +62,15 @@ foreach (sort keys %test) {
     ## and all the rest change to spaces
     $actual =~ s/\n/ /g;
 
-    unless ($actual eq $expected) {
-        $bung++;
-        open (FOO, ">failed-include$bung");
-        print FOO "$_\n";
-        print FOO "expected:\n->$expected<-\n";
-        print FOO "actual:\n->$actual<-\n";
-        close(FOO);
+    my $ok = $actual eq $expected;
+
+    unless ($ok) {
+        print "GET $url\n";
+        print "expected:\n->$expected<-\n";
+        print "actual:\n->$actual<-\n";
     }
-    ok ($actual eq $expected);
+
+    ok $ok;
 }
 
 $doc = "printenv.shtml";
