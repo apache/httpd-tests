@@ -624,6 +624,42 @@ sub oh {
 #e.g. t/core or t/core.12499
 my $core_pat = '^core(\.\d+)?' . "\$";
 
+# normally would be called after each test
+# and since it updates the list of seen core files
+# scan_core() won't report these again
+# currently used in Apache::TestSmoke
+sub scan_core_incremental {
+    my $self = shift;
+    my $vars = $self->{test_config}->{vars};
+    my $times = 0;
+    my @msg = ();
+
+    finddepth(sub {
+        return unless -f $_;
+        return unless /$core_pat/o;
+        my $core = $File::Find::name;
+        unless (exists $core_files{$core} && $core_files{$core} == -M $core) {
+            # new core file!
+
+            # XXX: could rename the file if it doesn't include the pid
+            # in its name (i.e., just called 'core', instead of 'core.365')
+
+            # XXX: could pass the test name and rename the core file
+            # to use that name as a suffix, plus pid, time or some
+            # other unique identifier, in case the same test is run
+            # more than once and each time it caused a segfault
+            $core_files{$core} = -M $core;
+            my $oh = oh();
+            my $again = $times++ ? "again" : "";
+            push @msg, "oh $oh, server dumped core $again",
+                "for stacktrace, run: gdb $vars->{httpd} -core $core";
+        }
+    }, $vars->{top_dir});
+
+    return @msg;
+
+}
+
 sub scan_core {
     my $self = shift;
     my $vars = $self->{test_config}->{vars};
