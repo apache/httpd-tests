@@ -7,6 +7,10 @@ use File::Find ();
 use File::Path ();
 use Exporter ();
 use Carp ();
+use Config;
+use File::Basename qw(dirname);
+
+use Apache::TestConfig;
 
 use vars qw($VERSION @ISA @EXPORT %CLEAN);
 
@@ -43,6 +47,10 @@ sub t_write_file {
     my $file = shift;
 
     die "must pass a filename" unless defined $file;
+
+    # create the parent dir if it doesn't exist yet
+    makepath(dirname $file);
+
     my $fh = Symbol::gensym();
     open $fh, ">$file" or die "can't open $file: $!";
     t_debug("writing file: $file");
@@ -55,10 +63,15 @@ sub t_open_file {
     my $file = shift;
 
     die "must pass a filename" unless defined $file;
+
+    # create the parent dir if it doesn't exist yet
+    makepath(dirname $file);
+
     my $fh = Symbol::gensym();
     open $fh, ">$file" or die "can't open $file: $!";
     t_debug("writing file: $file");
     $CLEAN{files}{$file}++;
+
     return $fh;
 }
 
@@ -83,13 +96,36 @@ sub write_shell_script {
     $ext;
 }
 
+sub write_perl_script {
+    my $file = shift;
+
+    my $shebang = "#!$Config{perlpath}\n";
+    my $warning = Apache::TestConfig->thaw->genwarning($file);
+    t_write_file($file, $shebang, $warning, @_);
+    chmod 0555, $file;
+}
+
+
 sub t_mkdir {
     my $dir = shift;
+    makepath($dir);
+}
 
-    die "must pass a dirname" unless defined $dir;
-    t_debug("creating dir: $dir");
-    mkdir $dir, 0755 unless -d $dir;
-    $CLEAN{dirs}{$dir}++;
+# returns a list of dirs successfully created
+sub makepath {
+    my($path) = @_;
+
+    return if !defined($path) || -e $path;
+    my $full_path = $path;
+
+    # remember which dirs were created and should be cleaned up
+    while (1) {
+        $CLEAN{dirs}{$path} = 1;
+        $path = dirname $path;
+        last if -e $path;
+    }
+
+    return File::Path::mkpath($full_path, 0, 0755);
 }
 
 sub t_rmtree {
@@ -317,6 +353,9 @@ t_write_file() creates a new file at I<$filename> or overwrites the
 existing file with the content passed in I<@lines>. If only the
 I<$filename> is passed, an empty file will be created.
 
+If parent directories of C<$filename> don't exist they will be
+automagically created.
+
 The generated file will be automatically deleted at the end of the
 program's execution.
 
@@ -324,7 +363,7 @@ This function is exported by default.
 
 =item write_shell_script()
 
-write_shell_script($filename, @lines);
+  write_shell_script($filename, @lines);
 
 Similar to t_write_file() but creates a portable shell/batch
 script. The created filename is constructed from C<$filename> and an
@@ -333,12 +372,22 @@ the code is running under.
 
 It returns the extension of the created file.
 
+=item write_perl_script()
+
+  write_perl_script($filename, @lines);
+
+Similar to t_write_file() but creates a executable Perl script with
+correctly set shebang line.
+
 =item t_open_file()
 
   my $fh = t_open_file($filename);
 
 t_open_file() opens a file I<$filename> for writing and returns the
 file handle to the opened file.
+
+If parent directories of C<$filename> don't exist they will be
+automagically created.
 
 The generated file will be automatically deleted at the end of the
 program's execution.
@@ -352,8 +401,8 @@ This function is exported by default.
 t_mkdir() creates a directory I<$dirname>. The operation will fail if
 the parent directory doesn't exist.
 
-META: should we use File::Path::mkpath() to generate any dir even if
-the parent doesn't exist? or should we create t_mkpath() in addition?
+If parent directories of C<$dirname> don't exist they will be
+automagically created.
 
 The generated directory will be automatically deleted at the end of
 the program's execution.
