@@ -5,6 +5,7 @@ use warnings FATAL => 'all';
 
 use constant WIN32 => $^O eq 'MSWin32';
 
+use File::Copy ();
 use File::Find qw(finddepth);
 use File::Spec::Functions qw(catfile abs2rel splitdir
                              catdir file_name_is_absolute);
@@ -488,6 +489,12 @@ sub genfile {
     return $fh;
 }
 
+sub cpfile {
+    my($self, $from, $to) = @_;
+    File::Copy::copy($from, $to);
+    $self->{clean}->{files}->{$to} = 1;
+}
+
 sub gendir {
     my($self, $dir) = @_;
 
@@ -610,6 +617,23 @@ sub generate_extra_conf {
     }
 
     return \@extra_conf;
+}
+
+#XXX: just a quick hack to support t/TEST -ssl
+#outside of httpd-test/perl-framework
+sub generate_ssl_conf {
+    my $self = shift;
+    my $vars = $self->{vars};
+    my $conf = "$vars->{t_conf}/ssl";
+    my $httpd_test_ssl = "../httpd-test/perl-framework/t/conf/ssl";
+    my $ssl_conf = "$vars->{top_dir}/$httpd_test_ssl";
+
+    if (-d $ssl_conf and not -d $conf) {
+        $self->gendir($conf);
+        for (qw(ssl.conf.in server.key server.cert)) {
+            $self->cpfile("$ssl_conf/$_", "$conf/$_");
+        }
+    }
 }
 
 sub generate_httpd_conf {
