@@ -12,6 +12,7 @@ use Apache::TestHarness ();
 use Apache::TestTrace;
 
 use Cwd;
+use ExtUtils::MakeMaker;
 use File::Find qw(finddepth);
 use File::Path;
 use File::Spec::Functions qw(catfile catdir);
@@ -947,6 +948,7 @@ You can test whether some directory is suitable for 'make test' under
 Only if the test prints 'OK', the directory is suitable to be used for
 testing.
 EOI
+        skip_test_suite();
         exit_perl 0;
     }
 }
@@ -1128,6 +1130,35 @@ sub exit_shell {
 #    require Carp;
 #    Carp::cluck('exiting');
     CORE::exit $_[0];
+}
+
+# successfully abort the test suite execution (to allow automatic
+# tools like CPAN.pm, to continue with installation).
+#
+# if a true value is passed, quit right away
+# otherwise ask the user, if they may want to change their mind which
+# will return them back to where they left
+sub skip_test_suite {
+    my $no_doubt = shift;
+
+    print qq[
+
+Running the test suite is important to make sure that the module that
+you are about to install works on your system. If you choose not to
+run the test suite and you have a problem using this module, make sure
+to return and run this test suite before reporting any problems to the
+developers of this module.
+
+];
+    unless ($no_doubt) {
+        my $default = 'No';
+        my $prompt = 'Skip the test suite?';
+        my $ans = ExtUtils::MakeMaker::prompt($prompt, $default);
+        return if lc($ans) =~ /no/;
+    }
+
+    error "Skipping the test suite execution, while returning success status";
+    exit_perl 1;
 }
 
 # called from Apache::TestConfig::new()
@@ -1397,7 +1428,6 @@ sub custom_config_first_time {
     my $test_config = $self->{test_config};
     my $vars = $test_config->{vars};
 
-    require ExtUtils::MakeMaker;
     require File::Spec;
     local *which = \&Apache::TestConfig::which;
 
@@ -1422,6 +1452,7 @@ or via the environment variable APACHE_TEST_HTTPD. For example:
 
   % APACHE_TEST_HTTPD=/path/to/alternative/httpd t/TEST
 
+If for some reason you want to skip the test suite, type: skip
 ];
 
     {
@@ -1449,9 +1480,12 @@ or via the environment variable APACHE_TEST_HTTPD. For example:
 Next we need to know where the 'apxs' script is located. This script
 provides a lot of information about the apache installation, and makes
 it easier to find things. However it's not available on all platforms,
-therefore it's optional. If you don't have it installed it's not a
-problem. Notice that if you have Apache 2.x installed that script
-could be called as 'apxs2'.
+therefore it's optional.
+
+If you don't have it installed it's not a problem. Just press Enter.
+
+Notice that if you have Apache 2.x installed that script could be
+called as 'apxs2'.
 
 If you have more than one Apache server is installed, make sure you
 supply the path to the apxs script you are going to use for testing.
@@ -1535,6 +1569,13 @@ sub _custom_config_prompt_path {
 
         if ($optional) {
             return '' unless $ans;
+        }
+
+        # stop the test suite without an error (so automatic tools
+        # like CPAN.pm will be able to continue)
+        if (lc($ans) eq 'skip' && !$optional) {
+            skip_test_suite();
+            next; # in case they change their mind
         }
 
         unless (File::Spec->file_name_is_absolute($ans)) {
