@@ -19,6 +19,13 @@ unless ($have_lwp) {
     @HTTP::Request::Common::EXPORT = qw(GET HEAD POST PUT);
 }
 
+sub install_http11 {
+    eval {
+        require LWP::Protocol::http11;
+        LWP::Protocol::implementor('http', 'LWP::Protocol::http11');
+    };
+}
+
 require Exporter;
 *import = \&Exporter::import;
 our @EXPORT = @HTTP::Request::Common::EXPORT;
