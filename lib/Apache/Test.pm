@@ -333,7 +333,11 @@ sub need_cgi {
 }
 
 sub need_php {
-    need_module('php4') || need_module('php5');
+    need_module('php4') || need_module('php5') || need_module('sapi_apache2.c');
+}
+
+sub need_php4 {
+    need_module('php4') || need_module('sapi_apache2.c');
 }
 
 sub need_access {
@@ -679,6 +683,12 @@ Requires mod_cgi or mod_cgid to be installed.
   plan tests => 5, need_php;
 
 Requires mod_php4 or mod_php5 to be installed.
+
+=item need_php4
+
+    plan tests => 5, need_php4;
+
+Requires mod_php4 to be installed.
 
 =item need_apache
 
