@@ -24,7 +24,7 @@ my %core_files  = ();
 my @std_run      = qw(start-httpd run-tests stop-httpd);
 my @others       = qw(verbose configure clean help ssl http11);
 my @flag_opts    = (@std_run, @others);
-my @string_opts  = qw(order);
+my @string_opts  = qw(order trace);
 my @ostring_opts = qw(proxy ping);
 my @debug_opts   = qw(debug);
 my @num_opts     = qw(times);
@@ -53,6 +53,7 @@ my %usage = (
    'http11'          => 'run all tests with HTTP/1.1 (keep alive) requests',
    'ssl'             => 'run tests through ssl',
    'proxy'           => 'proxy requests (default proxy is localhost)',
+   'trace=T'         => 'change tracing default to: warning, notice, info, debug, ...',
    (map { $_, "\U$_\E url" } @request_opts),
 );
 
@@ -207,6 +208,18 @@ sub getopts {
     if (exists $opts{debug}) {
         $opts{debugger} = $opts{debug};
         $opts{debug} = 1;
+    }
+
+    if ($opts{trace}) {
+        my %levels = map {$_ => 1} @Apache::TestTrace::Levels;
+        if (exists $levels{ $opts{trace} }) {
+            $Apache::TestTrace::Level = $opts{trace};
+        }
+        else {
+            error "unknown trace level: $opts{trace}",
+                "valid levels are: @Apache::TestTrace::Levels";
+            exit_perl 0;
+        }
     }
 
     # breakpoint automatically turns the debug mode on
