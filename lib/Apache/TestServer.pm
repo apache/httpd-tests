@@ -402,6 +402,9 @@ sub start {
     }
 
     print "$cmd\n";
+    my $child_pid;
+    my $child_in_pipe;
+    my $old_sig;
 
     if (Apache::TestConfig::WIN32) {
         #make sure only 1 process is started for win32
@@ -418,7 +421,19 @@ sub start {
         $config->{win32obj} = $obj;
     }
     else {
-        system "$cmd &";
+        # XXX: try not to be POSIX dependent
+        require POSIX;
+        $old_sig = $SIG{CHLD};
+        $SIG{CHLD} = sub {
+            while ((my $child = waitpid(-1, POSIX::WNOHANG())) > 0) {
+                my $status  = $? >> 8;
+                if ($status) {
+                    $self->failed_msg("\nserver has died with status $status");
+                    kill SIGTERM => $$;
+                }
+            }
+        };
+        $child_pid = open $child_in_pipe, "|$cmd";
     }
 
     while ($old_pid and $old_pid == $self->pid) {
@@ -450,6 +465,10 @@ sub start {
             last;
         }
     }
+
+    # now that the server has started don't abort the test run if it
+    # dies
+    $SIG{CHLD} = $old_sig || 'DEFAULT';
 
     if (my $pid = $self->pid) {
         print "server $self->{name} started\n";
