@@ -300,7 +300,7 @@ sub cmodules_generate_include {
     my $self = shift;
 
     my $file = "$self->{cmodules_dir}/apache_httpd_test.h";
-    my $fh = $self->genfile($file);
+    my $fh = $self->genfile($file, 2);
 
     while (read Apache::TestConfigC::DATA, my $buf, 1024) {
         print $fh $buf;
