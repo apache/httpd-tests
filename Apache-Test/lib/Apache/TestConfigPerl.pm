@@ -31,8 +31,10 @@ sub configure_libmodperl {
     # the wanted version is 1. So check that we use mod_perl 2
     elsif ($server->{rev} >= 2 && IS_MOD_PERL_2) {
         if (my $build_config = $self->modperl_build_config()) {
-            $libname = $build_config->{MODPERL_LIB_SHARED};
-            $vars->{libmodperl} ||= $self->find_apache_module($libname);
+            if ($build_config->{MODPERL_LIB_SHARED}) {
+                $libname = $build_config->{MODPERL_LIB_SHARED};
+                $vars->{libmodperl} ||= $self->find_apache_module($libname);
+            }
             # XXX: we have a problem with several perl trees pointing
             # to the same httpd tree. So it's possible that we
             # configure the test suite to run with mod_perl.so built
@@ -153,7 +155,6 @@ sub configure_startup_pl {
     if (my $inc = $self->{inc}) {
         my $include_pl = catfile $self->{vars}->{t_conf}, 'modperl_inc.pl';
         my $fh = $self->genfile($include_pl);
-        # make sure that the dev libs come before blib
         for (reverse @$inc) {
             print $fh "use lib '$_';\n";
         }
