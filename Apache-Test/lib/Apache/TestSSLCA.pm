@@ -38,7 +38,9 @@ my $passin  = "-passin pass:$pass";
 my $passout = "-passout pass:$pass";
 
 # in 0.9.7 s/Email/emailAddress/ in DN
-my $email_field = $version lt "0.9.7" ? "Email" : "emailAddress";
+my $email_field = Apache::Test::normalize_vstring($version) <
+                  Apache::Test::normalize_vstring("0.9.7") ? 
+                  "Email" : "emailAddress";
 
 my $ca_dn = {
     asf => {

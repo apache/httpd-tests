@@ -40,7 +40,8 @@ sub cmodule_find {
         my $wanted = $1;
         (my $current) = $self->{server}->{version} =~ m:^Apache/(\d\.\d+\.\d+):;
 
-        if ($current lt $wanted) {
+        if (Apache::Test::normalize_vstring($current) < 
+            Apache::Test::normalize_vstring($wanted)) {
             my $reason = "requires Apache version $wanted";
             $self->{cmodules_disabled}->{$mod} = $reason;
             notice "$mod $reason, skipping.";
