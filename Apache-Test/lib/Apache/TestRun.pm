@@ -640,7 +640,8 @@ sub set_ulimit_via_sh {
     $orig_command = "ulimit -c unlimited; $orig_command";
     warning "setting ulimit to allow core files\n$orig_command";
     exec $orig_command;
-    die "exec $orig_command has failed"; # shouldn't be reached
+    # use CORE::die to avoid warnings due to possible overrides of die
+    CORE::die "exec $orig_command has failed"; # shouldn't be reached
 }
 
 sub set_ulimit {
@@ -744,7 +745,8 @@ sub rerun {
     chdir $orig_cwd;
     warning "rerunning '$orig_command' with new config opts";
     exec $orig_command;
-    die "exec $orig_command has failed"; # shouldn't be reached
+    # use CORE::die to avoid warnings due to possible overrides of die
+    CORE::die "exec $orig_command has failed"; # shouldn't be reached
 }
 
 
