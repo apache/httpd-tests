@@ -63,7 +63,7 @@ while (<DATA>) {
     push @vars, $key;
 }
 
-plan tests => scalar @vars;
+plan tests => scalar @vars, have_module 'test_ssl';
 
 for my $key (@vars) {
     sok { verify($key); };
