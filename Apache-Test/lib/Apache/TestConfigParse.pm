@@ -87,20 +87,20 @@ my %modname_alias = (
 #XXX mod_jk requires JkWorkerFile or JkWorker to be configured
 #skip it for now, tomcat has its own test suite anyhow.
 #XXX: mod_casp2.so requires other settings in addition to LoadModule
-my %skip_modules = map { $_, 1 } qw(mod_jk.c mod_casp2.c);
+my %autoconfig_skip_module = map { $_, 1 } qw(mod_jk.c mod_casp2.c);
 
 # add modules to be not inherited from the existing config.
 # e.g. prevent from LoadModule perl_module to be included twice, when
 # mod_perl already configures LoadModule and it's certainly found in
 # the existing httpd.conf installed system-wide.
-sub config_parse_skip_module_add {
+sub autoconfig_skip_module_add {
     my($name) = @_;
-    $skip_modules{$name} = 1;
+    $autoconfig_skip_module{$name} = 1;
 }
 
 sub should_skip_module {
     my($self, $name) = @_;
-    return $skip_modules{$name} ? 1 : 0;
+    return $autoconfig_skip_module{$name} ? 1 : 0;
 }
 
 #inherit LoadModule
@@ -122,14 +122,16 @@ sub inherit_load_module {
 
         $name = $modname_alias{$name} if $modname_alias{$name};
 
+        # remember all found modules
+        $self->{modules}->{$name} = $file;
+        debug "Found: $modname => $name";
+
         if ($self->should_skip_module($name)) {
             debug "Skipping LoadModule of $name";
             next;
         }
 
         debug "LoadModule $modname $name";
-
-        $self->{modules}->{$name} = 1;
 
         $self->preamble($directive => qq($modname "$file"));
     }

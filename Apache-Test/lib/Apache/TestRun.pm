@@ -438,7 +438,8 @@ sub start {
         error "no test server configured, please specify an httpd or ".
               ($test_config->{APXS} ?
                "an apxs other than $test_config->{APXS}" : "apxs").
-               " or put either in your PATH";
+               " or put either in your PATH. For example:\n" .
+               "$0 -httpd /path/to/bin/httpd";
         exit_perl 0;
     }
 
