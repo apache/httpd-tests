@@ -108,7 +108,8 @@ sub configure_startup_pl {
     if (my $inc = $self->{inc}) {
         my $include_pl = catfile $self->{vars}->{t_conf}, 'modperl_inc.pl';
         my $fh = $self->genfile($include_pl);
-        for (@$inc) {
+        # make sure that the dev libs come before blib
+        for (reverse @$inc) {
             print $fh "use lib '$_';\n";
         }
         print $fh "1;\n";
