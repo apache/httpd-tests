@@ -8,6 +8,10 @@ Changes - Apache::Test change logfile
 
 =item 1.10-dev
 
+add :withtestmore import tag to Apache::Test, which will export
+all standard Apache::Test symbols except those that collide with
+Test::More.  [Geoffrey Young]
+
 Use function prototypes in Apache::TestUtil functions t_cmp() and
 t_is_equal() to handle the case when an argument to the function, is a
 function call itself which may return undef (previously had to
