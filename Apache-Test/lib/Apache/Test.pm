@@ -32,7 +32,7 @@ sub config {
 }
 
 sub vars {
-    config()->{vars};
+    @_ ? @{ config()->{vars} }{ @_ } : config()->{vars};
 }
 
 sub sok (&;$) {
@@ -690,6 +690,29 @@ It's possible to put more than one requirement into a single hash
 reference, but be careful that the keys will be different.
 
 Also see plan().
+
+=item config
+
+  my $cfg = Apache::Test::config();
+  my $server_rev = $cfg->{server}->{rev};
+  ...
+
+C<config()> gives an access to the configuration object.
+
+=item vars
+
+  my $serverroot = Apache::Test::vars->{serverroot};
+  my $serverroot = Apache::Test::vars('serverroot');
+  my($top_dir, $t_dir) = Apache::Test::vars(qw(top_dir t_dir));
+
+C<vars()> gives an access to the configuration variables, otherwise
+accessible as:
+
+  $vars = Apache::Test::config()->{vars};
+
+If no arguments are passed, the reference to the variables hash is
+returned. If one or more arguments are passed the corresponding values
+are returned.
 
 =back
 
