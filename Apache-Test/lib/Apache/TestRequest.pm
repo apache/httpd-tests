@@ -360,6 +360,7 @@ sub lwp_call {
     my($name, $shortcut) = (shift, shift);
 
     my $r = (\&{$name})->(@_);
+    my $error = "";
 
     unless ($shortcut) {
         #GET, HEAD, POST
@@ -367,10 +368,10 @@ sub lwp_call {
         my $proto = $r->protocol;
         if (defined($proto)) {
             if ($proto !~ /^HTTP\/(\d\.\d)$/) {
-                die "response had no protocol (is LWP broken or something?)";
+                $error = "response had no protocol (is LWP broken or something?)";
             }
             if ($1 ne "1.0" && $1 ne "1.1") {
-                die "response had protocol HTTP/$1 (headers not sent?)";
+                $error = "response had protocol HTTP/$1 (headers not sent?)";
             }
         }
     }
@@ -382,6 +383,8 @@ sub lwp_call {
         print "$name $url:\n", $r->request->headers_as_string, "\n";
         print lwp_as_string($r, $DebugLWP > 1);
     }
+
+    die $error if $error;
 
     return $shortcut ? $r->$shortcut() : $r;
 }
