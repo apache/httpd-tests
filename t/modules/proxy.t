@@ -6,7 +6,7 @@ use Apache::TestRequest;
 use Apache::TestUtil;
 use Apache::TestConfig ();
 
-plan tests => 10, need_module 'proxy';
+plan tests => 11, need_module 'proxy';
 
 Apache::TestRequest::module("proxy_http_reverse");
 Apache::TestRequest::user_agent(requests_redirectable => 0);
@@ -33,6 +33,14 @@ if (have_cgi) {
     }
 } else {
     skip "skipping tests without CGI module" foreach (1..6);
+}
+
+if (have_min_apache_version('2.1.0')) {
+    # trigger the "proxy decodes abs_path issue"
+    $r = GET("/reverse/nonesuch/file%25");
+    ok t_cmp($r->code, 404, "reverse proxy URI decoding issue, PR 15207");
+} else {
+    skip "skipping PR 15207 test with httpd < 2.1.0";
 }
 
 if (have_module('alias')) {
