@@ -90,6 +90,22 @@ sub sanity_check {
     }
 }
 
+if ($ExtUtils::MakeMaker::VERSION < 6.06) {
+    # now that we're using subversion, make sure that
+    # .svn directories are skipped during the build process
+    # for old versions of MakeMaker
+
+    sub MY::libscan {
+        my $self = shift;
+
+        my $path = shift;
+
+        return '' if $path =~ /\B\.svn\b/;
+
+        return $path;
+    }
+}
+
 sub MY::postamble {
     my $self = shift;
 
