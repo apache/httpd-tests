@@ -3,6 +3,7 @@ package Apache::TestRequest;
 use strict;
 use warnings FATAL => 'all';
 
+use Apache::Test ();
 use Apache::TestConfig ();
 
 my $have_lwp = eval {
@@ -399,24 +400,45 @@ sub set_client_cert {
 #instead of IO::Socket::INET::new, we fixup the args then forward
 #to IO::Socket::INET::new
 
-if (eval { require Net::NNTP }) {
-    my $new;
+#also want KeepAlive on for Net::HTTP
+#XXX libwww-perl 5.53_xx has: LWP::UserAgent->new(keep_alive => 1);
 
-    for (@Net::NNTP::ISA) {
+sub install_net_socket_new {
+    my($module, $code) = @_;
+
+    return unless Apache::Test::have_module($module);
+
+    no strict 'refs';
+
+    my $new;
+    my $isa = \@{"$module\::ISA"};
+
+    for (@$isa) {
         last if $new = $_->can('new');
     }
 
-    unshift @Net::NNTP::ISA, 'FixupNNTP';
+    my $fixup_class = "Apache::TestRequest::$module";
+    unshift @$isa, $fixup_class;
 
-    *FixupNNTP::new = sub {
+    *{"$fixup_class\::new"} = sub {
         my $class = shift;
         my $args = {@_};
-        my($host, $port) = split ':',
-          Apache::TestRequest::hostport();
-        $args->{PeerPort} = $port;
-        $args->{PeerAddr} = $host;
+        $code->($args);
         return $new->($class, %$args);
-    }
+    };
 }
+
+install_net_socket_new('Net::NNTP' => sub {
+    my $args = shift;
+    my($host, $port) = split ':',
+      Apache::TestRequest::hostport();
+    $args->{PeerPort} = $port;
+    $args->{PeerAddr} = $host;
+});
+
+install_net_socket_new('Net::HTTP' => sub {
+    my $args = shift;
+    $args->{KeepAlive} = 1;
+});
 
 1;
