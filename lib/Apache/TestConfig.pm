@@ -2191,7 +2191,7 @@ sub _custom_config_prompt_path {
         # stop the test suite without an error (so automatic tools
         # like CPAN.pm will be able to continue)
         if (lc($ans) eq 'skip' && !$optional) {
-            skip_test_suite();
+            Apache::TestRun::skip_test_suite();
             next; # in case they change their mind
         }
 
