@@ -23,7 +23,7 @@ $res = GET $url, username => 'guest', password => 'guest';
 
 ok $res->code == 200;
 
-my $request_num = $res->header('Client-Request-Num');
+my $request_num = Apache::TestRequest::user_agent_request_num($res);
 
 ok $request_num == 3; #1 => no credentials
                       #2 => 401 response with second request

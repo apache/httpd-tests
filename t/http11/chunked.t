@@ -45,7 +45,8 @@ sub expect_chunked {
         ok length($body) == $length;
 
         $requests++;
-        my $request_num = $res->header('Client-Request-Num');
+        my $request_num =
+          Apache::TestRequest::user_agent_request_num($res);
 
         return $request_num == $requests;
     }, 5;
@@ -74,7 +75,8 @@ sub expect_not_chunked {
         ok length($body) == $length;
 
         $requests++;
-        my $request_num = $res->header('Client-Request-Num');
+        my $request_num =
+          Apache::TestRequest::user_agent_request_num($res);
 
         return $request_num == $requests;
     }, 5;
