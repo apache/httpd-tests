@@ -8,6 +8,11 @@ Changes - Apache::Test change logfile
 
 =item 1.04-dev - 
 
+when the tests are run in the 'root' mode, check whether the
+DocumentRoot is rwx before the tests are run and suggest possible
+workarounds when the tests are doomed to fail, because of the
+permission issues. [Stas]
+
 UPLOAD is now auto-exported, like the rest [David Wheeler
 <david@kineticode.com>]
 
