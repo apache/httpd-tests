@@ -17,7 +17,7 @@ $VERSION = '0.01';
 use subs (@Levels, @Utils);
 
 # default settings overrideable by users
-$Level = 'warning';
+$Level = 'info';
 $LogFH = \*STDERR;
 
 # private data
@@ -42,9 +42,9 @@ if (HAS_COLOR) {
                crit    => 'reverse',
                error   => 'bold red',
                warning => 'yellow',
-               notice  => 'reset',
-               info    => 'blue',
-               debug   => 'green',
+               notice  => 'green',
+               info    => 'cyan',
+               debug   => 'magenta',
                reset   => 'reset',
                todo    => 'underline',
               );
