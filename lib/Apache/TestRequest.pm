@@ -204,14 +204,26 @@ sub upload_file {
 }
 
 #useful for POST_HEAD and $DebugLWP (see below)
-sub header_string {
-    my $r = shift;
+sub lwp_as_string {
+    my($r, $want_body) = @_;
     my $content = $r->content;
+
     unless ($r->header('Content-length')) {
         $r->header('Content-length' => length $content);
         $r->header('X-Content-length-note' => 'added by Apache::TestReqest');
     }
-    $r->content("");
+
+    if ($want_body) {
+        if (defined $content) {
+            #prevent double "ok $x" output
+            (my $copy = $content) =~ s/^/\#/mg;
+            $r->content($copy);
+        }
+    }
+    else {
+        $r->content(undef);
+    }
+
     my $string = $r->as_string;
     $r->content($content); #reset
     $string;
@@ -239,33 +251,45 @@ sub lwp_debug {
     }
 }
 
+sub lwp_call {
+    my($name, $shortcut) = (shift, shift);
+
+    my $r = (\&{$name})->(@_);
+
+    unless ($shortcut) {
+        #GET, HEAD, POST
+        $r = $UA->request($r);
+    }
+
+    if ($DebugLWP) {
+        my($url, @rest) = @_;
+        $name = (split '::', $name)[-1]; #strip HTTP::Request::Common::
+        $url = resolve_url($url);
+        print "$name $url @rest:\n";
+        print lwp_as_string($r, $DebugLWP > 1);
+    }
+
+    return $shortcut ? $r->$shortcut() : $r;
+}
+
 my %shortcuts = (RC   => sub { shift->code },
                  OK   => sub { shift->is_success },
                  STR  => sub { shift->as_string },
-                 HEAD => sub { header_string(shift) },
+                 HEAD => sub { lwp_as_string(shift, 0) },
                  BODY => sub { shift->content });
 
 for my $name (@EXPORT) {
-    my $method = \&{"HTTP::Request::Common::$name"};
+    my $method = "HTTP::Request::Common::$name";
     no strict 'refs';
 
     *$name = sub {
         my($url, $pass, $keep) = prepare(@_);
-        return $UA->request($method->($url, @$pass));
+        return lwp_call($method, undef, $url, @$pass);
     };
 
     while (my($shortcut, $cv) = each %shortcuts) {
         my $alias = join '_', $name, $shortcut;
-        *$alias = sub {
-            my $r = (\&{$name})->(@_);
-            if ($DebugLWP) {
-                my($url, @rest) = @_;
-                $url = resolve_url($url);
-                print "$name $url @rest:\n";
-                print $DebugLWP > 1 ? $r->as_string : header_string($r);
-            }
-            $r->$cv;
-        };
+        *$alias = sub { lwp_call($name, $cv, @_) };
     }
 }
 
