@@ -241,9 +241,10 @@ sub cmodules_write_makefile_MSWin32 {
     my $name = $mod->{name};
     my $makefile = "$mod->{dir}/Makefile";
     debug "writing $makefile";
+    my $extras = '';
 
     my $lib = $self->cmodules_build_so($name);
-    my $extras = ' -llibhttpd -p ';
+    $extras = ' -llibhttpd -p ' if ($self->server->{rev} != 1);
     my $goners = join ' ', (map {$name . '.' . $_} qw(exp lib so lo));
 
     my $fh = Symbol::gensym();
