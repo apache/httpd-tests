@@ -687,9 +687,11 @@ sub warn_style_sub_ref {
 }
 
 sub genwarning {
-    my($self, $filename) = @_;
+    my($self, $filename, $from_filename) = @_;
     return unless $filename;
-    my $warning = "WARNING: this file is generated, do not edit\n";
+    my $warning = "WARNING: this file is generated";
+    $warning .= " (from $from_filename)" if defined $from_filename;
+    $warning .= ", do not edit\n";
     $warning .= calls_trace();
     return $self->warn_style_sub_ref($filename)->($warning);
 }
@@ -728,32 +730,35 @@ sub clean_add_path {
 }
 
 sub genfile_trace {
-    my($self, $file) = @_;
+    my($self, $file, $from_file) = @_;
     my $name = abs2rel $file, $self->{vars}->{t_dir};
-    debug "generating $name";
+    my $msg = "generating $name";
+    $msg .= " from $from_file" if defined $from_file;
+    debug $msg;
 }
 
 sub genfile_warning {
-    my($self, $file, $fh) = @_;
+    my($self, $file, $from_file, $fh) = @_;
 
-    if (my $msg = $self->genwarning($file)) {
+    if (my $msg = $self->genwarning($file, $from_file)) {
         print $fh $msg, "\n";
     }
 }
 
+# $from_file == undef if there was no templates used
 sub genfile {
-    my($self, $file, $nowarning) = @_;
+    my($self, $file, $from_file, $nowarning) = @_;
 
     # create the parent dir if it doesn't exist yet
     my $dir = dirname $file;
     $self->makepath($dir);
 
-    $self->genfile_trace($file);
+    $self->genfile_trace($file, $from_file);
 
     my $fh = Symbol::gensym();
     open $fh, ">$file" or die "open $file: $!";
 
-    $self->genfile_warning($file, $fh) unless $nowarning;
+    $self->genfile_warning($file, $from_file, $fh) unless $nowarning;
 
     $self->clean_add_file($file);
 
@@ -764,7 +769,7 @@ sub genfile {
 sub writefile {
     my($self, $file, $content, $nowarning) = @_;
 
-    my $fh = $self->genfile($file, $nowarning);
+    my $fh = $self->genfile($file, undef, $nowarning);
 
     print $fh $content if $content;
 
@@ -808,12 +813,12 @@ EOF
 sub write_perlscript {
     my($self, $file, $content) = @_;
 
-    my $fh = $self->genfile($file, 1);
+    my $fh = $self->genfile($file, undef, 1);
 
     # shebang
     print $fh "#!$Config{perlpath}\n";
 
-    $self->genfile_warning($file, $fh);
+    $self->genfile_warning($file, undef, $fh);
 
     print $fh $content if $content;
 
@@ -1140,7 +1145,7 @@ sub generate_extra_conf {
         my $in = Symbol::gensym();
         open($in, $file) or next;
 
-        my $out = $self->genfile($generated);
+        my $out = $self->genfile($generated, $file);
         $self->replace_vars($in, $out);
 
         close $in;
@@ -1567,6 +1572,11 @@ file. After the warning a perl trace of calls to this this function is
 appended. This trace is useful for finding what code has created the
 file.
 
+  my $warn = $cfg->genwarning($filename, $from_filename)
+
+If C<$from_filename> is specified it'll be used in the warning to tell
+which file it was generated from.
+
 genwarning() automatically recognizes the comment type based on the
 file extension. If the extension is not recognized, the default C<#>
 style is used.
@@ -1581,14 +1591,28 @@ styles.
 genfile() creates a new file C<$file> for writing and returns a file
 handle.
 
-A comment with a warning and calls trace is added to the top of this
-file. See genwarning() for more info about this comment.
-
 If parent directories of C<$file> don't exist they will be
 automagically created.
 
 The file C<$file> and any created parent directories (if found empty)
 will be automatically removed on cleanup.
+
+A comment with a warning and calls trace is added to the top of this
+file. See genwarning() for more info about this comment.
+
+  my $fh = $cfg->genfile($file, $from_file);
+
+If C<$from_filename> is specified it'll be used in the warning to tell
+which file it was generated from.
+
+  my $fh = $cfg->genfile($file, $from_file, $nowarning);
+
+If C<$nowarning> is true, the warning won't be added. If using this
+optional argument and there is no C<$from_file> you must pass undef as
+in:
+
+  my $fh = $cfg->genfile($file, undef, $nowarning);
+
 
 =item writefile()
 
