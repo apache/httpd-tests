@@ -21,6 +21,8 @@ unless ($have_lwp) {
 
 sub install_http11 {
     eval {
+        die "no LWP" unless $have_lwp;
+        LWP->VERSION(5.5395); #minimal version
         require LWP::Protocol::http11;
         LWP::Protocol::implementor('http', 'LWP::Protocol::http11');
     };
@@ -52,7 +54,7 @@ sub vars {
 }
 
 sub user_agent {
-    eval { $UA ||= __PACKAGE__->new; };
+    eval { $UA ||= __PACKAGE__->new(@_); };
 }
 
 sub hostport {
