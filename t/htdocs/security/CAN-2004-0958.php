@@ -1,1 +1,1 @@
-<? print_r($_REQUEST); ?>
+<?php print_r($_REQUEST); ?>
