@@ -822,7 +822,7 @@ sub run_root_fs_test {
 
     # only now can change uid and euid
     $< = $> = $uid+0;
-    die "failed to change uid to $uid" unless $< == $uid;
+    die "failed to change uid to $uid" unless $< == $uid && $> == $uid;
 
     my $file = catfile $dir, ".apache-test-file-$$-".time.int(rand);
     eval "END { unlink q[$file] }";
