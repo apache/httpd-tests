@@ -11,6 +11,7 @@ use constant WINFU => Apache::TestConfig::WINFU;
 my($res, $str, $doc);
 my $dir = "/modules/include/";
 my $have_apache_2 = have_apache 2;
+my $have_apache_21 = have_min_apache_version "2.1.0";
 my $vars = Apache::Test::vars();
 my $docroot = $vars->{documentroot};
 
@@ -92,7 +93,12 @@ if ($have_apache_2) {
         "echo.shtml"      => ['<!--#echo var="DOCUMENT_NAME" -->', "retagged1"], 
         "retagged1.shtml" => ["retagged1.shtml",                   "retagged1"],
         "retagged2.shtml" => ["----retagged2.shtml",               "retagged1"],
+        "echo1.shtml"     => ["<!-- pass undefined echo -->",      "echo1"    ],
     );
+    if ($have_apache_21) {
+        $t_test{"echo2.shtml"} = ["<!-- pass undefined echo -->  pass  config ".
+                                  " echomsg  pass", "echo1"];
+    }
 }
 
 my @patterns = (

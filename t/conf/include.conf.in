@@ -53,6 +53,10 @@
         SSIStartTag --->
         SSIEndTag   printenw
     </VirtualHost>
+
+    <VirtualHost echo1:mod_include>
+        SSIUndefinedEcho "<!-- pass undefined echo -->"
+    </VirtualHost>
     </IfDefine>
 
 </IfModule>
