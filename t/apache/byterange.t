@@ -2,44 +2,13 @@ use strict;
 use warnings FATAL => 'all';
 
 use Apache::Test;
-use Apache::TestRequest;
-use File::Basename;
+use Apache::TestRequest ();
+use Apache::TestCommon ();
 
-my $ua = Apache::TestRequest::user_agent();
-
-my $vars = Apache::Test::vars();
-my $perlpod = $vars->{perlpod};
-my @pods;
-
-if (-d $perlpod) {
-    @pods = map { basename $_ } <$perlpod/*.pod>;
-}
-else {
-    $perlpod = undef;
-}
-
-#too friggin slow over ssl at the moment
-#my %other_files = map {
-#    ("/getfiles-binary-$_", $vars->{$_})
-#} qw(httpd perl);
-
-my %other_files;
-
-plan tests => @pods + keys(%other_files), 
-    skip_unless(sub { $vars->{perlpod} }, "dir $vars->{perlpod} doesn't exist");
-
-for my $url (keys %other_files) {
-    verify($url, $other_files{$url});
-}
-
-my $location = "/getfiles-perl-pod";
-
-for my $file (@pods) {
-    verify("$location/$file", "$perlpod/$file");
-}
+Apache::TestCommon::run_files_test(\&verify, 1);
 
 sub verify {
-    my($url, $file) = @_;
+    my($ua, $url, $file) = @_;
     my $debug = $Apache::TestRequest::DebugLWP;
 
     $url = Apache::TestRequest::resolve_url($url);
