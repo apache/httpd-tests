@@ -4,6 +4,16 @@
   Philippe posted patch here:
   http://marc.theaimsgroup.com/?l=apache-modperl-dev&m=105514290024419&w=2
 
+  For now, 127.0.0.1 will be hardcoded in the Listen directive, but a better
+  method would use this table:
+
+  Apache  \   OS      | IPV4         |  IPV6
+  --------------------------------------------
+  --enable-v4-mapped  |      80      |  80
+  --disable-v4-mapped | can't happen |  127.0.0.1:80
+
+  To more correctly pick the right Listen flavor.
+
 - Apache-Test assumes that any core file found under t/ was generated
   by httpd, (and suggests the gdb invoking command) which is incorrect
   in some cases. For example t/TEST -config, which is run by bin/perl,
