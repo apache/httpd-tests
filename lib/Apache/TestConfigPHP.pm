@@ -183,109 +183,73 @@ sub configure_php_tests {
 
 __DATA__
 <?php
-# Based on work from Andy Lester:
-# http://use.perl.org/~petdance/journal/14227
- 
-$test = 0;
-$num_failures = 0;
-$no_plan = false;
- 
+# based on initial work from Andy Lester
+#
+# extensive rework by Chris Shiflett
+
+$_no_plan = false;
+$_num_failures = 0;
+$_num_skips = 0;
+$_test = 0;
+
 register_shutdown_function('_test_end');
- 
-function ok($condition, $name = '')
+
+function diag($lines)
 {
-    global $test;
-    global $num_failures;
-    $test++;
- 
-    # FIXME: There may be a better way to do this.
-    $caller = debug_backtrace();
-    if (basename($caller['0']['file']) == 'more.php')
+    if (is_string($lines))
     {
-        $file = $caller['1']['file'];
-        $line = $caller['1']['line'];
+        $lines = explode("\n", $lines);
     }
-    else
+
+    foreach ($lines as $str)
     {
-        $file = $caller['0']['file'];
-        $line = $caller['0']['line'];
+        echo "# $str\n";
     }
- 
-    if (!$condition)
-    {
-        echo "not ok $test";
-        $num_failures++;
-    }
-    else
-    {
-        echo "ok $test";
-    }
- 
-    if (!empty($name))
-    {
-        echo " - $name";
-    }
- 
-    echo "\n";
- 
-    if (!$condition)
-    {
-        echo "#     Failed test ($file at line $line)\n";
-    }
- 
-    return $condition;
 }
- 
-function pass($name = '')
-{
-    return ok(true, $name);
-}
- 
+
 function fail($name = '')
 {
     return ok(false, $name);
 }
- 
-function skip($msg, $num)
-{
-    for ($i = 0; $i < $num; $i++)
-    {
-        pass("# SKIP $msg");
-    }
-}
- 
+
 function is($actual, $expected, $name = '')
 {
     $ok = ($expected == $actual);
     ok($ok, $name);
+
     if (!$ok)
     {
         diag("          got: '$actual'");
         diag("     expected: '$expected'");
     }
+
     return $ok;
 }
- 
+
 function isnt($actual, $dontwant, $name = '')
 {
     $ok = ($actual != $dontwant);
     ok($ok, $name);
+
     if (!$ok)
     {
         diag("Didn't want '$actual'");
     }
+
     return $ok;
 }
- 
+
 function isa_ok($object, $class, $name = null)
 {
     if (isset($object))
     {
         $actual = get_class($object);
+
         if (!isset($name))
         {
             $name = "Object is of type $class";
         }
+
         return is(get_class($object), strtolower($class), $name);
     }
     else
@@ -293,7 +257,7 @@ function isa_ok($object, $class, $name = null)
         return fail('object is undefined');
     }
 }
- 
+
 function like($string, $regex, $name='')
 {
     $ok = ok(preg_match($regex, $string), $name);
@@ -304,51 +268,95 @@ function like($string, $regex, $name='')
         diag("     doesn't match '$regex'");
 
     }
+
     return $ok;
 }
- 
-function diag($lines)
+
+function no_plan()
 {
-    if (is_string($lines))
-    {
-        # Use explode() when there is a literal match.
-        $lines = explode("\n", $lines);
-    }
- 
-    foreach ($lines as $str)
-    {
-        echo "# $str\n";
-    }
+    global $_no_plan;
+    $_no_plan = true;
 }
- 
+
+function ok($condition, $name = '')
+{
+    global $_test;
+    global $_num_failures;
+    global $_num_skips;
+    $_test++; 
+    $caller = debug_backtrace();
+
+    if ($_num_skips)
+    {
+        $_num_skips--;
+        return true;
+    }
+
+    if (basename($caller['0']['file']) == 'more.php')
+    {
+        $file = $caller['1']['file'];
+        $line = $caller['1']['line'];
+    }
+    else
+    {
+        $file = $caller['0']['file'];
+        $line = $caller['0']['line'];
+    }
+
+    $file = str_replace($_SERVER['SERVER_ROOT'], 't', $file);
+
+    if (!$condition)
+    {
+        echo "not ok $_test";
+        $_num_failures++;
+    }
+    else
+    {
+        echo "ok $_test";
+    }
+
+    if (!empty($name))
+    {
+        echo " - $name";
+    }
+
+    echo "\n";
+
+    if (!$condition)
+    {
+        echo "#     Failed test ($file at line $line)\n";
+    }
+
+    return $condition;
+}
+
+function pass($name = '')
+{
+    return ok(true, $name);
+}
+
 function plan($num_tests)
 {
     echo "1..$num_tests\n";
 }
- 
-function no_plan()
+
+function skip($msg, $num)
 {
-    global $no_plan;
-    $no_plan = true;
+    global $_num_skips;
+
+    for ($i = 0; $i < $num; $i++)
+    {
+        pass("# SKIP $msg");
+    }
+
+    $_num_skips = $num;
 }
- 
+
 function _test_end()
 {
-    if ($no_plan)
+    if ($_no_plan)
     {
-        echo "1..$test\n";
-    }
- 
-    $ver = phpversion();
-    if (version_compare(phpversion(), '4.2.2' ) > 0)
-    {
-        global $num_failures;
-        # FIXME: This reeks of Perl
-        exit($num_failures > 254 ? 254 : $num_failures);
-    }
-    else
-    {
-        # Don't return anything
+        echo "1..$_test\n";
     }
 }
 ?>
