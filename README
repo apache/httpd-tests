@@ -9,6 +9,8 @@ see t/TEST as an example test harness
 
 For an extensive documentation see
 modperl-2.0/docs/src/devel/writing_tests/writing_tests.pod.
+Or 
+http://cvs.apache.org/viewcvs.cgi/modperl-docs/src/devel/writing_tests/writing_tests.pod
 
 see t/*.t for example tests
 
