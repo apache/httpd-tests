@@ -293,7 +293,7 @@ sub configure_httpd {
     #cleanup httpd droppings
     my $sem = catfile $vars->{t_logs}, 'apache_runtime_status.sem';
     unless (-e $sem) {
-        $self->{clean}->{files}->{$sem} = 1;
+        $self->clean_add_file($sem);
     }
 }
 
@@ -596,6 +596,25 @@ sub calls_trace {
     return $trace;
 }
 
+sub clean_add_file {
+    my($self, $file) = @_;
+
+    $self->{clean}->{files}->{ rel2abs($file) } = 1;
+}
+
+sub clean_add_path {
+    my($self, $path) = @_;
+
+    $path = rel2abs($path);
+
+    # remember which dirs were created and should be cleaned up
+    while (1) {
+        $self->{clean}->{dirs}->{$path} = 1;
+        $path = dirname $path;
+        last if -e $path;
+    }
+}
+
 sub genfile {
     my($self, $file) = @_;
 
@@ -613,7 +632,7 @@ sub genfile {
         print $fh $msg, "\n";
     }
 
-    $self->{clean}->{files}->{$file} = 1;
+    $self->clean_add_file($file);
 
     return $fh;
 }
@@ -642,7 +661,7 @@ sub writefile {
         print $fh $content;
     }
 
-    $self->{clean}->{files}->{$file} = 1;
+    $self->clean_add_file($file);
 
     close $fh;
 }
@@ -672,7 +691,7 @@ sub write_perlscript {
         print $fh $content;
     }
 
-    $self->{clean}->{files}->{$file} = 1;
+    $self->clean_add_file($file) = 1;
 
     close $fh;
     chmod 0555, $file;
@@ -681,13 +700,13 @@ sub write_perlscript {
 sub cpfile {
     my($self, $from, $to) = @_;
     File::Copy::copy($from, $to);
-    $self->{clean}->{files}->{$to} = 1;
+    $self->clean_add_file($to);
 }
 
 sub symlink {
     my($self, $from, $to) = @_;
     CORE::symlink($from, $to);
-    $self->{clean}->{files}->{$to} = 1;
+    $self->clean_add_file($to);
 }
 
 sub gendir {
@@ -700,16 +719,10 @@ sub makepath {
     my($self, $path) = @_;
 
     return if !defined($path) || -e $path;
-    my $full_path = $path;
 
-    # remember which dirs were created and should be cleaned up
-    while (1) {
-        $self->{clean}->{dirs}->{$path} = 1;
-        $path = dirname $path;
-        last if -e $path;
-    }
+    $self->clean_add_path($path);
 
-    return File::Path::mkpath($full_path, 0, 0755);
+    return File::Path::mkpath($path, 0, 0755);
 }
 
 sub open_cmd {
