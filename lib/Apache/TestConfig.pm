@@ -1371,7 +1371,7 @@ sub sslca_clean {
 
     # XXX: httpd config is required, for now just skip ssl clean if
     # there is none
-    return unless $self->{vars}->{httpd};
+    return unless $self->{vars}->{httpd} && $self->{vars}->{ssl_module};
 
     return unless $self->sslca_can;
 
