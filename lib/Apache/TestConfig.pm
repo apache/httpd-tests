@@ -678,7 +678,7 @@ sub write_perlscript {
     print $fh $content if $content;
 
     close $fh;
-    chmod 0555, $file;
+    chmod 0755, $file;
 }
 
 sub cpfile {

@@ -102,7 +102,7 @@ sub write_perl_script {
     my $shebang = "#!$Config{perlpath}\n";
     my $warning = Apache::TestConfig->thaw->genwarning($file);
     t_write_file($file, $shebang, $warning, @_);
-    chmod 0555, $file;
+    chmod 0755, $file;
 }
 
 
