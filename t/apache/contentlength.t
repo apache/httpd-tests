@@ -51,8 +51,16 @@ for my $data (@test_strings) {
     # Read the status line
     chomp(my $response = Apache::TestRequest::getline($sock) || '');
     $response =~ s/\s$//;
-    ok t_cmp($response, $resp_strings[$cycle++],
+
+    # Tests with empty content-length have platform-specific behaviour
+    # until 2.1.0.
+    skip 
+      $data eq "" && !have_min_apache_version('2.1.0') ? 
+         "skipping tests with empty Content-Length" : 0,
+      t_cmp($response, $resp_strings[$cycle],
              "response codes POST for $request_uri with Content-Length: $data");
+
+    $cycle++;
 
     do {
         chomp($response = Apache::TestRequest::getline($sock) || '');
