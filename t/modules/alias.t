@@ -43,15 +43,21 @@ my $tests = (keys %redirect) + (keys %rm_body) * 10 +
 plan tests => $tests, [qw(alias LWP)];
 
 ## simple alias ##
-print "verifying simple aliases\n";
-ok ('200' eq GET_RC "/alias/");
+t_debug "verifying simple aliases";
+ok t_cmp(200,
+         GET_RC "/alias/",
+         "/alias/");
 ## alias to a non-existant area ##
-ok ('404' eq GET_RC "/bogu/");
+ok t_cmp(404,
+         GET_RC "/bogu/",
+         "/bogu/");
 
 
-print "verifying alias match with /ali[0-9].\n";
+t_debug "verifying alias match with /ali[0-9].";
 for (my $i=0 ; $i <= 9 ; $i++) {
-    ok ("$i" eq GET_BODY "/ali$i");
+    ok t_cmp($i,
+             GET_BODY "/ali$i",
+             "/ali$i");
 }
 
 my ($actual, $expected);
@@ -62,8 +68,9 @@ foreach (sort keys %redirect) {
 
     $expected = $redirect{$_};
     $actual = GET_RC "/$_";
-    print "$_: expect: $expected, got: $actual\n";
-    ok ($actual eq $expected);
+    ok t_cmp($expected,
+             $actual,
+             "/$_");
 }
 
 print "verifying body of perm and temp redirect match\n";
@@ -71,16 +78,24 @@ foreach (sort keys %rm_body) {
     for (my $i=0 ; $i <= 9 ; $i++) {
         $expected = $i;
         $actual = GET_BODY "/$_$i";
-        ok ($actual eq $expected);
+        ok t_cmp($expected,
+                 $actual,
+                 "/$_$i");
     }
 }
 
 print "verifying return code of seeother and gone redirect match\n";
 foreach (keys %rm_rc) {
+    ## make LWP not follow the redirect since we
+    ## are just interested in the return code.
+    local $Apache::TestRequest::RedirectOK = 0;
+
     $expected = $rm_rc{$_};
     for (my $i=0 ; $i <= 9 ; $i++) {
         $actual = GET_RC "$_$i";
-        ok ($actual eq $expected);
+        ok t_cmp($expected,
+                 $actual,
+                 "$_$i");
     }
 }
 
@@ -100,19 +115,28 @@ t_write_file($script,$cgi);
 chmod 0755, $script;
 
 ## if we get the script here it will be plain text ##
-print "verifying /modules/alias/script is plain text\n";
-ok ($cgi eq GET_BODY "/modules/alias/script") unless WINFU;
+t_debug "verifying /modules/alias/script is plain text";
+ok t_cmp($cgi,
+          GET_BODY "/modules/alias/script",
+          "/modules/alias/script") unless WINFU;
 
 ## here it should be the result of the executed cgi ##
-print "verifying same file accessed at /cgi/script is executed code\n";
-ok ("$string\n" eq GET_BODY "/cgi/script") unless WINFU;
+t_debug "verifying same file accessed at /cgi/script is executed code";
+ok t_cmp("$string\n",
+         GET_BODY "/cgi/script",
+         "/cgi/script") unless WINFU;
+
 ## with ScriptAliasMatch ##
-print "verifying ScriptAliasMatch with /aliascgi-script\n";
-ok ("$string\n" eq GET_BODY "/aliascgi-script") unless WINFU;
+t_debug "verifying ScriptAliasMatch with /aliascgi-script";
+ok t_cmp("$string\n",
+         GET_BODY "/aliascgi-script",
+         "/aliascgi-script") unless WINFU;
 
 ## failure with ScriptAliasMatch ##
-print "verifying bad script alias.\n";
-ok ('404' eq GET_RC "/aliascgi-nada") unless WINFU;
+t_debug "verifying bad script alias.";
+ok t_cmp(404,
+         GET_RC "/aliascgi-nada",
+         "/aliascgi-nada") unless WINFU;
 
 ## clean up ##
 t_rmtree("$vars->{t_logs}/mod_cgi.log");
