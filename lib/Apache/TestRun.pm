@@ -1343,11 +1343,14 @@ or via the environment variable APACHE. For example:
 
     {
         my %choices = ();
+        my @tries = qw(httpd httpd2);
+        # Win32 uses Apache or perhaps Apache2, not apache/apache2
+        push @tries, Apache::TestConfig::WIN32 ?
+            qw(Apache Apache2) : qw(apache apache2);
         for (grep defined $_,
              map({ catfile $vars->{$_}, $vars->{target} } qw(sbindir bindir)),
              $test_config->default_httpd, which($vars->{target}),
-             $ENV{APACHE},  which('apache'),  which('httpd'),
-             $ENV{APACHE2}, which('apache2'), which('httpd2')) {
+             $ENV{APACHE}, $ENV{APACHE2}, map {which($_)} @tries) {
             $choices{$_}++ if -e $_ && -x _;
         }
         my $optional = 0;
