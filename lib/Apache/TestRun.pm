@@ -1310,8 +1310,12 @@ sub exit_shell {
 sub skip_test_suite {
     my $no_doubt = shift;
 
-    # we can't prompt when there is no STDIN;
-    $no_doubt = 1 unless -t STDIN;
+    # we can't prompt when STDIN is not attached to tty, unless we
+    # were told that's it OK via env var (in which case some program
+    # will feed the interactive prompts
+    unless (-t STDIN || $ENV{APACHE_TEST_INTERACTIVE_PROMPT_OK}) {
+        $no_doubt = 1;
+    }
 
     print qq[
 

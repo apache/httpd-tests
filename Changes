@@ -8,6 +8,9 @@ Changes - Apache::Test change logfile
   
 =item 1.18-dev
 
+add various straps to aid the new Apache-TestItSelf sub-project, which
+is used to test A-T config options [Stas]
+
 avoid entering endless loops when interactive config is used, by
 restarting the test suite with an explicit selected arguments for
 -httpd (and optionally -apxs) [Stas]
