@@ -8,6 +8,9 @@ Changes - Apache::Test change logfile
 
 =item 1.07-dev
 
+Fix Apache::TestServer::wait_till_is_up not to bail out if the server
+takes time to start and LWP is not available. [Stas]
+
 Fix Apache::TestConfigParse to handle glob includes, like Include
 conf/*.conf on RedHat [Philippe M. Chiasson]
 
