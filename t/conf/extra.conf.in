@@ -8,6 +8,31 @@
 </Directory>
 
 ##
+## AcceptPathInfo test config
+##
+<IfDefine APACHE2>
+    <Directory @SERVERROOT@/htdocs/apache/acceptpathinfo>
+        # default is AcceptPathInfo default
+        Order Deny,Allow
+        Allow from all
+        <IfModule @CGI_MODULE@>
+            AddHandler cgi-script .sh
+            Options +ExecCGI +Includes +Indexes
+        </IfModule>
+        <IfModule mod_include.c>
+            DirectoryIndex index.shtml
+            AddOutputFilter INCLUDES shtml
+        </IfModule>
+    </Directory>
+    <Directory @SERVERROOT@/htdocs/apache/acceptpathinfo/on>
+        AcceptPathInfo on
+    </Directory>
+    <Directory @SERVERROOT@/htdocs/apache/acceptpathinfo/off>
+        AcceptPathInfo off
+    </Directory>
+</IfDefine>
+
+##
 ## mod_php4 test config
 ##
 
