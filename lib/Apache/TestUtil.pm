@@ -49,7 +49,7 @@ $VERSION = '0.01';
 use constant HAS_DUMPER => eval { $] >= 5.6 && require Data::Dumper; };
 use constant INDENT     => 4;
 
-sub t_cmp {
+sub t_cmp ($$;$) {
     Carp::carp(join(":", (caller)[1..2]) . 
         ' usage: $res = t_cmp($expected, $received, [$comment])')
             if @_ < 2 || @_ > 3;
@@ -247,7 +247,7 @@ sub struct_as_string{
 
 # compare any two datastructures (must pass references for non-scalars)
 # undef()'s are valid args
-sub t_is_equal {
+sub t_is_equal($$) {
     my ($a, $b) = @_;
     return 0 unless @_ == 2;
 
@@ -432,19 +432,6 @@ regex. Use the C<qr//> function in the first argument. For example:
 will do:
 
   "abcd" =~ /^abc/;
-
-When comparing to a return value from a function, that may return an
-C<undef> value, there is a catch -- in the list context the C<undef>
-value disappears and you end up comparing with the next argument.
-Therefore you can either explicitly call the function prior to
-comparison:
-
-  my $received = foo();
-  t_cmp($expected, $received, "may return undef")
-
-or use a scalar context:
-
-  t_cmp($expected, scalar foo(), "may return undef")
 
 This function is exported by default.
 
