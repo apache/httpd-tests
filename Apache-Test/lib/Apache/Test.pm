@@ -33,20 +33,15 @@ sub init_test_pm {
     test_pm_refresh();
 }
 
+#caller will need to have required Apache::TestRequest
+*have_http11 = \&Apache::TestRequest::install_http11;
+*have_lwp = \&Apache::TestRequest::has_lwp;
+
 sub plan {
     init_test_pm(shift) if ref $_[0];
 
     my $condition = pop @_ if ref $_[-1];
     if ($condition) {
-        unless (defined &have_lwp) {
-            #XXX figure out a better set this up
-            #dont want to require Apache::TestRequest/lwp
-            #on the server side
-            require Apache::TestRequest;
-            *have_lwp = \&Apache::TestRequest::has_lwp;
-            *have_http11 = \&Apache::TestRequest::install_http11;
-        }
-
         my $meets_condition = 0;
         if (ref($condition) eq 'CODE') {
             #plan tests $n, \&has_lwp
