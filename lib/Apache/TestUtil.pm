@@ -82,13 +82,13 @@ sub write_shell_script {
     my($ext, $shebang);
 
     if (Apache::TestConfig::WIN32()) {
-	$code =~ s/echo$/echo./mg; #required to echo newline
-	$ext = 'bat';
-	$shebang = "\@echo off\nREM this is a bat";
+        $code =~ s/echo$/echo./mg; #required to echo newline
+        $ext = 'bat';
+        $shebang = "\@echo off\nREM this is a bat";
     }
     else {
-	$ext = 'sh';
-	$shebang = '#!/bin/sh';
+        $ext = 'sh';
+        $shebang = '#!/bin/sh';
     }
 
     $file .= ".$ext";
