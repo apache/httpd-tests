@@ -24,7 +24,7 @@ my $base_uri = "/modules/autoindex2";
 # 0 == should not appear
 my %dirs = (
    dir_normal    => 1, # obvious
-   dir_protected => 1, # 
+   dir_protected => 0, # 
    dir_broken    => 0, # 
 );
 
