@@ -119,6 +119,9 @@ sub getopts {
 sub run {
     my($self) = shift;
 
+    # make sure that there the server is down
+    $self->kill_proc();
+
     $self->report_start();
     my $iter = 0;
     while ($iter++ < $self->{run_iter}) {
@@ -289,7 +292,9 @@ sub run_test {
 #error "$1: $2";
         last;
     }
-    close $pipe or die "bad netstat: $! $?";
+    # it's normal for $command to exit with a failure status if tests
+    # fail, so we don't die/report it
+    close $pipe; 
     $self->kill_proc();
 
     return $bad;
