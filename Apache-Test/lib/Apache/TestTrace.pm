@@ -136,7 +136,7 @@ __END__
 
 =head1 NAME
 
-=head1 Apache::TestTrace - Helper output generation functions
+Apache::TestTrace - Helper output generation functions
 
 =head1 SYNOPSIS
 
