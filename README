@@ -26,7 +26,7 @@ how you go about doing that.
 2. Any DSOs you wish to use should be configured in that Apache's
    httpd.conf (the test harness will pick this configuration up)
 3. Setup:
-   perl Makefile.PL -apxs /path/to/apache/bin/apxs
+   perl Makefile.PL apxs /path/to/apache/bin/apxs
 4. Run the tests:
    t/TEST
 5. Evaluate test output.
