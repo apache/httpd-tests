@@ -18,18 +18,20 @@ use strict;
 use warnings FATAL => 'all';
 
 use Exporter ();
-use vars qw(@Levels @Utils @Subs @ISA @EXPORT $VERSION $Level $LogFH);
+use vars qw(@Levels @Utils @Level_subs @Util_subs
+            @ISA @EXPORT $VERSION $Level $LogFH);
 
 BEGIN {
     @Levels = qw(emerg alert crit error warning notice info debug);
     @Utils  = qw(todo);
-    @Subs   = map {($_, "${_}_mark", "${_}_sub")} (@Levels, @Utils);
+    @Level_subs = map {($_, "${_}_mark", "${_}_sub")} (@Levels);
+    @Util_subs  = map {($_, "${_}_mark", "${_}_sub")} (@Utils);
 }
 
 @ISA     = qw(Exporter);
-@EXPORT  = (@Levels);
+@EXPORT  = (@Level_subs);
 $VERSION = '0.01';
-use subs (@Subs);
+use subs (@Level_subs, @Util_subs);
 
 # default settings overrideable by users
 $Level = undef;
