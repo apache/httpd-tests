@@ -57,6 +57,11 @@ sub server_file_rel2abs {
                  [ $self->apxs('PREFIX'),
                        'apxs-derived ServerRoot' ]);
 
+    # remove surrounding quotes if any
+    # e.g. Include "/tmp/foo.html"
+    $file =~ s/^\s*["']?//;
+    $file =~ s/["']?\s*$//;
+
     if (file_name_is_absolute($file)) {
         debug "$file is already absolute";
         $result = $file;
