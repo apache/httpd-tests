@@ -8,6 +8,7 @@ use File::Basename;
 use Apache::Test;
 use Apache::TestRequest;
 use Apache::TestUtil;
+use Apache::TestCommonPost ();
 
 #this module contains common tests that are called from different .t files
 
