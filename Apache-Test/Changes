@@ -11,10 +11,10 @@ Changes - Apache::Test change logfile
 add skip_reason() to Apache::Test, which provides a mechanism for
 user-specified skip messages [Geoffrey Young]
 
-=item 1.11 - May 21, 2004
-
 Tweak Apache::TestRun to support test filenames starting with
 /(.\\)?t\\/ prefixes, windows style (needed for t/SMOKE) [Steve Hay]
+
+=item 1.11 - May 21, 2004
 
 if we fail to match the Apache revision (which is OK at the early
 stages, like 'perl Makefile.PL', default to a non-existing revision
