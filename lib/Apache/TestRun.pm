@@ -368,8 +368,14 @@ sub start {
     #if t/TEST -d is running make sure we don't try to stop/start the server
     my $file = $server->debugger_file;
     if (-e $file and $opts->{'start-httpd'}) {
-        warning "server is running under the debugger, defaulting to -run";
-        $opts->{'start-httpd'} = $opts->{'stop-httpd'} = 0;
+        if ($server->ping) {
+            warning "server is running under the debugger, defaulting to -run";
+            $opts->{'start-httpd'} = $opts->{'stop-httpd'} = 0;
+        }
+        else {
+            warning "removing stale debugger note: $file";
+            unlink $file;
+        }
     }
 
     if ($opts->{'start-httpd'}) {
