@@ -51,6 +51,9 @@ sub configure_inc {
     for (@trys) {
         push @$inc, $_ if -d $_;
     }
+
+    # enable live testing of the Apache-Test modules
+    unshift @$inc, catfile($top, 'Apache-Test', 'lib');
 }
 
 sub write_pm_test {
