@@ -6,12 +6,30 @@
   place.
 
 - If something goes wrong during the ./t/TEST's phase when all the
-  configuration files gets generated, httpd.conf, etc. are generated,
-  but if something dies, t/conf/apache_test_config.pm is never
-  written.  next time through, httpd.conf, etc. are not overwritten.
-  i think the solution would be to have a $SIG{__DIE__} handler that
-  either makes sure apache_test_config.pm is written or runs clean()
-  before bailing out.
+  configuration files httpd.conf, etc. are generated,
+  t/conf/apache_test_config.pm now gets written, so t/TEST -clean can work
+  However if the problem happens during 'make test'  for 
+  some reason Makefile doesn't abort on exit from test_clean target, no 
+  matter if I put exit -1, 0 or 1, and proceeds with run_tests target. 
+  probably, since __DIE__ will stop the server.
+
+  to reproduce the problem during configure() apply this patch:
+
+Index: Apache-Test/lib/Apache/TestConfigPerl.pm
+===================================================================
+RCS file: /home/cvs/httpd-test/perl-framework/Apache-Test/lib/Apache/TestConfigPerl.pm,v
+retrieving revision 1.38
+diff -u -r1.38 TestConfigPerl.pm
+--- Apache-Test/lib/Apache/TestConfigPerl.pm    2001/10/18 04:18:16     1.38
++++ Apache-Test/lib/Apache/TestConfigPerl.pm    2001/10/19 02:14:56
+@@ -347,6 +347,7 @@
+     if (open $fh, $file) {
+         my $content = <$fh>;
+         close $fh;
++        require $file;
+         if ($content =~ /APACHE_TEST_CONFIGURE/m) {
+             eval { require $file };
+             warn $@ if $@; 
 
 - segfaults should be trapped and:
   * the test routine should be aborted, since it's possible that some
