@@ -6,7 +6,7 @@ Changes - Apache::Test change logfile
 
 =over 3
 
-=item 1.04-dev - 
+=item 1.04 - September 29, 2003
 
 if the server stops reading from the client before it has sent all its
 data, Apache::TestClient (which is used when LWP is not available)
