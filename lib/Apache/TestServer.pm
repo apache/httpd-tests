@@ -386,7 +386,7 @@ sub start {
 
     print "$cmd\n";
 
-    if (WIN32) {
+    if (Apache::TestConfig::WIN32) {
         require Win32::Process;
         my $obj;
         Win32::Process::Create($obj,
