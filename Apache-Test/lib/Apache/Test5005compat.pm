@@ -4,7 +4,6 @@ use strict;
 use Symbol ();
 use File::Basename;
 use File::Path;
-use Symbol ();
 
 my %compat_files = (
      'lib/warnings.pm' => \&warnings_pm,
