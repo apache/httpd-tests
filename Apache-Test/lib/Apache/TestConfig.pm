@@ -1818,7 +1818,7 @@ sub custom_config_path {
         my $candidate = File::Spec->rel2abs(catfile $_, CUSTOM_CONFIG_FILE);
         next unless -e $candidate;
         # launder for -T
-	($candidate) = $candidate =~ /^(.*)/;
+        ($candidate) = $candidate =~ /^(.*)/;
         return $custom_config_path = $candidate;
     }
 
