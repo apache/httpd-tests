@@ -8,6 +8,10 @@ Changes - Apache::Test change logfile
 
 =item 1.17-dev
 
+require Cwd 2.06 or higher (to solve File::Spec::rel2abs problems
+under -T). Enforce the modules version requirements for those who
+aren't running under CPAN/CPANPLUS shell) [Stas]
+
 Apache::TestTrace: don't export by default the 'todo' utility's symbol
 since it collides with Test::More [Stas]
 
