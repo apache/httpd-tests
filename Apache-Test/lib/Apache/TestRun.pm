@@ -621,6 +621,7 @@ sub opt_ping {
     my $server = $test_config->server;
     my $pid = $server->ping;
     my $name = $server->{name};
+    my $exit = not $self->{opts}->{'run-tests'}; #support t/TEST -ping=block -run ...
 
     if ($pid) {
         if ($pid == -1) {
@@ -631,7 +632,7 @@ sub opt_ping {
             my $version = $server->{version};
             warning "server $name running (pid=$pid, version=$version)";
         }
-        return 1;
+        return $exit;
     }
 
     my $opt = $self->{opts}->{ping} || '';
@@ -657,7 +658,7 @@ sub opt_ping {
         warning "no server is running on $name";
     }
 
-    return 1; #means call exit()
+    return $exit; #means call exit() if true
 }
 
 sub test_inc {
