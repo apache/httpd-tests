@@ -17,7 +17,11 @@ static int eat_post_handler(request_rec *r)
 {
     int rc;
     long nrd, total = 0;
+#ifdef APACHE1
+    char buff[IOBUFSIZE];
+#else
     char buff[AP_IOBUFSIZE];
+#endif
 
     if (strcmp(r->handler, "eat_post")) {
         return DECLINED;
