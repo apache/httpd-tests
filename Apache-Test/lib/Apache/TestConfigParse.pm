@@ -112,7 +112,7 @@ sub inherit_config {
 
     my $file = $self->{vars}->{httpd_conf};
 
-    unless ($file) {
+    unless (-e $file) {
         if (my $base = $self->{httpd_basedir}) {
             my $default_conf = $self->{httpd_defines}->{SERVER_CONFIG_FILE};
             $default_conf ||= catfile qw(conf httpd.conf);
