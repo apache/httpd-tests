@@ -124,7 +124,7 @@ sub run {
                           return unless /\.t$/;
                           my $t = catfile $File::Find::dir, $_;
                           my $dotslash = catfile '.', "";
-                          $t =~ s:^$dotslash::;
+                          $t =~ s:^\Q$dotslash::;
                           push @tests, $t
                       }, '.');
             @tests = sort @tests;
