@@ -20,7 +20,7 @@ if (Apache::Test::have_ssl()) {
     unshift @modules, 'mod_echo_ssl';
 }
 
-plan tests => $tests, 'mod_echo';
+plan tests => $tests, ['mod_echo'];
 
 for my $module (@modules) {
     print "testing $module\n";
