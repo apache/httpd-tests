@@ -221,7 +221,7 @@ sub add_config {
     }
     else {
         $args = "$directive " .
-          (ref($arg) && (ref($arg) eq 'ARRAY') ? "@$arg" : $arg);
+          (ref($arg) && (ref($arg) eq 'ARRAY') ? "@$arg" : $arg || "");
     }
 
     push @{ $self->{$where} }, $args;

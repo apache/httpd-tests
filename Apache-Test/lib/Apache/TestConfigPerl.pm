@@ -158,6 +158,10 @@ sub new_vhost {
     $port;
 }
 
+my %outside_container = map { $_, 1 } qw{
+Alias AliasMatch AddType
+};
+
 #test .pm's can have configuration after the __DATA__ token
 sub add_module_config {
     my($self, $module, $args) = @_;
@@ -170,7 +174,22 @@ sub add_module_config {
     while (<$fh>) {
         next unless /\S+/;
         $self->replace;
-        push @$args, split /\s+/, $_, 2;
+        my($directive, $rest) = split /\s+/, $_, 2;
+        if ($outside_container{$directive}) {
+            $self->postamble($directive => $rest);
+        }
+        elsif ($directive =~ m/^<(\w+)/) {
+            $self->postamble($directive => $rest);
+            my $end = "</$1>";
+            while (<$fh>) {
+                $self->replace;
+                $self->postamble($_);
+                last if m:^\Q$end:;
+            }
+        }
+        else {
+            push @$args, $directive, $rest;
+        }
     }
 }
 
