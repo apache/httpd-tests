@@ -645,6 +645,37 @@ sub writefile {
     close $fh;
 }
 
+# gen + write excutable perl script file
+sub write_perlscript {
+    my($self, $file, $content) = @_;
+
+    # create the parent dir if it doesn't exist yet
+    my $dir = dirname $file;
+    $self->makepath($dir);
+
+    my $name = abs2rel $file, $self->{vars}->{t_dir};
+    $self->trace("generating $name");
+
+    my $fh = Symbol::gensym();
+    open $fh, ">$file" or die "open $file: $!";
+
+    # shebang
+    print $fh "#!$Config{perlpath}\n";
+
+    if (my $msg = $self->genwarning($file)) {
+        print $fh $msg, "\n";
+    }
+
+    if ($content) {
+        print $fh $content;
+    }
+
+    $self->{clean}->{files}->{$file} = 1;
+
+    close $fh;
+    chmod 0555, $file;
+}
+
 sub cpfile {
     my($self, $from, $to) = @_;
     File::Copy::copy($from, $to);
@@ -1295,6 +1326,13 @@ automagically created.
 
 The file C<$file> and any created parent directories (if found empty)
 will be automatically removed on cleanup.
+
+=item write_perlscript()
+
+  $cfg->write_perlscript($filename, @lines);
+
+Similar to writefile() but creates an executable Perl script with
+correctly set shebang line.
 
 =item gendir()
 
