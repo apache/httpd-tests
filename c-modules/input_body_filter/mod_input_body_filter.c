@@ -148,7 +148,7 @@ static void input_body_filter_register_hooks(apr_pool_t *p)
 
 static const command_rec input_body_filter_cmds[] = {
     AP_INIT_FLAG("InputBodyFilter", ap_set_flag_slot,
-                 XtOffsetOf(input_body_filter_dcfg_t, enabled),
+                 APR_XtOffsetOf(input_body_filter_dcfg_t, enabled),
                  OR_ALL, "Enable input body filter"),
     { NULL }
 };
