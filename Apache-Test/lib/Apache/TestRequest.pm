@@ -101,7 +101,8 @@ sub user_agent_keepalive {
 sub do_request {
     my($ua, $method, $url, $callback) = @_;
     my $r = HTTP::Request->new($method, resolve_url($url));
-    $ua->request($r, $callback);
+    my $response = $ua->request($r, $callback);
+    lwp_trace($response);
 }
 
 sub hostport {
