@@ -127,7 +127,7 @@ sub new {
         };
     };
 
-    if ($args->{thaw}) {
+    if ($args->{thaw} and ref($thaw) ne 'HASH') {
         #dont generate any new config
         $thaw->{vars}->{$_} = $args->{$_} for keys %$args;
         $thaw->{server} = $thaw->new_test_server;
@@ -156,7 +156,7 @@ sub new {
         preamble => [],
         postamble_hooks => [],
         preamble_hooks => [],
-    }, $class;
+    }, ref($class) || $class;
 
     my $vars = $self->{vars}; #things that can be overridden
 
