@@ -1526,7 +1526,8 @@ sub apxs {
     my($self, $q, $ok_fail) = @_;
     return unless $self->{APXS};
     my $devnull = devnull();
-    my $val = qx($self->{APXS} -q $q 2>$devnull);
+    my $apxs = shell_ready($self->{APXS});
+    my $val = qx($apxs -q $q 2>$devnull);
     chomp $val if defined $val; # apxs post-2.0.40 adds a new line
     unless ($val) {
         if ($ok_fail) {
@@ -1648,6 +1649,7 @@ sub as_string {
     # httpd opts
     my $test_config = Apache::TestConfig->new({thaw=>1});
     if (my $httpd = $test_config->{vars}->{httpd}) {
+        $httpd = shell_ready($httpd);
         $command = "$httpd -V";
         $cfg .= "\n*** $command\n";
         $cfg .= qx{$command};
@@ -1656,12 +1658,20 @@ sub as_string {
     }
 
     # perl opts
-    my $perl = $^X;
+    my $perl = shell_ready($^X);
     $command = "$perl -V";
     $cfg .= "\n\n*** $command\n";
     $cfg .= qx{$command};
 
     return $cfg;
+}
+
+# make a string suitable for feed to shell calls (wrap in quotes and
+# escape quotes)
+sub shell_ready {
+    my $arg = shift;
+    $arg =~ s/"/\"/g;
+    return qq["$arg"];
 }
 
 1;

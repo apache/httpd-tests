@@ -1012,7 +1012,7 @@ sub check_perms {
     # test that the base dir is rwx by the selected non-root user
     my $vars = $self->{test_config}->{vars};
     my $dir  = $vars->{t_dir};
-    my $perl = $vars->{perl};
+    my $perl = Apache::TestConfig::shell_ready($vars->{perl});
 
     # find where Apache::TestRun was loaded from, so we load this
     # exact package from the external process

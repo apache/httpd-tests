@@ -364,6 +364,7 @@ sub get_httpd_static_modules {
     my $httpd = $self->{vars}->{httpd};
     return unless $httpd;
 
+    $httpd = shell_ready($httpd);
     my $cmd = "$httpd -l";
     my $list = $self->open_cmd($cmd);
 
@@ -384,6 +385,7 @@ sub get_httpd_defines {
     my $httpd = $self->{vars}->{httpd};
     return unless $httpd;
 
+    $httpd = shell_ready($httpd);
     my $cmd = "$httpd -V";
     my $proc = $self->open_cmd($cmd);
 
@@ -435,6 +437,7 @@ sub httpd_version {
     return unless $httpd;
 
     my $version;
+    $httpd = shell_ready($httpd);
     my $cmd = "$httpd -v";
 
     my $v = $self->open_cmd($cmd);
