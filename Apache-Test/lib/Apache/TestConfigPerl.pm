@@ -61,7 +61,7 @@ sub write_pm_test {
     return if -e $t;
 
     $self->gendir($dir);
-    my $fh = $self->genfile($t);
+    my $fh = $self->genfile($t, 1);
 
     print $fh <<EOF;
 use Apache::TestConfig ();
@@ -93,7 +93,7 @@ sub configure_startup_pl {
     #but this will work for both 2.0 and 1.xx
     if (my $inc = $self->{inc}) {
         my $include_pl = catfile $self->{vars}->{t_conf}, 'modperl_inc.pl';
-        my $fh = $self->genfile($include_pl);
+        my $fh = $self->genfile($include_pl, 1);
         for (@$inc) {
             print $fh "use lib '$_';\n";
         }
@@ -107,7 +107,7 @@ sub configure_startup_pl {
     my $startup_pl = catfile $self->{vars}->{t_conf}, 'modperl_startup.pl';
 
     unless (-e $startup_pl) {
-        my $fh = $self->genfile($startup_pl);
+        my $fh = $self->genfile($startup_pl, 1);
         print $fh $self->startup_pl_code;
         close $fh;
     }

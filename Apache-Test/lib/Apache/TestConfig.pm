@@ -364,13 +364,25 @@ sub find_apache_module {
 }
 
 #generate files and directories
+
+sub genwarning {
+    my($self, $type) = @_;
+    return unless $type;
+    return "#WARNING: this file is generated, do not edit\n";
+}
+
 sub genfile {
-    my($self, $file) = @_;
+    my($self, $file, $warn) = @_;
 
     my $name = abs2rel $file, $self->{vars}->{t_dir};
     $self->trace("generating $name");
 
     open my $fh, '>', $file or die "open $file: $!";
+
+    if (my $msg = $self->genwarning($warn)) {
+        print $fh $msg, "\n";
+    }
+
     $self->{clean}->{files}->{$file} = 1;
 
     return $fh;
@@ -450,7 +462,7 @@ sub generate_types_config {
     unless ($self->{inherit_config}->{TypesConfig}) {
         my $types = catfile $self->{vars}->{t_conf}, 'mime.types';
         unless (-e $types) {
-            my $fh = $self->genfile($types);
+            my $fh = $self->genfile($types, 1);
             print $fh $self->types_config_template;
             close $fh;
         }
@@ -478,7 +490,7 @@ sub generate_extra_conf {
     my $extra_conf_in = join '.', $extra_conf, 'in';
     open(my $in, $extra_conf_in) or return;
 
-    my $out = $self->genfile($extra_conf);
+    my $out = $self->genfile($extra_conf, 1);
     $self->replace_vars($in, $out);
 
     close $in;
@@ -507,7 +519,7 @@ sub generate_httpd_conf {
 
     my $in = $self->httpd_conf_template($conf_file_in);
 
-    my $out = $self->genfile($conf_file);
+    my $out = $self->genfile($conf_file, 1);
 
     $self->preamble_run($out);
 
@@ -610,7 +622,7 @@ sub save {
 
     my $name = 'apache_test_config';
     my $file = catfile $self->{vars}->{t_conf}, "$name.pm";
-    my $fh = $self->genfile($file);
+    my $fh = $self->genfile($file, 1);
 
     $self->trace("saving config data to $name.pm");
 

@@ -78,7 +78,7 @@ sub start_gdb {
     my $one_process = $self->version_of(\%one_process);
 
     my $file = catfile $config->{vars}->{serverroot}, '.gdb-test-start';
-    my $fh = $config->genfile($file);
+    my $fh = $config->genfile($file, 1);
     print $fh "run $one_process $args";
     close $fh;
 
