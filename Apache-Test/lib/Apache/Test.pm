@@ -185,7 +185,7 @@ Apache::Test - Test.pm wrapper with helpers for testing Apache
 
 =head1 DESCRIPTION
 
-B<Apache::Test> is a wrapper around the standard I<Test.pm> with
+B<Apache::Test> is a wrapper around the standard C<Test.pm> with
 helpers for testing an Apache server.
 
 =head1 FUNCTIONS
@@ -194,27 +194,67 @@ helpers for testing an Apache server.
 
 =item plan
 
-This function is a wrapper around I<Test::plan>.  If the first
-argument is an object, such as an I<Apache::RequestRec> object,
-C<STDOUT> will be tied to it.  If the last argument is a B<CODE>
-reference, the tests will be skipped if the function returns false.
-The I<Test.pm> global state will also be refreshed by calling
-I<Apache::Test::test_pm_refresh>.  All other arguments are passed through
-to I<Test::plan>. Examples:
+This function is a wrapper around C<Test::plan>:
 
-    # just like using Test.pm, plan 3 tests
     plan tests => 3;
 
-    # if condition() returns false, all the tests are skipped. 
-    # e.g.: skip all tests if LWP is not available
+just like using Test.pm, plan 3 tests.
+
+If the first argument is an object, such as an C<Apache::RequestRec>
+object, C<STDOUT> will be tied to it. The C<Test.pm> global state will
+also be refreshed by calling C<Apache::Test::test_pm_refresh>. For
+example:
+
+    plan $r, tests => 7;
+
+ties STDOUT to the request object C<$r>.
+
+If there is a last argument that doesn't belong to C<Test::plan>
+(which expects a balanced hash), it's used to decide whether to
+continue with the test or to skip it all-together. This last argument
+can be:
+
+=over
+
+=item * a C<SCALAR>
+
+the test is skipped if the scalar has a false value. For example:
+
+  plan tests => 5, 0;
+
+=item * an C<ARRAY> reference
+
+have_module() is called for each value in this array. The test is
+skipped if have_module() returns false (which happens when at least
+one C or Perl module from the list cannot be found).
+
+=item * a C<CODE> reference
+
+the tests will be skipped if the function returns a false value. For
+example:
+
     plan tests => 5, \&have_lwp;
 
-    # first tie STDOUT to the request
-    plan $r, tests => 7;
+the test will be skipped if LWP is not available
+
+=back
+
+All other arguments are passed through to I<Test::plan> as is.
 
 =item ok
 
 Same as I<Test::ok>, see I<Test.pm> documentation.
+
+=item sok
+
+Allows to skip a sub-test, controlled from the command line.  The
+argument to sok() is a CODE reference or a BLOCK whose return value
+will be passed to ok(). By default behaves like ok(). If all sub-tests
+of the same test are written using sok(), and a test is executed as:
+
+  % ./t/TEST -v skip_subtest 1 3
+
+only sub-tests 1 and 3 will be run, the rest will be skipped.
 
 =item skip
 
