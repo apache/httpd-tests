@@ -347,6 +347,12 @@ sub install_sighandlers {
 
     $SIG{__DIE__} = sub {
         return unless $_[0] =~ /^Failed/i; #dont catch Test::ok failures
+
+        # _show_results() calls uses calls die() under a few conditions,
+        # such as when no tests are run or when tests fail.  make sure
+        # the message is propagated back to the user.
+        print $_[0] if (caller(1))[3]||'' eq 'Test::Harness::_show_results';
+
         $server->stop(1) if $opts->{'start-httpd'};
         $server->failed_msg("error running tests");
         exit_perl 0;
