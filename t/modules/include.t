@@ -57,7 +57,9 @@ my %test = (
 "inc-rvirtual.shtml"    =>
     "inc-extra2.shtml body  inc-extra1.shtml body  inc-rvirtual.shtml body",
 "extra/inc-bogus.shtml" =>
-    "[an error occurred while processing this directive] inc-bogus.shtml body"
+    "[an error occurred while processing this directive] inc-bogus.shtml body",
+"abs-path.shtml"        =>
+    "inc-extra2.shtml body  inc-extra1.shtml body  abs-path.shtml body"
 );
 
 my $tests = keys %test;
