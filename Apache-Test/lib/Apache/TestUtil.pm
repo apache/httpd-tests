@@ -118,10 +118,8 @@ sub makepath {
     return if !defined($path) || -e $path;
     my $full_path = $path;
 
-    # + make the dir writable/executable by the user
-    # + remember which dirs were created and should be cleaned up
+    # remember which dirs were created and should be cleaned up
     while (1) {
-        chmod 0755, $path;
         $CLEAN{dirs}{$path} = 1;
         $path = dirname $path;
         last if -e $path;
