@@ -1,7 +1,5 @@
 
 <IfModule mod_ssl.c>
-Listen @SSLPort@
-
 AddType application/x-x509-ca-cert .crt
 AddType application/x-pkcs7-crl    .crl
 
@@ -52,7 +50,7 @@ SSLLog      @ServerRoot@/logs/ssl_engine_log
 ## SSL Virtual Host Context
 ##
 
-<VirtualHost _default_:@SSLPort@>
+<VirtualHost _default_:mod_ssl>
 
 #  General setup for the virtual host
 #ErrorLog logs/error_log
