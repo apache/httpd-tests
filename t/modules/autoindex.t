@@ -24,6 +24,7 @@ my $file_prefix = 'ai-test';
 my ($C,$O);
 my $cfg = Apache::Test::config();
 my $have_apache_2 = have_apache 2;
+my $hr = '<hr>';
 
 my %file =
 (
@@ -129,7 +130,7 @@ sub ai_test ($$$$) {
  <body>
 <h1>Index of $uri_prefix</h1>
 HEAD
-    my $html_foot = "<hr /></pre>\n</body></html>\n";
+    my $html_foot = "${hr}</pre>\n</body></html>\n";
 
     my $i;
     my $fail = 0;
@@ -234,9 +235,9 @@ HEAD
         if ($have_apache_2) {
 
             $html_head .=
-        "<pre>      <a href=\"?$name_href\">Name</a>                    <a href=\"?$date_href\">Last modified</a>      <a href=\"?$size_href\">Size</a>  <a href=\"?C=D$sep"."O=A\">Description</a><hr />      <a href=\"/modules/autoindex/\">Parent Directory</a>                             -   \n";
+        "<pre>      <a href=\"?$name_href\">Name</a>                    <a href=\"?$date_href\">Last modified</a>      <a href=\"?$size_href\">Size</a>  <a href=\"?C=D$sep"."O=A\">Description</a>${hr}      <a href=\"/modules/autoindex/\">Parent Directory</a>                             -   \n";
  
-        $html_foot = "<hr /></pre>\n</body></html>\n";
+        $html_foot = "${hr}</pre>\n</body></html>\n";
 
         } else {
 
