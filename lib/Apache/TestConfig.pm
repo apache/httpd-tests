@@ -1315,13 +1315,14 @@ will be automatically removed on cleanup.
 
 =item writefile()
 
-  $cfg->writefile($file, $content);
+  $cfg->writefile($file, $content, [$nowarning]);
 
 writefile() creates a new file C<$file> with the content of
 C<$content>.
 
 A comment with a warning and calls trace is added to the top of this
-file. See genwarning() for more info about this comment.
+file unless C<$nowarnings> is passed and set to a true value. See
+genwarning() for more info about this comment.
 
 If parent directories of C<$file> don't exist they will be
 automagically created.
