@@ -10,13 +10,18 @@ use Apache::TestRequest;
 
 my $vars = Apache::Test::vars();
 my $localhost_name = $vars->{servername};
+my $remote_addr = $vars->{remote_addr};
+my(@addr) = split /\./, $remote_addr;
+my $addr1 = $addr[0];
+my $addr2 = join '.', $addr[0], $addr[1];
+
 my @localhost = (
     'from all',
     "from $localhost_name",
-    'from 127.0.0.1',
-    'from 127.0',
-    'from 127.0.0.1/255.255.0.0',
-    'from 127.0.0.1/16',
+    "from $remote_addr",
+    "from $addr2",
+    "from $remote_addr/255.255.0.0",
+    "from $remote_addr/16",
     'from somewhere.else.com',
     'from 10.0.0.1'
 );
@@ -58,7 +63,7 @@ foreach my $order (@order) {
 
             ## denying by default
 
-            if ($allow =~ /^from 127/
+            if ($allow =~ /^from $addr1/
                 || $allow eq "from $localhost_name"
                 || $allow eq 'from all') {
 
@@ -85,7 +90,7 @@ foreach my $order (@order) {
 
                 ## allowing by default
 
-                if ($deny =~ /^from 127/
+                if ($deny =~ /^from $addr1/
                     || $deny eq "from $localhost_name"
                     || $deny eq 'from all') {
 
@@ -120,7 +125,7 @@ foreach my $order (@order) {
 
                 ## allowing by default
 
-                if ($allow =~ /^from 127/
+                if ($allow =~ /^from $addr1/
                     || $allow eq "from $localhost_name"
                     || $allow eq 'from all') {
 
@@ -129,7 +134,7 @@ foreach my $order (@order) {
                     print "expecting access.\n";
                     ok GET_OK "/modules/access/htaccess/index.html";
 
-                } elsif ($deny =~ /^from 127/
+                } elsif ($deny =~ /^from $addr1/
                     || $deny eq "from $localhost_name"
                     || $deny eq 'from all') {
 
@@ -152,7 +157,7 @@ foreach my $order (@order) {
 
                 ## denying by default
 
-                if ($deny =~ /^from 127/
+                if ($deny =~ /^from $addr1/
                     || $deny eq "from $localhost_name"
                     || $deny eq 'from all') {
 
@@ -161,7 +166,7 @@ foreach my $order (@order) {
                     print "expecting access denial.\n";
                     ok !GET_OK "/modules/access/htaccess/index.html";
 
-                } elsif ($allow =~ /^from 127/
+                } elsif ($allow =~ /^from $addr1/
                     || $allow eq "from $localhost_name"
                     || $allow eq 'from all') {
 
