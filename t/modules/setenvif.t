@@ -106,7 +106,7 @@ test_all_vars(0,"BrowserMatch $good_ua");
 test_all_vars(1,"BrowserMatch $bad_ua");
 
 ## test SetEnvIf with variable attributes ##
-foreach my $attribute (keys %var_att) {
+foreach my $attribute (sort keys %var_att) {
     test_all_vars(0,"SetEnvIf $attribute $var_att{$attribute}{pass}");
     test_all_vars(1,"SetEnvIf $attribute $var_att{$attribute}{fail}");
 

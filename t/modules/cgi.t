@@ -52,7 +52,7 @@ my ($bogus,$log_size,$stat) = (0,0,0);
 
 unlink $cgi_log if -e $cgi_log;
 
-foreach (keys %test) {
+foreach (sort keys %test) {
     $expected = $test{$_}{rc};
     $actual = GET_RC "$path/$_";
     print "return code for $_: $actual, expecting: $expected\n";

@@ -51,7 +51,7 @@ my $tests = keys %test;
 plan tests => $tests + 1, test_module 'include';
 
 my $bung = 0;
-foreach (keys %test) {
+foreach (sort keys %test) {
     $doc = $_;
     $expected = $test{$_};
     $actual = GET_BODY "$dir$doc";

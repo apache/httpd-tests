@@ -47,7 +47,7 @@ for (my $i=0 ; $i <= 9 ; $i++) {
 }
 
 my ($actual, $expected);
-foreach (keys %redirect) {
+foreach (sort keys %redirect) {
     ## make LWP not follow the redirect since we
     ## are just interested in the return code.
     local $Apache::TestRequest::RedirectOK = 0;
@@ -59,7 +59,7 @@ foreach (keys %redirect) {
 }
 
 print "verifying body of perm and temp redirect match\n";
-foreach (keys %rm_body) {
+foreach (sort keys %rm_body) {
     for (my $i=0 ; $i <= 9 ; $i++) {
         $expected = $i;
         $actual = GET_BODY "/$_$i";

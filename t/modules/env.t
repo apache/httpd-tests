@@ -19,7 +19,7 @@ my %test = (
 plan tests => (keys %test) * 1, test_module('env', 'include');
 
 my ($actual, $expected);
-foreach (keys %test) {
+foreach (sort keys %test) {
     $expected = $test{$_};
     $actual = GET_BODY "/modules/env/$_.shtml";
     chomp $actual;

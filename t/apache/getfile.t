@@ -29,7 +29,7 @@ for my $file (@pods) {
 }
 
 #XXX: should use lwp callback hook so we dont slurp 5M+ into memory
-for my $url (keys %other_files) {
+for my $url (sort keys %other_files) {
     verify($url, $other_files{$url});
 }
 
