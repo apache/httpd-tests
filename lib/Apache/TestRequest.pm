@@ -8,10 +8,6 @@ BEGIN { $ENV{LWP_USE_HTTP1} = 1; } #default to http/1.0
 use Apache::Test ();
 use Apache::TestConfig ();
 
-#backward compat
-*test_config = \&Apache::Test::config;
-*vars = \&Apache::Test::vars;
-
 my $have_lwp = eval {
     require LWP::UserAgent;
     require HTTP::Request::Common;
