@@ -46,6 +46,12 @@ run all tests without start/stop of server (e.g. server was started with -d)
 stop the server
 % t/TEST -stop
 
+ping the server to see whether it runs
+% t/TEST -ping
+
+ping the server and wait until the server starts, report waiting time
+% t/TEST -ping=block
+
 reconfigure the server, do not run tests
 % t/TEST -configure
 
