@@ -380,6 +380,16 @@ LimitRequestFields    32
 ##
 <Directory @SERVERROOT@/htdocs/security>
     AllowOverride All
+    Order allow,deny
+    Allow from all
+</Directory>
+
+<Directory @SERVERROOT@/htdocs/security/CAN-2004-0811>
+    Options +Indexes
+</Directory>
+
+<Directory @SERVERROOT@/htdocs/security/CAN-2004-0811/sub>
+    Satisfy Any
 </Directory>
 
 ##
