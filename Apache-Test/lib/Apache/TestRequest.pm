@@ -91,7 +91,7 @@ sub user_agent {
 sub user_agent_request_num {
     my $res = shift;
     $res->header('Client-Request-Num') ||  #lwp 5.60
-      $res->header('Client-Response-Num'); #lwp 5.62+
+        $res->header('Client-Response-Num'); #lwp 5.62+
 }
 
 sub user_agent_keepalive {
