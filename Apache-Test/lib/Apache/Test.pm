@@ -12,8 +12,8 @@ use vars qw(@ISA @EXPORT $VERSION %SubTests @SkipReasons);
 
 @ISA = qw(Exporter);
 @EXPORT = qw(ok skip sok plan have have_lwp have_http11
-             have_cgi have_access have_auth have_module
-             have_apache have_perl have_threads);
+             have_cgi have_access have_auth have_module have_apache
+             have_perl have_threads under_construction);
 $VERSION = '0.01';
 
 %SubTests = ();
@@ -284,6 +284,10 @@ sub have_threads {
     return $status;
 }
 
+sub under_construction {
+    push @SkipReasons, "This test is under construction";
+    return 0;
+}
 
 package Apache::TestToString;
 
