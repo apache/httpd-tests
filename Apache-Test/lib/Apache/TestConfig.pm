@@ -9,6 +9,8 @@ use constant NETWARE => $^O eq 'NetWare';
 use constant WINFU   => WIN32 || CYGWIN || NETWARE;
 use constant COLOR   => ! $ENV{APACHE_TEST_NO_COLOR} && -t STDOUT;
 
+use constant DEFAULT_PORT => 8529;
+
 use Symbol ();
 use File::Copy ();
 use File::Find qw(finddepth);
@@ -35,7 +37,7 @@ use vars qw(%Usage);
    src_dir       => 'source directory to look for mod_foos.so',
    serverroot    => 'ServerRoot (default is $t_dir)',
    documentroot  => 'DocumentRoot (default is $ServerRoot/htdocs',
-   port          => 'Port (default is 8529)',
+   port          => 'Port [port_number|select] (default ' . DEFAULT_PORT . ')',
    servername    => 'ServerName (default is localhost)',
    user          => 'User to run test server as (default is $USER)',
    group         => 'Group to run test server as (default is $GROUP)',
@@ -208,7 +210,7 @@ sub new {
 
     $vars->{scheme}       ||= 'http';
     $vars->{servername}   ||= $self->default_servername;
-    $vars->{port}         ||= $self->default_port;
+    $vars->{port}           = $self->select_port;
     $vars->{remote_addr}  ||= $self->our_remote_addr;
 
     $vars->{user}         ||= $self->default_user;
@@ -480,9 +482,50 @@ sub default_servername {
     $localhost ||= $self->default_localhost;
 }
 
-#XXX: could check if the port is in use and select another if so
-sub default_port {
-    $ENV{APACHE_PORT} || 8529;
+# memoize the selected value (so we make sure that the same port is used
+# via select). The problem is that select_port() is called 3 times after
+# -clean, and it's possible that a lower port will get released
+# between calls, leading to various places in the test suite getting a
+# different base port selection.
+#
+# XXX: There is still a problem if two t/TEST's configure at the same
+# time, so they both see the same port free, but only the first one to
+# bind() will actually get the port. So there is a need in another
+# check and reconfiguration just before the server starts.
+#
+sub select_port {
+    my $self = shift;
+
+    my $port ||= $ENV{APACHE_PORT} || $self->{vars}{port} || DEFAULT_PORT;
+
+    # memoize
+    $ENV{APACHE_PORT} = $port;
+
+    return $port unless $port eq 'select';
+
+    # port select mode: try to find another available port, take into
+    # account that each instance of the test suite may use more than
+    # one port for virtual hosts, therefore try to check ports in big
+    # steps (20?).
+    my $step  = 20;
+    my $tries = 20;
+    $port = DEFAULT_PORT;
+    until (Apache::TestServer->port_available($port)) {
+        unless (--$tries) {
+            error "no ports available";
+            error "tried ports @{[DEFAULT_PORT]} - $port in $step increments";
+            return 0;
+        }
+        $port += $step;
+    }
+
+    info "the default base port is used, using base port $port instead"
+        unless $port == DEFAULT_PORT;
+
+    # memoize
+    $ENV{APACHE_PORT} = $port;
+
+    return $port;
 }
 
 my $remote_addr;
@@ -499,9 +542,10 @@ sub default_loopback {
 
 sub port {
     my($self, $module) = @_;
+
     unless ($module) {
         my $vars = $self->{vars};
-        return $vars->{port} unless $vars->{scheme} eq 'https';
+        return $self->select_port() unless $vars->{scheme} eq 'https';
         $module = $vars->{ssl_module_name};
     }
     return $self->{vhosts}->{$module}->{port};
@@ -966,7 +1010,7 @@ sub generate_extra_conf {
         close $out;
     }
 
-    #we changed order to give ssl the first port after 8529
+    #we changed order to give ssl the first port after DEFAULT_PORT
     #but we want extra.conf Included first so vhosts inherit base config
     #such as LimitRequest*
     return [ sort @extra_conf ];

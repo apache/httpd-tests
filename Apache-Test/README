@@ -62,6 +62,10 @@ run as user nobody:
 run on a different port:
 % t/TEST -Port 8799
 
+let the program pick the next available port (useful when running a
+few test sessions on parallel)
+% t/TEST -Port select
+
 run on a different server:
 % t/TEST -servername example.com
 
