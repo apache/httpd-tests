@@ -620,7 +620,7 @@ sub genfile {
 
 # gen + write file
 sub writefile {
-    my($self, $file, $content) = @_;
+    my($self, $file, $content, $nowarning) = @_;
 
     # create the parent dir if it doesn't exist yet
     my $dir = dirname $file;
@@ -632,8 +632,10 @@ sub writefile {
     my $fh = Symbol::gensym();
     open $fh, ">$file" or die "open $file: $!";
 
-    if (my $msg = $self->genwarning($file)) {
-        print $fh $msg, "\n";
+    unless ($nowarning) {
+        if (my $msg = $self->genwarning($file)) {
+            print $fh $msg, "\n";
+        }
     }
 
     if ($content) {
