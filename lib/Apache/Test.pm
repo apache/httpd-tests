@@ -656,6 +656,15 @@ into a string.  Example:
     # $tests will contain the Test.pm output: 1..4\nok 1\n...
     my $tests = Apache::TestToString->finish;
 
+=head1 SEE ALSO
+
+L<Apache::TestRequest|Apache::TestRequest> subclasses LWP::UserAgent and
+exports a number of useful functions for sending request to the Apache test
+server. You can then test the results of those requests.
+
+Use L<Apache::TestMM|Apache::TestMM> in your F<Makefile.PL> to set up your
+distribution for testing.
+
 =head1 AUTHOR
 
 Doug MacEachern with contributions from Geoffrey Young, Philippe
