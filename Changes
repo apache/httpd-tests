@@ -8,6 +8,10 @@ Changes - Apache::Test change logfile
   
 =item 1.18-dev
 
+avoid entering endless loops when interactive config is used, by
+restarting the test suite with an explicit selected arguments for
+-httpd (and optionally -apxs) [Stas]
+
 META.yml is now locally maintained. we need to tell PAUSE indexer not
 to try to index HTTP::Request::Common and warnings packages, which
 happen to be used by A-T [Stas]
