@@ -88,9 +88,18 @@ my %modname_alias = (
 #skip it for now, tomcat has its own test suite anyhow.
 my %skip_modules = map { $_, 1 } qw(mod_jk.c);
 
-sub should_load_module {
+# add modules to be not inherited from the existing config.
+# e.g. prevent from LoadModule perl_module to be included twice, when
+# mod_perl already configures LoadModule and it's certainly found in
+# the existing httpd.conf installed system-wide.
+sub config_parse_skip_module_add {
     my($self, $name) = @_;
-    return $skip_modules{$name} ? 0 : 1;
+    $skip_modules{$name} = 1;
+}
+
+sub should_skip_module {
+    my($self, $name) = @_;
+    return $skip_modules{$name} ? 1 : 0;
 }
 
 #inherit LoadModule
@@ -112,7 +121,7 @@ sub inherit_load_module {
 
         $name = $modname_alias{$name} if $modname_alias{$name};
 
-        unless ($self->should_load_module($name)) {
+        unless ($self->should_skip_module($name)) {
             debug "Skipping LoadModule of $name";
             next;
         }
