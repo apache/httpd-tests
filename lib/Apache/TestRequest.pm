@@ -3,7 +3,7 @@ package Apache::TestRequest;
 use strict;
 use warnings FATAL => 'all';
 
-BEGIN { $ENV{LWP_USE_HTTP1} = 1; } #default to http/1.0
+BEGIN { $ENV{PERL_LWP_USE_HTTP_10} = 1; } #default to http/1.0
 
 use Apache::Test ();
 use Apache::TestConfig ();
