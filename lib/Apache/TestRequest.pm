@@ -45,6 +45,8 @@ sub vars {
 
 sub hostport {
     my $config = shift || test_config();
+    local $config->{vars}->{scheme} =
+      $Apache::TestRequest::Scheme || $config->{vars}->{scheme};
     my $hostport = $config->hostport;
 
     if (my $module = $Apache::TestRequest::Module) {
