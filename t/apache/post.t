@@ -4,7 +4,7 @@ use warnings FATAL => 'all';
 use Apache::Test;
 use Apache::TestRequest;
 
-my $times = 4;
+my $times = 5;
 
 plan tests => 2 * $times, [qw(echo_post LWP)];
 
@@ -13,24 +13,21 @@ my $str;
 my $value = 'a' x 10;
 
 for (1..$times) {
-    $value .= $value x 10;
-    my @data = (key => $value);
-    my %data = @data;
+    my $length = length $value;
 
-    $str = POST_BODY $location, \@data;
+    print "posting $length bytes of data\n";
 
-    ok $str eq join('=', @data);
+    $str = POST_BODY $location, content => $value;
 
-    printf "handled %d bytes of POST data\n", length $str;
+    ok $str eq $value;
 
-    my $data = join '&', map { "$_=$data{$_}" } keys %data;
+    printf "read %d bytes of POST data\n", length $str;
 
-    $str = POST_BODY "$location?length", content => $data;
+    $str = POST_BODY "$location?length", content => $value;
 
-    my $expect = join(':', length($data), $data);
+    my $expect = join ':', length($value), $value;
     ok $str eq $expect;
 
-#    print "EXPECT: $expect\n";
-#    print "STR: $str\n";
+    $value .= $value x 10;
 }
 
