@@ -236,6 +236,12 @@ sub get_httpd_defines {
 
     close $proc;
 
+    if (my $mmn = $self->{httpd_info}->{MODULE_MAGIC_NUMBER}) {
+        @{ $self->{httpd_info} }
+          {qw(MODULE_MAGIC_NUMBER_MAJOR
+              MODULE_MAGIC_NUMBER_MINOR)} = split ':', $mmn;
+    }
+
     if (my $mpm_dir = $self->{httpd_defines}->{APACHE_MPM_DIR}) {
         $self->{mpm} = basename $mpm_dir;
     }
