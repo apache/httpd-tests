@@ -673,6 +673,11 @@ sub warn_core {
 #    have the right permissions to write into the fs created by 'foo'.
 #
 # We solve that by 'chown -R bar.bar t/' in a portable way.
+#
+# 3. If the parent directory is not rwx for the chosen user, that user
+#    won't be able to read/write the DocumentRoot. In which case we
+#    have nothing else to do, but to tell the user to fix the situation.
+#
 sub adjust_t_perms {
     my $self = shift;
 
@@ -686,11 +691,16 @@ sub adjust_t_perms {
         my $user = $vars->{user};
         my($uid, $gid) = (getpwnam($user))[2..3]
             or die "Can't find out uid/gid of '$user'";
-        warning "root mode: changing the fs ownership to '$user' ($uid:$gid)";
+
+        warning "root mode: ". 
+            "changing the files ownership to '$user' ($uid:$gid)";
         finddepth(sub {
             $original_t_perms{$File::Find::name} = [(stat $_)[4..5]];
             chown $uid, $gid, $_;
         }, $vars->{t_dir});
+
+        $self->check_perms($user, $uid, $gid);
+
     }
 }
 
@@ -700,11 +710,44 @@ sub restore_t_perms {
     return if Apache::TestConfig::WINFU;
 
     if (%original_t_perms) {
+        warning "root mode: restoring the original files ownership";
         my $vars = $self->{test_config}->{vars};
         while (my($file, $ids) = each %original_t_perms) {
             next unless -e $file; # files could be deleted
             chown @$ids, $file;
         }
+    }
+}
+
+sub check_perms {
+    my ($self, $user, $uid, $gid) = @_;
+
+    # test that the base dir is rwx by the selected non-root user
+    my $vars = $self->{test_config}->{vars};
+    my $dir  = $vars->{t_dir};
+    my $perl = $vars->{perl};
+    my $check = qq[sudo -u '#$uid' $perl -e ] . 
+        qq['print -r "$dir" &&  -w _ && -x _ ? "OK" : "NOK"'];
+    warning "$check\n";
+    my $res   = qx[$check] || '';
+    warning "result: $res";
+    unless ($res eq 'OK') {
+        #$self->restore_t_perms;
+        error(<<"EOI") && die "\n";
+You are running the test suite under user 'root'.
+Apache cannot spawn child processes as 'root', therefore
+we attempt to run the test suite with user '$user' ($uid:$gid).
+The problem is that the path:
+  $dir
+must be 'rwx' by user '$user', so Apache can read and write under that
+path.
+
+There several ways to resolve this issue. For example move 
+'$dir' to '/tmp/' and repeat the 'make test' phase. 
+
+You can test whether the location is good by running the following test:
+  % $check
+EOI
     }
 }
 
