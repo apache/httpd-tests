@@ -313,13 +313,15 @@ fed directly to the ok() function, like this:
 
   ok t_cmp(1, 1, "1 == 1?");
 
-the third argument (I<$comment>) is optional, but a nice to use.
+the third argument (I<$comment>) is optional, mostly useful for
+telling what the comparison is trying to do.
 
-It is valid to use I<undef> as an expected value. Therefore:
+It is valid to use C<undef> as an expected value. Therefore:
 
-  1 == t_cmp(undef, undef, "undef == undef?");
+  my $foo;
+  t_cmp(undef, $foo, "undef == undef?");
 
-is true.
+will return a I<true> value.
 
 You can compare any two data-structures with t_cmp(). Just make sure
 that if you pass non-scalars, you have to pass their references. The
@@ -328,6 +330,15 @@ datastructures can be deeply nested. For example you can compare:
   t_cmp({1 => [2..3,{5..8}], 4 => [5..6]},
         {1 => [2..3,{5..8}], 4 => [5..6]},
         "hash of array of hashes");
+
+You can also compare the second argument against the first as a
+regex. Use the C<qr//> function in the first argument. For example:
+
+  t_cmp(qr/^abc/, "abcd", "regex compare");
+
+will do:
+
+  "abcd" =~ /^abc/;
 
 This function is exported by default.
 
