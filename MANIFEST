@@ -41,6 +41,8 @@ lib/Bundle/ApacheTest.pm
 t/TEST.PL
 t/bad_coding.t
 t/conf/extra.conf.in
+t/cookies.t
+t/cgi-bin/cookies.pl.PL
 t/ping.t
 t/redirect.t
 t/request.t
