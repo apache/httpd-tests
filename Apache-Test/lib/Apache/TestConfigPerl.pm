@@ -243,6 +243,8 @@ sub add_module_config {
             # strip special container directives like <Base> and </Base>
             my $strip_container = exists $strip_tags{lc $1} ? 1 : 0;
 
+            $directives{noautoconfig}++ if lc($1) eq 'noautoconfig';
+
             my $indent = '';
             $self->process_container($_, $fh, lc($1),
                                      $strip_container, $indent);
@@ -437,26 +439,28 @@ sub configure_pm_tests {
 
         debug "configuring $module";
 
-        if (my $cv = $add_hook_config{$hook}) {
-            $self->$cv($module, \@args);
-        }
-
-        my $container = $container_config{$hook} || \&location_container;
-
-        #unless the .pm test already configured the Perl*Handler
-        unless ($directives->{$handler}) {
-            my @handler_cfg = ($handler => $module);
-
-            if ($outside_container{$handler}) {
-                $self->postamble(@handler_cfg);
-            } else {
-                push @args, @handler_cfg;
+        unless ($directives->{noautoconfig}) {
+            if (my $cv = $add_hook_config{$hook}) {
+                $self->$cv($module, \@args);
             }
-        }
 
-        my $args_hash = list_to_hash_of_lists(\@args);
-        $self->postamble($self->$container($module),
-                         $args_hash) if @args;
+            my $container = $container_config{$hook} || \&location_container;
+
+            #unless the .pm test already configured the Perl*Handler
+            unless ($directives->{$handler}) {
+                my @handler_cfg = ($handler => $module);
+
+                if ($outside_container{$handler}) {
+                    $self->postamble(@handler_cfg);
+                } else {
+                    push @args, @handler_cfg;
+                }
+            }
+
+            my $args_hash = list_to_hash_of_lists(\@args);
+            $self->postamble($self->$container($module),
+                $args_hash) if @args;
+        }
 
         $self->write_pm_test($module, lc $base, lc $sub);
     }
