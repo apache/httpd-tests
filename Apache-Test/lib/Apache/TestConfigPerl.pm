@@ -125,7 +125,8 @@ EOF
 # propogate trace overrides to the server
 sub configure_trace {
     my $self = shift;
-    $self->postamble(PerlPassEnv => 'APACHE_TEST_TRACE_LEVEL');
+    $self->postamble(IfModule => 'mod_perl.c',
+                     "PerlPassEnv APACHE_TEST_TRACE_LEVEL\n");
 }
 
 sub startup_pl_code {
@@ -163,7 +164,8 @@ sub configure_startup_pl {
     }
 
     if ($self->server->{rev} >= 2) {
-        $self->postamble(PerlSwitches => "-Mlib=$self->{vars}->{serverroot}");
+        $self->postamble(IfModule => 'mod_perl.c',
+                         "PerlSwitches -Mlib=$self->{vars}->{serverroot}\n");
     }
 
     my $startup_pl = catfile $self->{vars}->{t_conf}, 'modperl_startup.pl';
@@ -174,7 +176,8 @@ sub configure_startup_pl {
         close $fh;
     }
 
-    $self->postamble(PerlRequire => $startup_pl);
+    $self->postamble(IfModule => 'mod_perl.c',
+                     "PerlRequire $startup_pl\n");
 }
 
 my %sethandler_modperl = (1 => 'perl-script', 2 => 'modperl');
