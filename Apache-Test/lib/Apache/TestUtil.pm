@@ -51,6 +51,27 @@ sub t_open_file {
     return $fh;
 }
 
+sub write_shell_script {
+    my $file = shift;
+
+    my $code = join '', @_;
+    my($ext, $shebang);
+
+    if (Apache::TestConfig::WIN32()) {
+	$code =~ s/echo$/echo./mg; #required to echo newline
+	$ext = 'bat';
+	$shebang = "\@echo off\nREM this is a bat";
+    }
+    else {
+	$ext = 'sh';
+	$shebang = '#!/bin/sh';
+    }
+
+    $file .= ".$ext";
+    t_write_file($file, "$shebang\n", $code);
+    $ext;
+}
+
 sub t_mkdir {
     my $dir = shift;
     die "must pass a dirname" unless defined $dir;
