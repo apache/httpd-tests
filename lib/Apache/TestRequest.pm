@@ -897,13 +897,14 @@ C<Test::Harness>.
 
 =head3 POST
 
-  my $res = POST $uri, arg  => $val, arg2 => $val;
+  my $res = POST $uri, [ arg => $val, arg2 => $val ];
 
-Sends a POST request to the Apache test server and returns an
-HTTP::Response object. Any parameters passed after C<$uri> that do not
-correspond to those documented in L<Optional Parameters|/Optional
-Parameters> will be submitted to the Apache test server as the POST
-content.
+Sends a POST request to the Apache test server and returns an HTTP::Response
+object. An array reference of parameters passed as the second argument will be
+submitted to the Apache test server as the POST content. Parameters
+corresponding to those documented in L<Optional Parameters|/Optional
+Parameters> can follow the optional array reference of parameters, or afte
+C<$uri>.
 
 =head3 POST_STR
 
