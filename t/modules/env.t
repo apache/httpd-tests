@@ -16,6 +16,14 @@ my %test = (
     'nothere' => '(none)'
 );
 
+if (Apache::TestConfig::WIN32) {
+    #what looks like a bug in perl 5.6.1 prevents %ENV
+    #settings to be inherited by process created with
+    #Win32::Process::Create.  the test works fine if APACHE_TEST_HOSTNAME
+    #is set in the command shell environment
+    delete $test{'host'};
+}
+
 plan tests => (keys %test) * 1, have_module('env', 'include');
 
 my ($actual, $expected);
