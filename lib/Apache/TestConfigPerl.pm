@@ -93,7 +93,12 @@ sub configure_libmodperl {
         $cfg = "#$msg";
         debug $msg;
     }
-    $self->preamble(IfModule => '!mod_perl.c', $cfg);
+
+    # modules like Embperl.so need mod_perl.so to be loaded first,
+    # so make sure that it's loaded before files inherited from the
+    # global httpd.conf
+    $self->preamble_first(IfModule => '!mod_perl.c', $cfg);
+
 }
 
 sub configure_inc {
