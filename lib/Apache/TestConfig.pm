@@ -1212,6 +1212,18 @@ sub parse_vhost {
     };
 }
 
+sub find_and_load_module {
+    my ($self, $name) = @_;
+    my $mod_path = $self->find_apache_module($name) or return;
+    my ($sym) = $name =~ m/mod_(\w+)\./;
+
+    if ($mod_path && -e $mod_path) {
+        $self->preamble(IfModule => "!$name",
+                        qq{LoadModule ${sym}_module "$mod_path"\n});
+    }
+    return 1;
+}
+
 sub replace_vhost_modules {
     my $self = shift;
 
@@ -1265,11 +1277,7 @@ sub generate_types_config {
 
     # handle the case when mod_mime is built as a shared object
     # but wasn't included in the system-wide httpd.conf
-    my $mod_mime = $self->find_apache_module('mod_mime.so');
-    if ($mod_mime && -e $mod_mime) {
-        $self->preamble(IfModule => '!mod_mime.c',
-                        qq{LoadModule mime_module "$mod_mime"\n});
-    }
+    $self->find_and_load_module('mod_mime.so');
 
     unless ($self->{inherit_config}->{TypesConfig}) {
         my $types = catfile $self->{vars}->{t_conf}, 'mime.types';
@@ -1521,6 +1529,8 @@ sub generate_httpd_conf {
 
     my $out = $self->genfile($conf_file);
 
+    $self->find_and_load_module('mod_alias.so');
+
     $self->preamble_run($out);
 
     for my $name (qw(user group)) { #win32/cygwin do not support
@@ -1542,14 +1552,6 @@ sub generate_httpd_conf {
 
     # handle the case when mod_alias is built as a shared object
     # but wasn't included in the system-wide httpd.conf
-    my $mod_alias = $self->find_apache_module('mod_alias.so');
-    if ($mod_alias && -e $mod_alias) {
-        print $out <<EOF;
-<IfModule !mod_alias.c>
-    LoadModule alias_module "$mod_alias"
-</IfModule>
-EOF
-    }
 
     print $out "<IfModule mod_alias.c>\n";
     for (keys %aliases) {
