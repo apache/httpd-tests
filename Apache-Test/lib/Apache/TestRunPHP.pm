@@ -89,7 +89,7 @@ sub run_tests {
         order   => $self->{opts}->{order},
         subtests => $self->{subtests} || [],
     };
-                                                                                                                             
+
     if (grep { exists $self->{opts}->{$_} } @request_opts) {
         run_request($self->{test_config}, $self->{opts});
     }
@@ -101,11 +101,11 @@ sub run_tests {
 
 sub split_test_args {
     my($self) = @_;
- 
+
     my(@tests);
     my $top_dir = $self->{test_config}->{vars}->{top_dir};
     my $t_dir = $self->{test_config}->{vars}->{t_dir};
- 
+
     my $argv = $self->{argv};
     my @leftovers = ();
     for (@$argv) {
@@ -138,14 +138,14 @@ sub split_test_args {
                 if (/^(\d+)\.\.(\d+)$/) {
                     @t =  $1..$2;
                 }
- 
+
                 push @{ $self->{subtests} }, @t;
                 next;
             }
         }
         push @leftovers, $_;
     }
- 
+
     $self->{tests} = [ map { canonpath($_) } @tests ];
     $self->{argv}  = \@leftovers;
 }

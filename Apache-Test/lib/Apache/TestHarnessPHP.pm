@@ -31,14 +31,15 @@ use vars qw(@ISA);
 my $phpclient = eval {
   require Test::Harness;
   Test::Harness->VERSION(2.38);
+
   push @ISA, qw(Test::Harness::Straps);
+
   $Test::Harness::Strap = __PACKAGE__->new;
 
   # yes, this is ugly, ugly, ugly
   $Test::Harness::Strap->{callback} = sub {
     my($self, $line, $type, $totals) = @_;
     print $line if $Test::Harness::Verbose;
-                                                                                                                             
     my $meth = *Handlers{$type};
     $meth->($self, $line, $type, $totals) if $meth;
   };
@@ -143,14 +144,14 @@ sub _command_line {
     $ENV{SERVER_ROOT} = $server_root;
 
     my $conf = catfile($server_root, 'conf');
-                                                                                                                             
+
     my $ini = catfile($conf, 'php.ini');
 
     my $switches = join ' ', "--php-ini $ini",
                              "--define include_path=$conf";
 
     my $line = "php $switches $file";
-                                                                                                                             
+
     return $line;
 }
 
