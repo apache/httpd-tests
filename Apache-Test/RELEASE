@@ -47,7 +47,7 @@ Instructions for Apache-Test Release Manager
 5. Announce the package
 
   a. post ... to the modperl, announce lists
-  Subject: [ANNOUNCE]: Apache-Test 1.08
+  Subject: [ANNOUNCE] Apache-Test 1.08
      include 
   - MD5 sig (as it comes from CPAN upload announce).
   - the latest Changes
