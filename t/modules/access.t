@@ -23,7 +23,7 @@ my @localhost = (
     "from $remote_addr/255.255.0.0",
     "from $remote_addr/16",
     'from somewhere.else.com',
-    'from 10.0.0.1'
+    'from 66.6.6.6'
 );
 my @order = ('deny,allow', 'allow,deny', 'mutual-failure');
 my @allow = @localhost;
