@@ -1,5 +1,5 @@
 httpd-test/perl-framework STATUS:				-*-text-*-
-Last modified at [$Date: 2002/03/09 05:22:48 $]
+Last modified at [$Date$]
 
 Stuff to do:
     * finish the t/TEST exit code issue (ORed with 0x2C if
