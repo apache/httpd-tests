@@ -164,7 +164,7 @@ sub default_run_opts {
     my $self = shift;
     my($opts, $tests) = ($self->{opts}, $self->{tests});
 
-    unless (grep { $opts->{$_} } @std_run, @request_opts) {
+    unless (grep { exists $opts->{$_} } @std_run, @request_opts) {
         if (@$tests && $self->{server}->ping) {
             #if certain tests are specified and server is running, dont restart
             $opts->{'run-tests'} = 1;
@@ -303,7 +303,7 @@ sub run_tests {
     #which might not be the one we want
     $^X = $Config{perlpath} if $^X eq 'perl';
 
-    if (grep { $self->{opts}->{$_} } @request_opts) {
+    if (grep { exists $self->{opts}->{$_} } @request_opts) {
         run_request($self->{test_config}, $self->{opts});
     }
     else {
