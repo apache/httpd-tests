@@ -64,19 +64,19 @@ sub request {
 
     while (<$s>) {
         $res->{headers_as_string} .= $_;
-	if(m:^(HTTP/\d+\.\d+)[ \t]+(\d+)[ \t]*(.*?)$eol:io) {
+        if (m:^(HTTP/\d+\.\d+)[ \t]+(\d+)[ \t]*(.*?)$eol:io) {
             $res->{protocol} = $1;
             $res->{code} = $2;
             $res->{message} = $3;
-	    $response_line = 1;
-	}
-	elsif(/^([a-zA-Z0-9_\-]+)\s*:\s*(.*?)$eol/o) {
+            $response_line = 1;
+        }
+        elsif (/^([a-zA-Z0-9_\-]+)\s*:\s*(.*?)$eol/o) {
             $res->{headers}->{$1} = $2;
-	}
-	elsif(/^$eol$/o) {
-	    $header_term = 1;
+        }
+        elsif (/^$eol$/o) {
+            $header_term = 1;
             last;
-	}
+        }
     }
 
     unless ($response_line and $header_term) {

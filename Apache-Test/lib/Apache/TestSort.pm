@@ -39,9 +39,9 @@ sub random {
 
     #from perlfaq4.pod
     for (my $i = @$list; --$i; ) {
-	my $j = int rand ($i+1);
-	next if $i == $j;
-	@$list[$i,$j] = @$list[$j,$i];
+        my $j = int rand($i+1);
+        next if $i == $j;
+        @$list[$i,$j] = @$list[$j,$i];
     }
 }
 

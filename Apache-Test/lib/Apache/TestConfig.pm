@@ -431,7 +431,7 @@ sub default_user {
     my $user = $ENV{APACHE_USER} || (getpwuid($uid) || "#$uid");
 
     if ($user eq 'root') {
-	my $other = (getpwnam('nobody'))[0];
+        my $other = (getpwnam('nobody'))[0];
         if ($other) {
             $user = $other;
         }
