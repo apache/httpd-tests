@@ -123,7 +123,7 @@ sub MY::install {
 
 sub MY::top_targets {
     my $self = shift;
-    my $string = $self->MY::top_targets;
+    my $string = $self->MM::top_targets;
 
     $string .= <<EOF;
 
