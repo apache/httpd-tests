@@ -311,7 +311,7 @@ sub stop {
                 warning "server $self->{name} shutdown";
                 sleep 1;
 
-                for (1..4) {
+                for (1..6) {
                     if (! $self->ping) {
                         return $pid if $_ == 1;
                         last;
