@@ -60,7 +60,8 @@ my %test = (
 "exec/on/cmd.shtml"     =>    "pass",
 "notreal.shtml"         =>    "pass <!--",
 "parse1.shtml"          =>    "-->",
-"parse2.shtml"          =>    "\""
+"parse2.shtml"          =>    "\"",
+"if11.shtml"            =>    "pass",
 );
 
 #this test does not work on win32 (<!--#exec cmd="echo pass"-->)
