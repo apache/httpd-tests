@@ -33,7 +33,7 @@ my %usage = (
    'order=mode'      => 'run the tests in one of the modes: (repeat|rotate|random)',
    'stop-httpd'      => 'stop the test server',
    'verbose'         => 'verbose output',
-   'configure'       => 'force regeneration of httpd.conf',
+   'configure'       => 'force regeneration of httpd.conf (tests will not be run)',
    'clean'           => 'remove all generated test files',
    'help'            => 'display this message',
    'preamble'        => 'config to add at the beginning of httpd.conf',
@@ -135,7 +135,7 @@ sub getopts {
     $opts{$_} = $vopts{$_} for keys %vopts;
 
     #force regeneration of httpd.conf if commandline args want to modify it
-    $opts{configure} ||=
+    $self->{reconfigure} = $opts{configure} ||
       (grep { $opts{$_}->[0] } qw(preamble postamble)) ||
         @ARGV || $self->passenv() || (! -e 'conf/httpd.conf');
 
@@ -153,7 +153,7 @@ sub getopts {
         $opts{debug} ||= 1;
     }
 
-    if ($opts{configure}) {
+    if ($self->{reconfigure}) {
         $conf_opts{save} = 1;
     }
     else {
@@ -348,6 +348,11 @@ sub run {
     $self->install_sighandlers;
 
     $self->configure;
+
+    if ($self->{opts}->{configure}) {
+        warning "reconfiguration done";
+        exit;
+    }
 
     $self->try_exit_opts;
 
