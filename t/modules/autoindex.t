@@ -25,7 +25,7 @@ my $file_prefix = 'ai-test';
 my ($C,$O);
 my $cfg = Apache::Test::config();
 my $have_apache_2 = have_apache 2;
-my $hr = $have_apache_2 ? '<hr>' : '<hr />';
+my $hr = '<hr>';
 
 my %file =
 (
@@ -200,6 +200,11 @@ HEAD
         ## cope with new 2.1-style headers which use a semi-colon
         ## to separate query segment parameters
         $sep = ';';
+    }
+
+    if ($actual =~ /<hr \/>/) {
+        ## cope with new-fangled <hr /> tags
+        $hr = '<hr />';
     }
 
     ## set up html for fancy indexing ##
