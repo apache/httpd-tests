@@ -151,6 +151,8 @@ sub configure_startup_pl {
         for (reverse @$inc) {
             print $fh "use lib '$_';\n";
         }
+        my $fixup = Apache::TestConfig->modperl_2_inc_fixup();
+        print $fh $fixup;
         print $fh "1;\n";
     }
 
