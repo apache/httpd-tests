@@ -8,6 +8,10 @@ Changes - Apache::Test change logfile
 
 =item 1.10-dev
 
+Add a virtual method Apache::TestRun::pre_configure, and fix the
+documentation to say that subclasses must not forget to run the
+superclass' method. [Stas]
+
 Apache::TestRunPerl now performs an early check whether it can load
 the right mod_perl environment. [William McKee <william@knowmad.com>,
 Stas]

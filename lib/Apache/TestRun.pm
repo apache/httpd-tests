@@ -458,6 +458,8 @@ sub configure_opts {
     $test_config->postamble_register($postamble);
 }
 
+sub pre_configure { }
+
 sub configure {
     my $self = shift;
 
@@ -677,7 +679,7 @@ sub run {
     # must be called after getopts so the tracing will be set right
     custom_config_load();
 
-    $self->pre_configure() if $self->can('pre_configure');
+    $self->pre_configure();
 
     $self->{test_config} = $self->new_test_config();
 
@@ -1797,9 +1799,15 @@ I<t/TEST.PL>:
       my $self = shift;
       # Don't load an installed mod_apreq
       Apache::TestConfig::autoconfig_skip_module_add('mod_apreq.c');
+  
+      $self->SUPER::pre_configure();
   }
 
 Notice that the extension is I<.c>, and not I<.so>.
+
+Don't forget to run the super class' c<pre_configure()> method.
+
+
 
 =head2 C<new_test_config>
 
