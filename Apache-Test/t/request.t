@@ -6,7 +6,7 @@ use Apache::TestRequest;
 
 plan tests => 9, \&have_lwp;
 
-my $url = '/';
+my $url = '/index.html';
 
 ok GET_OK   $url;
 ok GET_RC   $url;

@@ -8,6 +8,9 @@ Changes - Apache::Test change logfile
 
 =item 1.05-dev
 
+fix t/request.t to get /index.html, instead of / since not everybody
+uses mod_dir [Steve Piner <stevep@marketview.co.nz>]
+
 when testing whether Apache started as root and running under 'nobody'
 or alike, will be able to -r/-w/-x in t/ use 'su' instead of 'sudo',
 the latter is not available on all unix platforms. [Vivek Khera
