@@ -32,7 +32,7 @@ my $vars = Apache::Test::vars();
 my $module = 'default';
 my $cycle = 0;
 
-plan tests => $tests;
+plan tests => $tests, ['eat_post'];
 
 print "testing $module\n";
 
