@@ -971,16 +971,19 @@ sub generate_httpd_conf {
 
     $self->preamble_run($out);
 
-    if ($self->server->{rev} == 1) {
-        for my $name (qw(port)) {
-            print $out "\u$name    $vars->{$name}\n";
-        }
-    }
-
     for my $name (qw(user group)) { #win32/cygwin do not support
         if ($vars->{$name}) {
             print $out "\u$name    $vars->{$name}\n";
         }
+    }
+
+    #2.0: ServerName $ServerName:$Port
+    #1.3: ServerName $ServerName
+    #     Port       $Port
+    my $scfg = $self->server->version_of(\%servername_config);
+    my @name_cfg = $scfg->($vars->{servername}, $vars->{port});
+    for my $pair (@name_cfg) {
+        print $out "@$pair\n";
     }
 
     $self->replace_vars($in, $out);
@@ -1259,11 +1262,10 @@ perl(1), Apache::Test(3)
 
 
 __DATA__
+Listen     @Port@
+
 ServerRoot   "@ServerRoot@"
 DocumentRoot "@DocumentRoot@"
-
-Listen     @Port@
-ServerName @ServerName@
 
 PidFile     @t_logs@/httpd.pid
 ErrorLog    @t_logs@/error_log
