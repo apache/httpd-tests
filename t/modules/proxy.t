@@ -24,9 +24,9 @@ if (have_module('cgi')) {
     ok t_cmp($r->code, 200, "reverse proxy with query string");
     ok t_cmp($r->content, qr/QUERY_STRING = reverse-proxy\n/s, "reverse proxied query string OK");
 
-    $r = GET("/reverse/modules/cgi/nph-101.pl");
-    ok t_cmp($r->code, 200, "reverse proxy to nph-101");
-    ok t_cmp($r->content, "this is nph-stdout", "reverse proxy 101 response");
+    $r = GET("/reverse/modules/cgi/nph-102.pl");
+    ok t_cmp($r->code, 200, "reverse proxy to nph-102");
+    ok t_cmp($r->content, "this is nph-stdout", "reverse proxy 102 response");
 } else {
     skip "skipping tests without mod_cgi" foreach (1..6);
 }
