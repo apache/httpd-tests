@@ -349,12 +349,19 @@ sub configure {
     my $save = \$self->{conf_opts}->{save};
     $self->configure_opts($save);
 
+    my $config = $self->{test_config};
     unless ($$save) {
+        my $addr = \$config->{vars}->{remote_addr};
+        my $remote_addr = $config->our_remote_addr;
+        unless ($$addr eq $remote_addr) {
+            warning "local ip address has changed, updating config cache";
+            $$addr = $remote_addr;
+        }
         #update minor changes to cached config
         #without complete regeneration
         #for example this allows switching between
         #'t/TEST' and 't/TEST -ssl'
-        $self->{test_config}->sync_vars(qw(scheme proxy));
+        $config->sync_vars(qw(scheme proxy remote_addr));
         return;
     }
 
