@@ -210,7 +210,7 @@ sub add_module_config {
 #@INC is auto-modified so each test .pm can be found
 #modules can add their own configuration using __DATA__
 
-my %hooks = map { $_, ucfirst $_ } qw(authen);
+my %hooks = map { $_, ucfirst $_ } qw(access authen authz type fixup log);
 $hooks{Protocol} = 'ProcessConnection';
 $hooks{Filter}   = 'OutputFilter';
 
