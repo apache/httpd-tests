@@ -57,9 +57,11 @@ sub config {
     $Config ||= Apache::TestConfig->thaw->httpd_config;
 }
 
-# doesn't require httpd to be found
+my $Basic_config;
+
+# config bits which doesn't require httpd to be found
 sub basic_config {
-    $Config ||= Apache::TestConfig->thaw();
+    $Basic_config ||= Apache::TestConfig->thaw();
 }
 
 sub vars {
