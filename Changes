@@ -8,9 +8,6 @@ Changes - Apache::Test change logfile
 
 =item 1.16-dev
 
-launder the require()d custom config filename to make -T happy
-[Torsten Förtsch <torsten.foertsch gmx.net>]
-
 added Apache::TestRunPHP and Apache::TestConfigPHP classes,
 which provide a framework for server-side testing via PHP scripts
 [Geoffrey Young]

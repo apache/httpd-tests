@@ -2077,7 +2077,6 @@ sub custom_config_load {
     if (my $custom_config_path = custom_config_path()) {
         debug "loading custom config data from: '$custom_config_path'";
         $custom_config_loaded++;
-        ($candidate) = $candidate=~/^(.*)/; # launder for -T
         require $custom_config_path;
     }
     else {
