@@ -182,6 +182,7 @@ sub start_gdb {
         $command = "gdb $httpd -command $file";
     }
 
+    $self->note_debugging;
     debug  $command;
     system $command;
 
@@ -191,6 +192,16 @@ sub start_gdb {
 sub debugger_file {
     my $self = shift;
     catfile $self->{config}->{vars}->{serverroot}, '.debugging';
+}
+
+#make a note that the server is running under the debugger
+#remove note when this process exits via END
+
+sub note_debugging {
+    my $self = shift;
+    my $file = $self->debugger_file;
+    my $fh   = $self->{config}->genfile($file);
+    eval qq(END { unlink "$file" });
 }
 
 sub start_debugger {
@@ -205,12 +216,6 @@ sub start_debugger {
               join ", ", sort keys %debuggers;
         die("\n");
     }
-
-    #make a note that the server is running under the debugger
-    #remove note when this process exits via END
-    my $file = $self->debugger_file;
-    my $fh   = $self->{config}->genfile($file);
-    eval qq(END { unlink "$file" });
 
     my $method = "start_" . $debuggers{ $opts->{debugger} };
     $self->$method($opts);
