@@ -59,19 +59,28 @@ sub new {
     # try to get the revision number from the standard Apache version
     # string and various variations made by distributions which mangle
     # that string
+
+    # Apache/2.0.50-dev
     ($self->{rev})   = $self->{version} =~ m|^Apache/(\d)\.|;
+
+    # Apache-AdvancedExtranetServer/1.3.29 (Mandrake Linux/1mdk)
     ($self->{rev}) ||= $self->{version} =~ m|^Apache.*?/(\d)\.|;
+
+    # IBM_HTTP_SERVER/1.3.19  Apache/1.3.20 (Unix)
     ($self->{rev}) ||= $self->{version} =~ m|^.*?Apache.*?/(\d)\.|;
 
     if ($self->{rev}) {
-        debug "Matched Apache revision $self->{rev}";
+        debug "Matched Apache revision $self->{version} $self->{rev}";
     }
     else {
         # guessing is not good as it'll only mislead users
-        # honestly admit that we have failed to match one
-        error "can't figure out Apache revision, from string: " .
-            "'$self->{version}'";
-        Apache::TestRun::exit_perl(0);
+        # and we can't die since a config object is required
+        # during Makefile.PL's write_perlscript when path to httpd may
+        # be unknown yet. so default to non-existing version 0 for now.
+        # and let TestRun.pm figure out the required pieces
+        debug "can't figure out Apache revision, from string: " .
+            "'$self->{version}', using a non-existing revision 0";
+        $self->{rev} = 0; # unknown
     }
 
     $self;

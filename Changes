@@ -8,8 +8,10 @@ Changes - Apache::Test change logfile
 
 =item 1.11-dev
 
-Die if we fail to match the Apache revision. No more misleading
-defaults. [Stas]
+if we fail to match the Apache revision (which is OK at the early
+stages, like 'perl Makefile.PL', default to a non-existing revision
+0. But provide no more misleading defaults (used to default to
+revision 2 and then looking for mod_perl2). [Stas]
 
 Improve the regex to match the Apache revision out of 'httpd -v'
 [Michael A Nachbaur <mike@nachbaur.com>]
