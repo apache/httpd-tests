@@ -142,6 +142,9 @@ sub new {
             require "$_/apache_test_config.pm";
             $thaw = 'apache_test_config'->new;
             delete $thaw->{save};
+            #incase class that generated the config was
+            #something else, which we can't be sure how to load
+            bless $thaw, 'Apache::TestConfig';
         };
     };
 
