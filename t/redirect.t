@@ -4,7 +4,7 @@ use warnings FATAL => 'all';
 use Apache::Test;
 use Apache::TestRequest;
 
-plan tests => 6, have_module('mod_alias.c') && &have_lwp;
+plan tests => 6, need_module('mod_alias.c') && &need_lwp;
 
 my $url = '/redirect';
 
