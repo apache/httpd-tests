@@ -387,7 +387,7 @@ sub lwp_as_string {
         $r->header('X-Content-length-note' => 'added by Apache::TestRequest');
     }
 
-    $r->content(undef) unless $want_body;
+    $r->content('') unless $want_body;
 
     (my $string = $r->as_string) =~ s/^/\#/mg;
     $r->content($content); #reset

@@ -8,6 +8,7 @@ Changes - Apache::Test change logfile
 
 =item 1.11-dev
 
+Fix Apache::TestRequest::lwp_as_string to work with LWP 5.79 [Stas]
 
 
 
