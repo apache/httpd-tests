@@ -43,6 +43,10 @@ sub vars {
     test_config()->{vars};
 }
 
+sub user_agent {
+    eval { $UA ||= __PACKAGE__->new; };
+}
+
 sub hostport {
     my $config = shift || test_config();
     local $config->{vars}->{scheme} =
@@ -127,7 +131,7 @@ sub vhost_socket {
 }
 
 sub prepare {
-    eval { $UA ||= __PACKAGE__->new; };
+    user_agent();
 
     my $url = resolve_url(shift);
     my($pass, $keep) = Apache::TestConfig::filter_args(\@_, \%wanted_args);
