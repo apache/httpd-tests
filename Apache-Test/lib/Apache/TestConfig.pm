@@ -1437,9 +1437,9 @@ sub add_inc {
     my $self = shift;
     return if $ENV{MOD_PERL}; #already setup by mod_perl
     require lib;
-    # make sure that the Apache-Test dev libs will be first in @INC,
-    # followed by modperl's lib, followed by blib and finally core
-    # Perl libs.
+    # make sure that Apache-Test/lib will be first in @INC,
+    # followed by modperl-2.0/lib (or some other project's lib/),
+    # followed by blib/ and finally system-wide libs.
     lib::->import(map "$self->{vars}->{top_dir}/$_",
                   qw(Apache-Test/lib lib blib/lib blib/arch));
     #print join "\n", "add_inc", @INC, "";
