@@ -1,0 +1,10 @@
+#this file will be Include-d by @ServerRoot@/httpd.conf
+
+#the subclass inside t/TEST added the authname and allowed_users variables
+
+<Location /howard_street>
+    AuthName "@authname@"
+    AuthType Basic
+    AuthUserFile "@ServerRoot@/.htpasswd
+    require user "@allowed_users@"
+</Location>
