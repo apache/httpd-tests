@@ -8,6 +8,8 @@ Changes - Apache::Test change logfile
 
 =item 1.10-dev
 
+improved docs [David Wheeler <david@kineticode.com>]
+
 Add a virtual method Apache::TestRun::pre_configure, and fix the
 documentation to say that subclasses must not forget to run the
 superclass' method. [Stas]
