@@ -29,7 +29,7 @@ use vars qw(@ISA @EXPORT %EXPORT_TAGS $VERSION %SubTests @SkipReasons);
              have_cgi have_access have_auth have_module have_apache
              have_min_apache_version have_apache_version have_perl 
              have_min_perl_version have_min_module_version
-             have_threads under_construction have_apache_mpm);
+             have_threads under_construction skip_reason have_apache_mpm);
 
 # everything but ok(), skip(), and plan() - Test::More provides these
 my @test_more_exports = grep { ! /^(ok|skip|plan)$/ } @EXPORT;
@@ -391,6 +391,14 @@ sub under_construction {
     return 0;
 }
 
+sub skip_reason {
+    my $reason = shift || 'no reason specified';
+    push @SkipReasons, $reason;
+    return 0;
+}
+
+# normalize Apache-sytle version strings (2.0.48, 0.9.4)
+
 # normalize Apache-sytle version strings (2.0.48, 0.9.4)
 # for easy numeric comparison.  note that 2.1 and 2.1.0
 # are considered equivalent.
@@ -537,7 +545,9 @@ exported.
 
 Functions that can be used as a last argument to the extended plan():
 
-=over have_http11
+=over 
+
+=item have_http11
 
   plan tests => 5, &have_http11;
 
@@ -710,6 +720,23 @@ It's possible to put more than one requirement into a single hash
 reference, but be careful that the keys will be different.
 
 Also see plan().
+
+=item under_construction
+
+  plan tests => 5, under_construction;
+
+skip all tests, noting that the tests are under construction
+
+=item skip_reason
+
+  plan tests => 5, skip_reason('my custom reason');
+
+skip all tests.  the reason you specify will be given at runtime.
+if no reason is given a default reason will be used.
+
+=back
+
+=head1 Additional Configuration Variables
 
 =item config
 
