@@ -20,6 +20,10 @@ the redirect_ok() method to ensure that such is the case.
 
 =item 1.15 - October 22, 2004
 
+add need_php4() and have_php4() which will return true when mod_php4
+is available.  also, tidy up need_php() and have_php() for PHP4 on
+Apache 2.0.  [Joe Orton]
+
 add new test_config make target, equivalent to t/TEST -conf,
 and make it a prerequisite for the cmodules make target.  now
 you can 'make cmodules' to build the things in c-modules/
