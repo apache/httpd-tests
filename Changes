@@ -8,6 +8,13 @@ Changes - Apache::Test change logfile
 
 =item 1.07-dev
 
+Another attempt at providing a test function that verifies whether
+Apache when switching from 'root' to 'nobody' or another user will be
+able to access and create files under the t/ directory. This time
+using perl's vars $(, $< since POSIX equivalents seem to be broken on
+some systems. Also using a better test that actually tries to
+write/read/execute in the path under test. [Stas]
+
 Cleanly exit (and complain) if the default hostname resolution has
 failed (usually due to a missing localhost entry in /etc/hosts) [Stas]
 
