@@ -5,10 +5,18 @@
         #these are not on by default in the 1.x based mod_ssl
         <IfDefine APACHE2>
             SSLProxyEngine On
+
+            SSLProxyProtocol +SSLv2 +SSLv3 +TLSv1
+            SSLProxyCipherSuite ALL:!ADH:RC4+RSA:+HIGH:+MEDIUM:+LOW:+SSLv2:+EXP:+eNULL
+
             SSLProxyMachineCertificateFile @SSLCA@/asf/proxy/client_ok.pem
+            #SSLProxyMachineCertificatePath @SSLCA@/asf/proxy
+
             SSLProxyCACertificateFile @SSLCA@/asf/certs/ca.crt
-            SSLProxyVerify on
+            SSLProxyCACertificatePath @ServerRoot@/conf/ssl
             SSLProxyCARevocationFile @SSLCA@/asf/crl/ca-bundle.crl
+            SSLProxyVerify on
+            SSLProxyVerifyDepth 10
         </IfDefine>
 
 
@@ -24,7 +32,9 @@
         #these are not on by default in the 1.x based mod_ssl
         <IfDefine APACHE2>
             SSLProxyEngine On
-            SSLProxyMachineCertificateFile @SSLCA@/asf/proxy/client_ok.pem
+            #SSLProxyMachineCertificateFile @SSLCA@/asf/proxy/client_ok.pem
+            #client_ok.pem should be loaded first
+            SSLProxyMachineCertificatePath @SSLCA@/asf/proxy
             SSLProxyCACertificateFile @SSLCA@/asf/certs/ca.crt
             SSLProxyVerify on
             SSLProxyCARevocationFile @SSLCA@/asf/crl/ca-bundle.crl
