@@ -841,7 +841,7 @@ sub generate_script {
 
     $file ||= catfile 't', 'TEST';
 
-    my $body = "use blib;\n";
+    my $body = "BEGIN { eval { require blib; } }\n";
 
     $body .= Apache::TestConfig->modperl_2_inc_fixup;
 
