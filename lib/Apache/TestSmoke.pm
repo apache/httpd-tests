@@ -7,6 +7,8 @@ use Apache::Test ();
 use Apache::TestConfig ();
 use Apache::TestTrace;
 
+use Apache::TestRun (); # for core scan functions
+
 use Getopt::Long qw(GetOptions);
 use File::Spec::Functions qw(catfile);
 use FindBin;
@@ -53,6 +55,8 @@ sub new {
         total_reduction_successes => 0,
         total_tests_run           => 0,
     }, ref($class)||$class;
+
+    $self->{test_config} = Apache::TestConfig->thaw;
 
     $self->getopts(\@argv);
     my $opts = $self->{opts};
@@ -114,12 +118,33 @@ sub getopts {
     $self->{opts} = \%opts;
 }
 
+sub install_sighandlers {
+    my $self = shift;
+
+    $SIG{INT} = sub {
+        $self->report_finish;
+        exit;
+    };
+}
+
+END {
+    local $?; # preserve the exit status
+    eval {
+        Apache::TestRun->new(test_config =>
+                             Apache::TestConfig->thaw)->scan_core;
+    };
+}
+
 
 sub run {
     my($self) = shift;
 
     # make sure that there the server is down
     $self->kill_proc();
+
+    $self->Apache::TestRun::warn_core();
+    local $SIG{INT};
+    $self->install_sighandlers;
 
     $self->report_start();
     my $iter = 0;
@@ -336,11 +361,6 @@ First iteration used:
 $self->{start_command}
 $sep
 EOM
-
-    $SIG{INT} = sub {
-        $self->report_finish;
-        exit;
-    };
 
 }
 
