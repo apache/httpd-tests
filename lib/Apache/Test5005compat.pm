@@ -1,5 +1,6 @@
 package Apache::Test5005compat;
 
+use strict;
 use Symbol ();
 use File::Basename;
 use File::Path;
