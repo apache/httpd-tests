@@ -419,6 +419,18 @@ sub configure_opts {
         $test_config->{vars}->{proxy} = 'off';
     }
 
+    if (!$refreshed && $self->{reconfigure}) {
+        # XXX: there is a whole bunch of reasons, see above where
+        # $self->{reconfigure} is defined, could add reasons there or
+        # may be move the logic from there here?
+        warning "forcing re-configuration";
+        unless ($refreshed) {
+            $self->refresh;
+            $refreshed = 1;
+            $test_config = $self->{test_config};
+        }
+    }
+
     return unless $$save;
 
     my $preamble  = sub { shift->preamble($opts->{preamble}) };
