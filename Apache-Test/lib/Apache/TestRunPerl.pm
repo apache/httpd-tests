@@ -103,4 +103,7 @@ The C<Apache::TestRunPerl> package controls the configuration and
 running of the test suite. It's a subclass of C<Apache::TestRun>, and
 should be used only when you need to run mod_perl tests.
 
+Refer to the C<Apache::TestRun> manpage for information on the
+available API.
+
 =cut
