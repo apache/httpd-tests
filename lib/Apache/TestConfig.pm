@@ -1817,6 +1817,8 @@ sub custom_config_path {
     for (@inc) {
         my $candidate = File::Spec->rel2abs(catfile $_, CUSTOM_CONFIG_FILE);
         next unless -e $candidate;
+        # launder for -T
+	($candidate) = $candidate =~ /^(.*)/;
         return $custom_config_path = $candidate;
     }
 
@@ -2077,8 +2079,6 @@ sub custom_config_load {
     if (my $custom_config_path = custom_config_path()) {
         debug "loading custom config data from: '$custom_config_path'";
         $custom_config_loaded++;
-        # launder for -T
-        ($custom_config_path) = $custom_config_path = ~/^(.*)/;
         require $custom_config_path;
     }
     else {
