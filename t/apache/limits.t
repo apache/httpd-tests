@@ -83,37 +83,7 @@ foreach my $cond (@conditions) {
         }
     }
 }
-exit(0);
-# 
-# $res = GET_RC($fail_requestline);
-# print "# Testing too-long request line\n",
-#       "#  Expecting status: 414\n",
-#       "#  Received status:  $res\n";
-# ok $res == 414;
-# 
-# $res = GET_RC('/', 'X-overflow-field' => $fail_fieldsize);
-# print "# Testing too-long request header field\n",
-#       "#  Expecting status: 400\n",
-#       "#  Received status:  $res\n";
-# ok $res == 400;
-# 
-# for (my $i = 1; $i < 65; $i++) {
-#     $fail_fieldcount{"X-Field$i"} = "Testing field $i";
-# }
-# $res = GET_RC('/', %fail_fieldcount);
-# print "# Testing too many request header fields\n",
-#       "#  Expecting status: 400\n",
-#       "#  Received status:  $res\n";
-# ok $res == 400;
-# foreach my $with_chunking (0, 1) {
-#     print "# Testing too large a request body\n";
-#     set_chunking($with_chunking);
-#     $res = GET_RC('/', content => $fail_bodysize);
-#     print "#  Expecting status: 400\n",
-#           "#  Received status:  $res\n";
-#     ok $res == 413;
-# }
-# 
+
 sub set_chunking {
     my ($setting) = @_;
     $setting = $setting ? 1 : 0;
@@ -121,4 +91,3 @@ sub set_chunking {
           ($setting ? "enabled" : "disabled"), "\n";
     Apache::TestRequest::user_agent(keep_alive => ($setting ? 1 : 0));
 }
-
