@@ -151,7 +151,7 @@ AllowOverride Limit
 ##
 ## mod_cgi test config
 ##
-<IfModule mod_cgi.c>
+<IfModule @MOD_CGI@>
 AddHandler cgi-script .sh
 AddHandler cgi-script .pl
 ScriptLog @SERVERROOT@/logs/mod_cgi.log

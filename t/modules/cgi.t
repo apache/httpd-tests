@@ -41,7 +41,8 @@ my %test = (
     }
 );
 
-plan tests => ((keys %test) * 2) + (@post_content * 3) + 4, test_module 'cgi';
+my $tests = ((keys %test) * 2) + (@post_content * 3) + 4;
+plan tests => $tests, \&have_cgi;
 
 my ($expected, $actual);
 my $path = "/modules/cgi";

@@ -198,6 +198,10 @@ sub new {
     $self->inherit_config; #see TestConfigParse.pm
     $self->configure_httpd_eapi; #must come after inherit_config
 
+    ($self->{vars}->{mod_cgi}) = grep {
+        $self->{modules}->{$_};
+    } qw(mod_cgi.c mod_cgid.c);
+
     $self->{hostport} = $self->hostport;
 
     $self->{server} = $self->new_test_server;

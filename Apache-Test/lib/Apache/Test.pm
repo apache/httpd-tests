@@ -8,7 +8,7 @@ use Exporter ();
 use Apache::TestConfig ();
 
 our @ISA = qw(Exporter);
-our @EXPORT = qw(ok skip plan have_lwp test_module);
+our @EXPORT = qw(ok skip plan have_lwp have_cgi test_module);
 our $VERSION = '0.01';
 
 #so Perl's Test.pm can be run inside mod_perl
@@ -89,6 +89,10 @@ sub have_module {
     }
 
     return 1;
+}
+
+sub have_cgi {
+    [have_module('cgi') || have_module('cgid')];
 }
 
 #sugar: plan tests => 1, test_module 'php4'
