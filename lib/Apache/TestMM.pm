@@ -90,7 +90,8 @@ sub generate_script {
 
     $body .= Apache::TestConfig->modperl_2_inc_fixup;
 
-    while (my($k, $v) = splice @Apache::TestMM::Argv, 0, 2) {
+    my %args = @Apache::TestMM::Argv;
+    while (my($k, $v) = each %args) {
         $v =~ s/\|/\\|/g;
         $body .= "\n\$Apache::TestConfig::Argv{'$k'} = q|$v|;\n";
     }
