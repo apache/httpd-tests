@@ -1,4 +1,7 @@
+# This is a config file for testing modperl 2.0 Apache:: 3rd party modules
+
 %Apache::TestItSelf::Config = (
+    repos_type    => 'mp2_cpan_modules',
     perl_exec     => '/home/stas/perl/5.8.5-ithread/bin/perl5.8.5',
     mp_gen        => '2.0',
     httpd_gen     => '2.0',
