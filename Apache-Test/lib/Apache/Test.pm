@@ -54,7 +54,7 @@ if (my $subtests = $ENV{HTTPD_TEST_SUBTESTS}) {
 my $Config;
 
 sub config {
-    $Config ||= Apache::TestConfig->thaw;
+    $Config ||= Apache::TestConfig->thaw->complete_config;
 }
 
 sub vars {

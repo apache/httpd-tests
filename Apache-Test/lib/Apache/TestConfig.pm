@@ -1600,6 +1600,7 @@ sub which {
 sub apxs {
     my($self, $q, $ok_fail) = @_;
     return unless $self->{APXS};
+    local @ENV{ qw(PATH IFS CDPATH ENV BASH_ENV) };
     my $devnull = devnull();
     my $apxs = shell_ready($self->{APXS});
     my $val = qx($apxs -q $q 2>$devnull);
