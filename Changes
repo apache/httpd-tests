@@ -8,6 +8,11 @@ Changes - Apache::Test change logfile
 
 =item 1.08_dev
 
+fix have_apache_version(), have_min_apache_version(), and
+have_min_module_version() to use proper numeric version strings 
+in comparisons.  thanks to Rafael Garcia-Suarez for the spot.
+[Geoffrey Young]
+
 fix Apache::TestConfig::which to check that the found file is a plain
 file [Stas]
 
