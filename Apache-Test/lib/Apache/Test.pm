@@ -148,14 +148,11 @@ sub have {
     my $have_all = 1;
     for my $cond (@_) {
         if (ref $cond eq 'HASH') {
-            while (my($reason, $code) = each %$cond) {
-                if (ref $code eq 'CODE' && $code->()) {
-                    next;
-                }
-                else {
-                    push @SkipReasons, $reason;
-                    $have_all = 0;
-                }
+            while (my($reason, $value) = each %$cond) {
+                $value = $value->() if ref $value eq 'CODE';
+                next if $value;
+                push @SkipReasons, $reason;
+                $have_all = 0;
             }
         }
         else {
@@ -512,30 +509,30 @@ lookup, turning it into I<'mod_cgi.c'>.
 
   plan tests => 5,
       have 'LWP',
-           { "perl >= 5.7.3 is required" => sub { $] >= 5.007003   } },
-           { "not Win32"                 => sub { $^O eq 'MSWin32' } },
+           { "perl >= 5.8.0 is required" => ($] >= 5.008)          },
+           { "not Win32"                 => sub { $^O eq 'MSWin32' },
+             "foo is disabled"           => \&is_foo_enabled,
+           },
            'cgid';
 
 have() is more generic function which can impose multiple requirements
 at once. All requirements must be satisfied.
 
 have()'s argument is a list of things to test. The list can include
-scalars, which are passed to have_module(), and hash references. The
-hash references have a condition code reference as a value and a
-reason for failure as a key. The condition code is run and if it fails
-the provided reason is used to tell user why the test was skipped.
+scalars, which are passed to have_module(), and hash references. If
+hash references are used, the keys, are strings, containing a reason
+for a failure to satisfy this particular entry, the valuees are the
+condition, which are satisfaction if they return true. If the value is
+a scalar it's used as is. If the value is a code reference, it gets
+executed at the time of check and its return value is used to check
+the condition. If the condition check fails, the provided (in a key)
+reason is used to tell user why the test was skipped.
 
 In the presented example, we require the presense of the C<LWP> Perl
 module, C<mod_cgid>, that we run under perl E<gt>= 5.7.3 on Win32.
 
 It's possible to put more than one requirement into a single hash
-reference, but be careful that the keys will be different:
-
-      have 'LWP',
-           { "perl >= 5.7.3 is required" => sub { $] >= 5.007003   },
-             "not Win32"                 => sub { $^O eq 'MSWin32' },
-           },
-           'cgid';
+reference, but be careful that the keys will be different.
 
 Also see plan().
 
