@@ -4,6 +4,7 @@ use strict;
 use warnings FATAL => 'all';
 
 use Apache::Test ();
+use Apache::TestMM ();
 use Apache::TestConfig ();
 use Apache::TestConfigC ();
 use Apache::TestRequest ();
@@ -748,7 +749,12 @@ sub generate_script {
 
     $file ||= catfile 't', 'TEST';
 
-    my $content = <<'EOM';
+    my $content = '';
+    if (@Apache::TestMM::Argv) {
+        $content = "\%Apache::TestConfig::Argv = qw(@Apache::TestMM::Argv);\n";
+    }
+
+    $content .= <<'EOM';
 use strict;
 use warnings FATAL => 'all';
 
