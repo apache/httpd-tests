@@ -6,7 +6,7 @@ Changes - Apache::Test change logfile
 
 =over 3
 
-=item 1.17-dev
+=item 1.17 - December 11, 2004
 
 Apache::TestHandler: need to load Apache::RequestIO for mp2 for puts()
 to work [Stas]
