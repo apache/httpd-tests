@@ -4,6 +4,7 @@ use strict;
 use warnings FATAL => 'all';
 
 use Apache::TestConfig ();
+use Apache::TestConfigC ();
 use Apache::TestRequest ();
 use Apache::TestHarness ();
 use Apache::TestTrace;
@@ -226,6 +227,7 @@ sub configure {
     $self->configure_opts;
 
     my $test_config = $self->{test_config};
+    $test_config->cmodules_configure;
     $test_config->generate_httpd_conf;
     $test_config->save;
 }

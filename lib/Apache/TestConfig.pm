@@ -477,6 +477,7 @@ sub clean {
     }
 
     $self->new_test_server->clean;
+    $self->cmodules_clean;
 }
 
 sub replace {

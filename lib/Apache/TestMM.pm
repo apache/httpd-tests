@@ -40,6 +40,10 @@ run_tests : test_clean
 	t/TEST
 
 test :: pure_all run_tests test_clean
+
+cmodules_build: cd c-modules && $(MAKE) all
+
+cmodules_clean: cd c-modules && $(MAKE) clean
 EOF
 
 }
