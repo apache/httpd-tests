@@ -63,12 +63,12 @@ TEST_FILES =
 
 test_clean :
 	$(FULLPERL) -I$(INST_ARCHLIB) -I$(INST_LIB) \
-	t/TEST -clean
+	t/TEST $(APACHE_TEST_EXTRA_ARGS) -clean
 
 run_tests : test_clean
 	$(PASSENV) \
 	$(FULLPERL) -I$(INST_ARCHLIB) -I$(INST_LIB) \
-	t/TEST -bugreport -verbose=$(TEST_VERBOSE) $(TEST_FILES)
+	t/TEST $(APACHE_TEST_EXTRA_ARGS) -bugreport -verbose=$(TEST_VERBOSE) $(TEST_FILES)
 
 test :: pure_all run_tests test_clean
 
