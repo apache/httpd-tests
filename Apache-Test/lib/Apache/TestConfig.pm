@@ -410,9 +410,25 @@ sub configure_proxy {
     return undef;
 }
 
-sub add_config {
+# adds the config to the head of the group instead of the tail
+# XXX: would be even better to add to a different sub-group
+# (e.g. preamble_first) of only those that want to be first and then,
+# make sure that they are dumped to the config file first in the same
+# group (e.g. preamble)
+sub add_config_first {
     my $self = shift;
     my $where = shift;
+    unshift @{ $self->{$where} }, $self->massage_config_args(@_);
+}
+
+sub add_config_last {
+    my $self = shift;
+    my $where = shift;
+    push @{ $self->{$where} }, $self->massage_config_args(@_);
+}
+
+sub massage_config_args {
+    my $self = shift;
     my($directive, $arg, $data) = @_;
     my $args = "";
 
@@ -443,15 +459,23 @@ sub add_config {
           (ref($arg) && (ref($arg) eq 'ARRAY') ? "@$arg" : $arg || "");
     }
 
-    push @{ $self->{$where} }, $args;
+    return $args;
+}
+
+sub postamble_first {
+    shift->add_config_first(postamble => @_);
 }
 
 sub postamble {
-    shift->add_config(postamble => @_);
+    shift->add_config_last(postamble => @_);
+}
+
+sub preamble_first {
+    shift->add_config_first(preamble => @_);
 }
 
 sub preamble {
-    shift->add_config(preamble => @_);
+    shift->add_config_last(preamble => @_);
 }
 
 sub postamble_register {
