@@ -505,7 +505,16 @@ sub run {
         $self->opt_clean(1);
     }
 
-    $self->configure;
+    # if configure() fails for some reason before it has flushed the
+    # config to a file, save it so -clean will be able to clean
+    eval { $self->configure; };
+    if ($@) {
+        error "configure() has failed:\n$@";
+        warning "forcing Apache::TestConfig object save";
+        $self->{test_config}->save;
+        warning "run 't/TEST -clean' to clean up before continuing";
+        exit;
+    }
 
     if ($self->{opts}->{configure}) {
         warning "reconfiguration done";
