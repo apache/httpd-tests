@@ -419,10 +419,11 @@ This function is exported by default.
 
 =item chown()
 
- Apache::TestUtil::chown($file);
+  Apache::TestUtil::chown($file);
 
-Change ownership of $file to the test User/Group.  This function is noop
-on platforms where chown is unsupported (e.g. Win32).
+Change ownership of $file to the test's I<User>/I<Group>.  This
+function is noop on platforms where chown(2) is unsupported
+(e.g. Win32).
 
 =item t_is_equal()
 
