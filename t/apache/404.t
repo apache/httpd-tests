@@ -10,5 +10,6 @@ my $four_oh_four = GET_STR "/404/not/found/test";
 
 print "$four_oh_four\n";
 
-ok ($four_oh_four =~ /HTTP\/1\.[01] 404 Not Found/);
+ok (($four_oh_four =~ /HTTP\/1\.[01] Not Found/)
+    || ($four_oh_four =~ /RC:\s+404.*Message:\s+Not Found/s));
 ok ($four_oh_four =~ /Content-Type: text\/html/);
