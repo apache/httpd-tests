@@ -968,7 +968,7 @@ sub sslca_can {
     require Apache::TestSSLCA;
 
     my $ca = $self->{vars}->{sslca};
-    return 0 unless $ca and -d dirname($ca); #t/conf/ssl
+    return 0 if $ca and -d dirname($ca); #t/conf/ssl
 
     if ($check) {
         my $openssl = Apache::TestSSLCA::openssl();
