@@ -29,7 +29,7 @@ my @need = qw(need_lwp need_http11 need_cgi need_access need_auth
               need_module need_apache need_min_apache_version
               need_apache_version need_perl need_min_perl_version
               need_min_module_version need_threads need_apache_mpm
-              need_php);
+              need_php need_ssl);
 
 my @have = map { (my $need = $_) =~ s/need/have/; $need } @need;
 
@@ -207,7 +207,9 @@ sub need {
 
 sub need_module {
     my $cfg = config();
-    my @modules = ref($_[0]) ? @{ $_[0] } : @_;
+
+    my @modules = grep defined $_,
+        ref($_[0]) eq 'ARRAY' ? @{ $_[0] } : @_;
 
     my @reasons = ();
     for (@modules) {
@@ -422,21 +424,18 @@ sub normalize_vstring {
     return join '', map { sprintf("%03d", $_ || 0) } @digits;
 }
 
-sub AUTOLOAD {
-
-    (my $method) = $AUTOLOAD =~ m/.*::(.*)/;
-
-    return unless $method =~ m/^have_/;
-
-    $method =~ s/^have/need/;
-
-    if (my $cv = Apache::Test->can($method)) {
+# have_ functions are the same as need_ but they don't populate
+# @SkipReasons
+for my $func (@have) {
+    no strict 'refs';
+    (my $real_func = $func) =~ s/^have_/need_/;
+    *$func = sub {
+        # be nice to poor soles calling functions with $_ argument in
+        # the foreach loop, etc.!
+        local $_;
         local @SkipReasons;
-        return $cv->(@_);
-    }
-    else {
-        die "could not find function $AUTOLOAD";
-    } 
+        return $real_func->(@_);
+    };
 }
 
 package Apache::TestToString;
