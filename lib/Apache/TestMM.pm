@@ -91,8 +91,7 @@ sub generate_script {
 
 sub filter_args {
     my($argv, $vars) =
-      Apache::TestConfig::filter_args(\@ARGV,
-                                      \%Apache::TestConfig::Usage);
+        Apache::TestConfig::filter_args(\@ARGV, \%Apache::TestConfig::Usage);
     @ARGV = @$argv;
     @Apache::TestMM::Argv = %$vars;
 }
