@@ -8,7 +8,7 @@ All you have to do to install them all in one shot is:
 perl -MCPAN -e 'install Bundle::ApacheTest'
 
 Which are also available in one tarball here:
-http://perl.apache.org/~dougm/httpd-test-bundle-0.01.tar.gz
+http://perl.apache.org/~dougm/httpd-test-bundle-0.02.tar.gz
 
 Note: Crypt::SSLeay requires OpenSSL to be installed (only required
 for t/TEST -ssl): http://www.openssl.org/
