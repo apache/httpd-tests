@@ -28,6 +28,7 @@ lib/Apache/TestUtil.pm
 lib/Bundle/ApacheTest.pm
 t/TEST.PL
 t/conf/extra.conf.in
+t/bad_coding.t
 t/ping.t
 t/redirect.t
 t/request.t
