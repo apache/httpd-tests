@@ -21,6 +21,12 @@ sub configure_libmodperl {
     if ($server->{rev} >= 2) {
         if (my $build_config = $self->modperl_build_config()) {
             $libname = $build_config->{MODPERL_LIB_SHARED};
+            $vars->{libmodperl} ||= $self->find_apache_module($libname);
+            # XXX: we have a problem with several perl trees pointing
+            # to the same httpd tree. So it's possible that we
+            # configure the test suite to run with mod_perl.so built
+            # against perl which it wasn't built with. Should we use
+            # something like ldd to check the match?
         }
         else {
             # XXX: can we test whether mod_perl was linked statically
