@@ -8,6 +8,18 @@ Changes - Apache::Test change logfile
 
 =item 1.03-dev - 
 
+add two more variants of each of the tracing functions. If the '_mark'
+suffix is appended (e.g., 'error_mark') the trace will start with the
+filename and the line number the function was called from. If the
+'_sub' suffix is appended (e.g., 'error_info') the trace will start
+with the name of the subroutine the function was called from. [Stas]
+
+introduce a new env var APACHE_TEST_TRACE_LEVEL, to override the trace
+level. Propogate the overriden values (either by env var
+APACHE_TEST_TRACE_LEVEL or -trace option) to the server-side, so we
+can use tracing in the handlers, and enable disable traces from the
+commmand line. This way we don't have to comment out debug
+tracing. [Stas]
 
 =item 1.02
 
