@@ -465,11 +465,12 @@ sub start {
 
     my $start_time = time;
     my $preamble = "${CTRL_M}waiting for server to start: ";
+    print $preamble unless COLOR;
     while (1) {
         my $delta = time - $start_time;
-        if (COLOR) {
-            print $preamble, sprintf "%02d:%02d", (gmtime $delta)[1,0];
-        }
+        print COLOR
+            ? ($preamble, sprintf "%02d:%02d", (gmtime $delta)[1,0])
+            : '.';
         sleep 1;
         if ($self->pid) {
             print $preamble, "ok (waited $delta secs)\n";
@@ -532,11 +533,12 @@ sub wait_till_is_up {
 
     my $start_time = time;
     my $preamble = "${CTRL_M}still waiting for server to warm up: ";
+    print $preamble unless COLOR;
     while (1) {
         my $delta = time - $start_time;
-        if (COLOR) {
-            print $preamble, sprintf "%02d:%02d", (gmtime $delta)[1,0];
-        }
+        print COLOR
+            ? ($preamble, sprintf "%02d:%02d", (gmtime $delta)[1,0])
+            : '.';
         sleep $sleep_interval;
         if ($server_up->()) {
             print "${CTRL_M}the server is up (waited $delta secs)             \n";
