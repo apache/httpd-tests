@@ -4,6 +4,7 @@ use strict;
 use warnings FATAL => 'all';
 
 use Apache::Test ();
+use Apache::TestConfig ();
 use Apache::TestTrace;
 
 use Getopt::Long qw(GetOptions);
@@ -420,11 +421,7 @@ EOM
 }
 
 sub build_config_as_string {
-    my($self) = @_;
-
-    require Apache::TestConfig;
-
-    return Apache::TestConfig::as_string();
+    Apache::TestConfig::as_string();
 }
 
 sub kill_proc {
