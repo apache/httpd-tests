@@ -17,6 +17,9 @@ my @chunk_sizes = (25432, 75962, 100_000, 300_000);
 
 my $tests = (@chunk_sizes + @small_sizes) * 5;
 
+if (! have_module 'random_chunk') {
+    print "# Skipping; missing prerequisite module 'random_chunk'\n";
+}
 plan tests => $tests, have_module 'random_chunk';
 
 my $location = '/random_chunk';
