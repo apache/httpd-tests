@@ -28,7 +28,7 @@ my $UA;
 my $Config;
 
 sub hostport {
-    my $config = shift;
+    my $config = shift || test_config();
     my $hostport = $config->{hostport};
 
     if (my $module = $Apache::TestRequest::Module) {
@@ -44,7 +44,8 @@ sub resolve_url {
     return $url if $url =~ m,^(\w+):/,;
     $url = "/$url" unless $url =~ m,^/,;
     my $hostport = hostport($Config);
-    return "http://$hostport$url";
+    my $scheme = $Apache::TestRequest::Scheme || 'http';
+    return "$scheme://$hostport$url";
 }
 
 my %wanted_args = map {$_, 1} qw(username password realm content filename);
@@ -256,6 +257,32 @@ sub http_raw_get {
 sub to_string {
     my $obj = shift;
     ref($obj) ? $obj->as_string : $obj;
+}
+
+#want news: urls to work with the LWP shortcuts
+#but cant find a clean way to override the default nntp port
+#by brute force we trick Net::NTTP into calling FixupNNTP::new
+#instead of IO::Socket::INET::new, we fixup the args then forward
+#to IO::Socket::INET::new
+
+if (eval { require Net::NNTP }) {
+    my $new;
+
+    for (@Net::NNTP::ISA) {
+        last if $new = $_->can('new');
+    }
+
+    unshift @Net::NNTP::ISA, 'FixupNNTP';
+
+    *FixupNNTP::new = sub {
+        my $class = shift;
+        my $args = {@_};
+        my($host, $port) = split ':',
+          Apache::TestRequest::hostport();
+        $args->{PeerPort} = $port;
+        $args->{PeerAddr} = $host;
+        return $new->($class, %$args);
+    }
 }
 
 1;
