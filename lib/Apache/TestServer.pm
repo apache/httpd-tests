@@ -535,6 +535,9 @@ sub wait_till_is_up {
             print "${CTRL_M}the server is down, giving up after $delta secs\n";
             return 0;
         }
+        else {
+            # continue
+        }
     }
 }
 
