@@ -393,15 +393,17 @@ sub genwarning {
            calls_trace();
 }
 
-sub calls_trace{
+sub calls_trace {
     my $frame = 1;
     my $trace = '';
+
     while (1) {
-        my ($package, $filename, $line) = caller($frame);
+        my($package, $filename, $line) = caller($frame);
         last unless $filename;
         $trace .= "# $frame. $filename:$line\n";
         $frame++;
     }
+
     return $trace;
 }
 
