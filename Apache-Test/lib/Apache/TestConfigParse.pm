@@ -86,7 +86,8 @@ my %modname_alias = (
 
 #XXX mod_jk requires JkWorkerFile or JkWorker to be configured
 #skip it for now, tomcat has its own test suite anyhow.
-my %skip_modules = map { $_, 1 } qw(mod_jk.c);
+#XXX: mod_casp2.so requires other settings in addition to LoadModule
+my %skip_modules = map { $_, 1 } qw(mod_jk.c mod_casp2.c);
 
 # add modules to be not inherited from the existing config.
 # e.g. prevent from LoadModule perl_module to be included twice, when
