@@ -187,22 +187,9 @@ sub new_test_server {
     Apache::TestServer->new($args || $self)
 }
 
-sub new {
-    my $class = shift;
-
-    # httpd-independent components
-    my $self = $class->new_common(@_);
-
-    my $vars = $self->{vars};
-
-    # components requiring httpd knowledge
-    $self->httpd_config unless $vars->{no_httpd_config};
-
-    $self;
-}
-
 # setup httpd-independent components
-sub new_common {
+# for httpd-specific call $self->httpd_config()
+sub new {
     my $class = shift;
 
     my $args;

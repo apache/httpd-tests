@@ -54,12 +54,12 @@ if (my $subtests = $ENV{HTTPD_TEST_SUBTESTS}) {
 my $Config;
 
 sub config {
-    $Config ||= Apache::TestConfig->thaw;
+    $Config ||= Apache::TestConfig->thaw->httpd_config;
 }
 
 # doesn't require httpd to be found
 sub basic_config {
-    $Config ||= Apache::TestConfig->thaw(no_httpd_config => 1);
+    $Config ||= Apache::TestConfig->thaw();
 }
 
 sub vars {
