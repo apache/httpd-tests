@@ -227,3 +227,13 @@ UnsetEnv NOT_HERE
 Options +Includes
 </Directory>
 </IfModule>
+
+##
+## mod_setenvif test config
+##
+<IfModule mod_setenvif.c>
+<Directory @SERVERROOT@/htdocs/modules/setenvif/htaccess>
+Options +Includes
+AllowOverride All
+</Directory>
+</IfModule>
