@@ -38,8 +38,8 @@ my $res = GET_BODY "$base_uri/";
 # simply test whether we get the sub-dir listed or not
 for my $dir (sort keys %dirs) {
     my $found = $res =~ /$dir/ ? 1 : 0;
-    ok t_cmp($dirs{$dir}, 
-             $found, 
+    ok t_cmp($found,
+             $dirs{$dir}, 
              "$dir should @{[$dirs{$dir}?'':'not ']}be listed");
 }
 

@@ -35,8 +35,8 @@ my $proto = $res->protocol;
 if ($proto and $proto eq "HTTP/0.9") {
     skip "server gave HTTP/0.9 response";
 } else {    
-    ok t_cmp(400,
-             $res->code,
+    ok t_cmp($res->code,
+             400,
              "Expected bad request from 'GET $rurl'"
             );
 }

@@ -44,19 +44,19 @@ plan tests => $tests, [qw(alias LWP)];
 
 ## simple alias ##
 t_debug "verifying simple aliases";
-ok t_cmp(200,
-         GET_RC "/alias/",
+ok t_cmp((GET_RC "/alias/"),
+         200,
          "/alias/");
 ## alias to a non-existant area ##
-ok t_cmp(404,
-         GET_RC "/bogu/",
+ok t_cmp((GET_RC "/bogu/"),
+         404,
          "/bogu/");
 
 
 t_debug "verifying alias match with /ali[0-9].";
 for (my $i=0 ; $i <= 9 ; $i++) {
-    ok t_cmp($i,
-             GET_BODY "/ali$i",
+    ok t_cmp((GET_BODY "/ali$i"),
+             $i,
              "/ali$i");
 }
 
@@ -68,8 +68,8 @@ foreach (sort keys %redirect) {
 
     $expected = $redirect{$_};
     $actual = GET_RC "/$_";
-    ok t_cmp($expected,
-             $actual,
+    ok t_cmp($actual,
+             $expected,
              "/$_");
 }
 
@@ -78,8 +78,8 @@ foreach (sort keys %rm_body) {
     for (my $i=0 ; $i <= 9 ; $i++) {
         $expected = $i;
         $actual = GET_BODY "/$_$i";
-        ok t_cmp($expected,
-                 $actual,
+        ok t_cmp($actual,
+                 $expected,
                  "/$_$i");
     }
 }
@@ -93,8 +93,8 @@ foreach (keys %rm_rc) {
     $expected = $rm_rc{$_};
     for (my $i=0 ; $i <= 9 ; $i++) {
         $actual = GET_RC "$_$i";
-        ok t_cmp($expected,
-                 $actual,
+        ok t_cmp($actual,
+                 $expected,
                  "$_$i");
     }
 }
@@ -116,26 +116,26 @@ chmod 0755, $script;
 
 ## if we get the script here it will be plain text ##
 t_debug "verifying /modules/alias/script is plain text";
-ok t_cmp($cgi,
-          GET_BODY "/modules/alias/script",
+ok t_cmp((GET_BODY "/modules/alias/script"),
+         $cgi,
           "/modules/alias/script") unless WINFU;
 
 ## here it should be the result of the executed cgi ##
 t_debug "verifying same file accessed at /cgi/script is executed code";
-ok t_cmp("$string\n",
-         GET_BODY "/cgi/script",
+ok t_cmp((GET_BODY "/cgi/script"),
+         "$string\n",
          "/cgi/script") unless WINFU;
 
 ## with ScriptAliasMatch ##
 t_debug "verifying ScriptAliasMatch with /aliascgi-script";
-ok t_cmp("$string\n",
-         GET_BODY "/aliascgi-script",
+ok t_cmp((GET_BODY "/aliascgi-script"),
+         "$string\n",
          "/aliascgi-script") unless WINFU;
 
 ## failure with ScriptAliasMatch ##
 t_debug "verifying bad script alias.";
-ok t_cmp(404,
-         GET_RC "/aliascgi-nada",
+ok t_cmp((GET_RC "/aliascgi-nada"),
+         404,
          "/aliascgi-nada") unless WINFU;
 
 ## clean up ##

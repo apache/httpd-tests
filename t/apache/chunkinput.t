@@ -57,7 +57,7 @@ for my $data (@test_strings) {
     #Read the status line
     chomp(my $response = Apache::TestRequest::getline($sock));
     $response =~ s/\s$//;
-    ok t_cmp($resp_strings[$cycle++], $response, "response codes");
+    ok t_cmp($response, $resp_strings[$cycle++], "response codes");
 
     do {
         chomp($response = Apache::TestRequest::getline($sock));
@@ -68,7 +68,7 @@ for my $data (@test_strings) {
     if ($cycle == 1) {
         $response = Apache::TestRequest::getline($sock);
         chomp($response) if (defined($response));
-        ok t_cmp("$$", $response, "trailer (pid)");
+        ok t_cmp($response, "$$", "trailer (pid)");
     }
   }
 }

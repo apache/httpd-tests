@@ -20,5 +20,5 @@ sub verify {
                         $received += length $chunk;
                     });
 
-    ok t_cmp($flen, $received, "download of $url");
+    ok t_cmp($received, $flen, "download of $url");
 }

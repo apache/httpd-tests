@@ -21,14 +21,14 @@ $expected =~ s/\+/ /g;
 
 ## POST
 my $return = POST_BODY $page, content => $data;
-ok t_cmp($expected,
-         $return,
+ok t_cmp($return,
+         $expected,
          "POST request for $page, content=\"$data\""
         );
 
 ## GET
 $return = GET_BODY "$page?$data";
-ok t_cmp($expected,
-         $return,
+ok t_cmp($return,
+         $expected,
          "GET request for $page?$data"
         );

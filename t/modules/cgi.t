@@ -120,8 +120,8 @@ unlink $cgi_log if -e $cgi_log;
 foreach (sort keys %test) {
     $expected = $test{$_}{rc};
     $actual = GET_RC "$path/$_";
-    ok t_cmp($expected,
-             $actual,
+    ok t_cmp($actual,
+             $expected,
              "return code for $_"
             );
 
@@ -130,8 +130,8 @@ foreach (sort keys %test) {
         $actual = GET_BODY "$path/$_";
         chomp $actual if $actual =~ /\n$/;
 
-        ok t_cmp($expected,
-                 $actual,
+        ok t_cmp($actual,
+                 $expected,
                  "body for $_"
                 );
     }

@@ -50,8 +50,8 @@ for my $module (sort keys %frontend) {
     };
 
     sok {
-        t_cmp(200, 
-              GET('/modules/cgi/nph-foldhdr.pl')->code,
+        t_cmp(GET('/modules/cgi/nph-foldhdr.pl')->code,
+              200,
               "CGI script with folded headers");
     };
 

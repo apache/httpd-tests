@@ -34,6 +34,6 @@ for my $module (@modules) {
         $sock->print("$data\n");
 
         chomp(my $response = Apache::TestRequest::getline($sock));
-        ok t_cmp($data, $response, 'echo');
+        ok t_cmp($response, $data, 'echo');
     }
 }

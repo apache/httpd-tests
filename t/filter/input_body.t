@@ -13,7 +13,7 @@ for my $x (1,2) {
     my $expected = "ok $x";
     my $data = scalar reverse $expected;
     my $response = POST_BODY $location, content => $data;
-    ok t_cmp($expected,
-             $response,
+    ok t_cmp($response,
+             $expected,
              "Posted \"$data\"");
 }

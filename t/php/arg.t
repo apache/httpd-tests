@@ -28,7 +28,7 @@ foreach (@testargs) {
 chop($testargs); ## get rid of trailing '+'
 
 my $result = GET_BODY "/php/arg.php?$testargs";
-ok t_cmp($expected,
-         $result,
+ok t_cmp($result,
+         $expected,
          "GET request for /php/arg.php?$testargs"
         );

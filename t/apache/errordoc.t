@@ -15,8 +15,8 @@ plan tests => 14, need_lwp;
     my $response = GET '/notfound.html';
     chomp(my $content = $response->content);
 
-    ok t_cmp(404,
-             $response->code,
+    ok t_cmp($response->code,
+             404,
              'notfound.html code');
 
     ok t_cmp($content,
@@ -28,8 +28,8 @@ plan tests => 14, need_lwp;
     my $response = GET '/inherit/notfound.html';
     chomp(my $content = $response->content);
 
-    ok t_cmp(404,
-             $response->code,
+    ok t_cmp($response->code,
+             404,
              '/inherit/notfound.html code');
 
     ok t_cmp($content,
@@ -41,12 +41,12 @@ plan tests => 14, need_lwp;
     my $response = GET '/redefine/notfound.html';
     chomp(my $content = $response->content);
 
-    ok t_cmp(404,
-             $response->code,
+    ok t_cmp($response->code,
+             404,
              '/redefine/notfound.html code');
 
-    ok t_cmp('per-dir 404',
-             $content,
+    ok t_cmp($content,
+             'per-dir 404',
              '/redefine/notfound.html content');
 }
 
@@ -54,8 +54,8 @@ plan tests => 14, need_lwp;
     my $response = GET '/restore/notfound.html';
     chomp(my $content = $response->content);
 
-    ok t_cmp(404,
-             $response->code,
+    ok t_cmp($response->code,
+             404,
              '/redefine/notfound.html code');
 
     # 1.3 requires quotes for hard-coded messages
@@ -72,12 +72,12 @@ plan tests => 14, need_lwp;
     my $response = GET '/apache/notfound.html';
     chomp(my $content = $response->content);
 
-    ok t_cmp(404,
-             $response->code,
+    ok t_cmp($response->code,
+             404,
              '/merge/notfound.html code');
 
-    ok t_cmp('testing merge',
-             $content,
+    ok t_cmp($content,
+             'testing merge',
              '/merge/notfound.html content');
 }
 
@@ -85,12 +85,12 @@ plan tests => 14, need_lwp;
     my $response = GET '/apache/etag/notfound.html';
     chomp(my $content = $response->content);
 
-    ok t_cmp(404,
-             $response->code,
+    ok t_cmp($response->code,
+             404,
              '/merge/merge2/notfound.html code');
 
-    ok t_cmp('testing merge',
-             $content,
+    ok t_cmp($content,
+             'testing merge',
              '/merge/merge2/notfound.html content');
 }
 
@@ -98,8 +98,8 @@ plan tests => 14, need_lwp;
     my $response = GET '/bounce/notfound.html';
     chomp(my $content = $response->content);
 
-    ok t_cmp(404,
-             $response->code,
+    ok t_cmp($response->code,
+             404,
              '/bounce/notfound.html code');
 
     ok t_cmp($content,

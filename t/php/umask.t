@@ -14,6 +14,6 @@ my $first = GET_BODY "/php/umask.php";
 foreach my $n (1..4) {
     my $try = GET_BODY "/php/umask.php";
 
-    ok t_cmp($first, $try, "umask was $try not $first for request $n");
+    ok t_cmp($try, $first, "umask was $try not $first for request $n");
 }
 

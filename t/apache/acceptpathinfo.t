@@ -57,8 +57,8 @@ foreach my $mode (keys %tests) {
             my $req = $loc.$tests{$mode}[0].$file.$pinf;
 
             my $actual = GET_RC "$req";
-            ok t_cmp($expectedrc,
-                     $actual,
+            ok t_cmp($actual,
+                     $expectedrc,
                      "AcceptPathInfo $mode return code for $req"
                     );
 

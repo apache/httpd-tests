@@ -16,7 +16,7 @@ my $mtime = (stat($fname))[9] || die "could not find file";
 my $month = strftime "%B", gmtime($mtime);
 
 ok t_cmp(
-    $month,
     GET_BODY("/php/getlastmod.php"),
+    $month,
     "getlastmod()"
 );

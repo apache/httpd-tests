@@ -37,8 +37,8 @@ sub expect_chunked {
             $length = $1;
         }
 
-        ok t_cmp("HTTP/1.1",
-                 $res->protocol,
+        ok t_cmp($res->protocol,
+                 "HTTP/1.1",
                  "response protocol"
                 );
 
@@ -47,18 +47,18 @@ sub expect_chunked {
                   '';
         my $ct  = $res->header('Content-Length') || 0;
 
-        ok t_cmp("chunked",
-                 $enc,
+        ok t_cmp($enc,
+                 "chunked",
                  "response Transfer-Encoding"
                 );
 
-        ok t_cmp(0,
-                 $ct,
+        ok t_cmp($ct,
+                 0,
                  "no Content-Length"
                 );
 
-        ok t_cmp($length,
-                 length($body),
+        ok t_cmp(length($body),
+                 $length,
                  "body length"
                 );
 
@@ -66,8 +66,8 @@ sub expect_chunked {
         my $request_num =
           Apache::TestRequest::user_agent_request_num($res);
 
-        return t_cmp($requests,
-                     $request_num,
+        return t_cmp($request_num,
+                     $requests,
                      "number of requests"
                     );
     }, 5;
@@ -85,26 +85,26 @@ sub expect_not_chunked {
             $length = $1;
         }
 
-        ok t_cmp("HTTP/1.1",
-                 $res->protocol,
+        ok t_cmp($res->protocol,
+                 "HTTP/1.1",
                  "response protocol"
                 );
 
         my $enc = $res->header('Transfer-Encoding') || '';
         my $ct  = $res->header('Content-Length') || '';
 
-        ok !t_cmp("chunked",
-                  $enc,
+        ok !t_cmp($enc,
+                  "chunked",
                   "no Transfer-Encoding (test result inverted)"
                  );
 
-        ok t_cmp((($ct eq '') ? $ct : $content_length),
-                 $ct,
+        ok t_cmp($ct,
+                 (($ct eq '') ? $ct : $content_length),
                  "content length"
                 );
 
-        ok t_cmp($length,
-                 length($body),
+        ok t_cmp(length($body),
+                 $length,
                  "body length"
                 );
 
@@ -112,8 +112,8 @@ sub expect_not_chunked {
         my $request_num =
           Apache::TestRequest::user_agent_request_num($res);
 
-        return t_cmp($requests,
-                     $request_num,
+        return t_cmp($request_num,
+                     $requests,
                      "number of requests"
                     );
     }, 5;

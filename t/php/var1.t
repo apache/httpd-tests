@@ -23,14 +23,14 @@ $expected =~ s/\+/ /g;
 #print STDERR "\n\n$return\n\n";
 #ok $return eq $expected;
 my $return = POST_BODY $page, content => "variable=$data";
-ok t_cmp($expected,
-         $return,
+ok t_cmp($return,
+         $expected,
          "POST request for $page, content=\"variable=$data\""
         );
 
 ## GET
 $return = GET_BODY "$page?variable=$data";
-ok t_cmp($expected,
-         $return,
+ok t_cmp($return,
+         $expected,
          "GET request for $page?variable=$data"
         );

@@ -74,8 +74,8 @@ foreach my $cond (@conditions) {
             }
             print "# Testing LimitRequestFields; should $goodbad\n";
             $resp = GET('/apache/limits/', %fields, 'X-Subtest' => $testnum);
-            ok t_cmp($expected_rc,
-                     $resp->code,
+            ok t_cmp($resp->code,
+                     $expected_rc,
                      "Test #$testnum");
             if ($resp->code != $expected_rc) {
                 print_response($resp);
@@ -119,8 +119,8 @@ foreach my $cond (@conditions) {
                         local $expected_rc = 400 if $goodbad eq 'fail' &&
                                                     have_apache(1); 
 
-                        ok t_cmp($expected_rc,
-                                 $resp->code,
+                        ok t_cmp($resp->code,
+                                 $expected_rc,
                                  "Test #$testnum");
                         if ($resp->code != $expected_rc) {
                             print_response($resp);
@@ -130,8 +130,8 @@ foreach my $cond (@conditions) {
                 else {
                     $resp = GET('/apache/limits/', content_type => 'text/plain',
                                 content => $param, 'X-Subtest' => $testnum);
-                    ok t_cmp($expected_rc,
-                             $resp->code,
+                    ok t_cmp($resp->code,
+                             $expected_rc,
                              "Test #$testnum");
                     if ($resp->code != $expected_rc) {
                         print_response($resp);
@@ -144,8 +144,8 @@ foreach my $cond (@conditions) {
             print "# Testing LimitRequestFieldSize; should $goodbad\n";
             $resp = GET('/apache/limits/', 'X-Subtest' => $testnum,
                         'X-overflow-field' => $param);
-            ok t_cmp($expected_rc,
-                     $resp->code,
+            ok t_cmp($resp->code,
+                     $expected_rc,
                      "Test #$testnum");
             if ($resp->code != $expected_rc) {
                 print_response($resp);
@@ -155,8 +155,8 @@ foreach my $cond (@conditions) {
         elsif ($cond eq 'requestline') {
             print "# Testing LimitRequestLine; should $goodbad\n";
             $resp = GET($param, 'X-Subtest' => $testnum);
-            ok t_cmp($expected_rc,
-                     $resp->code,
+            ok t_cmp($resp->code,
+                     $expected_rc,
                      "Test #$testnum");
             if ($resp->code != $expected_rc) {
                 print_response($resp);

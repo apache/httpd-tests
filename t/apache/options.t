@@ -11,7 +11,7 @@ plan tests => @urls * 2, \&need_lwp;
 
 for my $url (@urls) {
     my $res = OPTIONS $url;
-    ok t_cmp 200, $res->code, "code";
+    ok t_cmp $res->code, 200, "code";
     my $allow = $res->header('Allow') || '';
     ok t_cmp $allow, qr/OPTIONS/, "OPTIONS";
 }

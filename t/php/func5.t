@@ -16,14 +16,14 @@ foo() will be called on shutdown...
 EXPECT
 
 my $result = GET_BODY "/php/func5.php?$file";
-ok t_cmp($expected,
-         $result,
+ok t_cmp($result,
+         $expected,
          "GET request for /php/func5.php?$file"
         );
 
 sleep 1;
-ok t_cmp(1,
-         -e $file,
+ok t_cmp(-e $file,
+         1,
          "$file exists"
         );
 

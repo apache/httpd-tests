@@ -83,8 +83,8 @@ SCRIPT
 ## run tests ##
 foreach (@vh) {
     ## test VirtalDocumentRoot ##
-    ok t_cmp($_,
-             GET_BODY($url, Host => $_),
+    ok t_cmp(GET_BODY($url, Host => $_),
+             $_,
              "VirtalDocumentRoot test"
             );
 
@@ -92,8 +92,8 @@ foreach (@vh) {
     my $cgi_uri = "/cgi-bin/$cgi_name.$ext";
     my $actual  = GET_BODY $cgi_uri, Host => $_;
     $actual =~ s/[\r\n]+$//;
-    ok t_cmp("$cgi_string $_",
-             $actual,
+    ok t_cmp($actual,
+             "$cgi_string $_",
              "VirtualScriptAlias test"
             );
 }

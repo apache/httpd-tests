@@ -57,19 +57,19 @@ foreach (@language) {
     $actual = GET_BODY "/modules/negotiation/$_/";
     print "# GET /modules/negotiation/$_/\n";
     my_chomp();
-    ok t_cmp("index.html.$_", $actual,
+    ok t_cmp($actual, "index.html.$_",
              "Verify correct default language for index.$_.foo");
 
     $actual = GET_BODY "/modules/negotiation/$_/compressed/";
     print "# GET /modules/negotiation/$_/compressed/\n";
     my_chomp();
-    ok t_cmp("index.html.$_.gz", $actual,
+    ok t_cmp($actual, "index.html.$_.gz",
              "Verify correct default language for index.$_.foo.gz");
 
     $actual = GET_BODY "/modules/negotiation/$_/two/index";
     print "# GET /modules/negotiation/$_/two/index\n";
     my_chomp();
-    ok t_cmp("index.$_.html", $actual,
+    ok t_cmp($actual, "index.$_.html",
              "Verify correct default language for index.$_.html");
 
     foreach my $ext (@language) {
@@ -77,13 +77,13 @@ foreach (@language) {
         ## verify that you can explicitly request all language files.
         my $resp = GET("/modules/negotiation/$_/index.html.$ext");
         print "# GET /modules/negotiation/$_/index.html.$ext\n";
-        ok t_cmp(200,
-                 $resp->code,
+        ok t_cmp($resp->code,
+                 200,
                  "Explicitly request $_/index.html.$ext");
         $resp = GET("/modules/negotiation/$_/two/index.$ext.html");
         print "# GET /modules/negotiation/$_/two/index.$ext.html\n";
-        ok t_cmp(200,
-                 $resp->code,
+        ok t_cmp($resp->code,
+                 200,
                  "Explicitly request $_/two/index.$ext.html");
 
         ## verify that even tho there is a default language,
@@ -92,14 +92,14 @@ foreach (@language) {
             'Accept-Language' => $ext;
         print "# GET /modules/negotiation/$_/\n# Accept-Language: $ext\n";
         my_chomp();
-        ok t_cmp("index.html.$ext", $actual,
+        ok t_cmp($actual, "index.html.$ext",
                  "Verify with a default language Accept-Language still obeyed");
 
         $actual = GET_BODY "/modules/negotiation/$_/compressed/",
             'Accept-Language' => $ext;
         print "# GET /modules/negotiation/$_/compressed/\n# Accept-Language: $ext\n";
         my_chomp();
-        ok t_cmp("index.html.$ext.gz", $actual,
+        ok t_cmp($actual, "index.html.$ext.gz",
                  "Verify with a default language Accept-Language still ".
                    "obeyed (compression on)");
 
@@ -107,7 +107,7 @@ foreach (@language) {
             'Accept-Language' => $ext;
         print "# GET /modules/negotiation/$_/two/index\n# Accept-Language: $ext\n";
         my_chomp();
-        ok t_cmp("index.$ext.html", $actual,
+        ok t_cmp($actual, "index.$ext.html",
                  "Verify with a default language Accept-Language still obeyed");
 
     }
@@ -121,21 +121,21 @@ $actual = GET_BODY "/modules/negotiation/$en/",
     'Accept-Language' => "$en; q=0.1, $fr; q=0.4, $fu; q=0.9, $de; q=0.2";
 print "# GET /modules/negotiation/$en/\n# Accept-Language: $en; q=0.1, $fr; q=0.4, $fu; q=0.9, $de; q=0.2\n";
 my_chomp();
-ok t_cmp("index.html.$fu", $actual,
+ok t_cmp($actual, "index.html.$fu",
          "fu has a higher quality rating, so we expect fu");
 
 $actual = GET_BODY "/modules/negotiation/$en/two/index",
     'Accept-Language' => "$en; q=0.1, $fr; q=0.4, $fu; q=0.9, $de; q=0.2";
 print "# GET /modules/negotiation/$en/two/index\n# Accept-Language: $en; q=0.1, $fr; q=0.4, $fu; q=0.9, $de; q=0.2\n";
 my_chomp();
-ok t_cmp("index.$fu.html", $actual,
+ok t_cmp($actual, "index.$fu.html",
          "fu has a higher quality rating, so we expect fu");
 
 $actual = GET_BODY "/modules/negotiation/$en/compressed/",
     'Accept-Language' => "$en; q=0.1, $fr; q=0.4, $fu; q=0.9, $de; q=0.2";
 print "# GET /modules/negotiation/$en/compressed/\n# Accept-Language: $en; q=0.1, $fr; q=0.4, $fu; q=0.9, $de; q=0.2\n";
 my_chomp();
-ok t_cmp("index.html.$fu.gz", $actual,
+ok t_cmp($actual, "index.html.$fu.gz",
          "fu has a higher quality rating, so we expect fu");
 
 ## 'bu' has the highest quality rating, but is non-existant,
@@ -144,19 +144,19 @@ $actual = GET_BODY "/modules/negotiation/$en/",
     'Accept-Language' => "$en; q=0.1, $fr; q=0.4, $bu; q=1.0";
 print "# GET /modules/negotiation/$en/\n# Accept-Language: $en; q=0.1, $fr; q=0.4, $bu; q=1.0\n";
 my_chomp();
-ok t_cmp("index.html.$fr", $actual,
+ok t_cmp($actual, "index.html.$fr",
          "bu has the highest quality but is non-existant, so fr is next best");
 
 $actual = GET_BODY "/modules/negotiation/$en/two/index",
     'Accept-Language' => "$en; q=0.1, $fr; q=0.4, $bu; q=1.0";
 print "# GET /modules/negotiation/$en/two/index\n# Accept-Language: $en; q=0.1, $fr; q=0.4, $bu; q=1.0\n";
 my_chomp();
-ok t_cmp("index.$fr.html", $actual,
+ok t_cmp($actual, "index.$fr.html",
          "bu has the highest quality but is non-existant, so fr is next best");
 
 $actual = GET_BODY "/modules/negotiation/$en/compressed/",
     'Accept-Language' => "$en; q=0.1, $fr; q=0.4, $bu; q=1.0";
 print "# GET /modules/negotiation/$en/compressed/\n# Accept-Language: $en; q=0.1, $fr; q=0.4, $bu; q=1.0\n";
 my_chomp();
-ok t_cmp("index.html.$fr.gz", $actual,
+ok t_cmp($actual, "index.html.$fr.gz",
          "bu has the highest quality but is non-existant, so fr is next best");

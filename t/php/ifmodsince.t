@@ -14,9 +14,9 @@ plan tests => 1, need_php;
 # header; http://bugs.php.net/bug.php?id=17098
 
 ok t_cmp(
-    200,
     GET_RC("/php/hello.php",
         "If-Modified-Since" => strftime("%a, %d %b %Y %T GMT", gmtime)),
+    200,
     "not 304 if the php file has not been modified since If-Modified-Since"
 );
 

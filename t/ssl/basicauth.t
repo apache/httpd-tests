@@ -17,17 +17,17 @@ plan tests => 3, \&need_auth;
 
 Apache::TestRequest::scheme('https');
 
-ok t_cmp (500,
-          GET_RC($url, cert => undef),
+ok t_cmp (GET_RC($url, cert => undef),
+          500,
           "Getting $url with no cert"
          );
 
-ok t_cmp (200,
-          GET_RC($url, cert => 'client_snakeoil'),
+ok t_cmp (GET_RC($url, cert => 'client_snakeoil'),
+          200,
           "Getting $url with client_snakeoil cert"
          );
 
-ok t_cmp (401,
-          GET_RC($url, cert => 'client_ok'),
+ok t_cmp (GET_RC($url, cert => 'client_ok'),
+          401,
           "Getting $url with client_ok cert"
          );
