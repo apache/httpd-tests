@@ -621,8 +621,16 @@ sub genfile_trace {
     $self->trace("generating $name");
 }
 
-sub genfile_open {
-    my($self, $file) = @_;
+sub genfile_warning {
+    my($self, $file, $fh) = @_;
+
+    if (my $msg = $self->genwarning($file)) {
+        print $fh $msg, "\n";
+    }
+}
+
+sub genfile {
+    my($self, $file, $nowarning) = @_;
 
     # create the parent dir if it doesn't exist yet
     my $dir = dirname $file;
@@ -633,19 +641,9 @@ sub genfile_open {
     my $fh = Symbol::gensym();
     open $fh, ">$file" or die "open $file: $!";
 
+    $self->genfile_warning($file, $fh) unless $nowarning;
+
     $self->clean_add_file($file);
-
-    return $fh;
-}
-
-sub genfile {
-    my($self, $file) = @_;
-
-    my $fh = $self->genfile_open($file);
-
-    if (my $msg = $self->genwarning($file)) {
-        print $fh $msg, "\n";
-    }
 
     return $fh;
 }
@@ -654,37 +652,25 @@ sub genfile {
 sub writefile {
     my($self, $file, $content, $nowarning) = @_;
 
-    my $fh = $self->genfile_open($file);
+    my $fh = $self->genfile($file, $nowarning);
 
-    unless ($nowarning) {
-        if (my $msg = $self->genwarning($file)) {
-            print $fh $msg, "\n";
-        }
-    }
-
-    if ($content) {
-        print $fh $content;
-    }
+    print $fh $content if $content;
 
     close $fh;
 }
 
-# gen + write excutable perl script file
+# gen + write executable perl script file
 sub write_perlscript {
     my($self, $file, $content) = @_;
 
-    my $fh = $self->genfile_open($file);
+    my $fh = $self->genfile($file, 1);
 
     # shebang
     print $fh "#!$Config{perlpath}\n";
 
-    if (my $msg = $self->genwarning($file)) {
-        print $fh $msg, "\n";
-    }
+    $self->genfile_warning($file, $fh);
 
-    if ($content) {
-        print $fh $content;
-    }
+    print $fh $content if $content;
 
     close $fh;
     chmod 0555, $file;
