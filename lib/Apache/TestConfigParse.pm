@@ -200,7 +200,7 @@ sub inherit_load_module {
         }
 
         my $name = basename $args->[1];
-        $name =~ s/\.s[ol]$/.c/;  #mod_info.so => mod_info.c
+        $name =~ s/\.(s[ol]|dll)$/.c/;  #mod_info.so => mod_info.c
         $name =~ s/^lib/mod_/; #libphp4.so => mod_php4.c
 
         $name = $modname_alias{$name} if $modname_alias{$name};

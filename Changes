@@ -8,6 +8,9 @@ Changes - Apache::Test change logfile
 
 =item 1.20-dev
 
+Apache::TestConfig::inherit_load_module handles .dll modules
+(previously was only .so) [Stas]
+
 Apache::TestConfig::should_skip_module now works with regex
 patterns. [Stas]
 
