@@ -3,13 +3,12 @@ use warnings FATAL => 'all';
 
 use Apache::Test;
 use Apache::TestRequest;
-use ExtModules::TestEnv;
 
 my $result = GET_BODY "/php/strings3.php";
 my @res = split /\n/, $result;
 my $count = @res;
 
-plan tests => $count + 1, \&ExtModules::TestEnv::has_php4;
+plan tests => $count + 1, test_module 'php4';
 
 my $expected = <<EXPECT;
 printf test 1:simple string
@@ -51,5 +50,5 @@ my $count2 = @exp;
 ok $count eq $count2;
 
 foreach (my $i = 0 ; $i < $count ; $i++) {
-	ok $res[$i] eq $exp[$i];
+    ok $res[$i] eq $exp[$i];
 }

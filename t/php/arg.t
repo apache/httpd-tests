@@ -3,9 +3,8 @@ use warnings FATAL => 'all';
 
 use Apache::Test;
 use Apache::TestRequest;
-use ExtModules::TestEnv;
 
-plan tests => 1, \&ExtModules::TestEnv::has_php4;
+plan tests => 1, test_module 'php4';
 
 ## arg.php source:
 ## <?php
@@ -21,9 +20,9 @@ my ($expected, $testargs) = ('','');
 my $count = 0;
 
 foreach (@testargs) {
-	$testargs .= "$_+";
-	$expected .= "$count: $_\n";
-	$count++;
+    $testargs .= "$_+";
+    $expected .= "$count: $_\n";
+    $count++;
 }
 chop($testargs); ## get rid of trailing '+'
 

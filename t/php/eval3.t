@@ -3,11 +3,10 @@ use warnings FATAL => 'all';
 
 use Apache::Test;
 use Apache::TestRequest;
-use ExtModules::TestEnv;
 
 ## testing eval function
 
-plan tests => 1, \&ExtModules::TestEnv::has_php4;
+plan tests => 1, test_module 'php4';
 
 my $expected = <<EXPECT;
 hey

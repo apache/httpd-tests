@@ -3,9 +3,8 @@ use warnings FATAL => 'all';
 
 use Apache::Test;
 use Apache::TestRequest;
-use ExtModules::TestEnv;
 
-plan tests => 2, \&ExtModules::TestEnv::has_php4;
+plan tests => 2, test_module 'php4';
 
 ## testing PHP OO bug (#7515)
 ## php src:
@@ -59,8 +58,8 @@ $result =~ s/\n//g;
 
 my ($x, $y);
 if ($result =~ /x = (.*)y = (.*)/) {
-	$x = $1;
-	$y = $2;
+    $x = $1;
+    $y = $2;
 }
 
 ok $x eq "object(stdClass)(1) {  [\"root\"]=>  object(obj)(0) {  }}";

@@ -3,9 +3,8 @@ use warnings FATAL => 'all';
 
 use Apache::Test;
 use Apache::TestRequest;
-use ExtModules::TestEnv;
 
-plan tests => 2, \&ExtModules::TestEnv::has_php4;
+plan tests => 2, test_module 'php4';
 
 ## var2.php source:
 ## <?php echo "$v1 $v2"?>

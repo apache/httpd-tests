@@ -3,9 +3,8 @@ use warnings FATAL => 'all';
 
 use Apache::Test;
 use Apache::TestRequest;
-use ExtModules::TestEnv;
 
-plan tests => 1, \&ExtModules::TestEnv::has_php4;
+plan tests => 1, test_module 'php4';
 
 ## divide.php source:
 ## <?php $a=27; $b=3; $c=3; $d=$a/$b/$c; echo $d?>

@@ -3,11 +3,10 @@ use warnings FATAL => 'all';
 
 use Apache::Test;
 use Apache::TestRequest;
-use ExtModules::TestEnv;
 
 ## Testing user-defined function falling out of an If into another
 
-plan tests => 1, \&ExtModules::TestEnv::has_php4;
+plan tests => 1, test_module 'php4';
 
 my $expected = "1\n";
 

@@ -3,45 +3,44 @@ use warnings FATAL => 'all';
 
 use Apache::Test;
 use Apache::TestRequest;
-use ExtModules::TestEnv;
 
-plan tests => 1, \&ExtModules::TestEnv::has_php4;
+plan tests => 1, test_module 'php4';
 
 my $expected = <<EXPECT;
 User information
 ----------------
 
-First name:	Zeev
-Family name:	Suraski
-Address:	Ben Gourion 3, Kiryat Bialik, Israel
-Phone:		+972-4-8713139
+First name:    Zeev
+Family name:    Suraski
+Address:    Ben Gourion 3, Kiryat Bialik, Israel
+Phone:    	+972-4-8713139
 
 
 User information
 ----------------
 
-First name:	Andi
-Family name:	Gutmans
-Address:	Haifa, Israel
-Phone:		+972-4-8231621
+First name:    Andi
+Family name:    Gutmans
+Address:    Haifa, Israel
+Phone:    	+972-4-8231621
 
 
 User information
 ----------------
 
-First name:	Andi
-Family name:	Gutmans
-Address:	Haifa, Israel
-Phone:		+972-4-8231621
+First name:    Andi
+Family name:    Gutmans
+Address:    Haifa, Israel
+Phone:    	+972-4-8231621
 
 
 User information
 ----------------
 
-First name:	Andi
-Family name:	Gutmans
-Address:	New address...
-Phone:		+972-4-8231621
+First name:    Andi
+Family name:    Gutmans
+Address:    New address...
+Phone:    	+972-4-8231621
 
 
 EXPECT
