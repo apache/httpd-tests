@@ -5,6 +5,14 @@
 AddType application/x-httpd-php .php
 AddType application/x-httpd-php-source .phps
 </IfModule>
+<IfDefine APACHE2>
+    <IfModule sapi_apache2.c>
+        <Files *.php>
+            SetOutputFilter PHP
+            SetInputFilter PHP
+        </Files>
+    </IfModule>
+</IfDefine>
 
 ##
 ## mod_expires test config
