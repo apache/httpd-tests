@@ -36,8 +36,11 @@ my %rm_rc = (
 #XXX: find something that'll on other platforms (/bin/sh aint it)
 my $script_tests = WINFU ? 0 : 4;
 
-plan tests => (keys %redirect) + (keys %rm_body) * 10 + (keys %rm_rc) * 10 + 12 + $script_tests,
-    have_module 'alias';
+my $tests = (keys %redirect) + (keys %rm_body) * 10 +
+            (keys %rm_rc) * 10 + 12 + $script_tests;
+
+#LWP required to follow redirects
+plan tests => $tests, [qw(alias LWP)];
 
 ## simple alias ##
 print "verifying simple aliases\n";
