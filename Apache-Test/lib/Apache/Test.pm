@@ -22,7 +22,7 @@ use Exporter ();
 use Config;
 use Apache::TestConfig ();
 
-use vars qw(@ISA @EXPORT %EXPORT_TAGS $VERSION %SubTests @SkipReasons 
+use vars qw(@ISA @EXPORT %EXPORT_TAGS $VERSION %SubTests @SkipReasons
             $AUTOLOAD);
 
 my @need = qw(need_lwp need_http11 need_cgi need_access need_auth
@@ -34,7 +34,8 @@ my @need = qw(need_lwp need_http11 need_cgi need_access need_auth
 my @have = map { (my $need = $_) =~ s/need/have/; $need } @need;
 
 @ISA = qw(Exporter);
-@EXPORT = (qw(ok skip sok plan skip_reason under_construction need), @need, @have);
+@EXPORT = (qw(ok skip sok plan skip_reason under_construction need),
+           @need, @have);
 
 # everything but ok(), skip(), and plan() - Test::More provides these
 my @test_more_exports = grep { ! /^(ok|skip|plan)$/ } @EXPORT;
@@ -254,7 +255,8 @@ sub need_min_module_version {
     # need_module requires the perl module
     return 0 unless need_module($module);
 
-    return 1 if eval {  no warnings qw(numeric); $module->VERSION($version) };
+    return 1
+        if eval {  no warnings qw(numeric); $module->VERSION($version) };
 
     push @SkipReasons, "$module version $version or higher is required";
     return 0;
