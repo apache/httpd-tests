@@ -192,15 +192,23 @@ HEAD
         return 0;
     }
 
+    my $sep = '&amp;';
+
+    if ($have_apache_2 && $actual =~ /\?C=.\;/) {
+        ## cope with new 2.1-style headers which use a semi-colon
+        ## to separate query segment parameters
+        $sep = ';';
+    }
+
     ## set up html for fancy indexing ##
     if ($FancyIndexing) {
         my $name_href;
         my $date_href;
         my $size_href;
         if ($have_apache_2) {
-            $name_href = 'C=N&amp;O=A';
-            $date_href = 'C=M&amp;O=A';
-            $size_href = 'C=S&amp;O=A';
+            $name_href = 'C=N'.$sep.'O=A';
+            $date_href = 'C=M'.$sep.'O=A';
+            $size_href = 'C=S'.$sep.'O=A';
         } else {
             $name_href = 'N=A';
             $date_href = 'M=A';
@@ -210,8 +218,8 @@ HEAD
             if ($have_apache_2) {
                 if ($_ =~ /^C=$c/i) {
                     #print "changed ->$_<- to ";
-                    $_ = "C=$c\&amp;O=A" if $o =~ /^D$/i;
-                    $_ = "C=$c\&amp;O=D" if $o =~ /^A$/i;
+                    $_ = "C=$c$sep"."O=A" if $o =~ /^D$/i;
+                    $_ = "C=$c$sep"."O=D" if $o =~ /^A$/i;
                     last;
                 }
             } else {
@@ -226,7 +234,7 @@ HEAD
         if ($have_apache_2) {
 
             $html_head .=
-        "<pre>      <a href=\"?$name_href\">Name</a>                    <a href=\"?$date_href\">Last modified</a>      <a href=\"?$size_href\">Size</a>  <a href=\"?C=D\&amp;O=A\">Description</a><hr />      <a href=\"/modules/autoindex/\">Parent Directory</a>                             -   \n";
+        "<pre>      <a href=\"?$name_href\">Name</a>                    <a href=\"?$date_href\">Last modified</a>      <a href=\"?$size_href\">Size</a>  <a href=\"?C=D$sep"."O=A\">Description</a><hr />      <a href=\"/modules/autoindex/\">Parent Directory</a>                             -   \n";
  
         $html_foot = "<hr /></pre>\n</body></html>\n";
 
