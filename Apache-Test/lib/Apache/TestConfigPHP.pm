@@ -183,142 +183,164 @@ sub configure_php_tests {
 
 __DATA__
 <?php
-
-# more.php based on work from Andy Lester.  see
+# Based on work from Andy Lester:
 # http://use.perl.org/~petdance/journal/14227
-
-$_test_ntests = 0;
-$_nfailures = 0;
-$_no_plan = 0;
-
-register_shutdown_function( 'test_end' );
-
-function ok( $condition, $name = '' ) {
-    global $_test_ntests;
-    global $_nfailures;
-    $current_failures = 0;
-    ++$_test_ntests;
-
+ 
+$test = 0;
+$num_failures = 0;
+$no_plan = false;
+ 
+register_shutdown_function('_test_end');
+ 
+function ok($condition, $name = '')
+{
+    global $test;
+    global $num_failures;
+    $test++;
+ 
+    # FIXME: There may be a better way to do this.
     $caller = debug_backtrace();
-    if (preg_match('/more.php$/', $caller[0]['file'])) {
-        $file  = $caller[1]['file'];
-        $line  = $caller[1]['line'];
+    if (basename($caller['0']['file']) == 'more.php')
+    {
+        $file = $caller['1']['file'];
+        $line = $caller['1']['line'];
     }
-    else {
-        $file  = $caller[0]['file'];
-        $line  = $caller[0]['line'];
+    else
+    {
+        $file = $caller['0']['file'];
+        $line = $caller['0']['line'];
     }
-
-    if ( !$condition ) {
-        print "not ";
-        ++$_nfailures;
-        ++$current_failures;
+ 
+    if (!$condition)
+    {
+        echo "not ok $test";
+        $num_failures++;
     }
-    print "ok $_test_ntests";
-
-    if ( $name != "" ) {
-        print " - $name";
+    else
+    {
+        echo "ok $test";
     }
-    print "\n";
-
-    if ($current_failures) {
-        print "#     Failed test ($file at line $line)\n";
+ 
+    if (!empty($name))
+    {
+        echo " - $name";
     }
-
+ 
+    echo "\n";
+ 
+    if (!$condition)
+    {
+        echo "#     Failed test ($file at line $line)\n";
+    }
+ 
     return $condition;
 }
-
-function pass( $name = '' ) {
-    return ok( TRUE, $name );
+ 
+function pass($name = '')
+{
+    return ok(true, $name);
 }
-
-function fail( $name = '' ) {
-    return ok( FALSE, $name );
+ 
+function fail($name = '')
+{
+    return ok(false, $name);
 }
-
-function skip( $msg, $num ) {
-    for ( $i=0; $i<$num; $i++ ) {
-        pass( "# SKIP $msg" );
+ 
+function skip($msg, $num)
+{
+    for ($i = 0; $i < $num; $i++)
+    {
+        pass("# SKIP $msg");
     }
 }
-
-function is( $actual, $expected, $name = '' ) {
+ 
+function is($actual, $expected, $name = '')
+{
     $ok = ($expected == $actual);
-    ok( $ok, $name );
-    if ( !$ok ) {
-        diag( "          got: '$actual'" );
-        diag( "     expected: '$expected'" );
+    ok($ok, $name);
+    if (!$ok)
+    {
+        diag("          got: '$actual'");
+        diag("     expected: '$expected'");
     }
     return $ok;
 }
-
-function isnt( $actual, $dontwant, $name = '' ) {
+ 
+function isnt($actual, $dontwant, $name = '')
+{
     $ok = ($actual != $dontwant);
-    ok( $ok, $name );
-    if ( !$ok ) {
-        diag( "Didn't want \"$actual\"" );
+    ok($ok, $name);
+    if (!$ok)
+    {
+        diag("Didn't want '$actual'");
     }
     return $ok;
 }
-
-function isa_ok( $object, $class, $name = null ) {
-    if ( isset( $object ) ) {
-        $actual = get_class( $object );
-        if ( !isset( $name ) ) {
+ 
+function isa_ok($object, $class, $name = null)
+{
+    if (isset($object))
+    {
+        $actual = get_class($object);
+        if (!isset($name))
+        {
             $name = "Object is of type $class";
         }
-        return is( get_class( $object ), strtolower( $class ), $name );
-    } else {
-        return fail( "object is undefined" );
+        return is(get_class($object), strtolower($class), $name);
+    }
+    else
+    {
+        return fail('object is undefined');
     }
 }
-
-function like( $string, $regex, $name='' ) {
-    return ok( preg_match( $regex, $string ), $name );
+ 
+function like($string, $regex, $name='')
+{
+    return ok(preg_match($regex, $string), $name);
 }
-
-function diag( $lines ) {
-    if ( is_string( $lines ) ) {
-        $lines = split( "\n", $lines );
+ 
+function diag($lines)
+{
+    if (is_string($lines))
+    {
+        # Use explode() when there is a literal match.
+        $lines = explode("\n", $lines);
     }
-    foreach ( $lines as $str ) {
-        print "# $str\n";
+ 
+    foreach ($lines as $str)
+    {
+        echo "# $str\n";
     }
 }
-
-function plan( $ntests ) {
-    print "1..$ntests\n";
+ 
+function plan($num_tests)
+{
+    echo "1..$num_tests\n";
 }
-
-function no_plan() {
-    global $_no_plan;
-
-    $_no_plan = 1;
+ 
+function no_plan()
+{
+    global $no_plan;
+    $no_plan = true;
 }
-
-function test_end() {
-    global $_no_plan;
-    global $_test_ntests;
-    if ( $_no_plan ) {
-        print "1..$_test_ntests\n";
+ 
+function _test_end()
+{
+    if ($no_plan)
+    {
+        echo "1..$test\n";
     }
-
-    # reset for next run
-    global $_test_ntests;
-    global $_no_plan;
-    global $_nfailures;
-    $_test_ntests = 0;
-    $_no_plan = 0;
-
+ 
     $ver = phpversion();
-    if ( version_compare( $ver, '4.2.2' ) > 0 ) { # >4.2.2?
-        $_report_failures = $_nfailures;
-        $_nfailures = 0;
-        exit( $_report_failures > 254 ? 254 : $_report_failures );
-    } else {
-        $_nfailures = 0;
+    if (version_compare(phpversion(), '4.2.2' ) > 0)
+    {
+        global $num_failures;
+        # FIXME: This reeks of Perl
+        exit($num_failures > 254 ? 254 : $num_failures);
+    }
+    else
+    {
         # Don't return anything
     }
 }
-
 ?>
