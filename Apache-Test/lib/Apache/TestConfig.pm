@@ -1186,12 +1186,10 @@ sub generate_extra_conf {
         push @extra_conf, $generated;
     }
 
-    # if at least one .in file was generated, regenerate them all (so
-    # information like assigned port numbers will be correct)
+    # if at least one .in file was modified or the derivative is
+    # missing, regenerate them all (so information like assigned port
+    # numbers will be correct)
     if ($self->extra_conf_files_needing_update) {
-        # forget the vhosts cache, since a different port could be assigned
-        $self->{vhosts} = {};
-
         for my $file (@conf_files) {
             local $Apache::TestConfig::File = $file;
 
@@ -1409,9 +1407,14 @@ sub need_reconfiguration {
                -e $vars->{t_conf_file} &&
                -M $exe < -M $vars->{t_conf_file};
 
-    # if .in files are newer than their derived versions
-    for my $file ($self->extra_conf_files_needing_update) {
-        push @reasons, "$file.in is newer than $file";
+    # any .in files are newer than their derived versions?
+    if (my @files = $self->extra_conf_files_needing_update) {
+        # invalidate the vhosts cache, since a different port could be
+        # assigned on reparse
+        $self->{vhosts} = {};
+        for my $file (@files) {
+            push @reasons, "$file.in is newer than $file";
+        }
     }
 
     # if special env variables are used (since they can change any time)
