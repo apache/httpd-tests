@@ -11,6 +11,9 @@ http://perl.apache.org/~dougm/httpd-test-bundle-0.01.tar.gz
 Note: Crypt::SSLeay requires OpenSSL to be installed (only required
 for t/TEST -ssl): http://www.openssl.org/
 
+For an extensive documentation see
+modperl-2.0/docs/src/devel/writing_tests/writing_tests.pod.
+
 Quick Start 
 ----------- 
 
@@ -21,7 +24,7 @@ how you go about doing that.
 2. Any DSOs you wish to use should be configured in that Apache's
    httpd.conf (the test harness will pick this configuration up)
 3. Setup:
-   perl Makefile.PL apxs /path/to/apache/bin/apxs
+   perl Makefile.PL -apxs /path/to/apache/bin/apxs
 4. Run the tests:
    t/TEST
 5. Evaluate test output.
@@ -32,13 +35,13 @@ Getting a little deeper
 
 The test harness will run every .t file under the t/ directory.  So
 let's say you only want to run the tests for PHP.  Do this:
-    t/TEST httpd /path/to/apache/bin/httpd t/php
+    t/TEST -httpd /path/to/apache/bin/httpd t/php
 
 That will start the test server, run the .t tests under t/php and shut
 down the test server.  You can also control each of these steps.
 
 This will start the test server:
-    t/TEST httpd /path/to/apache/bin/httpd -start
+    t/TEST -httpd /path/to/apache/bin/httpd -start
 
 This will run the PHP tests in the test environment:
     t/TEST t/php
