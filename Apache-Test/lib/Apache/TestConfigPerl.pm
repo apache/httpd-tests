@@ -245,18 +245,11 @@ sub configure_pm_tests {
             my @args;
 
             my $pm = $_;
-            my $file = catfile $File::Find::dir, $pm;
-            $self->add_module_config($file, \@args);
-            my $module = abs2rel $file, $dir;
+            my $module = catfile $File::Find::dir, $pm;
+            $self->add_module_config($module, \@args);
+            $module = abs2rel $module, $dir;
             $module =~ s,\.pm$,,;
             $module = join '::', splitdir $module;
-
-#            require $file;
-#            my $configure_sub = \&{$module."::APACHE_TEST_CONFIGURE"};
-#            if ($configure_sub) {
-#                eval {$self->$configure_sub};
-#                warn $@ if $@;
-#            }
 
             my($base, $sub) =
               map { s/^test//i; $_ } split '::', $module;
