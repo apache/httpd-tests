@@ -9,8 +9,6 @@ use Apache::TestConfigPerl ();
 use Apache::TestTrace;
 use File::Find qw(finddepth);
 
-use constant WIN32 => Apache::TestConfig::WIN32;
-
 sub cmodule_find {
     my($self, $mod) = @_;
 
@@ -78,8 +76,9 @@ MAKE = $Config{make}
 EOF
 }
 
-my %lib_dir = WIN32 ? (1 => "", 2 => "") :
-    (1 => "", 2 => ".libs/");
+my %lib_dir = Apache::TestConfig::WIN32
+    ? (1 => "", 2 => "")
+    : (1 => "", 2 => ".libs/");
 
 sub cmodules_build_so {
     my($self, $name) = @_;
