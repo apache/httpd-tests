@@ -937,12 +937,13 @@ sub need_reconfiguration {
     my @reasons = ();
     my $vars = $self->{vars};
 
-    # if httpd.conf is older than httpd executable
+    my $exe = $vars->{apxs} || $vars->{httpd};
+    # if httpd.conf is older than executable
     push @reasons, 
-        "$vars->{httpd} is newer than $vars->{t_conf_file}"
-            if -e $vars->{httpd} && 
+        "$exe is newer than $vars->{t_conf_file}"
+            if -e $exe && 
                -e $vars->{t_conf_file} &&
-               -M $vars->{httpd} < -M $vars->{t_conf_file};
+               -M $exe < -M $vars->{t_conf_file};
 
     # if .in files are newer than their derived versions
     if (my $extra_conf = $self->generate_extra_conf) {
