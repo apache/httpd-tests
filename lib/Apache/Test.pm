@@ -60,6 +60,8 @@ sub init_test_pm {
     if (defined &Apache::RequestRec::TIEHANDLE) {
         untie *STDOUT;
         tie *STDOUT, $r;
+        require APR::Pool;
+        $r->pool->cleanup_register(sub { untie *STDOUT });
     }
     else {
         $r->send_http_header; #1.xx
