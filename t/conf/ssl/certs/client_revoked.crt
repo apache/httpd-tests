@@ -1,0 +1,65 @@
+Certificate:
+    Data:
+        Version: 3 (0x2)
+        Serial Number: 3 (0x3)
+        Signature Algorithm: md5WithRSAEncryption
+        Issuer: C=US, ST=California, L=San Francisco, O=ASF, OU=httpd-test, CN=localhost
+        Validity
+            Not Before: Aug 13 02:05:26 2001 GMT
+            Not After : Aug 13 02:05:26 2002 GMT
+        Subject: C=US, ST=California, L=San Francisco, O=ASF, OU=httpd-test, CN=client_revoked
+        Subject Public Key Info:
+            Public Key Algorithm: rsaEncryption
+            RSA Public Key: (1024 bit)
+                Modulus (1024 bit):
+                    00:b0:de:12:78:79:33:eb:cf:30:5e:bd:8c:0b:42:
+                    4d:14:eb:39:95:12:af:be:67:86:2a:9c:d6:e0:ec:
+                    fd:0c:55:e2:e0:62:20:4a:1a:5a:71:c4:97:3b:50:
+                    ad:b1:8f:8e:a8:18:43:a9:e7:a4:96:ed:58:e6:97:
+                    e6:12:c9:4b:c5:a7:e1:80:fa:ed:64:26:19:34:db:
+                    ec:3b:13:b2:05:ac:41:35:f7:9b:fd:b4:36:78:1d:
+                    a8:99:27:23:74:0e:cf:c1:96:c0:6e:d6:94:18:c6:
+                    22:97:d7:d7:c7:68:b3:f9:91:0e:08:f5:f7:b1:b5:
+                    6c:a3:52:98:ff:12:84:d1:c9
+                Exponent: 65537 (0x10001)
+        X509v3 extensions:
+            X509v3 Basic Constraints: 
+                CA:FALSE
+            Netscape Comment: 
+                OpenSSL Generated Certificate
+            X509v3 Subject Key Identifier: 
+                F7:E9:68:7D:4C:C3:A1:D2:3C:D6:76:1C:88:F2:5B:AA:51:C5:1C:52
+            X509v3 Authority Key Identifier: 
+                keyid:6A:8C:30:3A:B8:00:F3:23:19:5D:32:FB:75:97:19:17:B6:29:AD:FF
+                DirName:/C=US/ST=California/L=San Francisco/O=ASF/OU=httpd-test/CN=localhost
+                serial:00
+
+    Signature Algorithm: md5WithRSAEncryption
+        34:aa:78:68:31:01:3d:50:94:99:6e:64:73:e6:ae:51:b8:a8:
+        62:e1:19:22:13:19:b1:16:10:1f:54:1c:5f:72:7b:ac:2c:2d:
+        bb:fe:45:0c:c0:04:6d:06:c4:a8:65:4d:1f:a6:a4:65:ef:85:
+        25:01:41:c2:ae:83:32:44:93:09:54:36:74:19:2c:e3:b9:4c:
+        7b:23:90:72:a8:06:76:fc:94:e3:cd:88:bc:78:fa:9a:9b:8d:
+        58:3e:82:3c:66:1e:e8:10:11:dd:46:91:85:fc:ec:87:fc:84:
+        46:fc:ab:34:eb:07:64:0d:98:dc:4e:9e:85:39:6f:0d:dc:de:
+        cd:76
+-----BEGIN CERTIFICATE-----
+MIIDVzCCAsCgAwIBAgIBAzANBgkqhkiG9w0BAQQFADBxMQswCQYDVQQGEwJVUzET
+MBEGA1UECBMKQ2FsaWZvcm5pYTEWMBQGA1UEBxMNU2FuIEZyYW5jaXNjbzEMMAoG
+A1UEChMDQVNGMRMwEQYDVQQLEwpodHRwZC10ZXN0MRIwEAYDVQQDEwlsb2NhbGhv
+c3QwHhcNMDEwODEzMDIwNTI2WhcNMDIwODEzMDIwNTI2WjB2MQswCQYDVQQGEwJV
+UzETMBEGA1UECBMKQ2FsaWZvcm5pYTEWMBQGA1UEBxMNU2FuIEZyYW5jaXNjbzEM
+MAoGA1UEChMDQVNGMRMwEQYDVQQLEwpodHRwZC10ZXN0MRcwFQYDVQQDFA5jbGll
+bnRfcmV2b2tlZDCBnzANBgkqhkiG9w0BAQEFAAOBjQAwgYkCgYEAsN4SeHkz688w
+Xr2MC0JNFOs5lRKvvmeGKpzW4Oz9DFXi4GIgShpaccSXO1CtsY+OqBhDqeeklu1Y
+5pfmEslLxafhgPrtZCYZNNvsOxOyBaxBNfeb/bQ2eB2omScjdA7PwZbAbtaUGMYi
+l9fXx2iz+ZEOCPX3sbVso1KY/xKE0ckCAwEAAaOB+TCB9jAJBgNVHRMEAjAAMCwG
+CWCGSAGG+EIBDQQfFh1PcGVuU1NMIEdlbmVyYXRlZCBDZXJ0aWZpY2F0ZTAdBgNV
+HQ4EFgQU9+lofUzDodI81nYciPJbqlHFHFIwgZsGA1UdIwSBkzCBkIAUaowwOrgA
+8yMZXTL7dZcZF7Yprf+hdaRzMHExCzAJBgNVBAYTAlVTMRMwEQYDVQQIEwpDYWxp
+Zm9ybmlhMRYwFAYDVQQHEw1TYW4gRnJhbmNpc2NvMQwwCgYDVQQKEwNBU0YxEzAR
+BgNVBAsTCmh0dHBkLXRlc3QxEjAQBgNVBAMTCWxvY2FsaG9zdIIBADANBgkqhkiG
+9w0BAQQFAAOBgQA0qnhoMQE9UJSZbmRz5q5RuKhi4RkiExmxFhAfVBxfcnusLC27
+/kUMwARtBsSoZU0fpqRl74UlAUHCroMyRJMJVDZ0GSzjuUx7I5ByqAZ2/JTjzYi8
+ePqam41YPoI8Zh7oEBHdRpGF/OyH/IRG/Ks06wdkDZjcTp6FOW8N3N7Ndg==
+-----END CERTIFICATE-----
