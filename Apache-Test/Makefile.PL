@@ -17,6 +17,7 @@ use File::Find qw(finddepth);
 use Apache::TestMM qw(test clean); #enable 'make test and make clean'
 use Apache::TestRun;
 use Apache::TestTrace;
+use Apache::TestReport;
 use Apache::TestConfig ();
 
 my $VERSION;
@@ -36,7 +37,7 @@ finddepth(sub {
 for (@scripts) {
     Apache::TestMM::generate_script($_);
 }
-
+Apache::TestReport->generate_script;
 
 # if built with mod_perl 2.0, its top-level Makefile.PL already
 # installs the uninstall code
@@ -124,7 +125,6 @@ sub set_version {
         last if /^=item/;
     }
     close $fh;
-
 }
 
 sub sanity_check {
