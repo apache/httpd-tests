@@ -48,7 +48,8 @@ sub resolve_url {
     return "$scheme://$hostport$url";
 }
 
-my %wanted_args = map {$_, 1} qw(username password realm content filename);
+my %wanted_args = map {$_, 1} qw(username password realm content filename
+                                 redirect_ok);
 
 sub wanted_args {
     \%wanted_args;
@@ -74,6 +75,14 @@ sub filter_args {
     }
 
     return (\@pass, \%keep);
+}
+
+my $RedirectOK = 1;
+
+sub redirect_ok {
+    my($self, $request) = @_;
+    return 0 if $request->method eq 'POST';
+    $RedirectOK;
 }
 
 my %credentials;
@@ -117,6 +126,9 @@ sub prepare {
             $content = join '', <STDIN>;
         }
         push @$pass, content => $content;
+    }
+    if (exists $keep->{redirect_ok}) {
+        $RedirectOK = $keep->{redirect_ok};
     }
 
     return ($url, $pass, $keep);
