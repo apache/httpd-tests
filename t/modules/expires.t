@@ -47,7 +47,7 @@ plan tests => (@page * 2) + ((((@page * 3) * @types) + @page) * 2) + @page,
 foreach my $page (@page) {
     my $head = HEAD_STR "/modules/expires/$page";
     $head = '' unless defined $head;
-    print "debug: $page\n$head\n";
+    print "# debug: $page\n$head\n";
     ok ($head =~ /^HTTP\/1\.[1|0] 200 OK/);
     ok expires_test(1,$head);
 }
@@ -69,7 +69,7 @@ foreach my $on_off (qw(On Off)) {
     ## if ExpiresActive is 'On', everything else will be inherited ##
     foreach my $page (@page) {
         my $head = HEAD_STR "/modules/expires/htaccess/$page";
-        print "---\n$ExpiresActive";
+        print "# ---\n# $ExpiresActive";
         ok expires_test(($on_off eq 'On'),$head);
     }
 
@@ -88,7 +88,7 @@ foreach my $on_off (qw(On Off)) {
         write_htaccess($directive_string);
         foreach my $page (@page) {
             $head = HEAD_STR "/modules/expires/htaccess/$page";
-            print "---\n$directive_string";
+            print "#---\n# $directive_string";
             ok expires_test(($on_off eq 'On'), $head);
         }
 
@@ -102,7 +102,7 @@ foreach my $on_off (qw(On Off)) {
         write_htaccess($directive_string);
         foreach my $page (@page) {
             $head = HEAD_STR "/modules/expires/htaccess/$page";
-            print "---\n$directive_string";
+            print "# ---\n# $directive_string";
             ok expires_test(($on_off eq 'On'), $head);
         }
 
@@ -120,7 +120,7 @@ foreach my $on_off (qw(On Off)) {
         write_htaccess($directive_string);
         foreach my $page (@page) {
             $head = HEAD_STR "/modules/expires/htaccess/$page";
-            print "---\n$directive_string";
+            print "# ---\n# $directive_string";
             ok expires_test(($on_off eq 'On'), $head);
         }
     }
@@ -195,7 +195,7 @@ sub expires_test {
 
     foreach my $header (split /\n/, $head_str) {
         if ($header =~ /^([\-\w]+): (.*)$/) {
-            print "debug: [$1] [$2]\n";
+            print "# debug: [$1] [$2]\n";
             $headers{$names{$1}} = $2 if exists $names{$1};
         }
     }
@@ -204,13 +204,13 @@ sub expires_test {
     return !$headers{expires} unless ($expires_active);
 
     for my $h (grep !/^type$/, values %names) {
-        print "debug: $h @{[$headers{$h}||'']}\n";
+        print "# debug: $h @{[$headers{$h}||'']}\n";
         if ($headers{$h}) {
             $headers{$h} = convert_to_time($headers{$h}) || 0;
         } else {
             $headers{$h} = 0;
         }
-        print "debug: $h $headers{$h}\n";
+        print "# debug: $h $headers{$h}\n";
     }
 
     my $exp_conf = '';
@@ -242,8 +242,8 @@ sub expires_test {
         $actual = $headers{expires} - $headers{access};
     }
 
-    print "debug: expected: $expected\n";
-    print "debug: actual  : $actual\n";
+    print "# debug: expected: $expected\n";
+    print "# debug: actual  : $actual\n";
     return ($actual == $expected);
 
 }
