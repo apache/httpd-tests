@@ -138,28 +138,16 @@ sub plan {
 }
 
 sub skip_unless {
-    my @conditions = @_;
+    my $condition = shift;
+    my $reason = shift || "no reason given";
 
-    my $should_skip = 0;
-    for my $cond (@conditions) {
-        if (ref $cond eq 'HASH') {
-            while (my($code, $reason) = each %$cond) {
-                $reason = "no reason given" unless defined $reason;
-                if (ref $code eq 'CODE' and $code->()) {
-                    next;
-                }
-                else {
-                    push @SkipReasons, $reason;
-                    $should_skip++;
-                }
-            }
-        }
-        else {
-            $should_skip++ unless have_module($cond);
-        }
+    if (ref $condition eq 'CODE' and $condition->()) {
+        return 1;
     }
-
-    return $should_skip ? 0 : 1;
+    else {
+        push @SkipReasons, $reason;
+        return 0;
+    }
 }
 
 sub have_module {
@@ -319,7 +307,7 @@ the test is skipped if the scalar has a false value. For example:
 But this won't hint the reason for skipping therefore it's better to
 use skip_unless():
 
-  plan tests => 5, skip_unless({sub { $a == $b } => "$a != $b"}, 'LWP');
+  plan tests => 5, skip_unless(sub { $a == $b }, "$a != $b");
 
 see skip_unless() for more info.
 
@@ -363,21 +351,13 @@ Same as I<Test::skip>, see I<Test.pm> documentation.
 
 =item skip_unless
 
-  skip_unless({sub {$a==$b} => "$a != $b!"
-               sub {$a==1}  => "$a != 1!"},
-              'LWP',
-              'cgi_d',
-               {sub {0} => "forced to be skipped"},
-             );
+  skip_unless($cond_sub, $reason);
 
-skip_unless() is used with plan(), to decide whether to skip the test
-or not. Its argument is a list of things to test. The list can include
-scalars, which are passed to have_module() and hash references. The
-hash references have condition code ref as a key and the reason for
-failure as a value. The condition code is run and if it fails the
-reason is used to explain the failure.
+skip_unless() is used with plan(), it executes C<$cond_sub> code
+reference and if it returns a false value C<$reason> gets printed as a
+reason for test skipping.
 
-Also see plan().
+see plan().
 
 =item test_pm_refresh
 
