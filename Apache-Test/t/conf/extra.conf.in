@@ -32,3 +32,14 @@
 </IfModule>
 
 
+<IfModule mod_cgi.c>
+  ScriptAlias /cgi-bin/ "@ServerRoot@/cgi-bin/"
+
+  <Directory "@ServerRoot@/cgi-bin/">
+    AllowOverride None
+    Options +ExecCGI
+    Order allow,deny
+    Allow from all
+  </Directory>
+</IfModule>
+

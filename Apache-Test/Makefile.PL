@@ -12,6 +12,7 @@ use constant TOP_LEVEL => !exists $ENV{MOD_PERL_2_BUILD};
 
 use ExtUtils::MakeMaker;
 use Symbol;
+use File::Find qw(finddepth);
 
 use Apache::TestMM qw(test clean); #enable 'make test and make clean'
 use Apache::TestRun;
@@ -26,6 +27,11 @@ sanity_check();
 Apache::TestMM::filter_args();
 
 my @scripts = qw(t/TEST);
+
+finddepth(sub {
+    return unless /(.*?\.pl)\.PL$/;
+    push @scripts, "$File::Find::dir/$1";
+}, '.');
 
 for (@scripts) {
     Apache::TestMM::generate_script($_);
