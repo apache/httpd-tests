@@ -228,7 +228,10 @@ sub ping {
 sub failed_msg {
     my $self = shift;
     my $log = $self->{config}->error_log(1);
-    error "@_ (please examine $log)";
+    my $log_file_info = -e $log ?
+        "please examine $log" :
+        "$log wasn't created, start the server in the debug mode";
+    error "@_ ($log_file_info)";
 }
 
 sub start {
