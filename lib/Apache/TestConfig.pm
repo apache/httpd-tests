@@ -917,7 +917,10 @@ sub generate_extra_conf {
         close $out;
     }
 
-    return \@extra_conf;
+    #we changed order to give ssl the first port after 8529
+    #but we want extra.conf Included first so vhosts inherit base config
+    #such as LimitRequest*
+    return [ sort @extra_conf ];
 }
 
 #XXX: just a quick hack to support t/TEST -ssl
