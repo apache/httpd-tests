@@ -41,6 +41,11 @@ my %test = (
     }
 );
 
+#XXX: find something that'll on other platforms (/bin/sh aint it)
+if (Apache::TestConfig::WINFU()) {
+    delete @test{qw(sh.sh bogus-sh.sh)};
+}
+
 my $tests = ((keys %test) * 2) + (@post_content * 3) + 4;
 plan tests => $tests, \&have_cgi;
 
