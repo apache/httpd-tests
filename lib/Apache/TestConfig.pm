@@ -885,7 +885,7 @@ sub generate_extra_conf {
     my(@extra_conf, @conf_in, @conf_files);
 
     finddepth(sub {
-        return unless /\.conf\.in$/;
+        return unless /\.in$/;
         push @conf_in, catdir $File::Find::dir, $_;
     }, $self->{vars}->{t_conf});
 
@@ -963,7 +963,15 @@ sub generate_httpd_conf {
 
     if (my $extra_conf = $self->generate_extra_conf) {
         for my $file (@$extra_conf) {
-            $self->postamble(Include => qq("$file"));
+            if ($file =~ /\.conf$/) {
+                $self->postamble(Include => qq("$file"));
+            }
+            elsif ($file =~ /\.pl$/) {
+                $self->postamble(PerlRequire => qq("$file"));
+            }
+            else {
+                # nothing yet
+            }
         }
     }
 
