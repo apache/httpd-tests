@@ -191,7 +191,7 @@ sub new {
 
     $vars->{user}         ||= $self->default_user;
     $vars->{group}        ||= $self->default_group;
-    $vars->{serveradmin}  ||= join '@', $vars->{user}, $vars->{servername};
+    $vars->{serveradmin}  ||= $self->default_serveradmin;
     $vars->{maxclients}   ||= 1;
     $vars->{proxy}        ||= 'off';
 
@@ -378,20 +378,22 @@ sub preamble_run {
 }
 
 sub default_group {
+    return if WIN32;
+
     my $gid = $);
 
     #use only first value if $) contains more than one
     $gid =~ s/^(\d+).*$/$1/;
 
-    WIN32 ? 'nogroup' :
-        $ENV{APACHE_GROUP} || (getgrgid($gid) || "#$gid");
+    $ENV{APACHE_GROUP} || (getgrgid($gid) || "#$gid");
 }
 
 sub default_user {
+    return if WIN32;
+
     my $uid = $>;
 
-    my $user = WIN32 ? 'nobody' :
-      $ENV{APACHE_USER} || (getpwuid($uid) || "#$uid");
+    my $user = $ENV{APACHE_USER} || (getpwuid($uid) || "#$uid");
 
     if ($user eq 'root') {
 	my $other = (getpwnam('nobody'))[0];
@@ -405,6 +407,11 @@ sub default_user {
     }
 
     $user;
+}
+
+sub default_serveradmin {
+    my $vars = shift->{vars};
+    join '@', ($vars->{user} || 'unknown'), $vars->{servername};
 }
 
 sub default_apxs {
@@ -755,7 +762,7 @@ sub generate_httpd_conf {
 
     $self->configure_proxy;
 
-    my $conf_file = $self->{vars}->{t_conf_file};
+    my $conf_file = $vars->{t_conf_file};
     my $conf_file_in = join '.', $conf_file, 'in';
 
     my $in = $self->httpd_conf_template($conf_file_in);
@@ -763,6 +770,12 @@ sub generate_httpd_conf {
     my $out = $self->genfile($conf_file, 1);
 
     $self->preamble_run($out);
+
+    for my $name (qw(user group)) { #win32/cygwin do not support
+        if ($vars->{$name}) {
+            print $out "\u$name    $vars->{$name}\n";
+        }
+    }
 
     $self->replace_vars($in, $out);
 
@@ -948,8 +961,6 @@ DocumentRoot "@DocumentRoot@"
 
 Listen     @Port@
 Port       @Port@
-Group      @Group@
-User       @User@
 ServerName @ServerName@
 
 PidFile     @t_logs@/httpd.pid
