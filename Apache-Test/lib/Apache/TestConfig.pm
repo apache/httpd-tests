@@ -473,6 +473,15 @@ sub default_apxs {
 sub default_httpd {
     my $vars = shift->{vars};
 
+    if (my $build_config = modperl_build_config()) {
+        if (my $p = $build_config->{MP_AP_PREFIX}) {
+            for my $bindir (qw(bin sbin)) {
+                my $httpd = "$p/$bindir/$vars->{target}";
+                return $httpd if -e $httpd;
+            }
+        }
+    }
+
     $ENV{APACHE} || which($vars->{target});
 }
 
