@@ -6,7 +6,7 @@ Changes - Apache::Test change logfile
 
 =over 3
 
-=item 1.14-dev
+=item 1.14 - October 12, 2004
 
 improve the same_interpreter framework to handle response failures
 while trying to init and later find out the same interpreter. [Stas]
