@@ -6,7 +6,7 @@ Changes - Apache::Test change logfile
 
 =over 3
 
-=item 1.13-dev
+=item 1.13 - Aug 20, 2004
 
 move the custom config code into Apache::TestConfig, split the config
 object creation in 2 parts - first not requiring the knowledge of
