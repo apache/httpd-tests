@@ -8,6 +8,7 @@ Changes - Apache::Test change logfile
 
 =item 1.09-dev
 
+fix the custom config use for Apache-Test's own upgrades [Stas]
 
 =item 1.08 - February 24, 2004
 
