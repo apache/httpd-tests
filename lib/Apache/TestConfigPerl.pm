@@ -122,11 +122,17 @@ sub configure_startup_pl {
 
 my %sethandler_modperl = (1 => 'perl-script', 2 => 'modperl');
 
+sub set_handler {
+    my($self, $module, $args) = @_;
+    return if grep { $_ eq 'SetHandler' } @$args;
+
+    push @$args,
+      SetHandler =>
+        $self->server->version_of(\%sethandler_modperl);
+}
+
 my %add_hook_config = (
-    Response => sub { my($self, $module, $args) = @_;
-                      push @$args,
-                        SetHandler =>
-                          $self->server->version_of(\%sethandler_modperl) },
+    Response => \&set_handler,
     ProcessConnection => sub { my($self, $module, $args) = @_;
                                my $port = $self->new_vhost($module);
                                $self->postamble(Listen => $port); },
