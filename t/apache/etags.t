@@ -8,20 +8,6 @@ use Apache::Test;
 use Apache::TestRequest;
 use Apache::TestUtil;
 
-t_debug "Checking for existence of FileETag directive\n";
-my $resp = GET('/etags/test.txt');
-my $rc = $resp->code;
-t_debug "Returned $rc:";
-if ($rc == 500) {
-    t_debug "Feature not supported, skipping..",
-        " Message was:", $resp->as_string;
-    if (defined($resp->content)) {
-        t_debug $resp->content;
-    }
-    plan tests => 1..0;
-    exit;
-}
-
 #
 # The tests verify the inclusion of the different fields, and
 # inheritance, according to the directories involved.  All are
@@ -136,14 +122,14 @@ my %tests = (
              );
 
 my $testcount = scalar(keys(%tests));
-plan tests => $testcount;
+plan tests => $testcount, sub { have_apache(1) };
 
 for my $key (keys(%tests)) {
     my $uri = "/etags" . $key . "test.txt";
     my $pattern = $tests{$key};
     t_debug "---", "HEAD $uri",
         "Expecting " . $expect{$pattern};
-    $resp = HEAD($uri);
+    my $resp = HEAD($uri);
     my $etag = $resp->header("ETag");
     if (defined($etag)) {
         t_debug "Received $etag";
