@@ -34,3 +34,13 @@ found:
 or via the APACHE environment variable:
 
   % APACHE=/path/to/bin/httpd make test
+
+*** CPAN Testers ***
+
+CPAN Testers using CPANPLUS and running under 'root' are required to
+update their perl installation to have IPC::Run 0.78 or higher. Please
+do not post failure reports unless you have this prerequisite
+satisfied. It has nothing to do with Apache-Test itself, and needed
+for CPANPLUS to flush the STDERR and STDOUT streams at the right time,
+allowing you to skip the test suite if the conditions aren't suitable
+for its execution.
