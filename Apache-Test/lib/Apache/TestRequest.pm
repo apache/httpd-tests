@@ -440,7 +440,6 @@ sub same_interp_do {
         }
 
         unless ($found_same_interp eq $same_interp) {
-            warn "found wrong same_interp: $found_same_interp";
             $found_same_interp = '';
         }
 
