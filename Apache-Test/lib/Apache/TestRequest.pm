@@ -128,6 +128,8 @@ sub new {
         $self->proxy(http => "http://$proxy");
     }
 
+    $self->timeout(60 * 10); #longer timeout for debugging
+
     $self;
 }
 
