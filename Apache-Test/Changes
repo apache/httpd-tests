@@ -8,6 +8,11 @@ Changes - Apache::Test change logfile
 
 =item 1.07-dev
 
+Fix Apache::TestConfig::add_config not to append " " at the end of the
+config lines. This was a problem with config sections imported from
+.pm files, the appended "" made it impossible to have multi-line
+directives using \ [Stas]
+
 Fix a bug in '-port select' which was incorrectly using the same port
 twice [Stas]
 

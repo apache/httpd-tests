@@ -399,7 +399,7 @@ sub add_config {
         $args = join "\n", @$directive;
     }
     else {
-        $args = "$directive " .
+        $args = join " ", grep length($_), $directive,
           (ref($arg) && (ref($arg) eq 'ARRAY') ? "@$arg" : $arg || "");
     }
 
