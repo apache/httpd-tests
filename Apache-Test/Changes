@@ -8,6 +8,9 @@ Changes - Apache::Test change logfile
 
 =item 1.10-dev
 
+Quote and escape filtered args received during 'perl Makefile.PL'
+[Geoffrey Young, Ken Coar]
+
 add :withtestmore import tag to Apache::Test, which will export
 all standard Apache::Test symbols except those that collide with
 Test::More.  [Geoffrey Young]
