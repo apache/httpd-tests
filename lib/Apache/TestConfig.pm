@@ -183,7 +183,6 @@ sub new {
     $vars->{scheme}       ||= 'http';
     $vars->{servername}   ||= $self->default_servername;
     $vars->{port}         ||= $self->default_port;
-    $vars->{sslport}      ||= $self->default_ssl_port;
 
     $vars->{user}         ||= $self->default_user;
     $vars->{group}        ||= $self->default_group;
@@ -391,10 +390,6 @@ sub default_port {
     $ENV{APACHE_PORT} || 8529;
 }
 
-sub default_ssl_port {
-    $ENV{APACHE_SSL_PORT} || 8429;
-}
-
 sub default_loopback {
     '127.0.0.1';
 }
@@ -403,8 +398,8 @@ sub port {
     my($self, $module) = @_;
     unless ($module) {
         my $vars = $self->{vars};
-        return $vars->{scheme} eq 'https' ?
-          $vars->{sslport} : $vars->{port};
+        return $vars->{port} unless $vars->{scheme} eq 'https';
+        $module = 'mod_ssl';
     }
     return $self->{vhosts}->{$module}->{port};
 }
