@@ -5,6 +5,8 @@ use Symbol ();
 use File::Basename;
 use File::Path;
 
+$Apache::Test5005compat::VERSION = '0.01';
+
 my %compat_files = (
      'lib/warnings.pm' => \&warnings_pm,
 );
