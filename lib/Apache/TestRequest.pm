@@ -222,7 +222,7 @@ sub lwp_as_string {
     my($r, $want_body) = @_;
     my $content = $r->content;
 
-    unless ($r->header('Content-length')) {
+    unless ($r->header('Content-length') or $r->header('Transfer-Encoding')) {
         $r->header('Content-length' => length $content);
         $r->header('X-Content-length-note' => 'added by Apache::TestReqest');
     }
