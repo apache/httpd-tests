@@ -8,6 +8,8 @@ Changes - Apache::Test change logfile
 
 =item 1.04-dev - 
 
+added have_apache_mpm() function [Geoffrey Young]
+
 when moving test-specific config directives from __DATA__ to
 httpd.conf don't use hash, or the order of arguments is not
 preserved. Thanks to perl-5.8.1 for randomizing the hash seed, which
