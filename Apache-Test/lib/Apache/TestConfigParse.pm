@@ -41,12 +41,15 @@ sub spec_add_config {
 }
 
 #resolve relative files like Apache->server_root_relative
-sub server_file {
+sub server_file_rel2abs {
     my($self, $file, $base) = @_;
 
     $base ||= $self->{inherit_config}->{ServerRoot};
-    my $f = rel2abs $file, $base;
+    rel2abs $file, $base;
+}
 
+sub server_file {
+    my $f = shift->server_file_rel2abs(@_);
     return qq("$f");
 }
 
@@ -78,7 +81,12 @@ sub inherit_load_module {
 
     for my $args (@{ $c->{$directive} }) {
         my $modname = $args->[0];
-        my $file = $self->server_file($args->[1]);
+        my $file = $self->server_file_rel2abs($args->[1]);
+
+        unless (-e $file) {
+            $self->trace("$file does not exist, skipping LoadModule");
+            next;
+        }
 
         my $name = basename $args->[1];
         $name =~ s/\.s[ol]$/.c/;  #mod_info.so => mod_info.c
@@ -87,7 +95,7 @@ sub inherit_load_module {
         $name = $modname_alias{$name} if $modname_alias{$name};
         $self->{modules}->{$name} = 1;
 
-        $self->preamble($directive => "$modname $file");
+        $self->preamble($directive => qq($modname "$file"));
     }
 }
 
