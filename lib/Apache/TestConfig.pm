@@ -755,7 +755,15 @@ sub clean {
 
 sub replace {
     my $self = shift;
-    s/@(\w+)@/$self->{vars}->{lc $1}/g;
+    my $file = $Apache::TestConfig::File
+        ? "in file $Apache::TestConfig::File" : '';
+
+    s[@(\w+)@]
+     [ my $key = lc $1;
+      exists $self->{vars}->{$key}
+      ? $self->{vars}->{$key}
+      : die "invalid token: \@$1\@ $file\n";
+     ]ge;
 }
 
 #need to configure the vhost port for redirects and $ENV{SERVER_PORT}
@@ -938,6 +946,8 @@ sub generate_extra_conf {
     }
 
     for my $file (@conf_files) {
+        local $Apache::TestConfig::File = $file;
+
         (my $generated = $file) =~ s/\.in$//;
         push @extra_conf, $generated;
 
