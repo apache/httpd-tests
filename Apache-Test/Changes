@@ -8,6 +8,12 @@ Changes - Apache::Test change logfile
 
 =item 1.00
 
+Apache::TestUtil API change:
+write_perl_script  => t_write_perl_script
+write_shell_script => t_write_shell_script 
+chown              => t_chown
+All 3 functions are now optionally exported [Geoffrey Young].
+
 Provide a new request macro _BODY_ASSERT to replace _BODY in cases
 where the client part of the test directly prints to the output, in
 order to avoid skipped tests instead of reporting the failure of the

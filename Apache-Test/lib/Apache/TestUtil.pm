@@ -15,7 +15,7 @@ use Symbol ();
 use Apache::Test ();
 use Apache::TestConfig ();
 
-use vars qw($VERSION @ISA @EXPORT %CLEAN);
+use vars qw($VERSION @ISA @EXPORT @EXPORT_OK %CLEAN);
 
 $VERSION = '0.01';
 @ISA     = qw(Exporter);
@@ -25,6 +25,8 @@ $VERSION = '0.01';
     t_server_log_error_is_expected t_server_log_warn_is_expected
     t_client_log_error_is_expected t_client_log_warn_is_expected
 );
+
+@EXPORT_OK = qw(t_write_perl_script t_write_shell_script t_chown);
 
 %CLEAN = ();
 
@@ -99,7 +101,7 @@ sub t_append_file {
     close $fh;
 }
 
-sub write_shell_script {
+sub t_write_shell_script {
     my $file = shift;
 
     my $code = join '', @_;
@@ -120,7 +122,7 @@ sub write_shell_script {
     $ext;
 }
 
-sub write_perl_script {
+sub t_write_perl_script {
     my $file = shift;
 
     my $shebang = "#!$Config{perlpath}\n";
@@ -160,7 +162,7 @@ sub t_rmtree {
 #chown a file or directory to the test User/Group
 #noop if chown is unsupported
 
-sub chown {
+sub t_chown {
     my $file = shift;
     my $config = Apache::Test::config();
     my($uid, $gid);
@@ -433,9 +435,9 @@ t_append_file().
 
 This function is exported by default.
 
-=item write_shell_script()
+=item t_write_shell_script()
 
-  write_shell_script($filename, @lines);
+  Apache::TestUtil::t_write_shell_script($filename, @lines);
 
 Similar to t_write_file() but creates a portable shell/batch
 script. The created filename is constructed from C<$filename> and an
@@ -444,9 +446,9 @@ the code is running under.
 
 It returns the extension of the created file.
 
-=item write_perl_script()
+=item t_write_perl_script()
 
-  write_perl_script($filename, @lines);
+  Apache::TestUtil::t_write_perl_script($filename, @lines);
 
 Similar to t_write_file() but creates a executable Perl script with
 correctly set shebang line.
@@ -489,9 +491,9 @@ t_rmtree() deletes the whole directories trees passed in I<@dirs>.
 
 This function is exported by default.
 
-=item chown()
+=item t_chown()
 
-  Apache::TestUtil::chown($file);
+  Apache::TestUtil::t_chown($file);
 
 Change ownership of $file to the test's I<User>/I<Group>.  This
 function is noop on platforms where chown(2) is unsupported
