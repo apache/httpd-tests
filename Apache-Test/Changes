@@ -8,6 +8,10 @@ Changes - Apache::Test change logfile
   
 =item 1.18-dev
 
+
+new TestConfig wrapper find_and_load_module [Chia-Liang Kao <chialiang
+gmail.com>]
+
 add Apache-TestItSelf and Apache-TestMe sub-projects. [Stas]
 
 add various straps to aid the new Apache-TestItSelf sub-project, which
