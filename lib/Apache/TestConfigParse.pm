@@ -309,6 +309,10 @@ sub get_httpd_defines {
     if (my $mpm_dir = $self->{httpd_defines}->{APACHE_MPM_DIR}) {
         $self->{mpm} = basename $mpm_dir;
     }
+    else {
+        # Apache 1.3 - no mpm to speak of
+        $self->{mpm} = '';
+    }
 }
 
 sub httpd_version {
@@ -339,6 +343,10 @@ sub httpd_version {
     close $v;
 
     return $version;
+}
+
+sub httpd_mpm {
+    return shift->{mpm};
 }
 
 1;
