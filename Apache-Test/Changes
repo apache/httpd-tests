@@ -18,6 +18,10 @@ Renamed generate_test_script() to generate_script() in Apache::TestMB
 to match the naming convention used in Apache::TestMM and elsewhere.
 [David]
 
+Apache::TestMB now only prints the "Generating test running script"
+message if verbosity is enabled (e.g., by passing --verbose when
+executing Build.PL). [David]
+
 
 =item 1.12 - June 28, 2004
 
