@@ -214,13 +214,16 @@ sub add_module_config {
             }
         }
         elsif ($directive =~ m/^<(\w+)/) {
+            my $cfg;
             if ($directive eq '<VirtualHost') {
-                $rest =~ s/>$//;
-                my $port = $self->new_vhost($rest);
-                $self->postamble(Listen => $port);
-                $rest = "_default_:$port>";
+                if ($cfg = $self->parse_vhost($_)) {
+                    my $port = $cfg->{port};
+                    $rest = "_default_:$port>";
+                    $cfg->{out_postamble}->();
+                }
             }
             $self->postamble($directive => $rest);
+            $cfg->{in_postamble}->() if $cfg;
             my $end = "</$1>";
             while (<$fh>) {
                 chomp;

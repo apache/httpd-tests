@@ -726,9 +726,17 @@ sub replace {
     s/@(\w+)@/$self->{vars}->{lc $1}/g;
 }
 
-#XXX: probably have too many ways todo this by now, ho-hum
-sub configure_vhost {
-    my($self, $pre, $module, $post) = @_;
+sub parse_vhost {
+    my($self, $line) = @_;
+
+    my($indent, $module);
+    if ($line =~ /^(\s*)<VirtualHost\s+(?:_default_:)?(\D+)\s*>\s*$/) {
+        $indent = $1 || "";
+        $module = $2;
+    }
+    else {
+        return undef;
+    }
 
     #if module ends with _ssl it is either the ssl module itself
     #or another module that has a port for itself and another
@@ -738,21 +746,54 @@ sub configure_vhost {
 
     #don't allocate a port if this module is not configured
     if ($module =~ /^mod_/ and not $self->{modules}->{$have_module}) {
-        return join '', $pre, $module, $post;
+        return undef;
     }
 
+    #allocate a port and configure this module into $self->{vhosts}
     my $port = $self->new_vhost($module);
 
-    join '', "Listen $port\n", $pre, $port, $post;
+    #extra config that should go *inside* the <VirtualHost ...>
+    my @in_config = ();
+
+    #extra config that should go *outside* the <VirtualHost ...>
+    my @out_config = ([Listen => $port]);
+
+    #there are two ways of building a vhost
+    #first is when we parse test .pm and .c files
+    #second is when we scan *.conf.in
+    my $form_postamble = sub {
+        for my $pair (@_) {
+            $self->postamble(@$pair);
+        }
+    };
+
+    my $form_string = sub {
+        my $indent = shift;
+        join "\n", map { "$indent@$_\n" } @_;
+    };
+
+    return {
+        port          => $port,
+        #used when parsing .pm and .c test modules
+        in_postamble  => sub { $form_postamble->(@in_config) },
+        out_postamble => sub { $form_postamble->(@out_config) },
+        #used when parsing *.conf.in files
+        in_string     => $form_string->($indent x 2, @in_config),
+        out_string    => $form_string->($indent, @out_config),
+        line          => "$indent<VirtualHost _default_:$port>",
+    };
 }
 
 sub replace_vhost_modules {
     my $self = shift;
-    #example: <VirtualHost _default_:mod_proxy>
-    s{^(\s*<VirtualHost\s+_default_:)(\D+)(\s*>\s*)}
-      {
-          $self->configure_vhost($1, $2, $3);
-      }ie;
+
+    if (my $cfg = $self->parse_vhost($_)) {
+        $_ = '';
+        for my $key (qw(out_string line in_string)) {
+            next unless $cfg->{$key};
+            $_ .= "$cfg->{$key}\n";
+        }
+    }
 }
 
 sub replace_vars {
