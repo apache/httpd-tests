@@ -5,9 +5,10 @@ use warnings FATAL => 'all';
 
 use Test qw(ok skip);
 use Exporter ();
+use Apache::TestConfig ();
 
 our @ISA = qw(Exporter);
-our @EXPORT = qw(ok skip plan have_lwp);
+our @EXPORT = qw(ok skip plan have_lwp test_module);
 our $VERSION = '0.01';
 
 #so Perl's Test.pm can be run inside mod_perl
@@ -44,13 +45,55 @@ sub plan {
             require Apache::TestRequest;
             *have_lwp = \&Apache::TestRequest::has_lwp;
         }
-        unless ($condition->()) {
+
+        my $meets_condition = 0;
+        if (ref($condition) eq 'CODE') {
+            #plan tests $n, \&has_lwp
+            $meets_condition = $condition->();
+        }
+        elsif (ref($condition) eq 'ARRAY') {
+            if (@$condition == 1 and $condition->[0] =~ /^([01])$/) {
+                #plan tests $n, test_module 'php4'
+                $meets_condition = $1
+            }
+            else {
+                #plan tests $n, [qw(php4 rewrite)];
+                $meets_condition = have_module($condition);
+            }
+        }
+
+        unless ($meets_condition) {
             print "1..0\n";
             exit; #XXX: Apache->exit
         }
     }
 
     Test::plan(@_);
+}
+
+sub have_module {
+    my $cfg = Apache::TestConfig->thaw;
+    my @modules = ref($_[0]) ? @{ $_[0] } : @_;
+
+    for (@modules) {
+        if (/^[a-z]+$/) {
+            my $mod = $_;
+            $mod = 'mod_' . $mod unless $mod =~ /^mod_/;
+            $mod .= '.c' unless $mod =~ /\.c$/;
+            next if $cfg->{modules}->{$mod};
+        }
+        die "bogus module name $_" unless /^[\w:.]+$/;
+        eval "require $_";
+        #print $@ if $@;
+        return 0 if $@;
+    }
+
+    return 1;
+}
+
+#sugar: plan tests => 1, test_module 'php4'
+sub test_module {
+    [have_module(@_)]
 }
 
 package Apache::TestToString;
