@@ -49,6 +49,12 @@ sub run {
 
     my $times = $args->{times} || 1;
     my $order = $args->{order} || 'rotate';
+    if ($order =~ /^\d+$/) {
+        #dont want an explicit -seed option but env var can be a pain
+        #so if -order is number assume it is the random seed
+        $ENV{APACHE_TEST_SEED} = $order;
+        $order = 'random';
+    }
     my $sort = \&{$order};
 
     # re-shuffle the list according to the requested order
