@@ -150,11 +150,12 @@ sub inherit_server_file {
 
 #so we have the same names if these modules are linked static or shared
 my %modname_alias = (
-    'mod_pop.c'           => 'pop_core.c',
-    'mod_proxy_http.c'    => 'proxy_http.c',
-    'mod_proxy_ftp.c'     => 'proxy_ftp.c',
-    'mod_proxy_connect.c' => 'proxy_connect.c',
-    'mod_modperl.c'       => 'mod_perl.c',
+    'mod_pop.c'            => 'pop_core.c',
+    'mod_proxy_http.c'     => 'proxy_http.c',
+    'mod_proxy_ftp.c'      => 'proxy_ftp.c',
+    'mod_proxy_balancer.c' => 'proxy_balancer.c',
+    'mod_proxy_connect.c'  => 'proxy_connect.c',
+    'mod_modperl.c'        => 'mod_perl.c',
 );
 
 #XXX mod_jk requires JkWorkerFile or JkWorker to be configured
