@@ -48,14 +48,15 @@ foreach my $order (@order) {
         $config_string = "Order $order\nAllow $allow\n";
         write_htaccess($config_string);
 
-        print "---\n$config_string";
+        print "#---\n# ",
+            join("\n# ", split(/\n/, $config_string)), "\n";
 
         if ($order eq 'deny,allow') {
 
             ## if allowing by default,
             ## there is no 'Deny' directive, so everything
             ## is allowed.
-            print "expecting access.\n";
+            print "# expecting access.\n";
             ok GET_OK "/modules/access/htaccess/index.html";
             
 
@@ -68,13 +69,13 @@ foreach my $order (@order) {
                 || $allow eq 'from all') {
 
                 ## if we are explicitly allowed, its ok
-                print "expecting access.\n";
+                print "# expecting access.\n";
                 ok GET_OK "/modules/access/htaccess/index.html";
 
             } else {
 
                 ## otherwise, not ok
-                print "expecting access denial.\n";
+                print "# expecting access denial.\n";
                 ok !GET_OK "/modules/access/htaccess/index.html";
             }
         }
@@ -84,7 +85,8 @@ foreach my $order (@order) {
             $config_string = "Order $order\nDeny $deny\n";
             write_htaccess($config_string);
 
-            print "---\n$config_string";
+            print "#---\n# ",
+                join("\n# ", split(/\n/, $config_string)), "\n";
 
             if ($order eq 'deny,allow') {
 
@@ -96,13 +98,13 @@ foreach my $order (@order) {
 
                     ## if we are denied explicitly
                     ## its not ok
-                    print "expecting access denial.\n";
+                    print "# expecting access denial.\n";
                     ok !GET_OK "/modules/access/htaccess/index.html";
 
                 } else {
 
                     ## otherwise, ok
-                    print "expecting access.\n";
+                    print "# expecting access.\n";
                     ok GET_OK "/modules/access/htaccess/index.html";
 
                 }
@@ -111,7 +113,7 @@ foreach my $order (@order) {
                 ## if denying by default
                 ## there is no 'Allow' directive, so
                 ## everything is denied.
-                print "expecting access denial.\n";
+                print "# expecting access denial.\n";
                 ok !GET_OK "/modules/access/htaccess/index.html";
 
             }
@@ -119,7 +121,8 @@ foreach my $order (@order) {
             $config_string = "Order $order\nAllow $allow\nDeny $deny\n";
             write_htaccess($config_string);
 
-            print "---\n$config_string";
+            print "#---\n# ",
+                join("\n# ", split(/\n/, $config_string)), "\n";
 
             if ($order eq 'deny,allow') {
 
@@ -131,7 +134,7 @@ foreach my $order (@order) {
 
                     ## we are explicitly allowed
                     ## so it is ok.
-                    print "expecting access.\n";
+                    print "# expecting access.\n";
                     ok GET_OK "/modules/access/htaccess/index.html";
 
                 } elsif ($deny =~ /^from $addr1/
@@ -141,7 +144,7 @@ foreach my $order (@order) {
                     ## if we are not explicitly allowed
                     ## and are explicitly denied,
                     ## we are denied access.
-                    print "expecting access denial.\n";
+                    print "# expecting access denial.\n";
                     ok !GET_OK "/modules/access/htaccess/index.html";
 
                 } else {
@@ -149,7 +152,7 @@ foreach my $order (@order) {
                     ## if we are not explicity allowed
                     ## or explicitly denied,
                     ## we get access.
-                    print "expecting access.\n";
+                    print "# expecting access.\n";
                     ok GET_OK "/modules/access/htaccess/index.html";
 
                 }
@@ -163,7 +166,7 @@ foreach my $order (@order) {
 
                     ## if we are explicitly denied,
                     ## we get no access.
-                    print "expecting access denial.\n";
+                    print "# expecting access denial.\n";
                     ok !GET_OK "/modules/access/htaccess/index.html";
 
                 } elsif ($allow =~ /^from $addr1/
@@ -173,7 +176,7 @@ foreach my $order (@order) {
                     ## if we are not explicitly denied
                     ## and are explicitly allowed,
                     ## we get access.
-                    print "expecting access.\n";
+                    print "# expecting access.\n";
                     ok GET_OK "/modules/access/htaccess/index.html";
 
                 } else {
@@ -181,7 +184,7 @@ foreach my $order (@order) {
                     ## if we are not explicitly denied
                     ## and not explicitly allowed,
                     ## we get no access.
-                    print "expecting access denial.\n";
+                    print "# expecting access denial.\n";
                     ok !GET_OK "/modules/access/htaccess/index.html";
 
                 }
