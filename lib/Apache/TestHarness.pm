@@ -8,6 +8,7 @@ use Apache::TestSort ();
 use Apache::TestTrace;
 use File::Spec::Functions qw(catfile);
 use File::Find qw(finddepth);
+use File::Basename qw(dirname);
 
 sub chdir_t {
     chdir 't' if -d 't';
@@ -48,6 +49,51 @@ sub skip {
     return join '|', @skip;
 }
 
+#test if all.t would skip tests or not
+sub run_t {
+    my($self, $file) = @_;
+    my $ran = 0;
+    my $cmd = "$^X -Mlib=../Apache-Test/lib $file";
+
+    open my $h, "$cmd|" or die "open $cmd: $!";
+
+    local $_;
+    while (<$h>) {
+        if (/^1\.\.(\d)/) {
+            $ran = $1;
+            last;
+        }
+    }
+
+    close $h;
+
+    $ran;
+}
+
+#if a directory has an all.t test
+#skip all tests in that directory if all.t prints "1..0\n"
+sub prune {
+    my($self, @tests) = @_;
+    my(@new_tests, %skip_dirs);
+    local $_;
+
+    for (@tests) {
+        my $dir = dirname $_;
+        if (m:/all\.t$:) {
+            unless ($self->run_t($_)) {
+                $skip_dirs{$dir} = 1;
+                @new_tests = grep { not $skip_dirs{dirname $_} } @new_tests;
+                push @new_tests, $_;
+            }
+        }
+        elsif (!$skip_dirs{$dir}) {
+            push @new_tests, $_;
+        }
+    }
+
+    @new_tests;
+}
+
 sub run {
     my $self = shift;
     my $args = shift || {};
@@ -84,6 +130,8 @@ sub run {
             @tests = sort @tests;
         }
     }
+
+    @tests = $self->prune(@tests);
 
     if (my $skip = $self->skip) {
         @tests = grep { not /(?:$skip)/ } @tests;
