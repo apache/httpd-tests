@@ -197,7 +197,7 @@ sub cmodules_write_makefile_aix {
     my $makefile = catfile $mod->{dir}, 'Makefile';
     my $apxsflags = '';
 
-    if ($dversion eq '-DAPACHE1') {
+    if ($dversion =~ 'APACHE1') {
         $apxsflags = "-Wl,-bE:$name.exp";
         my $expfile = catfile $mod->{dir}, "$name.exp";
         if (! -f $expfile) {
