@@ -4,6 +4,9 @@
 
 use Test::More;
 
+use strict;
+use warnings FATAL => 'all';
+
 use IPC::Run qw(start pump finish timeout);
 use Cwd qw(cwd);
 use File::Spec::Functions qw(catfile);
