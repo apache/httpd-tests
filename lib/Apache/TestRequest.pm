@@ -421,8 +421,10 @@ sub lwp_call {
     my($name, $shortcut) = (shift, shift);
 
     my $r = (\&{$name})->(@_);
-    my $error = "";
 
+    Carp::croak("$name(@_) didn't return a response object") unless $r;
+
+    my $error = "";
     unless ($shortcut) {
         #GET, HEAD, POST
         if ($r->method eq "POST" && !defined($r->header("Content-Length"))) {
