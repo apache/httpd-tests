@@ -1259,7 +1259,7 @@ sub generate_httpd_conf {
                 $entry = qq(Include "$file");
             }
             elsif ($file =~ /\.pl$/) {
-                $entry = qq(PerlRequire "$file");
+                $entry = qq(<IfModule mod_perl.c>\n\tPerlRequire "$file"\n</IfModule>\n);
             }
             else {
                 next;
