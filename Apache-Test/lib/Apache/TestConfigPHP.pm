@@ -296,7 +296,15 @@ function isa_ok($object, $class, $name = null)
  
 function like($string, $regex, $name='')
 {
-    return ok(preg_match($regex, $string), $name);
+    $ok = ok(preg_match($regex, $string), $name);
+
+    if (!$ok)
+    {
+        diag("                   '$string'");
+        diag("     doesn't match '$regex'");
+
+    }
+    return $ok;
 }
  
 function diag($lines)
