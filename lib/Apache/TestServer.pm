@@ -247,6 +247,11 @@ sub start {
         sleep 1;
     }
 
+    my $version = $self->{version};
+    my $mpm = $self->{config}->{mpm} || "";
+    $mpm = "($mpm MPM)" if $mpm;
+    print "using $version $mpm\n";
+
     my $tries = 6;
 
     for (1..$tries) {
@@ -273,8 +278,7 @@ sub start {
     }
 
     if (my $pid = $self->pid) {
-        my $version = $self->{version};
-        print "server $self->{name} started (pid=$pid, version=$version)\n";
+        print "server $self->{name} started (pid=$pid)\n";
         while (my($module, $cfg) = each %{ $self->{config}->{vhosts} }) {
             print "server $cfg->{name} listening ($module)\n",
         }

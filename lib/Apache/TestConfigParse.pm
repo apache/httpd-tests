@@ -200,6 +200,10 @@ sub get_httpd_defines {
     }
 
     close $proc;
+
+    if (my $mpm_dir = $self->{httpd_defines}->{APACHE_MPM_DIR}) {
+        $self->{mpm} = basename $mpm_dir;
+    }
 }
 
 sub httpd_version {
