@@ -389,7 +389,20 @@ sub find_apache_module {
 sub genwarning {
     my($self, $type) = @_;
     return unless $type;
-    return "#WARNING: this file is generated, do not edit\n";
+    return "#WARNING: this file is generated, do not edit\n" .
+           calls_trace();
+}
+
+sub calls_trace{
+    my $frame = 1;
+    my $trace = '';
+    while (1) {
+        my ($package, $filename, $line) = caller($frame);
+        last unless $filename;
+        $trace .= "# $frame. $filename:$line\n";
+        $frame++;
+    }
+    return $trace;
 }
 
 sub genfile {
