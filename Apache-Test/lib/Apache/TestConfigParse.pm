@@ -5,6 +5,9 @@ package Apache::TestConfig; #not TestConfigParse on purpose
 
 use strict;
 use warnings FATAL => 'all';
+
+use Apache::TestTrace;
+
 use File::Spec::Functions qw(rel2abs splitdir);
 use File::Basename qw(basename);
 
@@ -84,14 +87,14 @@ sub inherit_load_module {
         my $file = $self->server_file_rel2abs($args->[1]);
 
         unless (-e $file) {
-            $self->trace("$file does not exist, skipping LoadModule");
+            debug "$file does not exist, skipping LoadModule";
             next;
         }
 
         my $name = basename $args->[1];
         $name =~ s/\.s[ol]$/.c/;  #mod_info.so => mod_info.c
         $name =~ s/^lib/mod_/; #libphp4.so => mod_php4.c
-        $self->trace("LoadModule $modname $name");
+        debug "LoadModule $modname $name";
         $name = $modname_alias{$name} if $modname_alias{$name};
         $self->{modules}->{$name} = 1;
 
@@ -147,7 +150,7 @@ sub inherit_config {
 
     return unless $file;
 
-    $self->trace("inheriting config file: $file");
+    debug "inheriting config file: $file";
 
     my $fh = Symbol::gensym();
     open($fh, $file) or return;

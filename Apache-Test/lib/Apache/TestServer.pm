@@ -23,10 +23,6 @@ my %debuggers = (
     strace => 'strace',
 );
 
-sub trace {
-    shift->{config}->trace(@_);
-}
-
 sub new {
     my $class = shift;
     my $config = shift;
@@ -65,7 +61,7 @@ sub clean {
     for (@apache_logs) {
         my $file = catfile $dir, $_;
         if (unlink $file) {
-            $self->trace("unlink $file");
+            debug "unlink $file";
         }
     }
 }
