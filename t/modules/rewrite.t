@@ -14,7 +14,7 @@ my @num = qw(1 2 3 4 5 6);
 my @url = qw(forbidden gone perm temp);
 my $r;
 
-plan tests => @map * @num + 5, need_module 'rewrite';
+plan tests => @map * @num + 7, need_module 'rewrite';
 
 foreach (@map) {
     foreach my $n (@num) {
@@ -66,6 +66,14 @@ if (have_module('mod_proxy') && have_module('mod_cgi')) {
     $r = GET_BODY("/modules/rewrite/proxy2/env.pl?fish=fowl");
     chomp $r;
     ok t_cmp($r, qr/QUERY_STRING = fish=fowl\n/s, "QUERY_STRING passed OK");
+
+    ok t_cmp(GET_RC("/modules/rewrite/proxy3/env.pl?horse=norman"), 404,
+             "RewriteCond QUERY_STRING test");
+    
+    $r = GET_BODY("/modules/rewrite/proxy3/env.pl?horse=trigger");
+    chomp $r;
+    ok t_cmp($r, qr/QUERY_STRING = horse=trigger\n/s, "QUERY_STRING passed OK");
+    
 } else {
-    skip "Skipping rewrite QUERY_STRING test; missing proxy or CGI module";
+    skip "Skipping rewrite QUERY_STRING test; missing proxy or CGI module" foreach (1..3);
 }

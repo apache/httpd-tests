@@ -188,6 +188,10 @@
 
     ### Proxy pass-through to env.pl
     RewriteRule ^/modules/rewrite/proxy2/(.*)$ http://@SERVERNAME@:@PORT@/modules/cgi/$1 [L,P]
+    
+    ### Pass-through conditional on QUERY_STRING
+    RewriteCond %{QUERY_STRING} horse=trigger
+    RewriteRule ^/modules/rewrite/proxy3/(.*)$ http://@SERVERNAME@:@PORT@/modules/cgi/$1 [L,P]
 
 </IfModule>
 
