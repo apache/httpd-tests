@@ -44,8 +44,8 @@ for my $module (sort keys %frontend) {
     my %vars;
 
     sok {
-        t_cmp(200,
-              GET('/')->code,
+        t_cmp(GET('/')->code,
+              200,
               "/ with $module ($scheme)");
     };
 
@@ -57,21 +57,21 @@ for my $module (sort keys %frontend) {
 
     if ($backend{$module} eq "https") {
         sok {
-            t_cmp(200,
-                  GET('/verify')->code,
+            t_cmp(GET('/verify')->code,
+                  200,
                   "using valid proxyssl client cert");
         };
 
         sok {
-            t_cmp(403,
-                  GET('/require/snakeoil')->code,
+            t_cmp(GET('/require/snakeoil')->code,
+                  403,
                   "using invalid proxyssl client cert");
         };
 
         $res = GET('/require-ssl-cgi/env.pl');
 
         sok {
-            t_cmp(200, $res->code, "protected cgi script");
+            t_cmp($res->code, 200, "protected cgi script");
         };
 
         my $body = $res->content || "";
@@ -83,14 +83,14 @@ for my $module (sort keys %frontend) {
         }
 
         sok {
-            t_cmp($hostport,
-                  $vars{HTTP_X_FORWARDED_HOST},
+            t_cmp($vars{HTTP_X_FORWARDED_HOST},
+                  $hostport,
                   "X-Forwarded-Host header");
         };
 
         sok {
-            t_cmp('client_ok',
-                  $vars{SSL_CLIENT_S_DN_CN},
+            t_cmp($vars{SSL_CLIENT_S_DN_CN},
+                  'client_ok',
                   "client subject common name");
         };
     }
@@ -108,7 +108,7 @@ for my $module (sort keys %frontend) {
 
         my $location = $res->header('Location') || 'NONE';
 
-        t_cmp($ruri, $location, 'ProxyPassReverse Location rewrite');
+        t_cmp($location, $ruri, 'ProxyPassReverse Location rewrite');
     };
 
     Apache::TestCommon::run_post_test($post_module) if $post_tests;
