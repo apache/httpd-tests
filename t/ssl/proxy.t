@@ -73,4 +73,5 @@ for my $module (sort keys %modules) {
     };
 
     Apache::TestCommon::run_post_test($post_module) if $post_tests;
+    Apache::TestRequest::user_agent(reset => 1);
 }
