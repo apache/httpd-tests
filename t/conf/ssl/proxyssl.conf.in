@@ -4,6 +4,7 @@
         #these are not on by default in the 1.x based mod_ssl
         <IfDefine APACHE2>
             SSLProxyEngine On
+            SSLProxyMachineCertificateFile @SSLCA@/asf/proxy/client_ok.pem
             #SSLProxyCACertificateFile @SSLCA@/asf/certs/ca.crt
             #SSLProxyVerify on
         </IfDefine>
