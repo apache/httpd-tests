@@ -3,7 +3,7 @@ use ExtUtils::MakeMaker;
 use 5.006;
 
 use lib qw(Apache-Test/lib);
-use Apache::TestMM qw(test);
+use Apache::TestMM qw(test clean);
 
 use File::Find qw(finddepth);
 

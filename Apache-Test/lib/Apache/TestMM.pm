@@ -21,6 +21,18 @@ sub import {
     }
 }
 
+sub add_dep {
+    my($string, $targ, $add) = @_;
+    $$string =~ s/($targ\s+::)/$1 $add /;
+}
+
+sub clean {
+    my $self = shift;
+    my $string = $self->MM::clean(@_);
+    add_dep(\$string, clean => 'test_clean');
+    $string;
+}
+
 sub test {
 
     my $env = Apache::TestConfig->passenv_makestr();
