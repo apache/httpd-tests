@@ -116,7 +116,7 @@ sub prune {
         if (m:\Wall\.t$:) {
             unless ($self->run_t($_)) {
                 $skip_dirs{$dir} = 1;
-                @new_tests = grep { not $skip_dirs{dirname $_} } @new_tests;
+                @new_tests = grep { m:\Wall\.t$: || not $skip_dirs{dirname $_} } @new_tests;
                 push @new_tests, $_;
             }
         }
