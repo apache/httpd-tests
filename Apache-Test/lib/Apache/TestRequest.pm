@@ -199,8 +199,9 @@ sub wanted_args {
 $RedirectOK = 1;
 
 sub redirect_ok {
-    my($self, $request) = @_;
-    return 0 if $request->method eq 'POST';
+    my $self = shift;
+    return $self->SUPER::redirect_ok(@_) if $have_lwp;
+    return 0 if shift->method eq 'POST';
     $RedirectOK;
 }
 
@@ -761,6 +762,10 @@ if there is only one value and that value is not "POST":
   my $redir = have_lwp() ? [qw(GET HEAD POST)] : 1;
   Apache::TestRequest::user_agent(reset => 1,
                                   requests_redirectable => $redir);
+
+But note that redirection will B<not> work with C<POST> unless LWP is
+installed. It's best, therefore, to check C<have_lwp> before running
+tests that rely on a redirection from C<POST>.
 
 =head1 FUNCTIONS
 
