@@ -29,7 +29,7 @@ my %libmodperl  = (1 => 'libperl.so', 2 => 'mod_perl.so');
 sub configure_libmodperl {
     my $self = shift;
 
-    my $server = $self->{server};
+    my $server  = $self->{server};
     my $libname = $server->version_of(\%libmodperl);
     my $vars = $self->{vars};
 
