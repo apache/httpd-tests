@@ -242,6 +242,10 @@ Alias /manual @inherit_documentroot@/manual
         AllowOverride All
     </Directory>
 
+    <Directory @SERVERROOT@/htdocs/modules/headers/ssl>
+        AllowOverride All
+    </Directory>
+
     <VirtualHost mod_headers>
         <Location /manual>
             Header add mod_headers_foo bar

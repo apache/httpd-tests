@@ -1,0 +1,28 @@
+use strict;
+use warnings FATAL => 'all';
+
+use Apache::Test;
+use Apache::TestRequest;
+use Apache::TestUtil;
+
+my $tests = 3;
+
+plan tests => $tests, have_module('headers', 'ssl');
+
+Apache::TestRequest::scheme('https');
+
+my $h = HEAD_STR "/modules/headers/ssl/";
+
+# look for 500 when mod_headers doesn't grok the %s tag
+if ($h =~ /^HTTP\/1.1 500 Internal Server Error\n/) {   
+    foreach (1..$tests) {
+        skip "Skipping because mod_headers doesn't grok %s\n";
+    }
+    exit 0;
+}
+
+$h =~ s/Client-Bad-Header-Line:.*$//g;
+
+ok t_cmp(qr/X-SSL-Flag: on/, $h, "SSLFlag header set");
+ok t_cmp(qr/X-SSL-Cert:.*END CERTIFICATE-----/, $h, "SSL certificate is unwrapped");
+ok t_cmp(qr/X-SSL-None: \(null\)\n/, $h, "unknown SSL variable not given");
