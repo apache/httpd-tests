@@ -20,7 +20,8 @@ sub t_cmp {
     print "received: " . (defined $received ? $received : "undef") . "\n";
     if (defined $expected && defined $received) {
         return $expected eq $received;
-    } else {
+    }
+    else {
         # undef == undef! a valid test
         return (defined $expected || defined $received) ? 0 : 1;
     }
