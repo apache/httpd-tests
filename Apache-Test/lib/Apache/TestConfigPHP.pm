@@ -53,14 +53,14 @@ my %warn_style = (
     php     => sub { join '', "<?php\n", grep {s/^/# /gm} @_ },
     default => sub { join '', grep {s/^/\# /gm} @_ },
 );
-                                                                                                                             
+
 my %file_ext = (
     map({$_ => 'html'} qw(htm html)),
     map({$_ => 'c'   } qw(c h)),
     map({$_ => 'ini' } qw(ini)),
     map({$_ => 'php' } qw(php)),
 );
-                                                                                                                             
+
 sub warn_style_sub_ref {
     my ($self, $filename) = @_;
     my $ext = $self->filename_ext($filename);
@@ -231,7 +231,7 @@ display_startup_errors = On
 html_errors = Off
 @error_log@
 output_buffering = Off
-                                                                                                                             
+
 ; the rest of php.ini-recommended, unaltered, save for
 ; some tidying like the removal of comments and blank lines
 
@@ -463,15 +463,13 @@ register_shutdown_function('_test_end');
 $_no_plan = false;
 $_num_failures = 0;
 $_num_skips = 0;
-$_skip_all = false;
-$_skip_reason = '';
 $_test_num = 0;
 
 function plan($plan)
 {
     # plan('no_plan');
     # plan('skip_all');
-    # plan('skip_all' => 'My reason is...');
+    # plan(array('skip_all' => 'My reason is...'));
     # plan(23);
 
     global $_no_plan;
@@ -483,14 +481,19 @@ function plan($plan)
         case 'no_plan':
             $_no_plan = true;
             break;
+
         case 'skip_all':
-            $_skip_all = true;
+            echo "1..0\n";
+            exit;
             break;
-        case 'Array':
-            $_skip_all = true;
-            $_skip_reason = $plan['skip_all'];
-            break;
+
         default:
+            if (is_array($plan))
+            {
+                echo "1..0 # Skip {$plan['skip_all']}\n";
+                exit;
+            }
+
             echo "1..$plan\n";
             break;
     }
@@ -558,7 +561,7 @@ function is($this, $that, $test_name = '')
 
     return $pass;
 }
- 
+
 function isnt($this, $that, $test_name = '')
 {
     $pass = ($this != $that);
@@ -692,7 +695,7 @@ function diag($message)
         echo "# $message\n";
     }
 }
- 
+
 function include_ok($module)
 {
     $pass = ((include $module) == 'OK');
@@ -746,7 +749,7 @@ function skip($message, $num)
 # function eq_set()
 # {
 # }
- 
+
 function _test_end()
 {
     global $_no_plan;
