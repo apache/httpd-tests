@@ -15,6 +15,7 @@ use constant WINFU => Apache::TestConfig::WINFU;
 ## mod_include tests
 my($res, $str, $doc);
 my $dir = "/modules/include/";
+my $have_apache_1 = have_apache 1;
 my $have_apache_2 = have_apache 2;
 my $have_apache_21 = have_min_apache_version "2.1.0";
 my $have_apache_20 = $have_apache_2 && ! $have_apache_21;
@@ -49,11 +50,14 @@ my %test = (
 "errmsg2.shtml"         =>    "errmsg",
 "errmsg3.shtml"         =>    "errmsg",
 "errmsg4.shtml"         =>    "pass errmsg",
+"errmsg5.shtml"         =>    "<!-- pass -->",
 "if1.shtml"             =>    "pass",
 "if2.shtml"             =>    "pass   pass",
 "if3.shtml"             =>    "pass   pass   pass",
 "if4.shtml"             =>    "pass   pass",
 "if5.shtml"             =>    "pass  pass  pass",
+"if6.shtml"             =>    "[an error occurred while processing this ".
+                              "directive]",
 "if7.shtml"             =>    "[an error occurred while processing this ".
                               "directive]",
 "if8.shtml"             =>    "pass",
@@ -69,9 +73,7 @@ my %test = (
                               "directive] inc-bogus.shtml body",
 "abs-path.shtml"        =>    "inc-extra2.shtml body  inc-extra1.shtml body  ".
                               "abs-path.shtml body",
-"exec/off/cmd.shtml"    =>    "[an error occurred while processing this ".
-                              "directive]",
-"exec/on/cmd.shtml"     =>    "pass",
+"parse1.shtml"          =>    "-->",
 "parse2.shtml"          =>    '"',
 "regex.shtml"           =>    "(none)  1 (none)",
 "retagged1.shtml"       =>    ["retagged1.shtml",                   "retagged1"],
@@ -80,6 +82,12 @@ my %test = (
 "echo2.shtml"           =>    ["<!-- pass undefined echo -->  pass  config ".
                               " echomsg  pass", "echo1"],
 "echo3.shtml"           =>    ['<!--#echo var="DOCUMENT_NAME" -->', "retagged1"], 
+"notreal.shtml"         =>    "pass <!--",
+"malformed.shtml"       =>    "[an error occurred while processing this ".
+                              "directive] malformed.shtml",
+"exec/off/cmd.shtml"    =>    "[an error occurred while processing this ".
+                              "directive]",
+"exec/on/cmd.shtml"     =>    "pass",
 "exec/off/cgi.shtml"    =>    "[an error occurred while processing this ".
                               "directive]",
 "exec/on/cgi.shtml"     =>    "perl cgi",
@@ -93,14 +101,7 @@ my %test = (
 # that the 2.1 fixes will be backported
 
 my %todo = (
-"if6.shtml"             =>    "[an error occurred while processing this ".
-                              "directive]",
 "if11.shtml"            =>    "pass",
-"notreal.shtml"         =>    "pass <!--",
-"parse1.shtml"          =>    "-->",
-"errmsg5.shtml"         =>    "<!-- pass -->",
-"malformed.shtml"       =>    "[an error occurred while processing this ".
-                              "directive] malformed.shtml",
 );
 
 # some behaviors will never be backported, for various
@@ -118,7 +119,7 @@ my %legacy_2_0 = ();
 
 # ok, now that we have our hashes established, here are
 # the manual tweaks
-unless ($have_apache_2) {
+if ($have_apache_1) {
     # apache 1.3 uses different semantics for some
     # of the if.*shtml tests to achieve the same results
     $test{"if8a.shtml"}  = delete $test{"if8.shtml"};
@@ -134,19 +135,16 @@ unless ($have_apache_2) {
     delete $test{"retagged2.shtml"};
     delete $test{"regex.shtml"};
 
-    # ack - if6.shtml is different between 1.3, 2.0, and 2.1.
-    # it's in %legacy_1_3 so don't count it as TODO in 1.3
-    # otherwise it would run twice
-    delete $todo{"if6.shtml"};
+    # finally, these tests are only broken in 1.3
+    $todo{"notreal.shtml"} = delete $test{"notreal.shtml"};
 }
 
 unless ($have_apache_20) {
     # these tests are broken only in 2.0 - 
     # in 1.3 they work fine so shift them from %todo to %test
 
-    $test{"malformed.shtml"} = delete $todo{"malformed.shtml"};
-    $test{"parse1.shtml"}    = delete $todo{"parse1.shtml"};
-    $test{"errmsg5.shtml"}   = delete $todo{"errmsg5.shtml"};
+    # none at the moment, but the syntax here would be
+    # $test{"errmsg5.shtml"} = delete $todo{"errmsg5.shtml"};
 }
 
 unless ($have_apache_21) {
