@@ -415,8 +415,8 @@ sub set_ulimit {
 sub set_env {
     #export some environment variables for t/modules/env.t
     #(the values are unimportant)
-    $ENV{TESTHOSTNAME} = 'test.host.name';
-    $ENV{TESTHOSTTYPE} = 'z80';
+    $ENV{APACHE_TEST_HOSTNAME} = 'test.host.name';
+    $ENV{APACHE_TEST_HOSTTYPE} = 'z80';
 }
 
 sub run {
