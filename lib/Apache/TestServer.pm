@@ -393,11 +393,14 @@ sub start {
     print "$cmd\n";
 
     if (Apache::TestConfig::WIN32) {
+        #make sure only 1 process is used for win32
+        #else Kill will only shutdown the parent
+        my $one_process = $self->version_of(\%one_process);
         require Win32::Process;
         my $obj;
         Win32::Process::Create($obj,
                                $httpd,
-                               $cmd,
+                               "$cmd $one_process",
                                0,
                                Win32::Process::NORMAL_PRIORITY_CLASS(),
                                '.') || die Win32::Process::ErrorReport();
