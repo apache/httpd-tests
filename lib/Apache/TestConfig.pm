@@ -34,6 +34,7 @@ our %Usage = (
    target        => 'name of server binary (default is apxs -q TARGET)',
    apxs          => 'location of apxs (default is from Apache::BuildConfig)',
    httpd_conf    => 'inherit config from this file (default is apxs derived)',
+   maxclients    => 'maximum number of concurrent clients (default is 1)',
 );
 
 sub usage {
@@ -187,6 +188,7 @@ sub new {
     $vars->{user}         ||= $self->default_user;
     $vars->{group}        ||= $self->default_group;
     $vars->{serveradmin}  ||= join '@', $vars->{user}, $vars->{servername};
+    $vars->{maxclients}   ||= 1;
 
     $self->configure_apxs;
     $self->configure_httpd;
@@ -841,25 +843,25 @@ HostnameLookups Off
 
 <IfModule threaded.c>
     StartServers         1
-    MaxClients           1
-    MinSpareThreads      1
-    MaxSpareThreads      1
-    ThreadsPerChild      1
+    MaxClients           @MaxClients@
+    MinSpareThreads      @MaxClients@
+    MaxSpareThreads      @MaxClients@
+    ThreadsPerChild      @MaxClients@
     MaxRequestsPerChild  0
 </IfModule>
 
 <IfModule perchild.c>
     NumServers           1
-    StartThreads         1
-    MinSpareThreads      1
-    MaxSpareThreads      1
-    MaxThreadsPerChild   2
+    StartThreads         @MaxClients@
+    MinSpareThreads      @MaxClients@
+    MaxSpareThreads      @MaxClients@
+    MaxThreadsPerChild   @MaxClients@
     MaxRequestsPerChild  0
 </IfModule>
 
 <IfModule prefork.c>
-    StartServers         1
-    MaxClients           1
+    StartServers         @MaxClients@
+    MaxClients           @MaxClients@
     MaxRequestsPerChild  0
 </IfModule>
 
