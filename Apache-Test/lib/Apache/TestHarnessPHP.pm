@@ -108,8 +108,15 @@ sub _command {
 }
 
 sub _switches {
-    my $ini = catfile(Apache::Test::vars('server_root'), qw(conf php.ini));
-    return "--php-ini $ini";
+
+    my $conf = catfile(Apache::Test::vars('serverroot'), 'conf');
+
+    my $ini = catfile($conf, 'php.ini');
+
+    my $switches = join ' ', "--php-ini $ini",
+                             "--define include_path=$conf";
+
+    return $switches;
 }
 
 1;
