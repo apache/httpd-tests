@@ -41,6 +41,9 @@ run all tests without start/stop of server
 stop the server
 % t/TEST -stop
 
+reconfigure the server, do not run tests
+% t/TEST -configure
+
 run as user nobody:
 % t/TEST User nobody
 
@@ -69,10 +72,10 @@ GET url with authentication credentials
 % t/TEST -get /server-info username dougm password foo
 
 POST url (read content from string)
-% t/TEST -post /TestApache::post -content 'name=dougm&team=wildcats'
+% t/TEST -post /TestApache::post content 'name=dougm&company=covalent'
 
 POST url (read content from stdin)
-% t/TEST -post /TestApache::post -content - < foo.txt
+% t/TEST -post /TestApache::post content - < foo.txt
 
 start server under gdb
 % t/TEST -debug
