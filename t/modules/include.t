@@ -96,12 +96,12 @@ my @patterns = (
 );
 
 #
-# in addition to $tests, there are 1 GET test, 9 XBitHack tests,
+# in addition to $tests, there are 1 GET test, 11 XBitHack tests,
 # 2 exec cgi tests, 2 malformed-ssi-directive tests, and 14 tests
 # that use mod_bucketeer to construct brigades for mod_include
 #
 my $tests = scalar(keys %test) + scalar(keys %t_test) + @patterns + 2;
-plan tests => $tests + 28, have_module 'include';
+plan tests => $tests + 30, have_module 'include';
 
 Apache::TestRequest::scheme('http'); #ssl not listening on this vhost
 Apache::TestRequest::module('mod_include'); #use this module's port
@@ -168,56 +168,68 @@ foreach $doc (sort keys %execcgitest) {
 }
 
 if (WINFU) {
-    for (1..9) {
+    for (1..11) {
         skip "Skipping XBitHack tests on this platform", 1;
     }
-    exit;
 }
+else {
+    ### XBITHACK TESTS
+    # test xbithack off
+    $doc = "xbithack/off/test.html";
+    foreach ("0444", "0544", "0554") {
+        chmod oct($_), "htdocs/$dir$doc";
+        ok t_cmp("<BODY> <!--#include virtual=\"../../inc-two.shtml\"--> </BODY>",
+                 super_chomp(GET_BODY "$dir$doc"),
+                 "XBitHack off [$_]"
+                );
+    }
 
-### XBITHACK TESTS
-# test xbithack off
-$doc = "xbithack/off/test.html";
-foreach ("0444", "0544", "0554") {
-    chmod oct($_), "htdocs/$dir$doc";
+    # test xbithack on
+    $doc = "xbithack/on/test.html";
+    chmod 0444, "htdocs$dir$doc";
     ok t_cmp("<BODY> <!--#include virtual=\"../../inc-two.shtml\"--> </BODY>",
              super_chomp(GET_BODY "$dir$doc"),
-             "XBitHack off [$_]"
+             "XBitHack on [0444]"
             );
-}
 
-# test xbithack on
-$doc = "xbithack/on/test.html";
-chmod 0444, "htdocs$dir$doc";
-ok t_cmp("<BODY> <!--#include virtual=\"../../inc-two.shtml\"--> </BODY>",
-         super_chomp(GET_BODY "$dir$doc"),
-         "XBitHack on [0444]"
-        );
+    foreach ("0544", "0554") {
+        chmod oct($_), "htdocs/$dir$doc";
+        ok t_cmp("No Last-modified date ; <BODY> inc-two.shtml body  </BODY>",
+                 check_xbithack(GET "$dir$doc"),
+                 "XBitHack on [$_]"
+                );
+    }
 
-foreach ("0544", "0554") {
-    chmod oct($_), "htdocs/$dir$doc";
+    # test xbithack full
+    $doc = "xbithack/full/test.html";
+    chmod 0444, "htdocs/$dir$doc";
+    ok t_cmp("<BODY> <!--#include virtual=\"../../inc-two.shtml\"--> </BODY>",
+             super_chomp(GET_BODY "$dir$doc"),
+             "XBitHack full [0444]"
+            );
+    chmod 0544, "htdocs/$dir$doc";
     ok t_cmp("No Last-modified date ; <BODY> inc-two.shtml body  </BODY>",
              check_xbithack(GET "$dir$doc"),
-             "XBitHack on [$_]"
+             "XBitHack full [0544]"
+            );
+
+    my $lm;
+
+    chmod 0554, "htdocs/$dir$doc";
+    ok t_cmp("Has Last-modified date ; <BODY> inc-two.shtml body  </BODY>",
+             check_xbithack(GET("$dir$doc"), \$lm),
+             "XBitHack full [0554]"
+            );
+
+    ok t_cmp(304, GET("$dir$doc", 'If-Modified-Since' => $lm)->code,
+             "XBitHack full [0554] / If-Modified-Since"
+            );
+
+    chmod 0544, "htdocs/$dir$doc";
+    ok t_cmp(200, GET("$dir$doc", 'If-Modified-Since' => $lm)->code,
+             "XBitHack full [0544] / If-Modified-Since"
             );
 }
-
-# test xbithack full
-$doc = "xbithack/full/test.html";
-chmod 0444, "htdocs/$dir$doc";
-ok t_cmp("<BODY> <!--#include virtual=\"../../inc-two.shtml\"--> </BODY>",
-         super_chomp(GET_BODY "$dir$doc"),
-         "XBitHack full [0444]"
-        );
-chmod 0544, "htdocs/$dir$doc";
-ok t_cmp("No Last-modified date ; <BODY> inc-two.shtml body  </BODY>",
-         check_xbithack(GET "$dir$doc"),
-         "XBitHack full [0544]"
-        );
-chmod 0554, "htdocs/$dir$doc";
-ok t_cmp("Has Last-modified date ; <BODY> inc-two.shtml body  </BODY>",
-         check_xbithack(GET "$dir$doc"),
-         "XBitHack full [0554]"
-        );
 
 ### test include + query string
 $res = GET "${dir}virtual.shtml";
@@ -383,5 +395,9 @@ sub check_xbithack {
     my ($body) = super_chomp($resp->content);
     my ($lastmod) = ($resp->last_modified)
                       ? "Has Last-modified date" : "No Last-modified date";
+
+    my $data = shift;
+    $$data = $resp->header('Last-Modified') if $data;
+
     "$lastmod ; $body";
 }
