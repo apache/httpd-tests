@@ -36,7 +36,10 @@ if (have_cgi) {
 }
 
 if (have_min_apache_version('2.1.0')) {
-    # trigger the "proxy decodes abs_path issue"
+    # trigger the "proxy decodes abs_path issue": with the bug present, the
+    # proxy URI-decodes on the way through, so the origin server receives
+    # an abs_path of "/reverse/nonesuch/file%", which it fails to parse and
+    # returns a 400 response.
     $r = GET("/reverse/nonesuch/file%25");
     ok t_cmp($r->code, 404, "reverse proxy URI decoding issue, PR 15207");
 } else {
