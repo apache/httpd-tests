@@ -205,3 +205,25 @@ AllowOverride All
 AllowOverride Indexes
 </Directory>
 </IfModule>
+
+##
+## mod_env test config
+##
+<IfModule mod_env.c>
+PassEnv HOSTNAME
+SetEnv ENV_TEST "mod_env test environment variable"
+UnsetEnv UNSET
+
+PassEnv HOSTTYPE
+#<Files *>
+UnsetEnv HOSTTYPE
+#</Files>
+
+SetEnv NOT_HERE "this will not be here"
+#<Files *>
+UnsetEnv NOT_HERE
+#</Files>
+<Directory @SERVERROOT@/htdocs/modules/env>
+Options +Includes
+</Directory>
+</IfModule>
