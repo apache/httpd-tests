@@ -759,7 +759,7 @@ sub generate_script {
         "use $class;",
         "$class->new(\@ARGV)->run;";
 
-    Apache::Test::config()->write_perlscript($file, $content);
+    Apache::Test::basic_config()->write_perlscript($file, $content);
 }
 
 1;

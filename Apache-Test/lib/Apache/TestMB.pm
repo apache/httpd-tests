@@ -136,7 +136,7 @@ sub generate_script {
 
     # Make it so!
     print "Generating test running script $script\n" if $self->verbose;
-    Apache::Test::config()->write_perlscript($script, $body);
+    Apache::Test::basic_config()->write_perlscript($script, $body);
     $self->add_to_cleanup($self->apache_test_script);
 }
 

@@ -736,6 +736,7 @@ sub run {
 }
 
 sub rerun {
+    $orig_cwd ||= Cwd::cwd();
     chdir $orig_cwd;
     warning "rerunning '$orig_command' with new config opts";
     exec $orig_command;
@@ -1243,10 +1244,11 @@ sub generate_script {
         $body .= "\n\npackage $class;\n" .
                  "sub bug_report { print '$report' }\n\n";
     }
-    
+
     $body .= "$class->new->run(\@ARGV);";
 
-    Apache::Test::config()->write_perlscript($opts{file}, $body);
+    Apache::Test::basic_config()->write_perlscript($opts{file},
+                                                   $body);
 }
 
 # in idiomatic perl functions return 1 on success and 0 on
