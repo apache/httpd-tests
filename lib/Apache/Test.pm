@@ -8,12 +8,14 @@ use Exporter ();
 use Config;
 use Apache::TestConfig ();
 
-our @ISA = qw(Exporter);
-our @EXPORT = qw(ok skip sok plan have_lwp have_http11 have_cgi
-                 have_module have_apache have_perl);
-our $VERSION = '0.01';
+use vars qw(@ISA @EXPORT $VERSION %SubTests);
 
-our %SubTests;
+@ISA = qw(Exporter);
+@EXPORT = qw(ok skip sok plan have_lwp have_http11 have_cgi
+             have_module have_apache have_perl);
+$VERSION = '0.01';
+
+%SubTests = ();
 
 if (my $subtests = $ENV{HTTPD_TEST_SUBTESTS}) {
     %SubTests = map { $_, 1 } split /\s+/, $subtests;

@@ -16,7 +16,8 @@ sub cmodule_find {
     my $dir = $File::Find::dir;
     my $file = catfile $dir, $_;
 
-    open my $fh, $file or die "open $file: $!";
+    my $fh = Symbol::gensym();
+    open $fh, $file or die "open $file: $!";
     my $v = <$fh>;
     if ($v =~ /^\#define\s+HTTPD_TEST_REQUIRE_APACHE\s+(\d+)/) {
         unless ($Apache::TestConfigC::apache_rev == $1) {
@@ -86,7 +87,8 @@ sub cmodules_write_makefiles {
     }
 
     my $file = catfile $self->{cmodules_dir}, 'Makefile';
-    open my $fh, '>', $file or die "open $file: $!";
+    my $fh = Symbol::gensym();
+    open $fh, ">$file" or die "open $file: $!";
 
     print $fh $self->cmodules_makefile_vars;
 
@@ -125,7 +127,8 @@ sub cmodules_write_makefile {
 
     my $lib = $self->cmodules_build_so($name);
 
-    open my $fh, '>', $makefile or die "open $makefile: $!";
+    my $fh = Symbol::gensym();
+    open $fh, ">$makefile" or die "open $makefile: $!";
 
     print $fh <<EOF;
 APXS=$self->{APXS}

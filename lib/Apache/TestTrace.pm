@@ -4,21 +4,21 @@ use strict;
 use warnings FATAL => 'all';
 
 use Exporter ();
-our (@Levels, @Utils);
+use vars qw(@Levels @Utils @ISA @EXPORT $VERSION $Level $LogFH);
 
 BEGIN {
     @Levels = qw(emerg alert crit error warning notice info debug);
     @Utils  = qw(todo);
 }
 
-our @ISA     = qw(Exporter);
-our @EXPORT  = (@Levels, @Utils);
-our $VERSION = '0.01';
-use subs (@Levels,@Utils);
+@ISA     = qw(Exporter);
+@EXPORT  = (@Levels, @Utils);
+$VERSION = '0.01';
+use subs (@Levels, @Utils);
 
 # default settings overrideable by users
-our $Level = 'warning';
-our $LogFH = \*STDERR;
+$Level = 'warning';
+$LogFH = \*STDERR;
 
 # private data
 use constant HAS_COLOR  => eval {

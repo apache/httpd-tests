@@ -6,8 +6,8 @@ use warnings FATAL => 'all';
 use Apache::TestRun ();
 
 #subclass of Apache::TestRun that configures mod_perlish things
-
-our @ISA = qw(Apache::TestRun);
+use vars qw(@ISA);
+@ISA = qw(Apache::TestRun);
 
 sub configure_modperl {
     my $self = shift;

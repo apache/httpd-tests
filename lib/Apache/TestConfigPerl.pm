@@ -186,7 +186,8 @@ PerlSwitches PerlRequire PerlModule
 #test .pm's can have configuration after the __DATA__ token
 sub add_module_config {
     my($self, $module, $args) = @_;
-    open(my $fh, $module) or return;
+    my $fh = Symbol::gensym();
+    open($fh, $module) or return;
 
     while (<$fh>) {
         last if /^(__(DATA|END)__|\#if CONFIG_FOR_HTTPD_TEST)/;
@@ -342,7 +343,8 @@ sub run_apache_test_config {
     my ($self, $file, $module) = @_;
 
     local $/;
-    if (open my $fh, $file) {
+    my $fh = Symbol::gensym();
+    if (open $fh, $file) {
         my $content = <$fh>;
         close $fh;
         if ($content =~ /APACHE_TEST_CONFIGURE/m) {

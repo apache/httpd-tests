@@ -1,8 +1,10 @@
-use 5.006;
+use 5.005;
 
 use ExtUtils::MakeMaker;
 
 use lib qw(lib);
+
+use Apache::Test5005compat;
 
 use Apache::TestMM qw(test); #enable 'make test'
 

@@ -33,7 +33,8 @@ sub skip {
 
     return unless -e $file;
 
-    open my $fh, $file or die "open $file: $!";
+    my $fh = Symbol::gensym();
+    open $fh, $file or die "open $file: $!";
     my @skip;
     local $_;
 
@@ -55,7 +56,8 @@ sub run_t {
     my $ran = 0;
     my $cmd = "$^X -Mlib=../Apache-Test/lib $file";
 
-    open my $h, "$cmd|" or die "open $cmd: $!";
+    my $h = Symbol::gensym();
+    open $h, "$cmd|" or die "open $cmd: $!";
 
     local $_;
     while (<$h>) {

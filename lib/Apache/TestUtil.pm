@@ -7,12 +7,14 @@ use File::Find ();
 use File::Path ();
 use Exporter ();
 
-our $VERSION = '0.01';
-our @ISA     = qw(Exporter);
-our @EXPORT = qw(t_cmp t_write_file t_open_file t_mkdir t_rmtree
-                 t_is_equal);
+use vars qw($VERSION @ISA @EXPORT %CLEAN);
 
-our %CLEAN = ();
+$VERSION = '0.01';
+@ISA     = qw(Exporter);
+@EXPORT = qw(t_cmp t_write_file t_open_file t_mkdir t_rmtree
+             t_is_equal);
+
+%CLEAN = ();
 
 use constant HAS_DUMPER => eval { require Data::Dumper; };
 use constant INDENT     => 4;
@@ -31,7 +33,8 @@ sub t_cmp {
 sub t_write_file {
     my $file = shift;
     die "must pass a filename" unless defined $file;
-    open my $fh, ">", $file or die "can't open $file: $!";
+    my $fh = Symbol::gensym();
+    open $fh, ">$file" or die "can't open $file: $!";
     print "writing file: $file\n";
     print $fh join '', @_ if @_;
     close $fh;
@@ -41,7 +44,8 @@ sub t_write_file {
 sub t_open_file {
     my $file = shift;
     die "must pass a filename" unless defined $file;
-    open my $fh, ">", $file or die "can't open $file: $!";
+    my $fh = Symbol::gensym();
+    open $fh, ">$file" or die "can't open $file: $!";
     print "writing file: $file\n";
     $CLEAN{files}{$file}++;
     return $fh;

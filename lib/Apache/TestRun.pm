@@ -420,7 +420,8 @@ sub set_ulimit_via_sh {
     return unless -e $binsh;
     $ENV{APACHE_TEST_ULIMIT_SET} = 1;
 
-    open my $sh, "echo ulimit -a | $binsh|" or die;
+    my $sh = Symbol::gensym();
+    open $sh, "echo ulimit -a | $binsh|" or die;
     local $_;
     while (<$sh>) {
         if (/^core file size.*unlimited$/) {
