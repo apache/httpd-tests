@@ -58,7 +58,7 @@ EOI
     return <<EOF;
 
 nuke_Apache__test:
-\t\$(PERLRUN) -MExtUtils::Install -e \\
+\t\$(FULLPERL) -MExtUtils::Install -e \\
 \t"-e qq{$cleanup_packlist} && uninstall(qq{$cleanup_packlist}, 1, 0)"
 EOF
 
