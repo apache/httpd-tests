@@ -57,19 +57,6 @@ if (HAS_COLOR) {
         $colors{$_} = Term::ANSIColor::color($colors{$_});
     }
 }
-else {
-    %colors = (
-        emerg   => '&&&',
-        alert   => '$$$',
-        crit    => '%%%',
-        error   => '!!!',
-        warning => '***',
-        notice  => '-  ',
-        info    => '   ',
-        debug   => '==>',
-        todo    => 'todo',
-    );
-}
 
 *expand = HAS_DUMPER ?
     sub { map { ref $_ ? Data::Dumper::Dumper($_) : $_ } @_ } :
@@ -101,7 +88,7 @@ sub nc_trace {
     my ($level, $prefix_type) = (shift, shift);
     my $prefix = prefix($prefix_type);
     print $LogFH 
-        map { sprintf "%-3s %s%s\n", $colors{$level}, $prefix, $_ } 
+        map { sprintf "[%7s] %s%s\n", $level, $prefix, $_ } 
         grep defined($_), expand(@_);
 }
 
