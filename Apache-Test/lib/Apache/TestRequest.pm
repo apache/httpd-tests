@@ -32,7 +32,8 @@ sub hostport {
     my $hostport = $config->{hostport};
 
     if (my $module = $Apache::TestRequest::Module) {
-        $hostport = $config->{vhosts}->{$module}->{hostport};
+        $hostport = $config->{vhosts}->{$module}->{hostport}
+          unless $module eq 'default';
     }
 
     $hostport;
@@ -92,8 +93,8 @@ sub test_config {
 }
 
 sub vhost_socket {
-    my $module = shift;
-    my $hostport = test_config()->{vhosts}->{$module}->{hostport};
+    local $Apache::TestRequest::Module = shift;
+    my $hostport = hostport(test_config());
     require IO::Socket;
     IO::Socket::INET->new($hostport);
 }
