@@ -726,6 +726,19 @@ sub replace {
     s/@(\w+)@/$self->{vars}->{lc $1}/g;
 }
 
+#need to configure the vhost port for redirects and $ENV{SERVER_PORT}
+#to have the correct values
+my %servername_config = (
+    1 => sub {
+        my($name, $port) = @_;
+        [ServerName => $name], [Port => $port];
+    },
+    2 => sub {
+        my($name, $port) = @_;
+        [ServerName => "$name:$port"];
+    },
+);
+
 sub parse_vhost {
     my($self, $line) = @_;
 
@@ -753,7 +766,8 @@ sub parse_vhost {
     my $port = $self->new_vhost($module);
 
     #extra config that should go *inside* the <VirtualHost ...>
-    my @in_config = ();
+    my $in_cfg = $self->server->version_of(\%servername_config);
+    my @in_config = $in_cfg->($self->{vars}->{servername}, $port);
 
     #extra config that should go *outside* the <VirtualHost ...>
     my @out_config = ([Listen => $port]);
