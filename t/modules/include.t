@@ -70,11 +70,11 @@ if (WINFU) {
 
 #
 # in addition to $tests, there are 1 GET test, 9 XBitHack tests,
-# 2 exec cgi tests, 2 malformed-ssi-directive tests, and 9 tests
+# 2 exec cgi tests, 2 malformed-ssi-directive tests, and 10 tests
 # that use mod_bucketeer to construct brigades for mod_include
 #
 my $tests = keys %test;
-plan tests => $tests + 23, have_module 'include';
+plan tests => $tests + 24, have_module 'include';
 
 foreach $doc (sort keys %test) {
     ok t_cmp($test{$doc},
