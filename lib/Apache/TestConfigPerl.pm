@@ -200,6 +200,17 @@ sub add_module_config {
         if ($outside_container{$directive}) {
             $self->postamble($directive => $rest);
         }
+        elsif ($directive eq '<Base>') {
+            # <Base> and </Base> are removed
+            my $end = "</Base>";
+            while (<$fh>) {
+                chomp;
+                last if m:^\Q$end:;
+                $self->replace;
+                s/^\s*//; # align for base
+                $self->postamble($_);
+            }
+        }
         elsif ($directive =~ m/^<(\w+)/) {
             if ($directive eq '<VirtualHost') {
                 $rest =~ s/>$//;
