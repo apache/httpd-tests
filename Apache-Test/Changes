@@ -8,6 +8,11 @@ Changes - Apache::Test change logfile
 
 =item 1.20-dev
 
+Apache::TestConfig::should_skip_module now works with regex
+patterns. [Stas]
+
+
+
 =item 1.19 - January 5, 2005
 
 Test for module.c instead of module.so for IfModule in
