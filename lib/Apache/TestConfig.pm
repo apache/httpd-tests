@@ -1161,6 +1161,10 @@ sub trace {
 sub which {
     foreach (map { catfile $_, $_[0] } File::Spec->path) {
 	return $_ if -x;
+	if (WIN32) {
+	    my $exe = "$_.exe";
+	    return $exe if -x $exe;
+	}
     }
 }
 
