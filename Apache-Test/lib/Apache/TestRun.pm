@@ -212,12 +212,15 @@ sub install_sighandlers {
 
 sub configure_opts {
     my $self = shift;
+    my $cached = shift;
 
     my($test_config, $opts) = ($self->{test_config}, $self->{opts});
 
-    if ($opts->{ssl}) {
-        $test_config->{vars}->{scheme} = 'https';
-    }
+    $test_config->{vars}->{scheme} =
+      $opts->{ssl} ? 'https' :
+        $self->{conf_opts}->{scheme} || 'http';
+
+    return if $cached;
 
     my $preamble  = sub { shift->preamble($opts->{preamble}) };
     my $postamble = sub { shift->postamble($opts->{postamble}) };
@@ -229,9 +232,20 @@ sub configure_opts {
 sub configure {
     my $self = shift;
 
-    $self->configure_opts;
-
     my $test_config = $self->{test_config};
+
+    my $cached = not $self->{conf_opts}->{save};
+    $self->configure_opts($cached);
+
+    if ($cached) {
+        #update minor changes to cached config
+        #without complete regeneration
+        #for example this allows switching between
+        #'t/TEST' and 't/TEST -ssl'
+        $test_config->sync_vars(qw(scheme));
+        return;
+    }
+
     $test_config->cmodules_configure;
     $test_config->generate_httpd_conf;
     $test_config->save;
@@ -330,9 +344,9 @@ sub run {
     local($SIG{__DIE__}, $SIG{INT});
     $self->install_sighandlers;
 
-    $self->try_exit_opts;
+    $self->configure;
 
-    $self->configure if $self->{conf_opts}->{save}; #cache generated config
+    $self->try_exit_opts;
 
     $self->default_run_opts;
 
