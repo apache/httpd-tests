@@ -162,8 +162,8 @@ sub MY::postamble {
     my $string = $self->MM::postamble;
 
     $string .= <<'EOF';
-cvs_tag :
-	cvs tag APACHE_TEST_$(VERSION_SYM) .
+tag :
+	svn copy . https://svn.apache.org/repos/asf/httpd/test/tags/APACHE_TEST_$(VERSION_SYM)
 	@echo update lib/Apache/Test.pm VERSION now
 EOF
 

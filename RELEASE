@@ -1,7 +1,7 @@
 Instructions for Apache-Test Release Manager
 
 1. 'make dist' - to make sure nothing is missing from the manifest,
-   etc. Now test this generated package (not cvs) with as many
+   etc. Now test this generated package (not svn) with as many
    configurations as possible on as many platforms as possible.
 
   a. nuke any preinstalled Apache-Test libs and run 'make test'
@@ -29,13 +29,13 @@ Instructions for Apache-Test Release Manager
   b. rerun:
      % perl Makefile.PL
      make sure tag looks right
-     % make -n cvs_tag
+     % make -n tag
 
   c. commit Changes
-     % cvs ci Changes
+     % svn ci Changes
 
   d. tag
-     % make cvs_tag
+     % make tag
 
   e. create the final package
      % make dist
@@ -71,4 +71,4 @@ Instructions for Apache-Test Release Manager
      command.
 
   d. commit Changes
-     % cvs ci Changes RELEASE lib/Apache/Test.pm
+     % svn ci Changes RELEASE lib/Apache/Test.pm
