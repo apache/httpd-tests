@@ -44,7 +44,8 @@ sub resolve_url {
     return $url if $url =~ m,^(\w+):/,;
     $url = "/$url" unless $url =~ m,^/,;
     my $hostport = hostport($Config);
-    my $scheme = $Apache::TestRequest::Scheme || 'http';
+    my $scheme = $Apache::TestRequest::Scheme ||
+                 test_config()->{vars}->{scheme} || 'http';
     return "$scheme://$hostport$url";
 }
 
@@ -223,6 +224,11 @@ sub http_raw_get {
     my($config, $url, $want_headers) = @_;
 
     $url ||= "/";
+
+    if ($have_lwp) {
+        return $want_headers ? HEAD_STR($url) : GET_STR($url);
+    }
+
     my $hostport = hostport($config);
 
     require IO::Socket;
