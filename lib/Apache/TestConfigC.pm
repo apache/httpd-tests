@@ -123,13 +123,13 @@ sub cmodules_write_makefiles {
 
     for my $dir (@dirs) {
         for my $targ (@targets) {
-            print $fh "$dir-$targ:\n\t-cd $dir && \$(MAKE) $targ\n\n";
+            print $fh "$dir-$targ:\n\tcd $dir && \$(MAKE) $targ\n\n";
         }
 
         my $lib = $self->cmodules_build_so($dir);
         my $cfile = "$dir/mod_$dir.c";
         push @libs, "$dir/$lib";
-        print $fh "$libs[-1]: $cfile\n\t-cd $dir && \$(MAKE) $lib\n\n";
+        print $fh "$libs[-1]: $cfile\n\tcd $dir && \$(MAKE) $lib\n\n";
     }
 
     for my $targ (@targets) {
@@ -211,6 +211,9 @@ sub cmodules_make {
     my $cmd = "cd $self->{cmodules_dir} && $Config{make} $targ";
     debug $cmd;
     system $cmd;
+    if ($?) {
+        die "Failed to build c-modules";
+    }
 }
 
 sub cmodules_compile {

@@ -8,6 +8,8 @@ Changes - Apache::Test change logfile
 
 =item 1.09-dev
 
+c-modules build errors are no longer ignored [Stas]
+
 change -DAPACHE1 (and like defines) to -D APACHE1 to fix Win32
 compatibility issues [Steve Hay]
 
