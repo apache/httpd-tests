@@ -279,6 +279,19 @@ my %hooks = map { $_, ucfirst $_ }
 $hooks{Protocol} = 'ProcessConnection';
 $hooks{Filter}   = 'OutputFilter';
 
+my @extra_subdirs = qw(Response Protocol Hooks Filter);
+
+# add the subdirs to @INC early, in case mod_perl is started earlier
+sub configure_pm_tests_inc {
+    my $self = shift;
+   for my $subdir (@extra_subdirs) {
+        my $dir = catfile $self->{vars}->{t_dir}, lc $subdir;
+        next unless -d $dir;
+
+        push @{ $self->{inc} }, $dir;
+    }
+}
+
 sub configure_pm_tests {
     my $self = shift;
 
@@ -290,11 +303,9 @@ sub configure_pm_tests {
         require Apache2;
     }
 
-    for my $subdir (qw(Response Protocol Hooks Filter)) {
+    for my $subdir (@extra_subdirs) {
         my $dir = catfile $self->{vars}->{t_dir}, lc $subdir;
         next unless -d $dir;
-
-        push @{ $self->{inc} }, $dir;
 
         finddepth(sub {
             return unless /\.pm$/;
