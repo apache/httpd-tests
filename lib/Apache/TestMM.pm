@@ -43,4 +43,17 @@ EOF
 
 }
 
+sub generate_script {
+    my $file = shift;
+    open my $in, "$file.PL" or die "Couldn't open $file.PL: $!";
+    open my $out, '>', $file or die "Couldn't open $file: $!";
+    print "generating script...$file\n";
+    print $out "#!$Config{perlpath}\n",
+               "# WARNING: this file is generated, edit $file.PL instead\n",
+               join '', <$in>;
+    close $out or die "close $file: $!";
+    close $in;
+    chmod 0544, $file;
+}
+
 1;
