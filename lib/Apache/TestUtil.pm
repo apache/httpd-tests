@@ -444,9 +444,7 @@ comparison:
 
 or use a scalar context:
 
-  t_cmp($expected, scalar(foo()), "may return undef")
-
-the parentheses for the C<scalar()>'s expression are mandatory here.
+  t_cmp($expected, scalar foo(), "may return undef")
 
 This function is exported by default.
 
