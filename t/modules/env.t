@@ -22,7 +22,7 @@ unless (have_apache 2) {
     delete $test{nothere};
 }
 
-plan tests => (keys %test) * 1, test_module('env', 'include');
+plan tests => (keys %test) * 1, have_module('env', 'include');
 
 my ($actual, $expected);
 foreach (sort keys %test) {

@@ -17,7 +17,7 @@ my %modules = map { $_, Apache::Test::have_module($_) } keys %urls;
 
 my $tests = 1 + grep { $modules{$_} } keys %urls;
 
-plan tests => $tests, test_module 'case_filter_in';
+plan tests => $tests, have_module 'case_filter_in';
 
 ok 1;
 

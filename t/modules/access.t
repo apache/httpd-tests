@@ -25,7 +25,7 @@ my @allow = @localhost;
 my @deny = @localhost;
 
 plan tests => (@order * @allow * @deny * 2) + (@order * @allow),
-    test_module 'access';
+    have_module 'access';
 
 my $dir = $vars->{t_dir};
 $dir .=  "/htdocs/modules/access/htaccess";

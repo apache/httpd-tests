@@ -42,7 +42,7 @@ my @months = qw(Jan Feb Mar Apr May Jun Jul Aug Sep Oct Nov Dec);
 @month{@months} = 0..@months-1;
 
 plan tests => (@page * 2) + ((((@page * 3) * @types) + @page) * 2) + @page,
-    test_module 'expires';
+    have_module 'expires';
 
 foreach my $page (@page) {
     my $head = HEAD_STR "/modules/expires/$page";

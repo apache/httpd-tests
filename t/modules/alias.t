@@ -32,7 +32,7 @@ my %rm_rc = (
 
 
 plan tests => (keys %redirect) + (keys %rm_body) * 10 + (keys %rm_rc) * 10 + 16,
-    test_module 'alias';
+    have_module 'alias';
 
 ## simple alias ##
 print "verifying simple aliases\n";

@@ -46,7 +46,7 @@ my $bad_ua = 'foo-browser/0.1';
 my $htaccess = 'htdocs/modules/setenvif/htaccess/.htaccess';
 
 plan tests => @var * 7 + (keys %var_att) * 6 * @var,
-    test_module qw(setenvif include);
+    have_module qw(setenvif include);
 
 sub write_htaccess {
     my $string = shift;

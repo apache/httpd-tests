@@ -17,7 +17,7 @@ my @chunk_sizes = (25432, 75962, 100_000, 300_000);
 
 my $tests = (@chunk_sizes + @small_sizes) * 5;
 
-plan tests => $tests, test_module 'random_chunk';
+plan tests => $tests, have_module 'random_chunk';
 
 my $location = '/random_chunk';
 my $requests = 0;

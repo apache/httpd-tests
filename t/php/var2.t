@@ -4,7 +4,7 @@ use warnings FATAL => 'all';
 use Apache::Test;
 use Apache::TestRequest;
 
-plan tests => 2, test_module 'php4';
+plan tests => 2, have_module 'php4';
 
 ## var2.php source:
 ## <?php echo "$v1 $v2"?>

@@ -4,7 +4,7 @@ use warnings FATAL => 'all';
 use Apache::Test;
 use Apache::TestRequest;
 
-plan tests => 1, test_module 'php4';
+plan tests => 1, have_module 'php4';
 
 ## hello.php source:
 ## <?php echo "Hello World"?>

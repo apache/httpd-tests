@@ -41,7 +41,7 @@ my ($en, $fr, $de, $fu, $bu) = qw(en fr de fu bu);
 my @language = ($en, $fr, $de, $fu);
 
 plan tests => (@language * 3) + (@language * @language * 5) + 6,
-    test_module 'negotiation';
+    have_module 'negotiation';
 
 my $actual;
 foreach (@language) {

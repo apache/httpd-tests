@@ -6,7 +6,7 @@ use Apache::TestRequest;
 
 ## testing stack after early function return
 
-plan tests => 1, test_module 'php4';
+plan tests => 1, have_module 'php4';
 
 my $expected = "HelloHello";
 

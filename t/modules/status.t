@@ -8,7 +8,7 @@ use Apache::TestRequest;
 ## mod_status quick test
 ##
 
-plan tests => 1, test_module 'status';
+plan tests => 1, have_module 'status';
 
 my $uri = '/server-status';
 my $servername = Apache::Test::vars()->{servername};

@@ -63,7 +63,7 @@ my %test = (
 );
 
 my $tests = keys %test;
-plan tests => $tests + 1, test_module 'include';
+plan tests => $tests + 1, have_module 'include';
 
 foreach (sort keys %test) {
     $doc = $_;

@@ -13,7 +13,7 @@ my @header_types = ('set', 'append', 'add', 'unset');
     
 plan tests => 
     @header_types**4 + @header_types**3 + @header_types**2 + @header_types**1,
-    test_module 'headers';
+    have_module 'headers';
 
 foreach my $header1 (@header_types) {
 

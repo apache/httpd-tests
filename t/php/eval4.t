@@ -6,7 +6,7 @@ use Apache::TestRequest;
 
 ## testing eval function
 
-plan tests => 1, test_module 'php4';
+plan tests => 1, have_module 'php4';
 
 my $expected = <<EXPECT;
 hey, this is a regular echo'd eval()

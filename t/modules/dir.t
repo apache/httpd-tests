@@ -14,7 +14,7 @@ my $htaccess = "htdocs/modules/dir/htaccess/.htaccess";
 my $url = "/modules/dir/htaccess/";
 my ($actual, $expected);
 
-plan tests => @bad_index * @index * 5 + @bad_index + 5, test_module 'dir';
+plan tests => @bad_index * @index * 5 + @bad_index + 5, have_module 'dir';
 
 foreach my $bad_index (@bad_index) {
 
