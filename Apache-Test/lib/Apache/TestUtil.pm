@@ -41,6 +41,7 @@ sub t_debug {
 
 sub t_write_file {
     my $file = shift;
+
     die "must pass a filename" unless defined $file;
     my $fh = Symbol::gensym();
     open $fh, ">$file" or die "can't open $file: $!";
@@ -52,6 +53,7 @@ sub t_write_file {
 
 sub t_open_file {
     my $file = shift;
+
     die "must pass a filename" unless defined $file;
     my $fh = Symbol::gensym();
     open $fh, ">$file" or die "can't open $file: $!";
@@ -83,9 +85,10 @@ sub write_shell_script {
 
 sub t_mkdir {
     my $dir = shift;
+
     die "must pass a dirname" unless defined $dir;
-    mkdir $dir, 0755 unless -d $dir;
     t_debug("creating dir: $dir");
+    mkdir $dir, 0755 unless -d $dir;
     $CLEAN{dirs}{$dir}++;
 }
 
@@ -130,6 +133,7 @@ sub chown {
 sub struct_as_string{
     return "???"   unless @_ == 2;
     my $level = shift;
+
     return "undef" unless defined $_[0];
     my $pad  = ' ' x (($level + 1) * INDENT);
     my $spad = ' ' x ($level       * INDENT);
