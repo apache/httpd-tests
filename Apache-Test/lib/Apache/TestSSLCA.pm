@@ -5,9 +5,12 @@ use warnings FATAL => 'all';
 
 use Cwd ();
 use File::Path ();
+use File::Copy 'cp';
 use File::Basename;
 use Apache::TestConfig ();
 use Apache::TestTrace;
+
+use constant SSLCA_DB => 'index.txt';
 
 use vars qw(@EXPORT_OK &import);
 
@@ -131,6 +134,7 @@ sub config_file {
     return $file if -e $file;
 
     my $dn = dn($name);
+    my $db = SSLCA_DB;
 
     writefile($file, <<EOF);
 [ req ]
@@ -159,7 +163,7 @@ default_ca	       = CA_default
 certs            = certs        # Where the issued certs are kept
 new_certs_dir    = newcerts     # default place for new certs.
 crl_dir          = crl          # Where the issued crl are kept
-database         = index.txt    # database index file.
+database         = $db          # database index file.
 serial           = serial       # The current serial number
 
 certificate      = $cacert      # The CA certificate
@@ -199,7 +203,7 @@ my $basic_auth_password = 'xxj31ZMTZzkVA';
 my $digest_auth_hash    = '$1$OXLyS...$Owx8s2/m9/gfkcRVXzgoE/';
 
 sub new_ca {
-    writefile('index.txt', '', 1);
+    writefile(SSLCA_DB, '', 1);
     writefile('serial', "01\n", 1);
 
     writefile('ssl.htpasswd',
@@ -251,8 +255,16 @@ sub revoke_cert {
 
     my @args = (config('cacrl'), $passin);
 
-    #revokes in the index.txt database
+    #revokes in the SSLCA_DB database
     openssl ca => "-revoke certs/$name.crt", @args;
+
+    unless (-e SSLCA_DB) {
+	#hack require for win32
+	my $new = join '.', SSLCA_DB, 'new';
+	if (-e $new) {
+	    cp $new, SSLCA_DB;
+	}
+    }
 
     #generates crl from the index.txt database
     openssl ca => "-gencrl -out $cacrl", @args;
