@@ -8,6 +8,10 @@ Changes - Apache::Test change logfile
 
 =item 1.20-dev
 
+extend Apache::TestConfig::which() to search under perl's bin
+directory (in the case of local perl install many utils get installed
+there, but won't be in PATH). [Stas]
+
 Apache::TestConfig::inherit_load_module handles .dll modules
 (previously was only .so) [Stas]
 
