@@ -8,6 +8,10 @@ Changes - Apache::Test change logfile
 
 =item 1.10-dev
 
+Apache::TestRunPerl now performs an early check whether it can load
+the right mod_perl environment. [William McKee <william@knowmad.com>,
+Stas]
+
 $ENV{APACHE_TEST_NO_STICKY_PREFERENCES}, if true, will both suppress
 generation of persistent preferences and ignore any that already exist.
 [Geoffrey Young]
