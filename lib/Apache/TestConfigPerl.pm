@@ -171,6 +171,7 @@ sub new_vhost {
 my %outside_container = map { $_, 1 } qw{
 Alias AliasMatch AddType
 PerlChildInitHandler PerlTransHandler PerlPostReadRequestHandler
+PerlSwitches PerlRequire PerlModule
 };
 
 #test .pm's can have configuration after the __DATA__ token
