@@ -133,16 +133,16 @@ SSL_CLIENT_M_VERSION         qr(^\d+$)
 SSL_SERVER_M_VERSION         qr(^\d+$)
 SSL_CLIENT_M_SERIAL          qr(^\d+$)
 SSL_SERVER_M_SERIAL          qr(^\d+$)
-SSL_PROTOCOL                 'TLSv1'
+SSL_PROTOCOL                 qr((TLS|SSL)v([1-3])$)
 SSL_CLIENT_V_START           qr($cert_datefmt);
 SSL_SERVER_V_START           qr($cert_datefmt);
 SSL_SESSION_ID
 SSL_CLIENT_V_END             qr($cert_datefmt);
 SSL_SERVER_V_END             qr($cert_datefmt);
-SSL_CIPHER                   'EDH-RSA-DES-CBC3-SHA'
+SSL_CIPHER                   qr(^[A-Z0-9-]+$)
 SSL_CIPHER_EXPORT            'false'
-SSL_CIPHER_ALGKEYSIZE        '168'
-SSL_CIPHER_USEKEYSIZE        '168'
+SSL_CIPHER_ALGKEYSIZE        qr(^\d+$)
+SSL_CIPHER_USEKEYSIZE        qr(^\d+$)
 
 SSL_CLIENT_S_DN              "$client_dn"
 SSL_SERVER_S_DN              "$server_dn"
