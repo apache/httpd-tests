@@ -245,11 +245,36 @@ sub configure_pm_tests {
             my @args;
 
             my $pm = $_;
-            my $module = catfile $File::Find::dir, $pm;
-            $self->add_module_config($module, \@args);
-            $module = abs2rel $module, $dir;
+            my $file = catfile $File::Find::dir, $pm;
+            $self->add_module_config($file, \@args);
+            my $module = abs2rel $file, $dir;
             $module =~ s,\.pm$,,;
             $module = join '::', splitdir $module;
+
+            # We have to test whether tests have
+            # APACHE_TEST_CONFIGURE() in them and run it if found at
+            # this stage, so when the server starts everything is
+            # ready.
+            # XXX: however we cannot use a simple require() because
+            # some tests won't require() outside of mod_perl
+            # environment. Therefore we scan the slurped file in.  and
+            # if APACHE_TEST_CONFIGURE has been found we require the
+            # file and run this function.
+
+            {
+                local $/;
+                open my $fh, $file or die "cannot open $file: $!";
+                my $content = <$fh>;
+                close $fh;
+                if ($content =~ /APACHE_TEST_CONFIGURE/m) {
+                    require $file;
+                    # double check that it's a real sub
+                    if ($module->can('APACHE_TEST_CONFIGURE')) {
+                        eval { $module->APACHE_TEST_CONFIGURE(); };
+                        warn $@ if $@;
+                    }
+                }
+            }
 
             my($base, $sub) =
               map { s/^test//i; $_ } split '::', $module;
