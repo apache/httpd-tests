@@ -199,6 +199,8 @@ sub add_module_config {
         last if /^(__(DATA|END)__|\#if CONFIG_FOR_HTTPD_TEST)/;
     }
 
+    my %directives;
+
     while (<$fh>) {
         last if /^\#endif/; #for .c modules
         next unless /\S+/;
@@ -211,6 +213,7 @@ sub add_module_config {
             next;
         }
         my($directive, $rest) = split /\s+/, $_, 2;
+        $directives{$directive}++;
         $rest = '' unless defined $rest;
         if ($outside_container{$directive}) {
             $self->postamble($directive => $rest);
@@ -252,6 +255,8 @@ sub add_module_config {
             push @$args, $directive, $rest;
         }
     }
+
+    \%directives;
 }
 
 #the idea for each group:
@@ -287,7 +292,7 @@ sub configure_pm_tests {
 
             my $pm = $_;
             my $file = catfile $File::Find::dir, $pm;
-            $self->add_module_config($file, \@args);
+            my $directives = $self->add_module_config($file, \@args);
             my $module = abs2rel $file, $dir;
             $module =~ s,\.pm$,,;
             $module =~ s/^[a-z]://i; #strip drive if any
@@ -319,13 +324,17 @@ sub configure_pm_tests {
             }
 
             my $container = $container_config{$hook} || \&location_container;
-            my @handler_cfg = ($handler => $module);
 
-            if ($outside_container{$handler}) {
-                $self->postamble(@handler_cfg);
-            }
-            else {
-                push @args, @handler_cfg;
+            #unless the .pm test already configured the Perl*Handler
+            unless ($directives->{$handler}) {
+                my @handler_cfg = ($handler => $module);
+
+                if ($outside_container{$handler}) {
+                    $self->postamble(@handler_cfg);
+                }
+                else {
+                    push @args, @handler_cfg;
+                }
             }
 
             my $args_hash = list_to_hash_of_lists(\@args);
