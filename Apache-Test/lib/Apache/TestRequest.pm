@@ -188,16 +188,22 @@ sub upload_file {
     ));
 }
 
-#mainly useful for POST_HEAD
+#useful for POST_HEAD and $DebugLWP (see below)
 sub header_string {
     my $r = shift;
+    my $content = $r->content;
     unless ($r->header('Content-length')) {
-        $r->header('Content-length' => length $r->content);
+        $r->header('Content-length' => length $content);
         $r->header('X-Content-length-note' => 'added by Apache::TestReqest');
     }
     $r->content("");
-    $r->as_string;
+    my $string = $r->as_string;
+    $r->content($content); #reset
+    $string;
 }
+
+our $DebugLWP; #1 == print METHOD URL and header response for all requests
+               #2 == #1 + response body
 
 my %shortcuts = (RC   => sub { shift->code },
                  OK   => sub { shift->is_success },
@@ -216,7 +222,16 @@ for my $name (@EXPORT) {
 
     while (my($shortcut, $cv) = each %shortcuts) {
         my $alias = join '_', $name, $shortcut;
-        *$alias = sub { (\&{$name})->(@_)->$cv; };
+        *$alias = sub {
+            my $r = (\&{$name})->(@_);
+            if ($DebugLWP) {
+                my($url, @rest) = @_;
+                $url = resolve_url($url);
+                print "$name $url @rest:\n";
+                print $DebugLWP > 1 ? $r->as_string : header_string($r);
+            }
+            $r->$cv;
+        };
     }
 }
 
