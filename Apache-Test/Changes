@@ -8,6 +8,10 @@ Changes - Apache::Test change logfile
 
 =item 1.08_dev
 
+generate t/conf if it does not already exist, which
+it may not if the tests are entirely autoconfigured.
+[Geoffrey Young]
+
 Special to Apache-Test environment variables:
 APXS APACHE APACHE_GROUP APACHE_USER APACHE_PORT
 are now moved to:
