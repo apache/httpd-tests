@@ -40,7 +40,7 @@ sub t_cmp {
     sub { @_ };
 
 sub t_debug {
-    print map {"# $_\n"} map {split /\n/} expand(@_);
+    print map {"# $_\n"} map {split /\n/} grep {defined} expand(@_);
 }
 
 sub t_write_file {
