@@ -30,6 +30,7 @@ unless ($ENV{APACHE_TEST_PRETEND_NO_LWP}) {
             *OPTIONS = sub { _simple_req(OPTIONS => @_) };
             push @EXPORT, 'OPTIONS';
         }
+        1;
     };
 }
 
