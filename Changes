@@ -8,7 +8,9 @@ Changes - Apache::Test change logfile
 
 =item 1.17-dev
 
-fix Apache::TestConfig::open_cmd to run properly under -T [Stas]
+resolve -T taint issues: [Stas]
+- untaint $cmd in Apache::TestConfig::open_cmd
+- fix the tainting of @INC (by untaintinig top_dir variable)
 
 require Cwd 2.06 or higher (to solve File::Spec::rel2abs problems
 under -T). Enforce the modules version requirements for those who

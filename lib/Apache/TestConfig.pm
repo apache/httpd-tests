@@ -264,6 +264,9 @@ sub new {
 
     $vars->{top_dir} ||= fastcwd;
     $vars->{top_dir} = pop_dir($vars->{top_dir}, 't');
+    # untaint as we are going to use it a lot later on in -T sensitive
+    # operations (.e.g @INC)
+    $vars->{top_dir} = $1 if $vars->{top_dir} =~ /(.*)/;
 
     $self->add_inc;
 
@@ -1043,7 +1046,7 @@ sub open_cmd {
     $ENV{PATH} = join ':', grep !/^\./, split /:/, $ENV{PATH};
 
     # launder for -T
-    $cmd =~ /(.*)/; $cmd = $1;
+    $cmd = $1 if $cmd =~ /(.*)/;
 
     my $handle = Symbol::gensym();
     open $handle, "$cmd|" or die "$cmd failed: $!";
