@@ -8,6 +8,10 @@ Changes - Apache::Test change logfile
 
 =item 1.12-dev
 
+Add support for Module::Build, with a new module: Apache::TestMB (a
+"clone" of Apache::TestMM for ExtUtils::MakeMaker). [David Wheeler
+<david@kineticode.com>]
+
 switch the order of arguments in t_cmp() and t_is_equal() so that
 the order matches Test::More::is() and other Test::More functions.
 the new call is: t_cmp($received, $expected, $comment);  support
