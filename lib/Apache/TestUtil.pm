@@ -8,27 +8,21 @@ use Exporter ();
 
 our $VERSION = '0.01';
 our @ISA     = qw(Exporter);
-our @EXPORT  = qw(t_cmp t_write_file t_open_file t_mkdir t_rm_tree);
+our @EXPORT  = qw(t_cmp t_write_file t_open_file t_mkdir t_rmtree);
 
 our %CLEAN = ();
 
-# t_cmp($expect,$received,$comment)
-# returns the result of comparison of $expect and $received
-# first prints all the arguments for debug.
-##################
 sub t_cmp {
     my ($expect, $received, $comment) = @_;
     print "testing : $comment\n" if defined $comment;
     print "expected: $expect\n";
     print "received: $received\n";
-    $expect eq $received;
+    defined $expect && defined $received && $expect eq $received;
 }
 
-# t_write_file($filename,@lines);
-# the file will be deleted at the end of the tests run
-#################
 sub t_write_file {
     my $file = shift;
+    die "must pass a filename" unless defined $file;
     open my $fh, ">", $file or die "can't open $file: $!";
     print "writing file: $file\n";
     print $fh join '', @_ if @_;
@@ -36,42 +30,33 @@ sub t_write_file {
     $CLEAN{files}{$file}++;
 }
 
-# t_open_file($filename);
-# open a file for writing and return the open fh
-# the file will be deleted at the end of the tests run
-################
 sub t_open_file {
     my $file = shift;
+    die "must pass a filename" unless defined $file;
     open my $fh, ">", $file or die "can't open $file: $!";
     print "writing file: $file\n";
     $CLEAN{files}{$file}++;
     return $fh;
 }
 
-# t_mkdir($dirname)
-# create a dir
-# the dir will be deleted at the end of the tests run
-############
 sub t_mkdir {
     my $dir = shift;
-
+    die "must pass a dirname" unless defined $dir;
     mkdir $dir, 0755 unless -d $dir;
     print "creating dir: $dir\n";
     $CLEAN{dirs}{$dir}++;
 }
 
-# deletes the whole tree(s) or just file(s)
-# accepts a list of dirs to delete
-###############
-sub t_rm_tree {
+sub t_rmtree {
+    die "must pass a dirname" unless defined $_[0];
     File::Path::rmtree((@_ > 1 ? \@_ : $_[0]), 0, 1);
 }
 
 END{
 
     # cleanup first files than dirs
-    map { unlink $_     } grep {-e $_ && -f _ } keys %{ $CLEAN{files} };
-    map { t_rm_tree($_) } grep {-e $_ && -d _ } keys %{ $CLEAN{dirs}  };
+    map { unlink $_    } grep {-e $_ && -f _ } keys %{ $CLEAN{files} };
+    map { t_rmtree($_) } grep {-e $_ && -d _ } keys %{ $CLEAN{dirs}  };
 
 }
 
@@ -81,14 +66,105 @@ __END__
 
 =head1 NAME
 
-Apache::TestUtil - Utilities for writing tests
+Apache::TestUtil - Utility functions for writing tests
 
 =head1 SYNOPSIS
 
+  use Apache::Test;
+  use Apache::TestUtil;
 
+  ok t_cmp("foo", "foo", "sanity check");
+  t_write_file("filename", @content);
+  my $fh = t_open_file($filename);
+  t_mkdir("/foo/bar");
+  t_rmtree("/foo/bar");
 
 =head1 DESCRIPTION
 
+C<Apache::TestUtil> automatically exports a number of functions useful
+in writing tests.
+
+All the files and directories created using the functions from this
+package will be automatically destroyed at the end of the program
+execution (via END block). You should not use these functions other
+than from within tests which should cleanup all the created
+directories and files at the end of the test.
+
+=head1 FUNCTIONS
+
+=over 
+
+=item t_cmp()
+
+  t_cmp($expect, $received, $comment);
+
+t_cmp() prints the values of I<$comment>, I<$expect> and
+I<$received>. e.g.:
+
+  t_cmp(1, 1, "1 == 1?");
+
+prints:
+
+  testing : 1 == 1?
+  expected: 1
+  received: 1
+
+then it returns the result of comparison of the I<$expect> and the
+I<$received> variables. Usually, the return value of this function is
+fed directly to the ok() function, like this:
+
+  ok t_cmp(1, 1, "1 == 1?");
+
+
+=item t_write_file()
+
+  t_write_file($filename, @lines);
+
+t_write_file() creates a new file at I<$filename> or overwrites the
+existing file with the content passed in I<@lines>. If only the
+I<$filename> is passed, an empty file will be created.
+
+The generated file will be automatically deleted at the end of the
+program's execution.
+
+=item t_open_file()
+
+  my $fh = t_open_file($filename);
+
+t_open_file() opens a file I<$filename> for writing and returns the
+file handle to the opened file.
+
+The generated file will be automatically deleted at the end of the
+program's execution.
+
+=item t_mkdir()
+
+  t_mkdir($dirname);
+
+t_mkdir() creates a directory I<$dirname>. The operation will fail if
+the parent directory doesn't exist.
+
+META: should we use File::Path::mkpath() to generate any dir even if
+the parent doesn't exist? or should we create t_mkpath() in addition?
+
+The generated directory will be automatically deleted at the end of
+the program's execution.
+
+=item t_rmtree()
+
+  t_rmtree(@dirs);
+
+t_rmtree() deletes the whole directories trees passed in I<@dirs>.
+
+=back
+
+=head1 AUTHOR
+
+Stas Bekman <stas@stason.org>
+
+=head1 SEE ALSO
+
+perl(1)
 
 
 =cut
