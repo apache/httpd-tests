@@ -6,6 +6,7 @@ use strict;
 use warnings FATAL => 'all';
 use File::Spec::Functions qw(catfile splitdir abs2rel);
 use File::Find qw(finddepth);
+use Apache::TestTrace;
 use Config;
 
 my %libmodperl  = (1 => 'libperl.so', 2 => 'libmodperl.so');
@@ -341,16 +342,19 @@ sub run_apache_test_config {
     my ($self, $file, $module) = @_;
 
     local $/;
-    open my $fh, $file or die "cannot open $file: $!";
-    my $content = <$fh>;
-    close $fh;
-    if ($content =~ /APACHE_TEST_CONFIGURE/m) {
-        eval { require $file };
-        # double check that it's a real sub
-        if ($module->can('APACHE_TEST_CONFIGURE')) {
-            eval { $module->APACHE_TEST_CONFIGURE($self); };
-            warn $@ if $@;
+    if (open my $fh, $file) {
+        my $content = <$fh>;
+        close $fh;
+        if ($content =~ /APACHE_TEST_CONFIGURE/m) {
+            eval { require $file };
+            # double check that it's a real sub
+            if ($module->can('APACHE_TEST_CONFIGURE')) {
+                eval { $module->APACHE_TEST_CONFIGURE($self); };
+                warn $@ if $@;
+            }
         }
+    } else {
+        error "cannot open $file: $!";
     }
 }
 
