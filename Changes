@@ -8,6 +8,11 @@ Changes - Apache::Test change logfile
 
 =item 1.03-dev - 
 
+Instrumented Makefile.PL to unconditionally remove any old
+pre-installed occurrences of Apache/test.pm, which has been renamed to
+Apache/testold.pm in mod_perl 1.28 to avoid collisions with
+Apache/Test.pm on case-insensitive systems. [Stas]
+
 Apache::TestClient now handles correctly responses with no body and
 its response header() method is no longer case-sensitive [Stas]
 
@@ -31,12 +36,12 @@ filename and the line number the function was called from. If the
 '_sub' suffix is appended (e.g., 'error_info') the trace will start
 with the name of the subroutine the function was called from. [Stas]
 
-introduce a new env var APACHE_TEST_TRACE_LEVEL, to override the trace
-level. Propogate the overriden values (either by env var
-APACHE_TEST_TRACE_LEVEL or -trace option) to the server-side, so we
-can use tracing in the handlers, and enable disable traces from the
-commmand line. This way we don't have to comment out debug
-tracing. [Stas]
+add support for a new env var APACHE_TEST_TRACE_LEVEL, used to
+override the tracing level. It propogates the overriden (either by env
+var APACHE_TEST_TRACE_LEVEL or -trace option) value to the
+server-side, so we can use Apache::TestTrace in mod_perl handlers, and
+be able enable/disable tracing from the commmand line. This way we
+don't have to comment out debug prints. [Stas]
 
 =item 1.02
 
