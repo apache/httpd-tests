@@ -422,6 +422,10 @@ sub same_interp_tie {
 # currently supports only GET, HEAD, PUT, POST subs
 sub same_interp_do {
     my($same_interp, $sub, $url, @args) = @_;
+
+    die "must pass an interpreter id to work with"
+        unless defined $same_interp and $same_interp;
+
     push @args, (INTERP_KEY, $same_interp);
 
     my $res      = '';
@@ -431,8 +435,8 @@ sub same_interp_do {
         #loop until we get a response from our interpreter instance
         $res = $sub->($url, @args);
 
-        if ($res->code == 200) {
-            $found_same_interp = $res->header(INTERP_KEY);
+        if ($res and $res->code == 200) {
+            $found_same_interp = $res->header(INTERP_KEY) || '';
         }
 
         unless ($found_same_interp eq $same_interp) {
