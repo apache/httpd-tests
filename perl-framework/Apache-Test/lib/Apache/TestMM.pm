@@ -17,20 +17,9 @@ sub import {
     }
 }
 
-sub passenv {
-    my $passenv = Apache::TestConfig->passenv;
-    my @vars;
-
-    for (keys %$passenv) {
-        push @vars, "$_=\$($_)";
-    }
-
-    "@vars";
-}
-
 sub test {
 
-    my $env = passenv();
+    my $env = Apache::TestConfig->passenv_makestr();
 
     my $preamble = <<EOF;
 PASSENV = $env

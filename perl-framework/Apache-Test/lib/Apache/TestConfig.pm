@@ -49,6 +49,16 @@ sub passenv {
     \%passenv;
 }
 
+sub passenv_makestr {
+    my @vars;
+
+    for (keys %passenv) {
+        push @vars, "$_=\$($_)";
+    }
+
+    "@vars";
+}
+
 sub server { shift->{server} }
 
 sub build_config {
