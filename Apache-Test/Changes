@@ -6,7 +6,7 @@ Changes - Apache::Test change logfile
 
 =over 3
 
-=item 1.16-dev
+=item 1.16 - November 9, 2004
 
 launder the require()d custom config filename to make -T happy
 [Torsten Förtsch <torsten.foertsch gmx.net>]
