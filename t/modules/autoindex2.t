@@ -28,7 +28,7 @@ my %dirs = (
    dir_broken    => 0, # 
 );
 
-plan tests => 3;
+plan tests => 3, ['autoindex'];
 
 setup();
 
