@@ -1,3 +1,0 @@
-Header set X-SSL-Flag %{HTTPS}s
-Header set X-SSL-Cert %{SSL_SERVER_CERT}s
-Header set X-SSL-None %{SSL_FOO_BAR}s

