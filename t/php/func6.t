@@ -6,7 +6,7 @@ use Apache::TestRequest;
 
 ## nested functions test.
 
-plan tests => 1, have_module 'php4';
+plan tests => 1, need_php;
 
 my $expected = "4 Hello 4";
 

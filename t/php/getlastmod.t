@@ -8,7 +8,7 @@ use File::Spec::Functions qw(catfile);
 
 use POSIX qw(strftime);
 
-plan tests => 1, have_module 'php4';
+plan tests => 1, need_php;
 
 my $vars = Apache::Test::vars();
 my $fname = catfile $vars->{documentroot}, "php", "getlastmod.php";

@@ -5,7 +5,7 @@ use Apache::Test;
 use Apache::TestRequest;
 use Apache::TestUtil;
 
-plan tests => 2, have_module 'php4';
+plan tests => 2, need_php;
 
 my $path = Apache::Test::vars()->{t_logs};
 my $file = "$path/func5.php.ran";

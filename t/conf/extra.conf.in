@@ -33,10 +33,10 @@
 </IfDefine>
 
 ##
-## mod_php4 test config
+## mod_php4/mod_php5 test config
 ##
 
-<IfModule mod_php4.c>
+<IfModule @PHP_MODULE@>
     AddType application/x-httpd-php .php
     AddType application/x-httpd-php-source .phps
 </IfModule>

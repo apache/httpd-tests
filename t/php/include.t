@@ -6,7 +6,7 @@ use Apache::TestRequest;
 
 ## testing include
 
-plan tests => 1, have_module 'php4';
+plan tests => 1, need_php;
 
 my $expected = "Hello";
 

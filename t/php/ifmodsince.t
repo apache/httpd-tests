@@ -7,7 +7,7 @@ use Apache::TestRequest qw(GET_RC);
 
 use POSIX qw(strftime);
 
-plan tests => 1, have_module 'php4';
+plan tests => 1, need_php;
 
 # Test for bug where Apache serves a 304 if the PHP file (on disk) has
 # not been modified since the date given in an If-Modified-Since

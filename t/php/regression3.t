@@ -4,7 +4,7 @@ use warnings FATAL => 'all';
 use Apache::Test;
 use Apache::TestRequest;
 
-plan tests => 1, have_module 'php4';
+plan tests => 1, need_module 'php4';
 
 my $expected = <<EXPECT;
  0  a  1  a  2  a  3  a  4  a  5  a  6  a  7  a  8  a  9 

@@ -6,7 +6,7 @@ use Apache::TestRequest;
 
 ## testing eval function inside user function
 
-plan tests => 1, have_module 'php4';
+plan tests => 1, need_module 'php4';
 
 my $expected = "Hello";
 

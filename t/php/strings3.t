@@ -9,7 +9,7 @@ my $result = GET_BODY "/php/strings3.php";
 my @res = split /\n/, $result;
 my $count = @res;
 
-plan tests => $count + 1, have_module 'php4';
+plan tests => $count + 1, need_php;
 
 my $expected = <<EXPECT;
 printf test 1:simple string

@@ -5,7 +5,7 @@ use Apache::Test;
 use Apache::TestRequest;
 use Apache::TestUtil;
 
-plan tests => 2, have_module 'php4';
+plan tests => 2, need_php;
 
 ## var1.php source:
 ## <?php echo $variable?>
