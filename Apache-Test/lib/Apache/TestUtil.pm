@@ -286,8 +286,19 @@ sub t_is_equal {
 }
 
 my $banner_format = 
-    "\n*** The following %s entry is expected and it is harmless ***\n";
-sub t_server_log_is_expected { printf STDERR $banner_format, $_[0]; }
+    "\n*** The following %s expected and harmless ***\n";
+
+sub is_expected_banner {
+    my $type  = shift;
+    my $count = @_ ? shift : 1;
+    sprintf $banner_format, $count == 1
+        ? "$type entry is"
+        : "$count $type entries are";
+}
+
+sub t_server_log_is_expected {
+    print STDERR is_expected_banner(@_);
+}
 
 sub t_client_log_is_expected {
     my $vars = Apache::Test::config()->{vars};
@@ -296,14 +307,14 @@ sub t_client_log_is_expected {
     my $fh = Symbol::gensym();
     open $fh, ">>$log_file" or die "Can't open $log_file: $!";
     my $oldfh = select($fh); $| = 1; select($oldfh);
-    printf $fh $banner_format, $_[0];
+    print $fh is_expected_banner(@_);
     close $fh;
 }
 
-sub t_server_log_error_is_expected { t_server_log_is_expected("error");}
-sub t_server_log_warn_is_expected  { t_server_log_is_expected("warn"); }
-sub t_client_log_error_is_expected { t_client_log_is_expected("error");}
-sub t_client_log_warn_is_expected  { t_client_log_is_expected("warn"); }
+sub t_server_log_error_is_expected { t_server_log_is_expected("error", @_);}
+sub t_server_log_warn_is_expected  { t_server_log_is_expected("warn", @_); }
+sub t_client_log_error_is_expected { t_client_log_is_expected("error", @_);}
+sub t_client_log_warn_is_expected  { t_client_log_is_expected("warn", @_); }
 
 END {
     # remove files that were created via this package
@@ -577,8 +588,17 @@ function can be used as:
 
 After running this handler the I<error_log> file will include:
 
-  *** The following error entry is expected and it is harmless ***
+  *** The following error entry is expected and harmless ***
   [Tue Apr 01 14:00:21 2003] [error] failed because ...
+
+When more than one entry is expected, an optional numerical argument,
+indicating how many entries to expect, can be passed. For example:
+
+  t_server_log_error_is_expected(2);
+
+will generate:
+
+  *** The following 2 error entries are expected and harmless ***
 
 If the error is generated at compile time, the logging must be done in
 the BEGIN block at the very beginning of the file:
@@ -592,7 +612,7 @@ the BEGIN block at the very beginning of the file:
 After attempting to run this handler the I<error_log> file will
 include:
 
-  *** The following error entry is expected and it is harmless ***
+  *** The following error entry is expected and harmless ***
   [Tue Apr 01 14:04:49 2003] [error] Can't locate "DOES_NOT_exist.pm"
   in @INC (@INC contains: ...
 
@@ -637,9 +657,18 @@ For example the following client script fails to find the handler:
 After running this test the I<error_log> file will include an entry
 similar to the following snippet:
 
-  *** The following error entry is expected and it is harmless ***
+  *** The following error entry is expected and harmless ***
   [Tue Apr 01 14:02:55 2003] [error] [client 127.0.0.1] 
   File does not exist: /tmp/test/t/htdocs/error
+
+When more than one entry is expected, an optional numerical argument,
+indicating how many entries to expect, can be passed. For example:
+
+  t_client_log_error_is_expected(2);
+
+will generate:
+
+  *** The following 2 error entries are expected and harmless ***
 
 This function is exported by default.
 

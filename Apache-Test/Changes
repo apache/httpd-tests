@@ -8,6 +8,10 @@ Changes - Apache::Test change logfile
 
 =item 1.10-dev
 
+t_server_log_error_is_expected t_server_log_warn_is_expected
+t_client_log_error_is_expected t_client_log_warn_is_expected
+now support an optional argument, suggesting how many entries
+to expect [Stas]
 
 =item 1.09 - March 8, 2004
 
