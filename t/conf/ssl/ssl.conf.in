@@ -214,6 +214,8 @@ Alias /verify @DocumentRoot@
 #t/ssl/require.t
 Alias /require/asf @DocumentRoot@
 Alias /require/snakeoil @DocumentRoot@
+Alias /ssl-cgi         @DocumentRoot@/modules/cgi
+Alias /require-ssl-cgi @DocumentRoot@/modules/cgi
 
 <Location /require/asf>
     SSLVerifyClient require
@@ -231,6 +233,16 @@ Alias /require/snakeoil @DocumentRoot@
                 and %{SSL_CLIENT_S_DN_O} eq "Snake Oil, Ltd." \
                 and %{SSL_CLIENT_S_DN_OU} in \
                      {"Staff", "CA", "Dev"} )
+</Location>
+
+<Location /ssl-cgi>
+    SSLOptions +StdEnvVars
+</Location>
+
+<Location /require-ssl-cgi>
+    SSLOptions +StdEnvVars
+    SSLVerifyClient require
+    SSLVerifyDepth  10
 </Location>
 
 </VirtualHost>
