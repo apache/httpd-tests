@@ -7,7 +7,7 @@ use Apache::TestConfig ();
 
 my $url = '/verify/index.html';
 
-plan tests => 3, [qw(ssl LWP::Protocol::https)];
+plan tests => 3;
 
 Apache::TestRequest::scheme('https');
 

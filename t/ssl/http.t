@@ -9,7 +9,7 @@ use Apache::TestConfig ();
 
 my $url = '/index.html';
 
-plan tests => 1, [qw(ssl LWP::Protocol::https)];
+plan tests => 1;
 
 my $vars = Apache::TestRequest::vars();
 local $vars->{port} = $vars->{sslport};
