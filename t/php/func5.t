@@ -4,9 +4,8 @@ use warnings FATAL => 'all';
 use Apache::Test;
 use Apache::TestRequest;
 use Apache::TestConfig;
-use ExtModules::TestEnv;
 
-plan tests => 2, \&ExtModules::TestEnv::has_php4;
+plan tests => 2, test_module 'php4';
 
 my $env = Apache::TestConfig->thaw;
 
@@ -23,7 +22,7 @@ ok $result eq $expected;
 ## this is kind of lame and may not work...i dont know how php is
 ## SUPPPOSED to work in this situation...
 
-my $error_log = $env->{httpd_defines}->{DEFAULT_ERRORLOG};
+my $error_log = "$env->{vars}->{t_logs}/error_log";
 open(ERROR_LOG, $error_log);
 my @log = <ERROR_LOG>;
 $result = pop @log;
