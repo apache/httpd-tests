@@ -160,7 +160,8 @@ sub cmodules_httpd_conf {
 
     for my $mod (@{ $self->{cmodules} }) {
         my $dir = $mod->{dir};
-        my $so = "$dir/.libs/$mod->{name}.so";
+        my $lib = $self->cmodules_build_so($mod->{name});
+        my $so  = "$dir/$lib";
 
         next unless -e $so;
 
