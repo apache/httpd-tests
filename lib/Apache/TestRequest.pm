@@ -1104,12 +1104,12 @@ the creation of urls used in the functions above.
 
 =head3 C<module2path>
 
-  $path = module2path($module_name);
+  $path = Apache::TestRequest::module2path($module_name);
 
 Convert a module name to a path, safe for use in the various request
 methods above. e.g. C<::> can't be used in URLs on win32. For example:
 
-  $path = module2path('Foo::Bar');
+  $path = Apache::TestRequest::module2path('Foo::Bar');
 
 returns:
 
@@ -1121,7 +1121,7 @@ returns:
 =head3 C<module2url>
 
   $url = Apache::TestRequest::module2url($module);
-  $url = Apache::TestRequest::module2url($module, %options);
+  $url = Apache::TestRequest::module2url($module, \%options);
 
 Convert a module name to a full URL including the current
 configurations C<hostname:port> and sets C<module> accordingly.
