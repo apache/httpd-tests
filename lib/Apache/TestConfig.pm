@@ -1280,6 +1280,17 @@ sub generate_httpd_conf {
 
     $self->replace_vars($in, $out);
 
+    # handle the case when mod_alias is built as a shared object
+    # but wasn't included in the system-wide httpd.conf
+    my $mod_alias = $self->find_apache_module('mod_alias.so');
+    if ($mod_alias && -e $mod_alias) {
+        print $out <<EOF;
+<IfModule !mod_alias.c>
+    LoadModule alias_module $mod_alias
+</IfModule>
+EOF
+    }
+
     for (keys %aliases) {
         next unless $vars->{$aliases{$_}};
         print $out "Alias /getfiles-$_ $vars->{$aliases{$_}}\n";
