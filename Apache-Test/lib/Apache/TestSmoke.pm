@@ -88,11 +88,10 @@ sub new {
     $self->{order}   = $opts->{order}   || 'random';
     $self->{verbose} = $opts->{verbose} || 0;
 
-    # it doesn't make sense to run a known sequence more than once
-    if ($self->{order} eq 'random') {
-        $self->{run_iter} = $opts->{iterations} || DEFAULT_ITERATIONS;
-    }
-    else {
+    # unless specifically asked to, it doesn't make sense to run a
+    # known sequence more than once
+    $self->{run_iter} = $opts->{iterations} || DEFAULT_ITERATIONS;
+    if ($self->{order} ne 'random' and !$opts->{iterations}) {
         error "forcing only one iteration for non-random order";
         $self->{run_iter} = 1;
     }
@@ -311,8 +310,9 @@ sub run_iter {
     my $reduce_iter = 0;
     my @good = ();
     warning "\n" . sep("-");
-    warning sprintf "[%03d-%02d-%02d] trying all tests $self->{times} times",
-        $iter, $reduce_iter, 0;
+    warning sprintf "[%03d-%02d-%02d] trying all tests %d time%s",
+        $iter, $reduce_iter, 0, $self->{times},
+        ($self->{times} > 1 ? "s" : "");
 
     # first time run all tests, or all specified tests
     my @tests = @{ $self->{tests} }; # copy 
@@ -377,6 +377,7 @@ sub run_iter {
                 my $num = @ok;
                 error "*** reduction $reduce_iter succeeded ($num tests) ***";
                 $self->{total_reduction_successes}++;
+                $self->log_successful_reduction($iter, \@ok);
                 last;
             }
         }
@@ -613,6 +614,7 @@ sub report_start {
     $time =~ s/:/-/g; # winFU
     my $file = $self->{opts}->{report} ||
         catfile Apache::Test::vars('top_dir'), "smoke-report-$time.txt";
+    $self->{runtime}->{report} = $file;
     info "Report file: $file";
 
     open my $fh, ">$file" or die "cannot open $file for writing: $!";
@@ -708,6 +710,21 @@ $cfg_as_string
 EOM
         close $fh;
     }
+}
+
+# in case the smoke gets killed before it had a chance to finish and
+# write the report, at least we won't lose the last successful reduction
+# XXX: this wasn't needed before we switched to IPC::Run3, since
+# Ctrl-C would log the collected data, but it doesn't work with
+# IPC::Run3. So if that gets fixed, we can remove that function
+sub log_successful_reduction {
+    my($self, $iter, $tests) = @_;
+
+    my $file = $self->{runtime}->{report} . ".$iter.temp";
+    debug "saving in $file";
+    open my $fh, ">$file" or die "cannot open $file for writing: $!";
+    print $fh join " ", @$tests;
+    close $fh;
 }
 
 sub build_config_as_string {
