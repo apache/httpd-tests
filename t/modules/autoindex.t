@@ -22,7 +22,7 @@ my $s = 'HITHERE';
 my $uri = "$uri_prefix/";
 my $file_prefix = 'ai-test';
 my ($C,$O);
-my $cfg = Apache::TestRequest::test_config();
+my $cfg = Apache::Test::config();
 my $have_apache_2 = have_apache 2;
 
 my %file =
