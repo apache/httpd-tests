@@ -206,8 +206,18 @@ sub new {
         $args->{$key} = $val;
     }
 
-    my $thaw = {};
+    my $top_dir = fastcwd;
+    $top_dir = pop_dir($top_dir, 't');
+    # untaint as we are going to use it a lot later on in -T sensitive
+    # operations (.e.g @INC)
+    $top_dir = $1 if $top_dir =~ /(.*)/;
 
+    # make sure that t/conf/apache_test_config.pm is found
+    # (unfortunately sometimes we get thrown into / by Apache so we
+    # can't just rely on $top_dir
+    lib->import($top_dir);
+
+    my $thaw = {};
     #thaw current config
     for (qw(conf t/conf)) {
         last if eval {
@@ -218,7 +228,7 @@ sub new {
             #something else, which we can't be sure how to load
             bless $thaw, 'Apache::TestConfig';
         };
-    };
+    }
 
     if ($args->{thaw} and ref($thaw) ne 'HASH') {
         #dont generate any new config
@@ -262,11 +272,7 @@ sub new {
         $self->{$_} = delete $args->{$_};
     }
 
-    $vars->{top_dir} ||= fastcwd;
-    $vars->{top_dir} = pop_dir($vars->{top_dir}, 't');
-    # untaint as we are going to use it a lot later on in -T sensitive
-    # operations (.e.g @INC)
-    $vars->{top_dir} = $1 if $vars->{top_dir} =~ /(.*)/;
+    $vars->{top_dir} ||= $top_dir;
 
     $self->add_inc;
 
