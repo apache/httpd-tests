@@ -169,6 +169,7 @@ sub add_module_config {
 
     while (<$fh>) {
         next unless /\S+/;
+        $self->replace;
         push @$args, split /\s+/, $_, 2;
     }
 }
