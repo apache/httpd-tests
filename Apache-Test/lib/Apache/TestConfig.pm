@@ -111,6 +111,8 @@ sub new {
         modules => {},
         inc => [],
         %$thaw,
+        mpm => "",
+        httpd_defines => {},
         vars => $args,
         postamble => [],
         preamble => [],
