@@ -4,7 +4,7 @@ use warnings FATAL => 'all';
 use Apache::Test;
 use Apache::TestRequest;
 
-plan tests => 9, \&have_lwp;
+plan tests => 9, \&need_lwp;
 
 my $url = '/index.html';
 
