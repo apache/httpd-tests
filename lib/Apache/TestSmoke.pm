@@ -170,6 +170,9 @@ sub install_sighandlers {
     my $self = shift;
 
     $SIG{INT} = sub {
+        # make sure that there the server is down
+        $self->kill_proc();
+
         $self->report_finish;
         exit;
     };
@@ -739,11 +742,14 @@ sub kill_proc {
     my($self) = @_;
 
     # a hack
-    my $file = "t/logs/httpd.pid";
+    my $t_logs  = $self->{test_config}->{vars}->{t_logs};
+    my $file = catfile $t_logs, "httpd.pid";
     return unless -f $file;
+
     my $pid = `cat $file`;
     chomp $pid;
     return unless $pid;
+
     kill SIGINT => $pid;
 }
 
