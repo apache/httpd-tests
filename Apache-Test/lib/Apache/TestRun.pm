@@ -61,7 +61,7 @@ sub fixup {
     #make sure we use an absolute path to perl
     #else Test::Harness uses the perl in our PATH
     #which might not be the one we want
-    $^X = $Config{perlpath} if $^X eq 'perl';
+    $^X = $Config{perlpath} unless -e $^X;
 }
 
 sub new {
