@@ -29,7 +29,7 @@ my $Config;
 
 sub hostport {
     my $config = shift || test_config();
-    my $hostport = $config->{hostport};
+    my $hostport = $config->hostport;
 
     if (my $module = $Apache::TestRequest::Module) {
         $hostport = $config->{vhosts}->{$module}->{hostport}
@@ -43,10 +43,15 @@ sub resolve_url {
     my $url = shift;
     return $url if $url =~ m,^(\w+):/,;
     $url = "/$url" unless $url =~ m,^/,;
-    my $hostport = hostport($Config);
-    my $scheme = $Apache::TestRequest::Scheme ||
-                 test_config()->{vars}->{scheme} || 'http';
-    return "$scheme://$hostport$url";
+
+    my $vars = test_config()->{vars};
+
+    local $vars->{scheme} =
+      $Apache::TestRequest::Scheme || $vars->{scheme} || 'http';
+
+    my $hostport = hostport();
+
+    return "$vars->{scheme}://$hostport$url";
 }
 
 my %wanted_args = map {$_, 1} qw(username password realm content filename
@@ -112,7 +117,6 @@ sub vhost_socket {
 
 sub prepare {
     eval { $UA ||= __PACKAGE__->new; };
-    $Config ||= test_config();
 
     my $url = resolve_url(shift);
     my($pass, $keep) = filter_args(\@_);
