@@ -1,7 +1,5 @@
 <?php
 
-error_reporting(1023);
-
 function print_stuff($stuff)
 {
 	print $stuff;
