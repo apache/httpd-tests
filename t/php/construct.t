@@ -3,9 +3,9 @@ use warnings FATAL => 'all';
 
 use Apache::Test;
 use Apache::TestRequest;
-use Ext-Modules::TestEnv;
+use ExtModules::TestEnv;
 
-plan tests => 2, \&Ext-Modules::TestEnv::has_php4;
+plan tests => 2, \&ExtModules::TestEnv::has_php4;
 
 ## testing PHP OO bug (#7515)
 ## php src:

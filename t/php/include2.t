@@ -3,11 +3,11 @@ use warnings FATAL => 'all';
 
 use Apache::Test;
 use Apache::TestRequest;
-use Ext-Modules::TestEnv;
+use ExtModules::TestEnv;
 
 ## testing user function in an nclude
 
-plan tests => 1, \&Ext-Modules::TestEnv::has_php4;
+plan tests => 1, \&ExtModules::TestEnv::has_php4;
 
 my $expected = "Hello";
 

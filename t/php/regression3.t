@@ -3,9 +3,9 @@ use warnings FATAL => 'all';
 
 use Apache::Test;
 use Apache::TestRequest;
-use Ext-Modules::TestEnv;
+use ExtModules::TestEnv;
 
-plan tests => 1, \&Ext-Modules::TestEnv::has_php4;
+plan tests => 1, \&ExtModules::TestEnv::has_php4;
 
 my $expected = <<EXPECT;
  0  a  1  a  2  a  3  a  4  a  5  a  6  a  7  a  8  a  9 
