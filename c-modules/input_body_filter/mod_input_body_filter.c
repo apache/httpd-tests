@@ -37,7 +37,7 @@ static void *input_body_filter_dcfg_create(apr_pool_t *p, char *dummy)
 
 static int input_body_filter_fixup_handler(request_rec *r)
 {
-    if ((r->method_number == M_POST) &&
+    if ((r->method_number == M_POST) && r->handler &&
         !strcmp(r->handler, "input-body-filter"))
     {
         r->handler = "echo-post";
