@@ -12,7 +12,8 @@ my @server_deflate_uris=("/modules/deflate/index.html",
                         );
 my $server_inflate_uri="/modules/deflate/echo_post";
 
-my $tests = @server_deflate_uris;
+my $cgi_tests = 3;
+my $tests = @server_deflate_uris + $cgi_tests;
 my $vars = Apache::Test::vars();
 my $module = 'default';
 
@@ -35,4 +36,34 @@ for my $server_deflate_uri (@server_deflate_uris) {
                                  content => $deflated_str);
 
     ok $original_str eq $inflated_str;
+}
+
+if (have_module('cgi')) {
+    my $sock = Apache::TestRequest::vhost_socket('default');
+
+    ok $sock;
+
+    Apache::TestRequest::socket_trace($sock);
+
+    $sock->print("GET /modules/cgi/not-modified.pl HTTP/1.0\r\n");
+    $sock->print("Accept-Encoding: gzip\r\n");
+    $sock->print("\r\n");
+
+    # Read the status line
+    chomp(my $response = Apache::TestRequest::getline($sock) || '');
+    $response =~ s/\s$//;
+
+    ok t_cmp($response, qr{HTTP/1\.. 304}, "response was 304");
+    
+    do {
+        chomp($response = Apache::TestRequest::getline($sock) || '');
+        $response =~ s/\s$//;
+    }
+    while ($response ne "");
+    
+    # now try and read any body: should return 0, EOF.
+    my $ret = $sock->read($response, 1024);
+    ok t_cmp($ret, 0, "expect EOF after 304 header");
+} else {
+    skip "skipping 304/deflate tests without mod_cgi" foreach (1..$cgi_tests);
 }

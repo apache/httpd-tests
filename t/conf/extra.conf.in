@@ -409,6 +409,10 @@ LimitRequestFields    32
             SetOutputFilter DEFLATE
         </Directory> 
 
+        <Location /modules/cgi/not-modified.pl>
+            SetOutputFilter DEFLATE
+        </Location> 
+
         <Location /modules/deflate/echo_post>
             SetInputFilter DEFLATE
             SetHandler echo_post
