@@ -238,6 +238,15 @@ sub getopts {
         push @argv, $val;
     }
 
+    # fixup the filepath options on win32 (spaces, short names, etc.)
+    if (Apache::TestConfig::WIN32) {
+        for my $key (keys %conf_opts) {
+            next unless Apache::TestConfig::conf_opt_is_a_filepath($key);
+            next unless -e $conf_opts{$key};
+            $conf_opts{$key} = Win32::GetShortPathName($conf_opts{$key});
+        }
+    }
+
     $opts{req_args} = \%req_args;
 
     # only test files/dirs if any at all are left in argv
