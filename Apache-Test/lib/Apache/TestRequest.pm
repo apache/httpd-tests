@@ -294,11 +294,13 @@ sub lwp_call {
         #GET, HEAD, POST
         $r = $UA->request($r);
         my $proto = $r->protocol;
-        if ($proto !~ /^HTTP\/(\d\.\d)$/) {
-            die "response had no protocol (is LWP broken or something?)";
-        }
-        if ($1 ne "1.0" && $1 ne "1.1") {
-            die "response had protocol HTTP/$1 (headers not sent?)";
+        if (defined($proto)) {
+            if ($proto !~ /^HTTP\/(\d\.\d)$/) {
+                die "response had no protocol (is LWP broken or something?)";
+            }
+            if ($1 ne "1.0" && $1 ne "1.1") {
+                die "response had protocol HTTP/$1 (headers not sent?)";
+            }
         }
     }
 
