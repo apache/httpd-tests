@@ -665,6 +665,9 @@ sub warn_core {
 # We solve that by 'chown -R bar.bar t/' in a portable way.
 sub adjust_t_perms {
     my $self = shift;
+
+    return if Apache::TestConfig::WINFU;
+
     %original_t_perms = (); # reset global
 
     my $user = getpwuid($>) || '';
@@ -683,6 +686,8 @@ sub adjust_t_perms {
 
 sub restore_t_perms {
     my $self = shift;
+
+    return if Apache::TestConfig::WINFU;
 
     if (%original_t_perms) {
         my $vars = $self->{test_config}->{vars};
