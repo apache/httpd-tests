@@ -1,11 +1,11 @@
-The Apache-Test project is co-mainted by several developers, who take
-turns at making CPAN releases. Therefore you may find several CPAN
-directories containing Apache-Test releases. The best way to find the
-latest release is to use http://search.cpan.org/.
+The Apache-Test project is co-maintained by several developers, who
+take turns at making CPAN releases. Therefore you may find several
+CPAN directories containing Apache-Test releases. The best way to find
+the latest release is to use http://search.cpan.org/.
 
 If you have a question or you want to submit a bug report or make a
 contribution, please do not email individual authors, but send an
 email to the test-dev <at> httpd.apache.org mailing list. This list is
 moderated, so unless you are subscribed to it, your message will have
 to be approved first by a moderator. Therefore please allow some time
-(up to a few days) for your post to propogate to the list.
+(up to a few days) for your post to propagate to the list.
