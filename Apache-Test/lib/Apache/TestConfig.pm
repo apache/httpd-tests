@@ -928,7 +928,7 @@ sub parse_vhost {
     my($self, $line) = @_;
 
     my($indent, $module, $namebased);
-    if ($line =~ /^(\s*)<VirtualHost\s+(?:_default_:|([^:]+):)?(.*?)\s*>\s*$/) {
+    if ($line =~ /^(\s*)<VirtualHost\s+(?:_default_:|([^:]+):(?!:))?(.*?)\s*>\s*$/) {
         $indent    = $1 || "";
         $namebased = $2 || "";
         $module    = $3;
