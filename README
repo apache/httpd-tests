@@ -81,7 +81,13 @@ POST url (generate a body of data 1024 bytes in length)
 % t/TEST -post /TestApache::post content x1024
 
 POST url (only print headers, e.g. useful to just check Content-length)
-% t/TEST -post_head /TestApache::post content x100000
+% t/TEST -post -head /TestApache::post content x100000
+
+GET url (only print headers, e.g. useful to just check Content-length)
+% t/TEST -get -head /foo
 
 start server under gdb
 % t/TEST -debug
+
+run all tests over ssl
+% t/TEST -ssl

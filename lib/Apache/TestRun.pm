@@ -24,7 +24,7 @@ my @list_opts    = qw(preamble postamble breakpoint);
 my @hash_opts    = qw(header);
 my @help_opts    = qw(clean help ping);
 my @exit_opts    = (@help_opts,@debug_opts);
-my @request_opts = qw(get head post post_head);
+my @request_opts = qw(get head post);
 
 my %usage = (
    'start-httpd'     => 'start the test server',
@@ -126,8 +126,8 @@ sub getopts {
     my(%opts, %vopts, %conf_opts);
 
     GetOptions(\%opts, @flag_opts, @help_opts,
-               (map "$_:s", @debug_opts),
-               (map "$_=s", @request_opts, @string_opts),
+               (map "$_:s", @debug_opts, @request_opts),
+               (map "$_=s", @string_opts),
                (map "$_=i", @num_opts),
                (map { ("$_=s", $vopts{$_} ||= []) } @list_opts),
                (map { ("$_=s", $vopts{$_} ||= {}) } @hash_opts));
@@ -392,10 +392,17 @@ sub run_request {
         delete $test_config->{vars}->{$key}; #dont save these
     }
 
+    my($request, $url) = ("", "");
+
     for (@request_opts) {
         next unless $opts->{$_};
-        my $method = \&{"Apache::TestRequest::\U$_"};
-        my $res = $method->($opts->{$_}, @args);
+        $url = $opts->{$_};
+        $request = join $request ? '_' : '', $request, $_;
+    }
+
+    if ($request) {
+        my $method = \&{"Apache::TestRequest::\U$request"};
+        my $res = $method->($url, @args);
         print Apache::TestRequest::to_string($res);
     }
 }
