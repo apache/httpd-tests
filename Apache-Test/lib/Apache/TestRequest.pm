@@ -24,6 +24,10 @@ my $have_lwp = eval {
     }
 };
 
+unless ($have_lwp) {
+    require Apache::TestClient;
+}
+
 sub has_lwp { $have_lwp }
 
 unless ($have_lwp) {
@@ -170,13 +174,13 @@ sub get_basic_credentials {
 
 sub vhost_socket {
     my $module = shift;
-    local $Apache::TestRequest::Module = $module;
+    local $Apache::TestRequest::Module = $module if $module;
 
     my $hostport = hostport(Apache::Test::config());
     my($host, $port) = split ':', $hostport;
     my(%args) = (PeerAddr => $host, PeerPort => $port);
 
-    if ($module =~ /ssl/) {
+    if ($module and $module =~ /ssl/) {
         require Net::SSL;
         local $ENV{https_proxy} ||= ""; #else uninitialized value in Net/SSL.pm
         return Net::SSL->new(%args, Timeout => UA_TIMEOUT);
@@ -221,9 +225,16 @@ sub socket_trace {
 }
 
 sub prepare {
-    user_agent();
+    my $url = shift;
 
-    my $url = resolve_url(shift);
+    if ($have_lwp) {
+        user_agent();
+        $url = resolve_url($url);
+    }
+    else {
+        lwp_debug() if $ENV{APACHE_TEST_DEBUG_LWP};
+    }
+
     my($pass, $keep) = Apache::TestConfig::filter_args(\@_, \%wanted_args);
 
     %credentials = ();
@@ -302,8 +313,8 @@ sub lwp_as_string {
     my($r, $want_body) = @_;
     my $content = $r->content;
 
-    unless ($r->header('Content-length') or $r->header('Transfer-Encoding')) {
-        $r->header('Content-length' => length $content);
+    unless ($r->header('Content-Length') or $r->header('Transfer-Encoding')) {
+        $r->header('Content-Length' => length $content);
         $r->header('X-Content-length-note' => 'added by Apache::TestReqest');
     }
 
@@ -352,7 +363,7 @@ sub lwp_call {
 
     unless ($shortcut) {
         #GET, HEAD, POST
-        $r = $UA->request($r);
+        $r = $UA ? $UA->request($r) : $r;
         my $proto = $r->protocol;
         if (defined($proto)) {
             if ($proto !~ /^HTTP\/(\d\.\d)$/) {
@@ -368,7 +379,7 @@ sub lwp_call {
         my($url, @rest) = @_;
         $name = (split '::', $name)[-1]; #strip HTTP::Request::Common::
         $url = resolve_url($url);
-        print "$name $url:\n", $r->request->headers->as_string, "\n";
+        print "$name $url:\n", $r->request->headers_as_string, "\n";
         print lwp_as_string($r, $DebugLWP > 1);
     }
 
@@ -382,10 +393,13 @@ my %shortcuts = (RC   => sub { shift->code },
                  BODY => sub { shift->content });
 
 for my $name (@EXPORT) {
-    my $method = "HTTP::Request::Common::$name";
+    my $package = $have_lwp ?
+      'HTTP::Request::Common': 'Apache::TestClient';
+
+    my $method = join '::', $package, $name;
     no strict 'refs';
 
-    next unless defined &$method; #else fallback a few below
+    next unless defined &$method;
 
     *$name = sub {
         my($url, $pass, $keep) = prepare(@_);
@@ -404,74 +418,6 @@ for my $method (@export_std) {
 }
 
 push @EXPORT, qw(UPLOAD_BODY);
-
-#this is intended to be a fallback if LWP is not installed
-#so at least some tests can be run, it is not meant to be robust
-
-for my $name (qw(GET_BODY GET_STR HEAD_STR)) {
-    next if defined &$name;
-    no strict 'refs';
-    *$name = sub {
-        return Apache::Test::config()->http_raw_get(shift, $name);
-    };
-}
-
-sub http_raw_get {
-    my($config, $url, $want_headers) = @_;
-
-    $url ||= "/";
-
-    if ($have_lwp) {
-        if ($want_headers) {
-            return $want_headers == 1 ? GET_STR($url) : HEAD_STR($url);
-        }
-        else {
-            return GET_BODY($url);
-        }
-    }
-
-    my $hostport = hostport($config);
-
-    require IO::Socket;
-    my $s = IO::Socket::INET->new($hostport);
-
-    unless ($s) {
-        warn "cannot connect to $hostport $!";
-        return undef;
-    }
-
-    print $s "GET $url HTTP/1.0\n\n";
-    my($response_line, $header_term, $headers);
-    $headers = "";
-
-    while (<$s>) {
-        $headers .= $_;
-	if(m:^(HTTP/\d+\.\d+)[ \t]+(\d+)[ \t]*([^\012]*):i) {
-	    $response_line = 1;
-	}
-	elsif(/^([a-zA-Z0-9_\-]+)\s*:\s*(.*)/) {
-	}
-	elsif(/^\015?\012$/) {
-	    $header_term = 1;
-            last;
-	}
-    }
-
-    unless ($response_line and $header_term) {
-        warn "malformed response";
-    }
-    my @body = <$s>;
-    close $s;
-
-    if ($want_headers) {
-        if ($want_headers > 1) {
-            @body = (); #HEAD
-        }
-        unshift @body, $headers;
-    }
-
-    return wantarray ? @body : join '', @body;
-}
 
 sub to_string {
     my $obj = shift;

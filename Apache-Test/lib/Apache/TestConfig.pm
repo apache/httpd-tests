@@ -1117,30 +1117,6 @@ sub need_reconfiguration {
     return @reasons;
 }
 
-
-#shortcuts
-
-my %include_headers = (
-    GET      => 1,
-    GET_STR  => 1,
-    GET_BODY => 0,
-    HEAD     => 2,
-    HEAD_STR => 2,
-);
-
-sub http_raw_get {
-    my($self, $url, $h) = @_;
-
-    $url = "/$url" unless $url =~ m:^/:;
-
-    my $ih = exists $include_headers{$h ||= 0} ?
-      $include_headers{$h} : $h;
-
-    require Apache::TestRequest;
-    Apache::TestRequest::http_raw_get($self,
-                                      $url, $ih);
-}
-
 sub error_log {
     my($self, $rel) = @_;
     my $file = catfile $self->{vars}->{t_logs}, 'error_log';
