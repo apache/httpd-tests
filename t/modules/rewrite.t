@@ -21,8 +21,9 @@ foreach (@map) {
         ## 'tolower' map in mod_rewrite
         $_=uc($_);
 
-        $r = GET_BODY "/modules/rewrite/$n", 'Accept' => $_;
+        $r = GET_BODY("/modules/rewrite/$n", 'Accept' => $_);
         chomp $r;
+	$r =~ s/\r//g;
 
         if ($_ eq 'RND') {
             ## check that $r is just a single digit.
@@ -38,12 +39,15 @@ foreach (@map) {
     }
 }
 
-$r = GET_BODY "/modules/rewrite/", 'Accept' => 7;
+$r = GET_BODY("/modules/rewrite/", 'Accept' => 7);
 chomp $r;
+$r =~ s/\r//g;
 ok ($r eq "BIG");
-$r = GET_BODY "/modules/rewrite/", 'Accept' => 0;
+$r = GET_BODY("/modules/rewrite/", 'Accept' => 0);
 chomp $r;
+$r =~ s/\r//g;
 ok ($r eq "ZERO");
-$r = GET_BODY "/modules/rewrite/", 'Accept' => 'lucky13';
+$r = GET_BODY("/modules/rewrite/", 'Accept' => 'lucky13');
 chomp $r;
+$r =~ s/\r//g;
 ok ($r eq "JACKPOT");
