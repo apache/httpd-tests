@@ -93,6 +93,32 @@ sub t_rmtree {
     File::Path::rmtree((@_ > 1 ? \@_ : $_[0]), 0, 1);
 }
 
+#chown a file or directory to the test User/Group
+#noop if chown is unsupported
+
+sub chown {
+    my $file = shift;
+    my $config = Apache::Test::config();
+    my($uid, $gid);
+
+    eval {
+        #XXX cache this lookup
+        ($uid, $gid) = (getpwnam($config->{vars}->{user}))[2,3];
+    };
+
+    if ($@) {
+        if ($@ =~ /^The getpwnam function is unimplemented/) {
+            #ok if unsupported, e.g. win32
+            return 1;
+        }
+        else {
+            die $@;
+        }
+    }
+
+    CORE::chown($uid, $gid, $file) || die "chown $file: $!";
+}
+
 # $string = struct_as_string($indent_level, $var);
 #
 # return any nested datastructure via Data::Dumper or ala Data::Dumper
@@ -336,6 +362,13 @@ This function is exported by default.
 t_rmtree() deletes the whole directories trees passed in I<@dirs>.
 
 This function is exported by default.
+
+=item chown()
+
+ Apache::TestUtil::chown($file);
+
+Change ownership of $file to the test User/Group.  This function is noop
+on platforms where chown is unsupported (e.g. Win32).
 
 =item t_is_equal()
 
