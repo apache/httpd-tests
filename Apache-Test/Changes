@@ -8,6 +8,9 @@ Changes - Apache::Test change logfile
 
 =item 1.16-dev
 
+fix problem with multiple all.t files where only the final
+file was being run through the test harness.  [Geoffrey Young]
+
 Documented that redirection does not with "POST" requests in
 Apache::TestRequest unless LWP is installed. Also modified
 the redirect_ok() method to ensure that such is the case.
