@@ -1352,8 +1352,8 @@ sub need_reconfiguration {
     my @reasons = ();
     my $vars = $self->{vars};
 
-    if ($conf_opts->{port}) {
-        push @reasons, "'-port $conf_opts->{port}' requires reconfiguration";
+    if (my $port = $conf_opts->{port} || $vars->{port}) {
+        push @reasons, "'-port $port' requires reconfiguration";
     }
 
     my $exe = $vars->{apxs} || $vars->{httpd};
