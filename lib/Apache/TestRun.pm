@@ -632,8 +632,7 @@ sub run {
     $0 = File::Spec->rel2abs($0);
     if (-e $0) {
         my $top = dirname dirname $0;
-        chdir $top;
-        error $top;
+        chdir $top if $top and -d $top;
     }
 
     # reconstruct argv, preserve multiwords args, eg 'PerlTrace all'
