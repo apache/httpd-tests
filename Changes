@@ -8,6 +8,9 @@ Changes - Apache::Test change logfile
 
 =item 1.07-dev
 
+Fix a bug in '-port select' which was incorrectly using the same port
+twice [Stas]
+
 added bugreport and file argument options to 
 Apache::TestRun::generate_script() [Geoffrey Young]
 
