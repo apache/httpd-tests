@@ -40,6 +40,11 @@ sub verify {
     my($env, $expect, $ne) = @_;
 
     while (my($key, $val) = each %$expect) {
+        # the emailAddress attribute is still exported using the name
+        # _DN_Email by mod_ssl, even when using OpenSSL 0.9.7.
+        if ($key =~ /(.*)_emailAddress/) {
+            $key = $1 . "_Email";
+        }
         if (Apache::TestConfig::WIN32) {
             #perl uppercases all %ENV keys
             #which causes SSL_*_DN_Email lookups to fail
