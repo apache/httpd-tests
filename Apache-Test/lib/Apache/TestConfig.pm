@@ -2090,6 +2090,11 @@ sub custom_config_first_time {
     my $self = shift;
     my $conf_opts = shift;
 
+    unless (-t STDIN) {
+        error "STDIN is closed, can't run interactive config";
+        Apache::TestRun::skip_test_suite();
+    }
+
     my $vars = $self->{vars};
 
     print qq[
