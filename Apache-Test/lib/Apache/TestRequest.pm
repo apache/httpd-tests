@@ -208,7 +208,7 @@ sub http_raw_get {
     $url ||= "/";
 
     if ($have_lwp) {
-        return $want_headers ? HEAD_STR($url) : GET_STR($url);
+        return $want_headers ? HEAD_STR($url) : GET_BODY($url);
     }
 
     my $hostport = hostport($config);
