@@ -500,7 +500,7 @@ sub opt_debug {
         $debug_opts->{$_} = $opts->{$_};
     }
 
-    if ($opts->{debugger} eq 'perl') {
+    if ($opts->{debugger} and $opts->{debugger} eq 'perl') {
         $opts->{'run-tests'} = 1;
         $self->start; #if not already running
         $self->set_perl5lib;
