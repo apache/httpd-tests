@@ -12,7 +12,8 @@ use vars qw(@ISA @EXPORT $VERSION %SubTests @SkipReasons);
 
 @ISA = qw(Exporter);
 @EXPORT = qw(ok skip sok plan have have_lwp have_http11
-             have_cgi have_access have_module have_apache have_perl);
+             have_cgi have_access have_auth have_module
+             have_apache have_perl);
 $VERSION = '0.01';
 
 %SubTests = ();
@@ -202,6 +203,10 @@ sub have_cgi {
 
 sub have_access {
     have_module('access') || have_module('authz_host');
+}
+
+sub have_auth {
+    have_module('auth') || have_module('auth_basic');
 }
 
 sub have_apache {
