@@ -19,9 +19,7 @@ my (@actual,@expected) = ((),());
 ## extract module names from html ##
 foreach (split /\n/, $info) {
     if ($_ =~ /<a name=\"(\w+\.c)\">/) {
-        if ($1 eq 'sapi_apache2.c') { # why does php do this?
-            push(@actual,'mod_php4.c');
-        } elsif ($1 eq 'util_ldap.c') {
+        if ($1 eq 'util_ldap.c') {
             push(@actual,'mod_ldap.c');
         } else {        
             push(@actual, $1);
