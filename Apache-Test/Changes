@@ -8,6 +8,10 @@ Changes - Apache::Test change logfile
 
 =item 1.08_dev
 
+implementing custom interactive and non-interactive (with the -save
+option) reusable configuration for -httpd, -apxs, -user, -group, and
+-port [Randy Kobes, Stas]
+
 =item 1.07 - Decemeber 22, 2003
 
 allow conditional C module compilation on a more granular level.
