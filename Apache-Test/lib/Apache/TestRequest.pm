@@ -100,7 +100,7 @@ sub new {
     lwp_debug(); #init from %ENV (set by Apache::TestRun)
 
     my $config = test_config();
-    if (my $proxy = $config->{vars}->{proxy}) {
+    if (my $proxy = $config->configure_proxy) {
         #t/TEST -proxy
         $self->proxy(http => "http://$proxy");
     }

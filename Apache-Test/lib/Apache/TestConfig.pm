@@ -191,7 +191,7 @@ sub new {
     $vars->{group}        ||= $self->default_group;
     $vars->{serveradmin}  ||= join '@', $vars->{user}, $vars->{servername};
     $vars->{maxclients}   ||= 1;
-    $vars->{proxy}        ||= '';
+    $vars->{proxy}        ||= 'off';
 
     $self->configure_apxs;
     $self->configure_httpd;
@@ -283,6 +283,20 @@ sub configure_httpd_eapi {
         }
         $self->gendir($path);
     }
+}
+
+sub configure_proxy {
+    my $self = shift;
+    my $vars = $self->{vars};
+
+    #if we proxy to ourselves, must bump the maxclients
+    if ($vars->{proxy} =~ /^on$/i) {
+        $vars->{maxclients}++;
+        $vars->{proxy} = $self->{vhosts}->{'mod_proxy'}->{hostport};
+        return $vars->{proxy};
+    }
+
+    return undef;
 }
 
 sub add_config {
@@ -724,11 +738,7 @@ sub generate_httpd_conf {
         }
     }
 
-    #if we proxy to ourselves, must bump the maxclients
-    if ($vars->{proxy} =~ /^on$/i) {
-        $vars->{maxclients}++;
-        $vars->{proxy} = $self->{vhosts}->{'mod_proxy'}->{hostport};
-    }
+    $self->configure_proxy;
 
     my $conf_file = $self->{vars}->{t_conf_file};
     my $conf_file_in = join '.', $conf_file, 'in';

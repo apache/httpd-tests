@@ -248,7 +248,7 @@ sub configure_opts {
 
     if (exists $opts->{proxy}) {
         my $max = $test_config->{vars}->{maxclients};
-        $opts->{proxy} ||= $test_config->{vars}->{proxy} || 'on';
+        $opts->{proxy} ||= 'on';
 
         #if config is cached and MaxClients == 1, must reconfigure
         if (!$$save and $opts->{proxy} eq 'on' and $max == 1) {
@@ -259,6 +259,9 @@ sub configure_opts {
         }
 
         $test_config->{vars}->{proxy} = $opts->{proxy};
+    }
+    else {
+        $test_config->{vars}->{proxy} = 'off';
     }
 
     return unless $$save;
