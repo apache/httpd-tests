@@ -210,6 +210,7 @@ sub add_module_config {
             $self->postamble($directive => $rest);
             my $end = "</$1>";
             while (<$fh>) {
+                chomp;
                 $self->replace;
                 $self->postamble($_);
                 last if m:^\Q$end:;
