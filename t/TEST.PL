@@ -9,7 +9,8 @@ use Apache::TestRun ();
 
 package MyTest;
 
-our @ISA = qw(Apache::TestRun);
+use vars qw(@ISA);
+@ISA = qw(Apache::TestRun);
 
 #subclass new_test_config to add some config vars which will
 #be replaced in generated config, see t/conf/extra.conf.in
