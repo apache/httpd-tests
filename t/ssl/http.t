@@ -2,6 +2,7 @@ use strict;
 use warnings FATAL => 'all';
 use Apache::Test;
 use Apache::TestRequest;
+use Apache::TestUtil;
 
 #verify we can send an non-ssl http request to the ssl port
 #without dumping core.
@@ -27,6 +28,8 @@ my $rurl = Apache::TestRequest::resolve_url($url);
 print "GET $rurl\n";
 
 my $res = GET($url);
-ok $res->code == 400; #HTTP_BAD_REQUEST
+ok t_cmp(400,
+         $res->code,
+         "Expected bad request from 'GET $rurl'");
 
 
