@@ -6,8 +6,8 @@ use Apache::Test5005compat;
 use strict;
 use warnings;
 
-# is this file was invoked directly via perl, or via the top-level
-# Makefile.PL, top-level sets this env var
+# was this file invoked directly via perl, or via the top-level
+# (mp2) Makefile.PL? if top-level, this env var will be set
 use constant TOP_LEVEL => !exists $ENV{MOD_PERL_2_BUILD};
 
 use ExtUtils::MakeMaker;
@@ -76,6 +76,26 @@ EOF
     return $string;
 }
 
+sub MY::constants {
+    my $self = shift;
+
+    my $string = $self->MM::constants;
+
+    # mp2 installs A-T into INSTALLSITEARCH, so in order to avoid
+    # problems when users forget 'make install UNINST=1', trick MM into
+    # installing pure perl modules to the sitearch location, when A-T is
+    # not installed as a part of mp2 build
+    if (TOP_LEVEL) {
+        $string .= <<'EOI';
+
+# install into the same location as mod_perl 2.0
+INSTALLSITELIB = $(INSTALLSITEARCH)
+DESTINSTALLSITELIB = $(DESTINSTALLSITEARCH)
+EOI
+    }
+
+    $string;
+}
 
 sub add_dep {
     my($string, $targ, $add) = @_;

@@ -8,6 +8,11 @@ Changes - Apache::Test change logfile
 
 =item 1.08_dev
 
+Make sure that Apache-Test modules are installed into INSTALLSITEARCH
+during a standalone build. Because EU::MM does so when A-T is bundled
+with mp2, and we want to avoid having A-T installed in two different
+places under @INC. [Stas]
+
 HTTP/0.9 responses no longer croak, provided $ENV{APACHE_TEST_HTTP_09_OK} 
 is true.  [Geoffrey Young]
 
