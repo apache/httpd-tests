@@ -125,31 +125,31 @@ sub split_test_args {
     my($self) = @_;
 
     my(@tests);
+    my $top_dir = $self->{test_config}->{vars}->{top_dir};
+    my $t_dir = $self->{test_config}->{vars}->{t_dir};
 
     my $argv = $self->{argv};
     my @leftovers = ();
     for (@$argv) {
         my $arg = $_;
-        #need the t/ for stat-ing, but dont want to include it in test output
+        #need the t/ for stat-ing, but don't want to include it in test output
         $arg =~ s@^(?:\./)?t/@@;
-        my $t_dir = catfile qw(.. t);
         my $file = catfile $t_dir, $arg;
-
         if (-d $file and $_ ne '/') {
             my @files = <$file/*.t>;
+            my $remove = catfile $top_dir, "";
             if (@files) {
-                my $remove = catfile $t_dir, "";
                 push @tests, map { s,^\Q$remove,,; $_ } @files;
                 next;
             }
         }
         else {
             if ($file =~ /\.t$/ and -e $file) {
-                push @tests, "$arg";
+                push @tests, "t/$arg";
                 next;
             }
             elsif (-e "$file.t") {
-                push @tests, "$arg.t";
+                push @tests, "t/$arg.t";
                 next;
             }
             elsif (/^[\d.]+$/) {
@@ -644,8 +644,6 @@ sub run {
     $self->set_env; #make sure these are always set
 
     my(@argv) = @_;
-
-    Apache::TestHarness->chdir_t;
 
     $self->getopts(\@argv);
 
