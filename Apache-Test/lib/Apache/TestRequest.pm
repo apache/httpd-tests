@@ -8,6 +8,9 @@ BEGIN { $ENV{LWP_USE_HTTP1} = 1; } #default to http/1.0
 use Apache::Test ();
 use Apache::TestConfig ();
 
+use constant TRY_TIMES => 50;
+use constant INTERP_KEY => 'X-PerlInterpreter';
+
 my $have_lwp = eval {
     require LWP::UserAgent;
     require HTTP::Request::Common;
@@ -401,6 +404,50 @@ sub to_string {
     my $obj = shift;
     ref($obj) ? $obj->as_string : $obj;
 }
+
+# request an interpreter instance and use this interpreter id to
+# select the same interpreter in requests below
+sub same_interp_tie {
+    my($url) = @_;
+
+    my $res = GET($url, INTERP_KEY, 'tie');
+
+    my $same_interp = $res->header(INTERP_KEY);
+
+    return $same_interp;
+}
+
+# run the request though the selected perl interpreter, by polling
+# until we found it
+# currently supports only GET, HEAD, PUT, POST subs
+sub same_interp_do {
+    my($same_interp, $sub, $url, @args) = @_;
+    push @args, (INTERP_KEY, $same_interp);
+
+    my $res      = '';
+    my $times    = 0;
+    my $found_same_interp = '';
+    do {
+        #loop until we get a response from our interpreter instance
+        $res = $sub->($url, @args);
+
+        if ($res->code == 200) {
+            $found_same_interp = $res->header(INTERP_KEY);
+        }
+
+        unless ($found_same_interp eq $same_interp) {
+            warn "found wrong same_interp: $found_same_interp";
+            $found_same_interp = '';
+        }
+
+        if ($times++ > TRY_TIMES) { #prevent endless loop
+            die "unable to find interp $same_interp\n";
+        }
+    } until ($found_same_interp);
+
+    return $found_same_interp ? $res : undef;
+}
+
 
 sub set_client_cert {
     my $name = shift;
