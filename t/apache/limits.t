@@ -130,9 +130,9 @@ foreach my $cond (@conditions) {
             }
         }
         elsif ($cond eq 'fieldsize') {
+            print "# Testing LimitRequestFieldSize; should $goodbad\n";
             $resp = GET('/limits/', 'X-Subtest' => $testnum,
                         'X-overflow-field' => $param);
-            print "# Testing LimitRequestFieldSize; should $goodbad\n";
             ok t_cmp($expected_rc,
                      $resp->code,
                      "Test #$testnum");
@@ -142,8 +142,8 @@ foreach my $cond (@conditions) {
             $testnum++;
         }
         elsif ($cond eq 'requestline') {
-            $resp = GET($param, 'X-Subtest' => $testnum);
             print "# Testing LimitRequestLine; should $goodbad\n";
+            $resp = GET($param, 'X-Subtest' => $testnum);
             ok t_cmp($expected_rc,
                      $resp->code,
                      "Test #$testnum");
