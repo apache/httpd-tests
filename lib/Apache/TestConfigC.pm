@@ -55,9 +55,19 @@ sub cmodules_configure {
 
     finddepth(\&cmodule_find, $dir);
 
+    $self->cmodules_generate_include;
     $self->cmodules_write_makefiles;
     $self->cmodules_compile;
     $self->cmodules_httpd_conf;
+}
+
+sub cmodules_generate_include {
+    my $self = shift;
+    my $fh = $self->genfile("$self->{cmodules_dir}/apache_httpd_test.h");
+    while (read DATA, my $buf, 1024) {
+        print $fh $buf;
+    }
+    close $fh;
 }
 
 sub cmodules_makefile_vars {
@@ -131,7 +141,7 @@ APXS=$self->{APXS}
 all: $lib
 
 $lib: $name.c
-	\$(APXS) $dversion -c $name.c
+	\$(APXS) $dversion -I$self->{cmodules_dir} -c $name.c
 
 clean:
 	-rm -rf $name.o $name.lo $name.slo $name.la .libs
@@ -200,3 +210,14 @@ sub cmodules_clean {
 }
 
 1;
+__DATA__
+#ifndef APACHE_HTTPD_TEST_H
+#define APACHE_HTTPD_TEST_H
+
+#ifdef APACHE1
+#define AP_METHOD_BIT  1
+typedef size_t apr_size_t;
+#endif /* APACHE1 */
+
+#endif /* APACHE_HTTPD_TEST_H */
+
