@@ -29,6 +29,7 @@ lib/Bundle/ApacheTest.pm
 t/TEST.PL
 t/conf/extra.conf.in
 t/ping.t
+t/redirect.t
 t/request.t
 install-pl
 Changes
