@@ -8,6 +8,9 @@ Changes - Apache::Test change logfile
 
 =item 1.17-dev
 
+fix the config thaw() functionality (when top_dir wasn't in @INC the
+saved config won't be loaded and tests will blow) [Stas]
+
 new wrapper Apache::TestRequest::module2url to simplify handling of
 vhosts in the client. ["Christopher H. Laco" <apache-test
 chrislaco.com>]
