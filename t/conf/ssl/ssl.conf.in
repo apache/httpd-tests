@@ -83,7 +83,7 @@
             SSLVerifyDepth  10
         </Location>
 
-       <IfModule mod_auth.c>
+        <IfModule mod_auth.c>
             <Location /ssl-fakebasicauth>
                 SSLVerifyClient      require
                 SSLVerifyDepth       5
