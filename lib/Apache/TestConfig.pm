@@ -589,7 +589,12 @@ my $remote_addr;
 sub our_remote_addr {
     my $self = shift;
     my $name = $self->default_servername;
-    $remote_addr ||= Socket::inet_ntoa((gethostbyname($name))[-1]);
+    my $iaddr = (gethostbyname($name))[-1];
+    unless (defined $iaddr) {
+        error "Can't resolve host: '$name' (check /etc/hosts)";
+        exit 1;
+    }
+    $remote_addr ||= Socket::inet_ntoa($iaddr);
 }
 
 sub default_loopback {

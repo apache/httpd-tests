@@ -8,6 +8,9 @@ Changes - Apache::Test change logfile
 
 =item 1.07-dev
 
+Cleanly exit (and complain) if the default hostname resolution has
+failed (usually due to a missing localhost entry in /etc/hosts) [Stas]
+
 Fix Apache::TestConfigParse to handle quoted Include arguments [Stas]
 
 Fix Apache::TestServer::wait_till_is_up not to bail out if the server
