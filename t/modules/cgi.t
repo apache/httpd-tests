@@ -3,6 +3,7 @@ use warnings FATAL => 'all';
 
 use Apache::Test;
 use Apache::TestRequest;
+use Apache::TestUtil;
 use File::stat;
 
 ## mod_cgi test
@@ -16,6 +17,7 @@ use File::stat;
 ## ScriptLogBuffer 256
 ## <Directory @SERVERROOT@/htdocs/modules/cgi>
 ## Options +ExecCGI
+## [some AcceptPathInfo stuff]
 ## </Directory>
 ## </IfModule>
 ## 
@@ -38,12 +40,39 @@ my %test = (
     'bogus-sh.sh' => {
         'rc' => 500,
         'expect' => 'none'
+    },
+    'acceptpathinfoon.sh' => {
+        'rc' => 200,
+        'expect' => ''
+    },
+    'acceptpathinfoon.sh/foo' => {
+        'rc' => 200,
+        'expect' => '/foo'
+    },
+    'acceptpathinfooff.sh' => {
+        'rc' => 200,
+        'expect' => ''
+    },
+    'acceptpathinfooff.sh/foo' => {
+        'rc' => 404,
+        'expect' => 'none'
+    },
+    'acceptpathinfodefault.sh' => {
+        'rc' => 200,
+        'expect' => ''
+    },
+    'acceptpathinfodefault.sh/foo' => {
+        'rc' => 200,
+        'expect' => '/foo'
     }
 );
 
 #XXX: find something that'll on other platforms (/bin/sh aint it)
 if (Apache::TestConfig::WINFU()) {
     delete @test{qw(sh.sh bogus-sh.sh)};
+    delete @test{qw(acceptpathinfoon.sh acceptpathinfoon.sh/foo)};
+    delete @test{qw(acceptpathinfooff.sh acceptpathinfooff.sh/foo)};
+    delete @test{qw(acceptpathinfodefault.sh acceptpathinfodefault.sh/foo)};
 }
 
 my $tests = ((keys %test) * 2) + (@post_content * 3) + 4;
@@ -61,16 +90,24 @@ unlink $cgi_log if -e $cgi_log;
 foreach (sort keys %test) {
     $expected = $test{$_}{rc};
     $actual = GET_RC "$path/$_";
-    print "# return code for $_: $actual, expecting: $expected\n";
-    ok ($actual eq $expected);
+    ok t_cmp($expected,
+             $actual,
+             "return code for $_"
+            );
 
-    unless ($test{$_}{expect} eq 'none') {
+    if ($test{$_}{expect} ne 'none') {
         $expected = $test{$_}{expect};
         $actual = GET_BODY "$path/$_";
         chomp $actual if $actual =~ /\n$/;
 
-        print "# body for $_: $actual, expecting: $expected\n";
-        ok ($actual eq $expected);
+        ok t_cmp($expected,
+                 $actual,
+                 "body for $_"
+                );
+    }
+    elsif ($_ !~ /^bogus/) {
+        print "# no body test for this one\n";
+        ok 1;
     }
 
     ## verify bogus cgi's get handled correctly
