@@ -80,6 +80,11 @@ sub have_http11 {
     }
 }
 
+sub have_ssl {
+    my $vars = vars();
+    have_module([$vars->{ssl_module_name}, 'Net::SSL']);
+}
+
 sub have_lwp {
     require Apache::TestRequest;
     if (Apache::TestRequest::has_lwp()) {
