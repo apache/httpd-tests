@@ -8,6 +8,11 @@ Changes - Apache::Test change logfile
 
 =item 1.17-dev
 
+Tweak the handling of mp2 source build case in
+Apache::TestConfig::httpd_config(), apparently mp2 source build
+doesn't always know where httpd/apxs are, so we need to give a better
+error message in this particular case. [Stas]
+
 Add cookie jar tests ["Christopher H. Laco" <apache-test
 chrislaco.com>]
 

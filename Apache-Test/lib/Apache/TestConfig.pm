@@ -340,12 +340,23 @@ sub httpd_config {
     my $vars = $self->{vars};
     unless ($vars->{httpd} or $vars->{apxs}) {
 
-        # mod_perl 2.0 build always knows the right httpd location
-        # (and optionally apxs)
-        if (IS_MOD_PERL_2_BUILD) {
-            # XXX: at the moment not sure what could go wrong, but it
-            # shouldn't enter interactive config, which doesn't work
-            # with mod_perl 2.0 build (by design)
+        # mod_perl 2.0 build (almost) always knows the right httpd
+
+        # location (and optionally apxs). if we get here we can't
+        # continue because the interactive config can't work with
+        # mod_perl 2.0 build (by design)
+        if (IS_MOD_PERL_2_BUILD){
+            my $mp2_build = modperl_build_config();
+            # if mod_perl 2 was built against the httpd source it
+            # doesn't know where to find apxs/httpd, so in this case
+            # fall back to interactive config
+            unless ($mp2_build->{MP_APXS}) {
+                die "mod_perl 2 was built against Apache sources, we " .
+                "don't know where httpd/apxs executables are, therefore " .
+                "skipping the test suite execution"
+            }
+
+            # not sure what else could go wrong but we can't continue
             die "something is wrong, mod_perl 2.0 build should have " .
                 "supplied all the needed information to run the tests. " .
                 "Please post lib/Apache/BuildConfig.pm along with the " .
