@@ -24,7 +24,7 @@ plan tests => @bad_index * @index * 5 + @bad_index + 5, have_module 'dir';
 foreach my $bad_index (@bad_index) {
 
     print "expecting 403 (forbidden) using DirectoryIndex $bad_index\n";
-    if (have_module 'autoindex'){ $expected = 404;} else {$expected = 404;}
+    $expected = (have_module 'autoindex') ? 403 : 404;
     write_htaccess("$bad_index");
     $actual = GET_RC $url;
     ok ($actual == $expected);
@@ -66,7 +66,7 @@ my_chomp();
 ok ($actual eq $expected);
 
 print "expecting 403 for DirectoryIndex @bad_index\n";
-if (have_module 'autoindex'){ $expected = 404;} else {$expected = 404;}
+$expected = (have_module 'autoindex') ? 403 : 404;
 write_htaccess("@bad_index");
 $actual = GET_RC $url;
 ok ($actual == $expected);
