@@ -6,7 +6,7 @@ use Apache::TestRequest;
 use Apache::TestUtil;
 use Apache::TestConfig ();
 
-plan tests => 11, need_module 'proxy';
+plan tests => 13, need_module 'proxy';
 
 Apache::TestRequest::module("proxy_http_reverse");
 Apache::TestRequest::user_agent(requests_redirectable => 0);
@@ -45,6 +45,12 @@ if (have_min_apache_version('2.1.0')) {
 } else {
     skip "skipping PR 15207 test with httpd < 2.1.0";
 }
+
+$r = GET("/reverse/notproxy/local.html");
+ok t_cmp($r->code, 200, "ProxyPass not-proxied request");
+my $c = $r->content;
+chomp $c;
+ok t_cmp($c, "hello world", "ProxyPass not-proxied content OK");
 
 if (have_module('alias')) {
     $r = GET("/reverse/perm");

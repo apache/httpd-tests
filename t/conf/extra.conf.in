@@ -209,6 +209,8 @@
 
 <IfModule mod_proxy.c>
    <VirtualHost proxy_http_reverse>
+      DocumentRoot @SERVERROOT@/htdocs/modules/proxy
+      ProxyPass /reverse/notproxy/ !
       ProxyPass /reverse/ http://@SERVERNAME@:@PORT@/
       ProxyPassReverse /reverse/ http://@SERVERNAME@:@PORT@/
    </VirtualHost>
