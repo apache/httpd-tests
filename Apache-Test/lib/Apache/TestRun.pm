@@ -583,10 +583,7 @@ sub stop {
 
 sub new_test_config {
     my $self = shift;
-    for (@data_vars_must, @data_vars_opt) {
-        next unless $Apache::TestConfigData::vars->{$_};
-        $self->{conf_opts}->{$_} ||= $Apache::TestConfigData::vars->{$_};
-    }
+
     Apache::TestConfig->new($self->{conf_opts});
 }
 
@@ -646,7 +643,8 @@ sub run {
 
     $self->pre_configure() if $self->can('pre_configure');
 
-    $self->{test_config} = $self->new_test_config;
+    $self->custom_config_add_conf_opts();
+    $self->{test_config} = $self->new_test_config();
 
     # make it easy to move the whole distro
     $self->refresh unless -e $self->{test_config}->{vars}->{top_dir};
@@ -1133,6 +1131,15 @@ sub exit_shell {
 #    require Carp;
 #    Carp::cluck('exiting');
     CORE::exit $_[0];
+}
+
+sub custom_config_add_conf_opts {
+    my $self = shift;
+
+    for (@data_vars_must, @data_vars_opt) {
+        next unless $Apache::TestConfigData::vars->{$_};
+        $self->{conf_opts}->{$_} ||= $Apache::TestConfigData::vars->{$_};
+    }
 }
 
 # determine where the configuration file Apache/TestConfigData.pm
