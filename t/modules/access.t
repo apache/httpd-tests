@@ -9,9 +9,10 @@ use Apache::TestConfig;
 ## mod_access test
 ##
 
+my $localhost_name = Apache::TestRequest::vars()->{servername};
 my @localhost = (
     'from all',
-    'from localhost',
+    "from $localhost_name",
     'from 127.0.0.1',
     'from 127.0',
     'from 127.0.0.1/255.255.0.0',
@@ -26,8 +27,8 @@ my @deny = @localhost;
 plan tests => (@order * @allow * @deny * 2) + (@order * @allow),
     test_module 'access';
 
-my $env = Apache::TestConfig->thaw;
-my $dir = "$env->{vars}->{t_dir}/htdocs/modules/access/htaccess";
+my $dir = Apache::TestRequest::vars()->{t_dir};
+$dir .=  "/htdocs/modules/access/htaccess";
 
 sub write_htaccess {
     my $conf_str = shift;
@@ -58,8 +59,8 @@ foreach my $order (@order) {
             ## denying by default
 
             if ($allow =~ /^from 127/
-                || $allow =~ /^from localhost$/
-                || $allow =~ /^from all$/) {
+                || $allow eq "from $localhost_name"
+                || $allow eq 'from all') {
 
                 ## if we are explicitly allowed, its ok
                 print "expecting access.\n";
@@ -85,8 +86,8 @@ foreach my $order (@order) {
                 ## allowing by default
 
                 if ($deny =~ /^from 127/
-                    || $deny =~ /^from localhost$/
-                    || $deny =~ /^from all$/) {
+                    || $deny eq "from $localhost_name"
+                    || $deny eq 'from all') {
 
                     ## if we are denied explicitly
                     ## its not ok
@@ -120,8 +121,8 @@ foreach my $order (@order) {
                 ## allowing by default
 
                 if ($allow =~ /^from 127/
-                    || $allow =~ /^from localhost$/
-                    || $allow =~ /^from all$/) {
+                    || $allow eq "from $localhost_name"
+                    || $allow eq 'from all') {
 
                     ## we are explicitly allowed
                     ## so it is ok.
@@ -129,8 +130,8 @@ foreach my $order (@order) {
                     ok GET_OK "/modules/access/htaccess/index.html";
 
                 } elsif ($deny =~ /^from 127/
-                    || $deny =~ /^from localhost$/
-                    || $deny =~ /^from all$/) {
+                    || $deny eq "from $localhost_name"
+                    || $deny eq 'from all') {
 
                     ## if we are not explicitly allowed
                     ## and are explicitly denied,
@@ -152,8 +153,8 @@ foreach my $order (@order) {
                 ## denying by default
 
                 if ($deny =~ /^from 127/
-                    || $deny =~ /^from localhost$/
-                    || $deny =~ /^from all$/) {
+                    || $deny eq "from $localhost_name"
+                    || $deny eq 'from all') {
 
                     ## if we are explicitly denied,
                     ## we get no access.
@@ -161,8 +162,8 @@ foreach my $order (@order) {
                     ok !GET_OK "/modules/access/htaccess/index.html";
 
                 } elsif ($allow =~ /^from 127/
-                    || $allow =~ /^from localhost$/
-                    || $allow =~ /^from all$/) {
+                    || $allow eq "from $localhost_name"
+                    || $allow eq 'from all') {
 
                     ## if we are not explicitly denied
                     ## and are explicitly allowed,
