@@ -1,8 +1,11 @@
 use ExtUtils::MakeMaker;
 
-use 5.006;
+use 5.005;
 
 use lib qw(Apache-Test/lib);
+
+use Apache::Test5005compat;
+
 use Apache::TestMM qw(test clean);
 
 use File::Find qw(finddepth);
