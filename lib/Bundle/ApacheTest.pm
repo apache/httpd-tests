@@ -40,6 +40,6 @@ LWP                - For libwww-perl
 
 =head1 DESCRIPTION
 
-This bundle lists all the CPAN modules use by Apache-Test.
+This bundle lists all the CPAN modules used by Apache-Test.
 
 =cut
