@@ -6,7 +6,7 @@ Changes - Apache::Test change logfile
 
 =over 3
 
-=item 1.03-dev - 
+=item 1.03 - June 19, 2003
 
 Instrumented Makefile.PL to unconditionally remove any old
 pre-installed occurrences of Apache/test.pm, which has been renamed to
