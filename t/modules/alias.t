@@ -4,6 +4,9 @@ use warnings FATAL => 'all';
 use Apache::Test;
 use Apache::TestRequest;
 use Apache::TestUtil;
+use Apache::TestConfig ();
+
+use constant WINFU => Apache::TestConfig::WINFU();
 
 ##
 ## mod_alias test
@@ -30,8 +33,10 @@ my %rm_rc = (
     g   =>  '410'
 );
 
+#XXX: find something that'll on other platforms (/bin/sh aint it)
+my $script_tests = WINFU ? 0 : 4;
 
-plan tests => (keys %redirect) + (keys %rm_body) * 10 + (keys %rm_rc) * 10 + 16,
+plan tests => (keys %redirect) + (keys %rm_body) * 10 + (keys %rm_rc) * 10 + 12 + $script_tests,
     have_module 'alias';
 
 ## simple alias ##
@@ -93,18 +98,18 @@ chmod 0755, $script;
 
 ## if we get the script here it will be plain text ##
 print "verifying /modules/alias/script is plain text\n";
-ok ($cgi eq GET_BODY "/modules/alias/script");
+ok ($cgi eq GET_BODY "/modules/alias/script") unless WINFU;
 
 ## here it should be the result of the executed cgi ##
 print "verifying same file accessed at /cgi/script is executed code\n";
-ok ("$string\n" eq GET_BODY "/cgi/script");
+ok ("$string\n" eq GET_BODY "/cgi/script") unless WINFU;
 ## with ScriptAliasMatch ##
 print "verifying ScriptAliasMatch with /aliascgi-script\n";
-ok ("$string\n" eq GET_BODY "/aliascgi-script");
+ok ("$string\n" eq GET_BODY "/aliascgi-script") unless WINFU;
 
 ## failure with ScriptAliasMatch ##
 print "verifying bad script alias.\n";
-ok ('404' eq GET_RC "/aliascgi-nada");
+ok ('404' eq GET_RC "/aliascgi-nada") unless WINFU;
 
 ## clean up ##
 t_rmtree("$vars->{t_logs}/mod_cgi.log");
