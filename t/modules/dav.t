@@ -34,7 +34,7 @@ CONTENT
 
 ## make sure its clean before we begin ##
 unlink "htdocs$uri" if -e "htdocs$uri";
-mkdir "htdocs/$dir" unless -e "htdocs/$dir";
+mkdir "htdocs/$dir", oct('755') unless -e "htdocs/$dir";
 
 ## set up resource and lock it ##
 my $resource = $dav->new_resource( -uri => "http://$server$uri");
@@ -153,5 +153,5 @@ print "expect 404 not found got: $actual\n";
 ok $actual == 404;
 
 ## clean up ##
-rmdir "htdocs/$dir/.DAV" or print "DAV:$!\n";;
-rmdir "htdocs/$dir" or print "dav:$!\n";;
+rmdir "htdocs/$dir/.DAV" or print "warning: could not remove .DAV dir: $!";
+rmdir "htdocs/$dir" or print "warning: could not remove dav dir: $!";
