@@ -433,7 +433,16 @@ sub start {
                 }
             }
         };
-        $child_pid = open $child_in_pipe, "|$cmd";
+
+        defined(my $pid = fork) or die "Can't fork: $!";
+        unless ($pid) { # child
+            my $status = system "$cmd";
+            if ($status) {
+                $status  = $? >> 8;
+                #error "httpd didn't start! $status";
+            }
+            CORE::exit $status;
+        }
     }
 
     while ($old_pid and $old_pid == $self->pid) {
