@@ -44,8 +44,6 @@ PASSENV = $env
 EOF
 
     return $preamble . <<'EOF';
-TEST_VERBOSE = 0
-
 test_clean :
 	$(FULLPERL) -I$(INST_ARCHLIB) -I$(INST_LIB) \
 	t/TEST -clean
@@ -53,7 +51,7 @@ test_clean :
 run_tests : test_clean
 	$(PASSENV) \
 	$(FULLPERL) -I$(INST_ARCHLIB) -I$(INST_LIB) \
-	t/TEST -verbose=$(TEST_VERBOSE)
+	t/TEST
 
 test :: pure_all run_tests test_clean
 
