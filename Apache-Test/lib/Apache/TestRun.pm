@@ -13,7 +13,7 @@ use Apache::TestTrace;
 
 use File::Find qw(finddepth);
 use File::Spec::Functions qw(catfile);
-use File::Basename qw(basename);
+use File::Basename qw(basename dirname);
 use Getopt::Long qw(GetOptions);
 use Config;
 
@@ -809,6 +809,44 @@ sub restore_t_perms {
     }
 }
 
+# this sub is executed from an external process only, since it
+# "sudo"'s into a uid/gid of choice
+sub run_root_fs_test {
+    my($uid, $gid, $dir) = @_;
+
+    # first must change gid and egid
+    $( = $) = $gid+0;
+    die "failed to change gid to $gid" unless $( == $gid;
+
+    # only now can change uid and euid
+    $< = $> = $uid+0;
+    die "failed to change uid to $uid" unless $< == $uid;
+
+    my $file = catfile $dir, ".apache-test-file-$$-".time.int(rand);
+    eval "END { unlink q[$file] }";
+
+    # unfortunately we can't run the what seems to be an obvious test:
+    # -r $dir && -w _ && -x _
+    # since not all perl implementations do it right (e.g. sometimes
+    # acls are ignored, at other times setid/gid change is ignored)
+    # therefore we test by trying to attempt to read/write/execute
+
+    # -w
+    open TEST, ">$file" or die "failed to open $file: $!";
+
+    # -x
+    -f $file or die "$file cannot be looked up";
+    close TEST;
+
+    # -r
+    opendir DIR, $dir or die "failed to open dir $dir: $!";
+    defined readdir DIR or die "failed to read dir $dir: $!";
+    close DIR;
+
+    # all tests passed
+    print "OK";
+}
+
 sub check_perms {
     my ($self, $user, $uid, $gid) = @_;
 
@@ -817,16 +855,14 @@ sub check_perms {
     my $dir  = $vars->{t_dir};
     my $perl = $vars->{perl};
 
-    my $check = <<"EOC";
-$perl -e '
-    require POSIX;
-    POSIX::setuid($uid);
-    POSIX::setgid($gid);
-    print -r q{$dir} &&  -w _ && -x _ ? q{OK} : q{NOK};
-'
-EOC
-    $check =~ s/\n/ /g;
-    warning "$check\n";
+    # find where Apache::TestRun was loaded from, so we load this
+    # exact package from the external process
+    my $inc = dirname dirname $INC{"Apache/TestRun.pm"};
+    my $sub = "Apache::TestRun::run_root_fs_test";
+    my $check = <<"EOI";
+$perl -Mlib=$inc -MApache::TestRun -e 'eval { $sub($uid, $gid, q[$dir]) }';
+EOI
+    warning "testing whether '$user' is able to -rwx $dir\n$check\n";
 
     my $res = qx[$check] || '';
     warning "result: $res";
