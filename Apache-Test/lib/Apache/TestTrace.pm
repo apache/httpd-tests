@@ -20,7 +20,9 @@ our $Level = 'warning';
 our $LogFH = \*STDERR;
 
 # private data
-use constant HAS_COLOR  => eval { require Term::ANSIColor; };
+use constant HAS_COLOR  => eval {
+    !$ENV{APACHE_TEST_NO_COLOR} and require Term::ANSIColor;
+};
 use constant HAS_DUMPER => eval { require Data::Dumper;    };
 
 # emerg => 1, alert => 2, crit => 3, ...
