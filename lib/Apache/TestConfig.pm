@@ -1166,27 +1166,37 @@ sub generate_extra_conf {
         }
     }
 
+    my $regenerate = 0;
     for my $file (@conf_files) {
-        local $Apache::TestConfig::File = $file;
-
         (my $generated = $file) =~ s/\.in$//;
         push @extra_conf, $generated;
 
-        debug "Including $generated config file";
+        $regenerate++ unless -e $generated && -M $generated < -M $file;
 
-        next if -e $generated
-            && -M $generated < -M $file;
+        debug "Will 'Include' $generated config file";
+    }
 
-        my $in = Symbol::gensym();
-        open($in, $file) or next;
+    # if at least one .in file was generated, regenerate them all (so
+    # information like assigned port numbers will be correct)
+    if ($regenerate) {
+        # forget the vhosts cache, since a different port could be assigned
+        $self->{vhosts} = {};
 
-        my $out = $self->genfile($generated, $file);
-        $self->replace_vars($in, $out);
+        for my $file (@conf_files) {
+            local $Apache::TestConfig::File = $file;
 
-        close $in;
-        close $out;
+            my $in = Symbol::gensym();
+            open($in, $file) or next;
 
-        $self->check_vars;
+            (my $generated = $file) =~ s/\.in$//;
+            my $out = $self->genfile($generated, $file);
+            $self->replace_vars($in, $out);
+
+            close $in;
+            close $out;
+
+            $self->check_vars;
+        }
     }
 
     #we changed order to give ssl the first port after DEFAULT_PORT
