@@ -91,10 +91,10 @@ sub server_file_rel2abs {
     }
 
     if (-e $result) {
-        debug "$file successfully resolved to existing file $result"; 
+        debug "$file successfully resolved to existing file $result";
     }
     else {
-        warning "configuration file $result does not exist";
+        warning "file $result does not exist";
 
         # old behavior was to return the resolved but non-existent
         # file.  preserve that behavior and return $result anyway.
