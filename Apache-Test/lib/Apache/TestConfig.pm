@@ -905,7 +905,8 @@ sub generate_extra_conf {
 
         notice "Including $generated config file";
 
-        next if -e $generated;
+        next if -e $generated
+            && -M $generated < -M $file;
 
         my $in = Symbol::gensym();
         open($in, $file) or next;
