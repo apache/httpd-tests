@@ -18,7 +18,12 @@ my $vars = Apache::TestRequest::vars();
 local $vars->{port} = $config->port('mod_vhost_alias');
 
 ## test environment setup ##
-mkdir "htdocs/modules/vhost_alias" unless -e "htdocs/modules/vhost_alias";
+my $mode = oct('755');
+unless( -e  "htdocs/modules/vhost_alias" ) {
+    mkdir("htdocs/modules/vhost_alias", $mode)
+	or die "can't mkdir htdocs/modules/vhost_alias: $!";
+}
+
 my @d = ();
 foreach (@vh) {
     my @part = split /\./, $_;
@@ -31,7 +36,7 @@ foreach (@vh) {
     } else {
         $d .= "_";
     }
-    mkdir $d or die "cant mkdir $d: $!";
+    mkdir($d, $mode) or die "cant mkdir $d: $!";
     $d .= "/";
 
     ## %1.4 ##
@@ -40,7 +45,7 @@ foreach (@vh) {
     } else {
         $d .= substr($part[0], 3, 1);
     }
-    mkdir $d or die "cant mkdir $d: $!";
+    mkdir($d, $mode) or die "cant mkdir $d: $!";
     $d .= "/";
 
     ## %-2 ##
@@ -49,7 +54,7 @@ foreach (@vh) {
     } else {
         $d .= "_";
     }
-    mkdir $d or die "cant mkdir $d: $!";
+    mkdir($d, $mode) or die "cant mkdir $d: $!";
     $d .= "/";
 
     ## %2+ ##
@@ -57,7 +62,7 @@ foreach (@vh) {
         $d .= $part[$i];
         $d .= "." if $part[$i+1];
     }
-    mkdir $d or die "cant mkdir $d: $!";
+    mkdir($d, $mode) or die "cant mkdir $d: $!";
 
     ## save directory for later deletion ##
     push (@d, $d);
@@ -69,7 +74,7 @@ foreach (@vh) {
 
     ## create directories for VirtualScriptAlias tests ##
     $d = "htdocs/modules/vhost_alias/$_";
-    mkdir $d or die "cant create $d: $!";
+    mkdir($d, $mode) or die "cant create $d: $!";
     push(@d, $d);
     $d .= "/";
 
