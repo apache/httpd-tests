@@ -13,10 +13,12 @@ use Apache::TestTrace;
 
 use Cwd;
 use File::Find qw(finddepth);
+use File::Path;
 use File::Spec::Functions qw(catfile catdir);
 use File::Basename qw(basename dirname);
 use Getopt::Long qw(GetOptions);
 use Config;
+use FindBin;
 
 use constant IS_APACHE_TEST_BUILD => Apache::TestConfig::IS_APACHE_TEST_BUILD;
 
@@ -81,8 +83,6 @@ my %vars_to_env = (
     apxs  => 'APXS',
     port  => 'APACHE_PORT',
 );
-
-custom_config_load();
 
 sub fixup {
     #make sure we use an absolute path to perl
@@ -467,9 +467,7 @@ sub configure {
     # the only side-effect of (3) is that if config is changed during
     # A-T build it'll change the global custom config if that exists,
     # but it shouldn't affect normal users who won't do it more than once
-    if ($self->{opts}->{save} 
-        or !$self->custom_config_exists()
-        or IS_APACHE_TEST_BUILD) {
+    if ($self->{opts}->{save} or !custom_config_exists()) {
         $self->custom_config_save();
     }
 }
@@ -506,7 +504,7 @@ sub start {
 
     my $test_config = $self->{test_config};
 
-    unless ($test_config->{vars}->{httpd}) {
+    unless ($test_config->{vars}->{httpd} or $test_config->{vars}->{apxs}) {
         $self->opt_clean(1);
         # this method restarts the whole program via exec
         # so it never returns
@@ -514,9 +512,9 @@ sub start {
     }
 
     # if we have gotten that far we know at least about the location
-    # of httpd, so let's save it if we haven't saved any custom
-    # configs yet
-    unless ($self->custom_config_exists()) {
+    # of httpd and or apxs, so let's save it if we haven't saved any
+    # custom configs yet
+    unless (custom_config_exists()) {
         $self->custom_config_save();
     }
 
@@ -628,6 +626,8 @@ sub set_env {
 sub run {
     my $self = shift;
 
+    custom_config_load();
+
     # reconstruct argv, preserve multiwords args, eg 'PerlTrace all'
     my $argv = join " ", map { /^-/ ? $_ : qq['$_'] } @ARGV;
     $original_command = "$^X $0 $argv";
@@ -643,7 +643,6 @@ sub run {
 
     $self->pre_configure() if $self->can('pre_configure');
 
-    $self->custom_config_add_conf_opts();
     $self->{test_config} = $self->new_test_config();
 
     # make it easy to move the whole distro
@@ -1133,36 +1132,59 @@ sub exit_shell {
     CORE::exit $_[0];
 }
 
+# called from Apache::TestConfig::new()
 sub custom_config_add_conf_opts {
-    my $self = shift;
+    my $args = shift;
 
-    for (@data_vars_must, @data_vars_opt) {
+    return unless $Apache::TestConfigData::vars and 
+        keys %$Apache::TestConfigData::vars;
+
+    # the logic is quite complicated with 'httpd' and 'apxs', since
+    # one is enough to run the test suite, and we need to avoid the
+    # situation where both are saved in custom config but only one
+    # (let's say httpd) is overriden by the command line /env var and
+    # a hell may break loose if we take that overriden httpd value and
+    # also useapxs from custom config which could point to a different
+    # server . So if there is an override of apxs or httpd, do not use
+    # the custom config for apxs or httpd.
+    my $vars_must_overriden = grep {
+        $ENV{ $vars_to_env{$_} } || $args->{$_}
+    } @data_vars_must;
+    unless ($vars_must_overriden) {
+        for (@data_vars_must) {
+            next unless $Apache::TestConfigData::vars->{$_};
+            $args->{$_} = $Apache::TestConfigData::vars->{$_};
+        }
+    }
+
+    for (@data_vars_opt) {
         next unless $Apache::TestConfigData::vars->{$_};
-        $self->{conf_opts}->{$_} ||= $Apache::TestConfigData::vars->{$_};
+        # env vars override custom config
+        my $env_value = $ENV{ $vars_to_env{$_} };
+        next unless defined $env_value and length $env_value;
+        $args->{$_} ||= $Apache::TestConfigData::vars->{$_};
     }
 }
 
-# determine where the configuration file Apache/TestConfigData.pm
-# lives. The order searched is:
+### Permanent custom configuration functions ###
+
+# determine which configuration file Apache/TestConfigData.pm to use
+# (as there could be several). The order searched is:
 # 1) $ENV{HOME}/.apache-test/
-# 2) in global @INC (if preconfigured already)
-# 3) in local lib (for build times)
+# 2) in @INC
 my $custom_config_path;
 sub custom_config_path {
 
     return $custom_config_path if $custom_config_path;
 
-    my @global_inc = ();
-    my @build_inc  = ();
-    for (@INC) {
-        my $rel_dir = basename $_;
-        $rel_dir eq 'lib' ? push(@build_inc, $_) : push(@global_inc, $_);
-    }
+    my @inc  = ();
 
     # XXX $ENV{HOME} isn't propagated in mod_perl
-    unshift @global_inc, catdir $ENV{HOME}, '.apache-test' if $ENV{HOME};
+    push @inc, catdir $ENV{HOME}, '.apache-test' if $ENV{HOME};
 
-    for (@global_inc, @build_inc) {
+    push @inc, @INC;
+
+    for (@inc) {
         my $candidate = File::Spec->rel2abs(catfile $_, CUSTOM_CONFIG_FILE);
         next unless -e $candidate;
         return $custom_config_path = $candidate;
@@ -1172,25 +1194,56 @@ sub custom_config_path {
 }
 
 sub custom_config_exists {
-    my $self = shift;
     # custom config gets loaded via custom_config_load when this
     # package is loaded. it's enough to check whether we have a custom
-    # config for 'httpd'.
+    # config for 'httpd' or 'apxs'.
     my $httpd = $Apache::TestConfigData::vars->{httpd} || '';
-    return $httpd && -e $httpd ? 1 : 0;
+    return 1 if $httpd && -e $httpd && -x _;
+
+    my $apxs = $Apache::TestConfigData::vars->{apxs} || '';
+    return 1 if $apxs && -e $apxs && -x _;
+
+    return 0;
 }
+
+# to be used only from Apache-Test/Makefile.PL to write the custom
+# configuration module so it'll be copied to blib during 'make' and
+# updated to use custom config data during 'make test' and then
+# installed system-wide via 'make install'
+#
+# it gets written only if the custom configuration didn't exist
+# already
+sub custom_config_file_stub_write {
+
+    return if custom_config_exists();
+
+    # It doesn't matter whether it gets written under modperl-2.0/lib
+    # or Apache-Test/lib root, since Apache::TestRun uses the same
+    # logic and will update that file with real config data, which
+    # 'make install' will then pick and install system-wide. but
+    # remember that $FindBin::Bin is the location of top-level
+    # 'Makefile.PL'
+    my $path = catfile $FindBin::Bin, "lib",
+        Apache::TestRun::CUSTOM_CONFIG_FILE;
+
+    # write an empty stub
+    Apache::TestRun::custom_config_write($path, '');
+}
+
 
 sub custom_config_save {
     my $self = shift;
+
     my $vars = $self->{test_config}->{vars};
     my $conf_opts = $self->{conf_opts};
     my $config_dump = '';
 
-    # minimum httpd needs to be set
-    return 0 unless $vars->{httpd} or $Apache::TestConfigData::vars->{httpd};
+    # minimum httpd and/or apxs needs to be set
+    return 0 unless $vars->{httpd} or $Apache::TestConfigData::vars->{httpd}
+        or          $vars->{apxs}  or $Apache::TestConfigData::vars->{apxs};
 
-    # it doesn't matter how these vars were set (apxs may get set
-    # using the path to httpd, or the other way around)
+    # it doesn't matter how these vars were set (httpd may or may not get set
+    # using the path to apxs, w/o an explicit -httpd value)
     for (@data_vars_must) {
         next unless my $var = $vars->{$_} || $conf_opts->{$_};
         $config_dump .= qq{    '$_' => '$var',\n};
@@ -1205,55 +1258,99 @@ sub custom_config_save {
         $config_dump .= qq{    '$_' => '$var',\n};
     }
 
-    my $path;
-    # if A-T build always update the build file, regardless whether
-    # the global file already exists, since 'make install' will
-    # overwrite it
     if (IS_APACHE_TEST_BUILD) {
-        $path = catfile $vars->{top_dir}, 'lib', CUSTOM_CONFIG_FILE;
+        my $path = catfile $vars->{top_dir}, 'lib', CUSTOM_CONFIG_FILE;
+        # if it doesn't exist, then we already have a global config file
+        # if it does, then we have need to update it and its blib/ copy
+        if (-e $path and custom_config_path_is_writable($path)) {
+            custom_config_write($path, $config_dump);
+            # also update blib/lib, since usually that's the one that
+            # appears in @INC when t/TEST is run. and it won't be
+            # synced with blib/ unless 'make' was run
+            my $blib_path = catfile $vars->{top_dir},
+                'blib', 'lib', CUSTOM_CONFIG_FILE;
+            if (-e $blib_path and custom_config_path_is_writable($blib_path)) {
+                custom_config_write($blib_path, $config_dump);
+            }
+            return 1;
+        }
     }
-    elsif ($path = custom_config_path() ) {
+
+    my $path;
+    if ($path = custom_config_path() ) {
         # do nothing, the config file already exists (global)
         debug "Found custom config '$path'";
     }
-    else {
+    elsif (File::Spec->file_name_is_absolute(__FILE__)) {
         # next try a global location, as if it was configured before
-        # Apache::Test's 'make install'
-        my $base = dirname dirname $INC{"Apache/TestRun.pm"};
+        # Apache::Test's 'make install' (install in the same dir as
+        # Apache/TestRun.pm)
+        # if the filename is not absolute that means that we are still
+        # in Apache-Test build (could just test for IS_APACHE_TEST_BUILD)
+        my $base = dirname dirname __FILE__;
         $path = catdir $base, CUSTOM_CONFIG_FILE;
     }
 
     # check whether we can write to the directory of the chosen path
-    if ($path) {
-        # first make sure that the file is writable if it exists
-        # already (it might be non-writable if installed via EU::MM)
-        if (-e $path) {
-            my $mode = (stat _)[2];
-            $mode |= 0200;
-            chmod $mode, $path; # it's ok if we fail
-        }
-
-        # try to open for append
-        my $fh = Symbol::gensym;
-        if (open $fh, ">>$path") {
-            close $fh;
-        }
-        else {
-            $path = ''; # can't use that path to write custom config
-        }
-    }
-
-    # if we have no path yet, try to use ~
-    if (!$path and $ENV{HOME}) {
-        $path = catfile $ENV{HOME}, '.apache-test', CUSTOM_CONFIG_FILE;
-    }
-
-    if ($path) {
+    # (e.g. root-owned directory)
+    if ($path and custom_config_path_is_writable($path)) {
         custom_config_write($path, $config_dump);
         return 1;
     }
+    # if we have no writable path yet, try to use ~
+    elsif ($ENV{HOME}) {
+        $path = catfile $ENV{HOME}, '.apache-test', CUSTOM_CONFIG_FILE;
+        if ($path and custom_config_path_is_writable($path)) {
+            custom_config_write($path, $config_dump);
+            return 1;
+        }
+    }
 
-    return 0; # failed to write config XXX: should we croak?
+    # XXX: should we croak since we failed to write config
+    error "Failed to find a config file to save the custom " .
+        "configuration in";
+    return 0;
+}
+
+sub custom_config_path_is_writable {
+    my $path = shift;
+
+    return 0 unless $path;
+
+    my $file_created    = '';
+    my $top_dir_created = '';
+    # first make sure that the file is writable if it exists
+    # already (it might be non-writable if installed via EU::MM or in
+    # blib/)
+    if (-e $path) {
+        my $mode = (stat _)[2];
+        $mode |= 0200;
+        chmod $mode, $path; # it's ok if we fail
+        # keep it writable if we have changed it from not being one
+        # so that custom_config_save will be able to just overwrite it
+    }
+    else {
+        my $dir = dirname $path;
+        if ($dir and !-e $dir) {
+            my @dirs = File::Path::mkpath($dir, 0, 0755);
+            # the top level dir to nuke on cleanup if it was created
+            $top_dir_created = shift @dirs if @dirs;
+        }
+        # not really create yet, but will be in the moment
+        $file_created = 1;
+    }
+
+    # try to open for append (even though it may not exist
+    my $fh = Symbol::gensym;
+    if (open $fh, ">>$path") {
+        close $fh;
+        # cleanup if we just created the file
+        unlink $path if $file_created;
+        File::Path::rmtree([$top_dir_created], 0, 0) if $top_dir_created;
+        return 1;
+    }
+
+    return 0;
 }
 
 sub custom_config_write {
@@ -1279,7 +1376,6 @@ Apache::TestConfigData - Configuration file for Apache::Test
 EOC
 
     debug "Writing custom config $path";
-    require File::Path;
     my $dir = dirname $path;
     File::Path::mkpath($dir, 0, 0755) unless -e $dir;
     my $fh = Symbol::gensym;
@@ -1293,18 +1389,7 @@ sub custom_config_load {
 
     if (my $custom_config_path = custom_config_path()) {
         debug "loading custom config path '$custom_config_path'";
-
         require $custom_config_path;
-
-        # %ENV overloads any custom saved config (command-line option will
-        # override any of these settings), though only if assigned
-        # some value (this is because Makefile will pass empty env
-        # vars if none were assigned)
-        for (@data_vars_must, @data_vars_opt) {
-            my $value = $ENV{ $vars_to_env{$_} };
-            next unless defined $value and length $value;
-            $Apache::TestConfigData::vars->{$_} = $value;
-        }
     }
 }
 
@@ -1434,8 +1519,11 @@ sub _custom_config_prompt_path {
     while (1) {
         $ans = ExtUtils::MakeMaker::prompt($prompt, $default);
 
+        # strip leading/closing spaces
+        $ans =~ s/^\s*|\s*$//g;
+
         # convert the item number to the path
-        if ($ans =~ /^\s*(\d+)\s*$/) {
+        if ($ans =~ /^(\d+)$/) {
             if ($1 > 0 and $choices[$1-1]) {
                 $ans = $choices[$1-1];
             }
@@ -1539,28 +1627,131 @@ I<t/TEST.PL>:
 
 Notice that the extension is I<.c>, and not I<.so>.
 
-=head1 Saving options
+=head2 C<new_test_config>
 
-When C<Apache::Test> is first installed, it will save the
-values of C<httpd>, C<port>, C<apxs>, C<user>, and C<group>,
-if set, to a configuration file C<Apache::TestConfigData>.
-This information will then be used in setting these options
-for subsequent uses.
+META: to be completed
 
-The values stored in C<Apache::TestConfigData> can be overriden
-temporarily either by setting the appropriate environment
-variable or by giving the relevant option when the C<TEST>
-script is run. If you want to save these options to
-C<Apache::TestConfigData>, use the C<-save> flag when
-running C<TEST>.
 
-If you are running C<Apache::Test> as a
-user who does not have permission to alter the system
-C<Apache::TestConfigData>, you can place your
-own private configuration file F<TestConfigData.pm>
-under C<$ENV{HOME}/.apache-test/Apache/>,
-which C<Apache::Test> will use, if present. An example
-of such a configuration file is
+
+=head1 Persistent Custom Configuration
+
+When C<Apache::Test> is first installed or used, it will save the
+values of C<httpd>, C<apxs>, C<port>, C<user>, and C<group>, if set,
+to a configuration file C<Apache::TestConfigData>.  This information
+will then be used in setting these options for subsequent uses of
+C<Apache-Test> unless temprorarily overridden, either by setting the
+appropriate environment variable (C<APACHE>, C<APXS>, C<APACHE_PORT>,
+C<APACHE_USER>, and C<APACHE_GROUP>) or by giving the relevant option
+(C<-httpd>, C<-apxs>, C<-port>, C<-user>, and C<-group>) when the
+C<TEST> script is run.
+
+Finally it's possible to permanently override the previously saved
+options by passing C<L<-save|/Saving_Custom_Configuration_Options>>.
+
+Here is the algorithm of how and when options are saved for the first
+time and when they are used. We will use a few variables to simplify
+the pseudo-code/pseudo-chart flow:
+
+C<$config_exists> - custom configuration has already been saved, to
+get this setting run C<custom_config_exists()>, which tests whether
+either C<apxs> or C<httpd> values are set. It doesn't check for other
+values, since all we need is C<apxs> or C<httpd> to get the test suite
+running. custom_config_exists() checks in the following order
+F<lib/Apache/TestConfigData.pm> (if during Apache-Test build) ,
+F<~/.apache-test/Apache/TestConfigData.pm> and
+F<Apache/TestConfigData.pm> in the perl's libraries.
+
+C<$config_overriden> - that means that we have either C<apxs> or
+C<httpd> values provided by user, via env vars or command line options.
+
+=over
+
+=item 1 Building Apache-Test or modperl-2.0 (or any other project that
+bundles Apache-Test).
+
+  1) perl Apache-Test/Makefile.PL
+  (for bundles top-level Makefile.PL will run this as well)
+
+  if $config_exists
+      do nothing
+  else
+      create lib/Apache/TestConfigData.pm w/ empty config: {}
+
+  2) make
+
+  3) make test
+
+  if $config_exists
+      if $config_overriden
+          override saved options (for those that were overriden)
+      else
+          use saved options
+  else
+      if $config_overriden
+          save them in lib/Apache/TestConfigData.pm
+          (which will be installed on 'make install')
+      else
+          - run interactive prompt for C<httpd> and optionally for C<apxs>
+          - save the custom config in lib/Apache/TestConfigData.pm
+          - restart the currently run program
+
+  4) make install
+
+     if $config_exists only in lib/Apache/TestConfigData.pm
+        it will be installed system-wide
+     else
+        nothing changes (since lib/Apache/TestConfigData.pm won't exist)
+
+=item 2 Testing 3rd party modules (after Apache-Test was installed)
+
+Notice that the following situation is quite possible:
+
+  cd Apache-Test
+  perl Makefile.PL && make install
+
+so that Apache-Test was installed but no custom configuration saved
+(since its C<make test> wasn't run). In which case the interactive
+configuration should kick in (unless config options were passed) and
+in any case saved once configured.
+
+C<$custom_config_path> - perl's F<Apache/TestConfigData.pm> (at the
+same location as F<Apache/TestConfig.pm>) if that area is writable by
+that user (e.g. perl's lib is not owned by 'root'). If not, in
+F<~/.apache-test/Apache/TestConfigData.pm>.
+
+  1) perl Apache-Test/Makefile.PL
+  2) make
+  3) make test
+
+  if $config_exists
+      if $config_overriden
+          override saved options (for those that were overriden)
+      else
+          use saved options
+  else
+      if $config_overriden
+          save them in $custom_config_path
+      else
+          - run interactive prompt for C<httpd> and optionally for C<apxs>
+          - save the custom config in $custom_config_path
+          - restart the currently run program
+
+  4) make install
+
+=back
+
+
+
+=head2 Saving Custom Configuration Options
+
+If you want to override the existing custom configurations options to
+C<Apache::TestConfigData>, use the C<-save> flag when running C<TEST>.
+
+If you are running C<Apache::Test> as a user who does not have
+permission to alter the system C<Apache::TestConfigData>, you can
+place your own private configuration file F<TestConfigData.pm> under
+C<$ENV{HOME}/.apache-test/Apache/>, which C<Apache::Test> will use, if
+present. An example of such a configuration file is
 
   # file $ENV{HOME}/.apache-test/Apache/TestConfigData.pm
   package Apache::TestConfigData;
@@ -1577,8 +1768,7 @@ of such a configuration file is
   };
   1;
 
-=head2 C<new_test_config>
 
-META: to be completed
+
 
 =cut

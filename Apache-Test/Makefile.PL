@@ -12,8 +12,6 @@ use constant TOP_LEVEL => !exists $ENV{MOD_PERL_2_BUILD};
 
 use ExtUtils::MakeMaker;
 use Symbol;
-use File::Spec::Functions qw(catfile);
-use FindBin;
 
 use Apache::TestMM qw(test); #enable 'make test'
 use Apache::TestRun;
@@ -37,7 +35,7 @@ if (TOP_LEVEL) {
     add_Apache__test_target();
 }
 
-write_custom_config_file_stub();
+Apache::TestRun::custom_config_file_stub_write();
 
 WriteMakefile(
     NAME      => 'Apache::Test',
@@ -103,17 +101,3 @@ sub add_Apache__test_target {
         $string;
     };
 }
-
-# write the custom test file so it'll be copied to blib if updated
-# during 'make test' and then installed system-wide
-sub write_custom_config_file_stub {
-    # It doesn't matter whether it gets written under modperl-2.0/lib
-    # or Apache-Test/lib root, since Apache::TestRun uses the same
-    # logic and will update that file with real config data, which
-    # 'make install' will then pick and install system-wide
-    my $path = catfile $FindBin::Bin, "lib",
-        Apache::TestRun::CUSTOM_CONFIG_FILE;
-    # write an empty stub
-    Apache::TestRun::custom_config_write($path, '');
-}
-

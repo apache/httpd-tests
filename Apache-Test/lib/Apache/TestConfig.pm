@@ -33,6 +33,7 @@ use Apache::TestConfigPerl ();
 use Apache::TestConfigParse ();
 use Apache::TestTrace;
 use Apache::TestServer ();
+use Apache::TestRun ();
 use Socket ();
 
 use vars qw(%Usage);
@@ -183,6 +184,10 @@ sub new {
             delete $thaw->{$_} if exists $thaw->{$_};
         }
     }
+
+    # custom config options from Apache::TestConfigData
+    # again, this should force reconfiguration
+    Apache::TestRun::custom_config_add_conf_opts($args);
 
     my $self = bless {
         clean => {},
