@@ -39,7 +39,11 @@ foreach my $mode (keys %tests) {
                 $expectedbody = "_\\(none\\)_";
             }
             else {
-                if ($file ne "/test.sh") {
+                if ($file eq "") {
+                    $expectedrc = "404";
+                    $expectedbody = "Not Found";
+                }
+                elsif ($file eq "/index.shtml") {
                     $expectedrc = $tests{$mode}[1];
                     $expectedbody = $tests{$mode}[2];
                 }
