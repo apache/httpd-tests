@@ -222,7 +222,11 @@ sub try_exit_opts {
     }
 
     if ($self->{opts}->{'stop-httpd'}) {
-        $self->{server}->stop;
+        if ($self->{server}->ping) {
+            $self->{server}->stop;
+        } else {
+            warning "server $self->{server}->{name} is not running";
+        }
         exit;
     }
 }
