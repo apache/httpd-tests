@@ -940,9 +940,6 @@ KeepAlive       On
 
 HostnameLookups Off
 
-# make sure that we test under Taint mode
-PerlSwitches -T
-
 <Directory />
     Options FollowSymLinks
     AllowOverride None
