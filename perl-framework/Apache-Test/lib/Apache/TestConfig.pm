@@ -214,7 +214,7 @@ sub add_config {
         else {
             $args .= "   $hash";
         }
-        $args .= "</$directive>";
+        $args .= "</$directive>\n";
     }
     elsif (ref($directive) eq 'ARRAY') {
         $args = join "\n", @$directive;
@@ -247,7 +247,12 @@ sub add_config_hooks_run {
     my($self, $where, $out) = @_;
 
     for (@{ $self->{"${where}_hooks"} }) {
-        $self->$_();
+        if ((ref($_) and ref($_) eq 'CODE') or $self->can($_)) {
+            $self->$_();
+        }
+        else {
+            print "WARNING: cannot run configure hook: `$_'\n";
+        }
     }
 
     for (@{ $self->{$where} }) {

@@ -197,24 +197,9 @@ sub configure_opts {
     $test_config->postamble_register($postamble);
 }
 
-sub configure_modperl {
-    my $self = shift;
-
-    my $test_config = $self->{test_config};
-
-    $test_config->preamble_register(qw(configure_libmodperl));
-
-    $test_config->postamble_register(qw(configure_inc
-                                        configure_pm_tests
-                                        configure_startup_pl));
-}
-
 sub configure {
     my $self = shift;
 
-    return unless $self->{conf_opts}->{save}; #cache generated config
-
-    $self->configure_modperl;
     $self->configure_opts;
 
     my $test_config = $self->{test_config};
@@ -301,7 +286,7 @@ sub run {
 
     $self->try_exit_opts;
 
-    $self->configure;
+    $self->configure if $self->{conf_opts}->{save}; #cache generated config
 
     $self->default_run_opts;
 
