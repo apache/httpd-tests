@@ -8,6 +8,10 @@ Changes - Apache::Test change logfile
 
 =item 1.14-dev
 
+run_tests make target no longer invokes t/TEST -clean, making it
+possible to save a few development cycles when a full cleanup is
+not required between runs.  [Geoffrey Young] 
+
 Apache::TestSmoke imrovements: [Stas]
  o the command line option -iterations=N should always be respected
    (previously it was internally overriden for order!='random').
