@@ -8,6 +8,10 @@ Changes - Apache::Test change logfile
 
 =item 1.08_dev
 
+If at least one *conf*.in files is modified since the last
+configuration, make sure to regenerate them all, so the right ports
+will be assigned. [Stas]
+
 Make sure that Apache-Test modules are installed into INSTALLSITEARCH
 during a standalone build. Because EU::MM does so when A-T is bundled
 with mp2, and we want to avoid having A-T installed in two different
