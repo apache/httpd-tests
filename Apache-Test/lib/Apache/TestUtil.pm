@@ -229,9 +229,9 @@ I<$received>. e.g.:
 
 prints:
 
-  testing : 1 == 1?
-  expected: 1
-  received: 1
+  # testing : 1 == 1?
+  # expected: 1
+  # received: 1
 
 then it returns the result of comparison of the I<$expected> and the
 I<$received> variables. Usually, the return value of this function is
