@@ -226,7 +226,13 @@ sub httpd_version {
     while (<$v>) {
         next unless s/^Server\s+version:\s*//i;
         chomp;
-        $version = (split)[0];
+        my @parts = split;
+        foreach (@parts) {
+            next unless /^Apache\//;
+            $version = $_;
+            last;
+        }
+        $version ||= $parts[0];
         last;
     }
 
