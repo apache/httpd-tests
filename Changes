@@ -8,6 +8,10 @@ Changes - Apache::Test change logfile
 
 =item 1.17-dev
 
+new wrapper Apache::TestRequest::module2url to simplify handling of
+vhosts in the client. ["Christopher H. Laco" <apache-test
+chrislaco.com>]
+
 resolve -T taint issues: [Stas]
 - untaint $cmd in Apache::TestConfig::open_cmd
 - fix the tainting of @INC (by untaintinig top_dir variable)
