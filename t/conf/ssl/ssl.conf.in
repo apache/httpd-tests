@@ -54,6 +54,8 @@
 
     SSLCACertificateFile @SSLCA@/asf/certs/ca.crt
 
+    SSLCACertificatePath @ServerRoot@/conf/ssl
+
     SSLCARevocationFile @SSLCA@/asf/crl/ca-bundle.crl
 
     <VirtualHost @ssl_module_name@>
