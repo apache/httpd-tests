@@ -50,7 +50,8 @@ sub version_of {
 
 my @apache_logs = qw(
 error_log access_log httpd.pid
-apache_runtime_status ssl_engine_log
+apache_runtime_status rewrite_log
+ssl_engine_log ssl_request_log
 );
 
 sub clean {

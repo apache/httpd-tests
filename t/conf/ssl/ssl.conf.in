@@ -25,6 +25,11 @@
     SSLLog      @ServerRoot@/logs/ssl_engine_log
     #SSLLogLevel debug
 
+    <IfModule mod_log_config.c>
+        LogFormat "%t %h %{SSL_PROTOCOL}x %{SSL_CIPHER}x \"%r\" %>s %b" ssl
+        CustomLog logs/ssl_request_log ssl
+    </IfModule>
+
     SSLCipherSuite ALL:!ADH:RC4+RSA:+HIGH:+MEDIUM:+LOW:+SSLv2:+EXP:+eNULL
 
     SSLCertificateFile @SSLCA@/asf/certs/server.crt
