@@ -224,7 +224,7 @@ sub default_module {
         $self->{modules}->{$_};
     } map "$_.c", @$choices;
 
-    $self->{vars}->{$name} ||= 0;
+    $self->{vars}->{$name} ||= $choices->[0];
 }
 
 sub configure_apxs {
