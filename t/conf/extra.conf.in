@@ -297,3 +297,14 @@ Alias /manual @inherit_documentroot@/manual
         AllowOverride Indexes
     </Directory>
 </IfModule>
+
+##
+## apache/limits.t:
+## LimitRequest* directive testing.  Note that LimitRequestBody has
+## to be larger than apache/post.t's largest request (currently 10MB),
+## or else that test will fail falsely.
+##
+LimitRequestLine      128
+LimitRequestFieldSize 1024
+LimitRequestFields    32
+LimitRequestBody      10250000
