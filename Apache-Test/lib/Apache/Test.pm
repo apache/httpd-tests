@@ -57,7 +57,7 @@ sub init_test_pm {
     my $r = shift;
 
     if (defined &Apache::RequestRec::TIEHANDLE) {
-        untie *STDOUT if tied *STDOUT;
+        untie *STDOUT;
         tie *STDOUT, $r;
     }
     else {
