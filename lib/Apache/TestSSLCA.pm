@@ -59,10 +59,19 @@ my $cert_dn = {
     },
     server => {
         CN => 'localhost',
+        OU => 'httpd-test/rsa-test',
+    },
+    server2 => {
+        CN => 'localhost',
+        OU => 'httpd-test/rsa-test-2',
     },
     server_des3 => {
         CN => 'localhost',
-        OU => 'httpd-test/perl-framework',
+        OU => 'httpd-test/rsa-des3-test',
+    },
+    server2_des3 => {
+        CN => 'localhost',
+        OU => 'httpd-test/rsa-des3-test-2',
     },
 };
 
