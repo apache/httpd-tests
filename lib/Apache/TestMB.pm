@@ -82,8 +82,9 @@ sub _cmodules {
     # XXX TBD.
     my $start_dir = $self->cwd;
     chdir $self->localize_file_path('c-modules');
-    # XXX How do we get the right make?
-    $self->do_system('make', $action);
+    # XXX How do we get Build.PL to be generated instead of Makefile?
+    # Subclass Apache::TestConfigC, perhaps?
+    $self->do_system('Build.PL', $action);
     chdir $start_dir;
 }
 
