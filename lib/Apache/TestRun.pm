@@ -22,9 +22,10 @@ use subs qw(exit_shell exit_perl);
 my %core_files  = ();
 
 my @std_run      = qw(start-httpd run-tests stop-httpd);
-my @others       = qw(verbose configure clean help ssl http11);
+my @others       = qw(configure clean help ssl http11);
 my @flag_opts    = (@std_run, @others);
 my @string_opts  = qw(order trace);
+my @vary_opts    = qw(verbose);
 my @ostring_opts = qw(proxy ping);
 my @debug_opts   = qw(debug);
 my @num_opts     = qw(times);
@@ -166,6 +167,7 @@ sub getopts {
     GetOptions(\%opts, @flag_opts, @help_opts,
                (map "$_:s", @debug_opts, @request_opts, @ostring_opts),
                (map "$_=s", @string_opts),
+               (map "$_:1", @vary_opts),
                (map "$_=i", @num_opts),
                (map { ("$_=s", $vopts{$_} ||= []) } @list_opts),
                (map { ("$_=s", $vopts{$_} ||= {}) } @hash_opts));
