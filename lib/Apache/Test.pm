@@ -437,7 +437,7 @@ for my $func (@have) {
     no strict 'refs';
     (my $real_func = $func) =~ s/^have_/need_/;
     *$func = sub {
-        # be nice to poor soles calling functions with $_ argument in
+        # be nice to poor souls calling functions with $_ argument in
         # the foreach loop, etc.!
         local $_;
         local @SkipReasons;
