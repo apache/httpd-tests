@@ -4,6 +4,7 @@ LICENSE
 MANIFEST
 Makefile.PL
 README
+INSTALL
 SUPPORT
 ToDo
 install-pl
