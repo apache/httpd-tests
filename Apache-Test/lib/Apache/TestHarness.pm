@@ -50,7 +50,7 @@ sub run_t {
     my($self, $file) = @_;
     my $ran = 0;
     my $lib = catfile Apache::Test::vars('top_dir'), qw(Apache-Test lib);
-    my $cmd = "$^X -Mlib=$lib $file";
+    my $cmd = qq[$^X -Mlib="$lib" $file];
 
     my $h = Symbol::gensym();
     open $h, "$cmd|" or die "open $cmd: $!";
