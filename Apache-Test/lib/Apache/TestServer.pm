@@ -426,7 +426,7 @@ sub start {
     $mpm = "($mpm MPM)" if $mpm;
     print "using $version $mpm\n";
 
-    my $wait_secs = 60; # XXX: make a constant?
+    my $timeout = 60; # secs XXX: make a constant?
 
     my $start_time = time;
     my $preamble = "\rwaiting for server to start: ";
@@ -438,7 +438,7 @@ sub start {
             print $preamble, "ok (waited $delta secs)\n";
             last;
         }
-        elsif ($delta > $wait_secs) {
+        elsif ($delta > $timeout) {
             print $preamble, "giving up after $delta secs\n";
             last;
         }
@@ -463,6 +463,20 @@ sub start {
         return 0;
     }
 
+    $self->wait_till_is_up($timeout) && return 1;
+
+    $self->failed_msg("failed to start server!");
+    return 0;
+}
+
+
+# wait till the server is up and return 1
+# if the waiting times out returns 0
+sub wait_till_is_up {
+    my($self, $timeout) = @_;
+    my $config = $self->{config};
+    my $sleep_interval = 1; # secs
+
     my $server_up = sub {
         local $SIG{__WARN__} = sub {}; #avoid "cannot connect ..." warnings
         $config->http_raw_get('/index.html');
@@ -472,24 +486,21 @@ sub start {
         return 1;
     }
 
-    $start_time = time;
-    $preamble = "\rstill waiting for server to warm up: ";
+    my $start_time = time;
+    my $preamble = "\rstill waiting for server to warm up: ";
     while (1) {
         my $delta = time - $start_time;
         print $preamble, sprintf "%02d:%02d", (gmtime $delta)[1,0];
-        sleep 1;
+        sleep $sleep_interval;
         if ($server_up->()) {
-            print $preamble, "ok (waited $delta secs)\n";
+            print "\rthe server is up (waited $delta secs)             \n";
             return 1;
         }
-        elsif ($delta > $wait_secs) {
-            print $preamble, "giving up after $delta secs\n";
-            last;
+        elsif ($delta > $timeout) {
+            print "\rthe server is down, giving up after $delta secs\n";
+            return 0;
         }
     }
-
-    $self->failed_msg("failed to start server!");
-    return 0;
 }
 
 1;
