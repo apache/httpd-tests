@@ -206,6 +206,7 @@ sub add_module_config {
             next;
         }
         my($directive, $rest) = split /\s+/, $_, 2;
+        $rest = '' unless defined $rest;
         if ($outside_container{$directive}) {
             $self->postamble($directive => $rest);
         }
@@ -278,7 +279,7 @@ sub configure_pm_tests {
 
         finddepth(sub {
             return unless /\.pm$/;
-            my @args;
+            my @args = ();
 
             my $pm = $_;
             my $file = catfile $File::Find::dir, $pm;
