@@ -173,7 +173,7 @@ sub add_module_config {
     open(my $fh, $module) or return;
 
     while (<$fh>) {
-        last if /^__DATA__/;
+        last if /^__(DATA|END)__/;
     }
 
     while (<$fh>) {
