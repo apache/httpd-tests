@@ -1,0 +1,34 @@
+use strict;
+use warnings FATAL => 'all';
+
+use Apache::Test;
+use Apache::TestUtil;
+use Apache::TestRequest;
+
+plan tests => 2;
+
+my $sock = Apache::TestRequest::vhost_socket('default');
+ok $sock;
+
+# This is a test for CAN-2004-0942 albeit a pretty bad one:
+# CAN-2004-0942 is a memory leak in the <=2.0.52 logic for handling
+# whitespace in folded headers.  This test tests that a folded header
+# which, including whitespace, exceeds the field length limit, gets a
+# 400 response.  A better httpd implementation could handle such
+# headers without the memory leak, yet would fail this test.
+
+Apache::TestRequest::socket_trace($sock);
+
+$sock->print("GET /index.html HTTP/1.0\r\n");
+
+my $n = $sock->print("Hello:\r\n");
+foreach (1..100) {
+    $n = $sock->send(" "x500 . "\r\n") if $sock->connected;
+}
+
+$sock->send("\r\n") if $sock->connected;
+
+my $line = Apache::TestRequest::getline($sock) || '';
+
+ok t_cmp($line, qr{^HTTP/1\.. 400}, "request was refused");
+
