@@ -5,41 +5,51 @@ use Apache::Test;
 use Apache::TestRequest;
 use Apache::TestUtil;
 
-plan tests => 6, ['mod_proxy'];
+my %modules = (
+    proxyssl     => 'http',
+    proxyssl_ssl => 'https',
+);
 
-Apache::TestRequest::module('proxyssl');
+plan tests => 6 * keys %modules, ['mod_proxy'];
 
-my $hostport = Apache::TestRequest::hostport();
+for my $module (sort keys %modules) {
 
-ok t_cmp(200,
-         GET('/')->code,
-         "/ with proxyssl");
+    my $scheme = $modules{$module};
+    Apache::TestRequest::module($module);
+    Apache::TestRequest::scheme($scheme);
 
-ok t_cmp(200,
-         GET('/verify')->code,
-         "using valid proxyssl client cert");
+    my $hostport = Apache::TestRequest::hostport();
 
-ok t_cmp(403,
-         GET('/require/snakeoil')->code,
-         "using invalid proxyssl client cert");
+    ok t_cmp(200,
+             GET('/')->code,
+             "/ with $module ($scheme)");
 
-my $res = GET('/require-ssl-cgi/env.pl');
+    ok t_cmp(200,
+             GET('/verify')->code,
+             "using valid proxyssl client cert");
 
-ok t_cmp(200, $res->code, "protected cgi script");
+    ok t_cmp(403,
+             GET('/require/snakeoil')->code,
+             "using invalid proxyssl client cert");
 
-my $body = $res->content || "";
+    my $res = GET('/require-ssl-cgi/env.pl');
 
-my %vars;
-for my $line (split /\s*\r?\n/, $body) {
-    my($key, $val) = split /\s*=\s*/, $line, 2;
-    next unless $key;
-    $vars{$key} = $val || "";
+    ok t_cmp(200, $res->code, "protected cgi script");
+
+    my $body = $res->content || "";
+
+    my %vars;
+    for my $line (split /\s*\r?\n/, $body) {
+        my($key, $val) = split /\s*=\s*/, $line, 2;
+        next unless $key;
+        $vars{$key} = $val || "";
+    }
+
+    ok t_cmp($hostport,
+             $vars{HTTP_X_FORWARDED_HOST},
+             "X-Forwarded-Host header");
+
+    ok t_cmp('client_ok',
+             $vars{SSL_CLIENT_S_DN_CN},
+             "client subject common name");
 }
-
-ok t_cmp($hostport,
-         $vars{HTTP_X_FORWARDED_HOST},
-         "X-Forwarded-Host header");
-
-ok t_cmp('client_ok',
-         $vars{SSL_CLIENT_S_DN_CN},
-         "client subject common name");
