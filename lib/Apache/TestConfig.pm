@@ -1017,7 +1017,7 @@ sub parse_vhost {
     my @out_config = ();
     if ($self->{vhosts}->{$module}->{namebased} < 2) {
         #extra config that should go *outside* the <VirtualHost ...>
-        @out_config = ([Listen => $vars->{servername} . ':' . $port]);
+        @out_config = ([Listen => '0.0.0.0:' . $port]);
 
         if ($self->{vhosts}->{$module}->{namebased}) {
             push @out_config => [NameVirtualHost => "*:$port"];
@@ -1785,7 +1785,7 @@ perl(1), Apache::Test(3)
 
 
 __DATA__
-Listen     @ServerName@:@Port@
+Listen     0.0.0.0:@Port@
 
 ServerRoot   "@ServerRoot@"
 DocumentRoot "@DocumentRoot@"

@@ -222,7 +222,7 @@ sub set_connection_handler {
     my($self, $module, $args) = @_;
     my $port = $self->new_vhost($module);
     my $vars = $self->{vars};
-    $self->postamble(Listen => $vars->{servername} . ':' . $port);
+    $self->postamble(Listen => '0.0.0.0:' . $port);
 }
 
 my %add_hook_config = (
