@@ -60,6 +60,8 @@ static int test_ssl_var_lookup(request_rec *r)
         return OK;
     }
 
+    apr_table_setn(r->subprocess_env, "THE_ARGS", r->args);
+
     if (!var_lookup) {
         ap_rputs("ssl_var_lookup is not available", r);
         return OK;
