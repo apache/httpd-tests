@@ -81,9 +81,8 @@ sub configure_inc {
     my $top = $self->{vars}->{top_dir};
 
     my $inc = $self->{inc};
-    my @trys = (catfile($top, 'lib'),
-                catfile($top, qw(blib lib)),
-                catfile($top, qw(blib arch)));
+    my @trys = (catdir($top, qw(blib lib)),
+                catdir($top, qw(blib arch)));
 
     for (@trys) {
         push @$inc, $_ if -d $_;
@@ -160,6 +159,14 @@ sub configure_startup_pl {
         }
         my $fixup = Apache::TestConfig->modperl_2_inc_fixup();
         print $fh $fixup;
+
+        # if Apache::Test is used to develop a project, we want the
+        # project/lib directory to be first in @INC (loaded last)
+        if ($ENV{APACHE_TEST_LIVE_DEV}) {
+            my $dev_lib = catdir $self->{vars}->{top_dir}, "lib";
+            print $fh "use lib '$dev_lib';\n" if -d $dev_lib;
+        }
+
         print $fh "1;\n";
     }
 
