@@ -220,8 +220,9 @@ sub httpd_version {
 
     my $version;
     my $cmd = "$httpd -v";
-    # untaint 
-    local $ENV{PATH};
+    # untaint %ENV
+    local %ENV;
+    delete @ENV{ qw(PATH IFS CDPATH ENV BASH_ENV) };
     open my $v, '-|', $cmd or die "$cmd failed: $!";
 
     local $_;
