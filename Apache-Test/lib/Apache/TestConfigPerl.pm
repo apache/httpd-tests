@@ -240,7 +240,7 @@ sub new_vhost {
     my($port, $servername, $vhost);
 
     unless ($namebased and exists $self->{vhosts}->{$module}) {
-        $port       = $self->server->select_port;
+        $port       = $self->server->select_next_port;
         $vhost      = $self->{vhosts}->{$module} = {};
 
         $vhost->{port}       = $port;

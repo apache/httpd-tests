@@ -265,7 +265,7 @@ sub pid {
     $pid;
 }
 
-sub select_port {
+sub select_next_port {
     my $self = shift;
 
     my $max_tries = 100; #XXX

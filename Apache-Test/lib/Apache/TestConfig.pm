@@ -233,7 +233,7 @@ sub new {
 
     $vars->{scheme}       ||= 'http';
     $vars->{servername}   ||= $self->default_servername;
-    $vars->{port}           = $self->select_port;
+    $vars->{port}           = $self->select_first_port;
     $vars->{remote_addr}  ||= $self->our_remote_addr;
 
     $vars->{user}         ||= $self->default_user;
@@ -539,7 +539,7 @@ sub default_servername {
 }
 
 # memoize the selected value (so we make sure that the same port is used
-# via select). The problem is that select_port() is called 3 times after
+# via select). The problem is that select_first_port() is called 3 times after
 # -clean, and it's possible that a lower port will get released
 # between calls, leading to various places in the test suite getting a
 # different base port selection.
@@ -549,7 +549,7 @@ sub default_servername {
 # bind() will actually get the port. So there is a need in another
 # check and reconfiguration just before the server starts.
 #
-sub select_port {
+sub select_first_port {
     my $self = shift;
 
     my $port ||= $ENV{APACHE_PORT} || $self->{vars}{port} || DEFAULT_PORT;
@@ -601,7 +601,7 @@ sub port {
 
     unless ($module) {
         my $vars = $self->{vars};
-        return $self->select_port() unless $vars->{scheme} eq 'https';
+        return $self->select_first_port() unless $vars->{scheme} eq 'https';
         $module = $vars->{ssl_module_name};
     }
     return $self->{vhosts}->{$module}->{port};
