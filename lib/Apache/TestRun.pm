@@ -761,11 +761,12 @@ sub detect_relocation {
     {
         # in place editing
         local @ARGV = $config_file;
-        local $^I = "";
+        local $^I = ".bak";  # Win32 needs a backup
         while (<>) {
             s{$cfg_top_dir}{$cur_top_dir}g;
             print;
         }
+        unlink $config_file . $^I;
     }
 
     my $cleanup_cmd = "$^X $0 -clean";
