@@ -503,10 +503,10 @@ two problems:
 
 =item 1
 
-First is to be able to reproduce the problem so if we think we fix it,
-we could verify the fix. This one is easy, just remember the sequence
-of tests run till the failed test and rerun the same sequence once
-again after the problem has been fixed.
+First is to be able to reproduce the problem so if we think we fixed
+it, we could verify the fix. This one is easy, just remember the
+sequence of tests run till the failed test and rerun the same sequence
+once again after the problem has been fixed.
 
 =item 2
 
