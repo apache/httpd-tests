@@ -431,7 +431,7 @@ sub get_httpd_defines {
         $self->{mpm} = '';
     }
 
-    if ($self->{httpd_info}->{VERSION} =~ qr,Apache/2,) {
+    if (($self->{httpd_info}->{VERSION}||'') =~ qr,Apache/2,) {
         # PHP 4.x on httpd-2.x needs a special modname alias;
         $modname_alias{'mod_php4.c'} = 'sapi_apache2.c';
     }
