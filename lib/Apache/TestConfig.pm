@@ -967,9 +967,6 @@ sub sslca_can {
     return 0 unless $self->{modules}->{ $self->{vars}->{ssl_module} };
     require Apache::TestSSLCA;
 
-    my $ca = $self->{vars}->{sslca};
-    return 0 if $ca and -d $ca; #t/conf/ssl/ca
-
     if ($check) {
         my $openssl = Apache::TestSSLCA::openssl();
         if (which($openssl)) {
@@ -985,6 +982,9 @@ sub sslca_can {
 
 sub sslca_generate {
     my $self = shift;
+
+    my $ca = $self->{vars}->{sslca};
+    return if $ca and -d $ca; #t/conf/ssl/ca
 
     return unless $self->sslca_can(1);
 
