@@ -30,7 +30,7 @@ for my $module (sort keys %backend) {
     }
 }
 
-plan tests => (7 + $post_tests) * $num_modules - 5 * $num_http_backends,
+plan tests => (8 + $post_tests) * $num_modules - 5 * $num_http_backends,
               [qw(mod_proxy proxy_http.c)];
 
 for my $module (sort keys %frontend) {
@@ -47,6 +47,12 @@ for my $module (sort keys %frontend) {
         t_cmp(200,
               GET('/')->code,
               "/ with $module ($scheme)");
+    };
+
+    sok {
+        t_cmp(200, 
+              GET('/modules/cgi/nph-foldhdr.pl')->code,
+              "CGI script with folded headers");
     };
 
     if ($backend{$module} eq "https") {
