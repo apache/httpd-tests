@@ -8,6 +8,8 @@ Changes - Apache::Test change logfile
 
 =item 1.14-dev
 
+In open_cmd, sanitize PATH instead of clearing it [Gozer]
+
 Allow / \ and \\ path delimiters in SKIP file [Markus Wichitill
 <mawic@gmx.de>]
 

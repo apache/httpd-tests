@@ -1013,8 +1013,13 @@ sub makepath {
 sub open_cmd {
     my($self, $cmd) = @_;
     # untaint some %ENV fields
-    local @ENV{ qw(PATH IFS CDPATH ENV BASH_ENV) };
+    local @ENV{ qw(IFS CDPATH ENV BASH_ENV) };
 
+    # Temporarly untaint PATH
+    (local $ENV{PATH}) = ( $ENV{PATH} =~ /(.*)/ );
+    # -T doesn't like . in the PATH
+    $ENV{PATH} =~ s#(^|:)\.[/\\]?(:|$)##; 
+    
     my $handle = Symbol::gensym();
     open $handle, "$cmd|" or die "$cmd failed: $!";
 
