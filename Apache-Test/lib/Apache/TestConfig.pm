@@ -1369,6 +1369,10 @@ sub sslca_generate {
 sub sslca_clean {
     my $self = shift;
 
+    # XXX: httpd config is required, for now just skip ssl clean if
+    # there is none
+    return unless $self->{vars}->{httpd};
+
     return unless $self->sslca_can;
 
     Apache::TestSSLCA::clean($self);
