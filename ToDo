@@ -1,3 +1,10 @@
+- Custom sticky config: invalidate invalid bits of the saved config,
+  e.g. if apxs is saved but can't be found on the filesystem. So if
+  someone installs Apache in one location, runs A-T which saves that
+  location, and then nukes Apache and reinstalls it into a different
+  location we should drop the previously saved config since the path
+  to apxs and/or httpd is now invalid.
+
 - Apache-Test doesn't run on IPv6 systems, need to change the
   autogeneration of httpd.conf to support IPv6. It requires a
   replacement of 'Listen 80' with 'Listen servername:80'
