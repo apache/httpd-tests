@@ -364,11 +364,6 @@ sub start {
         while (my($module, $cfg) = each %{ $config->{vhosts} }) {
             print "server $cfg->{name} listening ($module)\n",
         }
-        if ($config->{modules}->{'mod_ssl.c'} and
-            !$self->port_available($vars->{sslport})) {
-            my $hostport = join ':', $vars->{servername}, $vars->{sslport};
-            print "server $hostport listening (mod_ssl)\n";
-        }
     }
     else {
         $self->failed_msg("server failed to start!");
