@@ -320,6 +320,7 @@ sub report_start {
     my $time = scalar localtime;
     $self->{start_time} = $time;
     $time =~ s/\s/_/g;
+    $time =~ s/:/-/g; # winFU
     my $file = $self->{opts}->{report} || "smoke-report-$time.txt";
 
     open my $fh, ">$file" or die "cannot open $file for writing: $!";
