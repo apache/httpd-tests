@@ -741,10 +741,10 @@ sub detect_relocation {
 
     my %inc = %INC;
     eval { require "$config_file" };
+    %INC = %inc; # be stealth
     warn($@), return if $@;
 
     my $cfg = 'apache_test_config'->new;
-    %INC = %inc; # be stealth
 
     # if the top_dir from saved config doesn't match the current
     # top_dir, that means that the whole project was relocated to a
