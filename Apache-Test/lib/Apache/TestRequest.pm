@@ -82,6 +82,7 @@ require Exporter;
 @ISA = qw(LWP::UserAgent);
 
 my $UA;
+my $REDIR = $have_lwp ? undef : 1;
 
 sub module {
     my $module = shift;
@@ -116,16 +117,19 @@ sub user_agent {
     if (exists $args->{requests_redirectable}) {
         my $redir = $args->{requests_redirectable};
         if (ref $redir and (@$redir > 1 or $redir->[0] ne 'POST')) {
-            $RedirectOK = $have_lwp ? undef : 1;
+            # Set our internal flag if there's no LWP.
+            $REDIR = $have_lwp ? undef : 1;
         } elsif ($redir) {
             if ($have_lwp) {
                 $args->{requests_redirectable} = [ qw/GET HEAD POST/ ];
-                $RedirectOK = undef;
+                $REDIR = undef;
             } else {
-                $RedirectOK = 1;
+                # Set our internal flag.
+                $REDIR = 1;
             }
         } else {
-            $RedirectOK = 0;
+            # Make sure our internal flag is false if there's no LWP.
+            $REDIR = $have_lwp ? undef : 0;
         }
     }
 
@@ -199,14 +203,19 @@ sub wanted_args {
     \%wanted_args;
 }
 
-$RedirectOK = 1;
-
 sub redirect_ok {
     my $self = shift;
-    return $self->SUPER::redirect_ok(@_)
-      if $have_lwp && ! defined $RedirectOK;
-    return 0 if shift->method eq 'POST';
-    $RedirectOK;
+    if ($have_lwp) {
+        # Return user setting or let LWP handle it.
+        return $RedirectOK if defined $RedirectOK;
+        return $self->SUPER::redirect_ok(@_);
+    }
+
+    # No LWP. We don't support redirect on POST.
+    return 0 if $self->method eq 'POST';
+    # Return user setting or our internal calculation.
+    return $RedirectOK if defined $RedirectOK;
+    return $REDIR;
 }
 
 my %credentials;
@@ -331,7 +340,7 @@ sub prepare {
 sub UPLOAD {
     my($url, $pass, $keep) = prepare(@_);
 
-    local $RedirectOK = exists $keep->{redirect_ok} 
+    local $RedirectOK = exists $keep->{redirect_ok}
         ? $keep->{redirect_ok}
         : $RedirectOK;
 
