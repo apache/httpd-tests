@@ -18,10 +18,20 @@ use Time::Local;
 ## </Directory>
 ##
 
+## calculate "modification plus 10 years 6 months 2 weeks 3 days 12 hours 30 minutes 19 seconds"
+my $exp_years =     10 * 60 * 60 * 24 * 365;
+my $exp_months =    6 * 60 * 60 * 24 * 30;
+my $exp_weeks =     2 * 60 * 60 * 24 * 7;
+my $exp_days =      3 * 60 * 60 * 24;
+my $exp_hours =     12 * 60 * 60;
+my $exp_minutes =   30 * 60;
+my $expires_default = $exp_years + $exp_months + $exp_weeks +
+                    $exp_days + $exp_hours + $exp_minutes + 19;
+
 my @page = qw(index.html text.txt image.gif foo.jpg);
 my %exp  = 
     (	
-     'default'    => 'M332256619',
+     'default'    => "M$expires_default",
      'text/plain' => 'M60',
      'image/gif'  => 'A120',
      'image/jpeg' => 'A86400'
@@ -37,8 +47,8 @@ my %names =
 
 my %month = ();
 my @months = qw(Jan Feb Mar Apr May Jun Jul Aug Sep Oct Nov Dec);
-@month{@months} = 1..@months;
-
+#@month{@months} = 1..@months;
+@month{@months} = 0..@months-1;
 
 plan tests => @page * 2, test_module 'expires';
 
@@ -122,5 +132,5 @@ sub convert_to_time {
             defined $mon   && 
             defined $year;
 
-    return Time::Local::timelocal($sec, $min, $hours, $mday, $mon, $year);
+    return Time::Local::timegm($sec, $min, $hours, $mday, $mon, $year);
 }
