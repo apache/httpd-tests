@@ -1346,8 +1346,8 @@ or via the environment variable APACHE. For example:
         for (grep defined $_,
              map({ catfile $vars->{$_}, $vars->{target} } qw(sbindir bindir)),
              $test_config->default_httpd, which($vars->{target}),
-             $ENV{APACHE},  which('apache'),  which('httpd'),
-             $ENV{APACHE2}, which('apache2'), which('httpd2')) {
+             $ENV{APACHE},  which('Apache'),  which('httpd'),
+             $ENV{APACHE2}, which('Apache2'), which('httpd2')) {
             $choices{$_}++ if -e $_ && -x _;
         }
         my $optional = 0;
