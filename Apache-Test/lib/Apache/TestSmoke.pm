@@ -8,7 +8,6 @@ use Apache::TestTrace;
 
 use Getopt::Long qw(GetOptions);
 use File::Spec::Functions qw(catfile);
-use Digest::MD5 ();
 use POSIX ();
 use FindBin;
 
@@ -264,6 +263,7 @@ sub reduce_stream {
 sub sequence_seen {
     my ($self, $rh_store, $ra_tests) = @_;
 
+    require Digest::MD5;
     my $digest = Digest::MD5::md5_hex(join '', @$ra_tests);
     #error $self->{seen};
     return $rh_store->{$digest}++ ? 1 : 0
