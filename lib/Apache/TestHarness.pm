@@ -143,6 +143,10 @@ sub run {
     #dir//foo output is annoying, fix that.
     s:/+:/:g for @tests;
 
+    if (my(@subtests) = @{ $args->{subtests} }) {
+        $ENV{HTTPD_TEST_SUBTESTS} = "@subtests";
+    }
+
     Test::Harness::runtests(@tests);
 }
 

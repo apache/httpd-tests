@@ -8,9 +8,25 @@ use Exporter ();
 use Apache::TestConfig ();
 
 our @ISA = qw(Exporter);
-our @EXPORT = qw(ok skip plan have_lwp have_http11 have_cgi
+our @EXPORT = qw(ok skip sok plan have_lwp have_http11 have_cgi
                  test_module have_module have_apache);
 our $VERSION = '0.01';
+
+our %SubTests;
+
+if (my $subtests = $ENV{HTTPD_TEST_SUBTESTS}) {
+    %SubTests = map { $_, 1 } split /\s+/, $subtests;
+}
+
+sub sok (&) {
+    if (%SubTests and not $SubTests{ $Test::ntest }) {
+        skip "skipping this subtest";
+        return;
+    }
+
+    my $sub = shift;
+    ok $sub->();
+}
 
 #so Perl's Test.pm can be run inside mod_perl
 sub test_pm_refresh {

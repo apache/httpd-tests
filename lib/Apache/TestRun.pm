@@ -104,6 +104,10 @@ sub split_args {
                 push @tests, "$arg.t";
                 next;
             }
+            elsif (/^\d+$/) {
+                push @{ $self->{subtests} }, $_;
+                next;
+            }
         }
 
         push @args, $_;
@@ -353,6 +357,7 @@ sub run_tests {
         tests   => $self->{tests},
         times   => $self->{opts}->{times},
         order   => $self->{opts}->{order},
+        subtests => $self->{subtests} || [],
     };
 
     if (grep { exists $self->{opts}->{$_} } @request_opts) {
