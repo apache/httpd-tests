@@ -69,22 +69,22 @@ sub generate_script {
 
     unlink $file if -e $file;
 
-    my $content = '';
+    my $body = '';
 
     if (@Apache::TestMM::Argv) {
-        $content = "\%Apache::TestConfig::Argv = qw(@Apache::TestMM::Argv);\n";
+        $body .= "\%Apache::TestConfig::Argv = qw(@Apache::TestMM::Argv);\n";
     }
 
     my $in = Symbol::gensym();
     open $in, "$file.PL" or die "Couldn't open $file.PL: $!";
     {
         local $/;
-        $content .= <$in>;
+        $body .= <$in>;
     }
     close $in;
 
     info "generating script $file";
-    Apache::Test::config()->write_perlscript($file, $content);
+    Apache::Test::config()->write_perlscript($file, $body);
 }
 
 sub filter_args {
