@@ -10,10 +10,14 @@
 
 #include "apache_httpd_test.h"
 
+#define WANT_HTTPD_TEST_SPLIT_QS_NUMBERS
+#include "httpd_test_util.c"
+
 static int test_rwrite_handler(request_rec *r)
 {
     long total=0, remaining=1;
-    char buff[BUFSIZ];
+    char *buff;
+    int buff_size = 8192;
 
     if (strcmp(r->handler, "test_rwrite")) {
         return DECLINED;
@@ -30,14 +34,17 @@ static int test_rwrite_handler(request_rec *r)
     ap_send_http_header(r);
 #endif
 
+    httpd_test_split_qs_numbers(r, &buff_size, &remaining, NULL);
+
     fprintf(stderr, "[mod_test_rwrite] going to echo %ld bytes\n",
             remaining);
 
-    memset(buff, 'a', sizeof(buff));
+    buff = malloc(buff_size);
+    memset(buff, 'a', buff_size);
 
     while (total < remaining) {
         int left = (remaining - total);
-        int len = left <= sizeof(buff) ? left : sizeof(buff);
+        int len = left <= buff_size ? left : buff_size;
         long nrd = ap_rwrite(buff, len, r);
         total += nrd;
 
@@ -48,7 +55,8 @@ static int test_rwrite_handler(request_rec *r)
     fprintf(stderr,
             "[mod_test_rwrite] done writing %ld of %ld bytes\n",
             total, remaining);
-    
+
+    free(buff);    
     return OK;
 }
 
