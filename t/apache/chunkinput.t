@@ -12,11 +12,24 @@ my @req_strings =  ("/echo_post_chunk",
                     "/i_do_not_exist_in_your_wildest_imagination");
 
 # This is expanded out.
-my @resp_strings = ("HTTP/1.1 200 OK",
-                    "HTTP/1.1 404 Not Found",
-                    "HTTP/1.1 413 Request Entity Too Large",
-                    "HTTP/1.1 413 Request Entity Too Large",
-                   );
+# Apache 2.0 handles this test more correctly than Apache 1.3. 
+# 1.3 returns 400 Bad Request in this case and it is not worth 
+# changing 1.3s behaviour.
+my @resp_strings;
+if (have_apache(1)) {
+   @resp_strings = ("HTTP/1.1 200 OK",
+                       "HTTP/1.1 404 Not Found",
+		       "HTTP/1.1 400 Bad Request",
+		       "HTTP/1.1 400 Bad Request",
+		       );
+} 
+else {
+   @resp_strings = ("HTTP/1.1 200 OK",
+                       "HTTP/1.1 404 Not Found",
+		       "HTTP/1.1 413 Request Entity Too Large",
+		       "HTTP/1.1 413 Request Entity Too Large",
+		       );
+}
 
 my $tests = 4 * @test_strings + 1;
 my $vars = Apache::Test::vars();
