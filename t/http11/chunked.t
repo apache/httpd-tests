@@ -4,6 +4,8 @@ use warnings FATAL => 'all';
 use Apache::Test;
 use Apache::TestRequest;
 
+Apache::TestRequest::scheme('http'); #XXX: lwp does not properly support this
+
                        #XXX need to spend more time with http11
 my @sizes = (100_000); #(100, 5000, 100_000, 300_000);
 
