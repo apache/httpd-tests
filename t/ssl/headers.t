@@ -23,6 +23,6 @@ if ($h =~ /^HTTP\/1.1 500 Internal Server Error\n/) {
 
 $h =~ s/Client-Bad-Header-Line:.*$//g;
 
-ok t_cmp(qr/X-SSL-Flag: on/, $h, "SSLFlag header set");
-ok t_cmp(qr/X-SSL-Cert:.*END CERTIFICATE-----/, $h, "SSL certificate is unwrapped");
-ok t_cmp(qr/X-SSL-None: \(null\)\n/, $h, "unknown SSL variable not given");
+ok t_cmp($h, qr/X-SSL-Flag: on/, "SSLFlag header set");
+ok t_cmp($h, qr/X-SSL-Cert:.*END CERTIFICATE-----/, "SSL certificate is unwrapped");
+ok t_cmp($h, qr/X-SSL-None: \(null\)\n/, "unknown SSL variable not given");

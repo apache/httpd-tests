@@ -80,7 +80,7 @@ sub verify {
     }
     my $str = GET_BODY("$url?$key", cert => 'client_ok',
                        @headers);
-    t_cmp($lookup{$key}, $str, "$key");
+    t_cmp($str, $lookup{$key}, "$key");
 }
 
 __END__

@@ -19,8 +19,8 @@ plan tests => 14, have_lwp;
              $response->code,
              'notfound.html code');
 
-    ok t_cmp(qr'per-server 404',
-             $content,
+    ok t_cmp($content,
+             qr'per-server 404',
              'notfound.html content');
 }
 
@@ -32,8 +32,8 @@ plan tests => 14, have_lwp;
              $response->code,
              '/inherit/notfound.html code');
 
-    ok t_cmp(qr'per-server 404',
-             $content,
+    ok t_cmp($content,
+             qr'per-server 404',
              '/inherit/notfound.html content');
 }
 
@@ -63,8 +63,8 @@ plan tests => 14, have_lwp;
                    have_apache(2)                 ? 'default'     :
                    qr/Additionally, a 500/;
 
-    ok t_cmp($expected,
-             $content,
+    ok t_cmp($content,
+             $expected,
              '/redefine/notfound.html content');
 }
 
@@ -102,7 +102,7 @@ plan tests => 14, have_lwp;
              $response->code,
              '/bounce/notfound.html code');
 
-    ok t_cmp(qr!expire test!,
-             $content,
+    ok t_cmp($content,
+             qr!expire test!,
              '/bounce/notfound.html content');
 }

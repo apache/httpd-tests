@@ -63,8 +63,8 @@ foreach my $mode (keys %tests) {
                     );
 
             $actual = super_chomp(GET_BODY "$req");
-            ok t_cmp(qr/$expectedbody/,
-                     $actual,
+            ok t_cmp($actual,
+                     qr/$expectedbody/,
                      "AcceptPathInfo $mode body for $req"
                     );
         }

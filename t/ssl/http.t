@@ -41,8 +41,8 @@ if ($proto and $proto eq "HTTP/0.9") {
             );
 }
 
-ok t_cmp(qr{speaking plain HTTP to an SSL-enabled server port},
-         $res->content,
+ok t_cmp($res->content,
+         qr{speaking plain HTTP to an SSL-enabled server port},
          "that error document contains the proper hint"
         );
 
