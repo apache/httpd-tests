@@ -8,6 +8,8 @@ Changes - Apache::Test change logfile
 
 =item 1.12-dev
 
+Add redirect tests [David Wheeler <david@kineticode.com>]
+
 add -no-httpd runtime option to allow tests to run without configuring,
 starting, or stopping Apache.  this essentially provides a direct
 Test::Harness interface through t/TEST, useful for running single tests

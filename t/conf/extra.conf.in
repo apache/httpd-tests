@@ -1,4 +1,6 @@
 #this file will be Include-d by @ServerRoot@/httpd.conf
 
 #the subclass inside t/TEST added the authname and allowed_users variables
-
+<IfModule mod_alias.c>
+  Redirect /redirect http://@ServerName@/redirected/
+</IfModule>
