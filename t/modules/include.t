@@ -5,6 +5,11 @@ use Apache::Test;
 use Apache::TestRequest;
 use Apache::TestUtil;
 
+use File::Spec::Functions qw(catfile splitpath);
+
+Apache::TestRequest::scheme('http'); #ssl not listening on this vhost
+Apache::TestRequest::module('mod_include'); #use this module's port
+
 use constant WINFU => Apache::TestConfig::WINFU;
 
 ## mod_include tests
@@ -12,9 +17,13 @@ my($res, $str, $doc);
 my $dir = "/modules/include/";
 my $have_apache_2 = have_apache 2;
 my $have_apache_21 = have_min_apache_version "2.1.0";
+my $have_apache_20 = $have_apache_2 && ! $have_apache_21;
 my $vars = Apache::Test::vars();
 my $docroot = $vars->{documentroot};
 
+# these match the SSI files with their expected results.
+# the expectations are set by the current 2.1 mod_include
+# implementation.
 
 my %test = (
 "echo.shtml"            =>    "echo.shtml",
@@ -39,13 +48,17 @@ my %test = (
 "errmsg1.shtml"         =>    "errmsg",
 "errmsg2.shtml"         =>    "errmsg",
 "errmsg3.shtml"         =>    "errmsg",
-"errmsg4.shtml"         =>    $have_apache_2 ? "pass errmsg" : "pass",
-"errmsg5.shtml"         =>    "<!-- pass -->",
+"errmsg4.shtml"         =>    "pass errmsg",
 "if1.shtml"             =>    "pass",
 "if2.shtml"             =>    "pass   pass",
 "if3.shtml"             =>    "pass   pass   pass",
 "if4.shtml"             =>    "pass   pass",
 "if5.shtml"             =>    "pass  pass  pass",
+"if7.shtml"             =>    "[an error occurred while processing this ".
+                              "directive]",
+"if8.shtml"             =>    "pass",
+"if9.shtml"             =>    "pass   pass",
+"if10.shtml"            =>    "pass",
 "big.shtml"             =>    "hello   pass  pass   pass     hello",
 "newline.shtml"         =>    "inc-two.shtml body",
 "inc-rfile.shtml"       =>    "inc-extra2.shtml body  inc-extra1.shtml body  ".
@@ -59,50 +72,91 @@ my %test = (
 "exec/off/cmd.shtml"    =>    "[an error occurred while processing this ".
                               "directive]",
 "exec/on/cmd.shtml"     =>    "pass",
-"notreal.shtml"         =>    "pass <!--",
-"parse1.shtml"          =>    "-->",
-"parse2.shtml"          =>    "\"",
-"if11.shtml"            =>    "pass",
-"malformed.shtml"       =>    "[an error occurred while processing this directive] malformed.shtml"
+"parse2.shtml"          =>    '"',
+"regex.shtml"           =>    "(none)  1 (none)",
+"retagged1.shtml"       =>    ["retagged1.shtml",                   "retagged1"],
+"retagged2.shtml"       =>    ["----retagged2.shtml",               "retagged1"],
+"echo1.shtml"           =>    ["<!-- pass undefined echo -->",      "echo1"    ],
+"echo2.shtml"           =>    ["<!-- pass undefined echo -->  pass  config ".
+                              " echomsg  pass", "echo1"],
+"echo3.shtml"           =>    ['<!--#echo var="DOCUMENT_NAME" -->', "retagged1"], 
+"exec/off/cgi.shtml"    =>    "[an error occurred while processing this ".
+                              "directive]",
+"exec/on/cgi.shtml"     =>    "perl cgi",
 );
 
-#this test does not work on win32 (<!--#exec cmd="echo pass"-->)
+# now, assuming 2.1 has the proper behavior across the board,
+# let's adjust our expectations for other versions
+
+# these tests are known to be broken in 2.0
+# we'll mark them as TODO tests in the hopes
+# that the 2.1 fixes will be backported
+
+my %todo = (
+"if6.shtml"             =>    "[an error occurred while processing this ".
+                              "directive]",
+"if11.shtml"            =>    "pass",
+"notreal.shtml"         =>    "pass <!--",
+"parse1.shtml"          =>    "-->",
+"errmsg5.shtml"         =>    "<!-- pass -->",
+"malformed.shtml"       =>    "[an error occurred while processing this ".
+                              "directive] malformed.shtml",
+);
+
+# some behaviors will never be backported, for various
+# reasons.  these are the 1.3 legacy tests and expectations
+my %legacy_1_3 = (
+"errmsg4.shtml"         =>    "pass",
+"malformed.shtml"       =>    "",
+"if6.shtml"             =>    "",
+"if7.shtml"             =>    "",
+);
+
+# 2.0 has no legacy tests at the moment
+# but when it does, they will go here
+my %legacy_2_0 = ();
+
+# ok, now that we have our hashes established, here are
+# the manual tweaks
+unless ($have_apache_2) {
+    # apache 1.3 uses different semantics for some
+    # of the if.*shtml tests to achieve the same results
+    $test{"if8a.shtml"}  = delete $test{"if8.shtml"};
+    $test{"if9a.shtml"}  = delete $test{"if9.shtml"};
+    $test{"if10a.shtml"} = delete $test{"if10.shtml"};
+
+    # while other tests are for entirely new behaviors
+    # and don't make sense to test at all in 1.3
+    delete $test{"echo1.shtml"};
+    delete $test{"echo2.shtml"};
+    delete $test{"echo3.shtml"};
+    delete $test{"retagged1.shtml"};
+    delete $test{"retagged2.shtml"};
+    delete $test{"regex.shtml"};
+
+    # ack - if6.shtml is different between 1.3, 2.0, and 2.1.
+    # it's in %legacy_1_3 so don't count it as TODO in 1.3
+    # otherwise it would run twice
+    delete $todo{"if6.shtml"};
+}
+
+unless ($have_apache_20) {
+    # these tests are broken only in 2.0 - 
+    # in 1.3 they work fine so shift them from %todo to %test
+
+    $test{"malformed.shtml"} = delete $todo{"malformed.shtml"};
+    $test{"parse1.shtml"}    = delete $todo{"parse1.shtml"};
+    $test{"errmsg5.shtml"}   = delete $todo{"errmsg5.shtml"};
+}
+
+unless ($have_apache_21) {
+    # apache 1.3 and 2.0 do not support these tests
+    delete $test{"echo2.shtml"};
+}
+
+# this test does not work on win32 (<!--#exec cmd="echo pass"-->)
 if (WINFU) {
     delete $test{'exec/on/cmd.shtml'};
-}
-
-# 1.3 gets slightly modified versions, since it cannot parse some files
-# written for 2.x (requires spaces before end_seq)
-if ($have_apache_2) {
-    $test{"if8.shtml"}   = "pass";
-    $test{"if9.shtml"}   = "pass   pass";
-    $test{"if10.shtml"}  = "pass";
-
-    # regex captures are 2.x only
-    $test{"regex.shtml"} = "(none)  1 (none)";
-}
-else {
-    $test{"if8a.shtml"}  = "pass";
-    $test{"if9a.shtml"}  = "pass   pass";
-    $test{"if10a.shtml"} = "pass";
-
-    # malformed.shtml remains empty in 1.3
-    $test{"malformed.shtml"} = ""
-}
-
-my %t_test = ();
-if ($have_apache_2) {
-    %t_test =
-    (
-        "echo.shtml"      => ['<!--#echo var="DOCUMENT_NAME" -->', "retagged1"], 
-        "retagged1.shtml" => ["retagged1.shtml",                   "retagged1"],
-        "retagged2.shtml" => ["----retagged2.shtml",               "retagged1"],
-        "echo1.shtml"     => ["<!-- pass undefined echo -->",      "echo1"    ],
-    );
-    if ($have_apache_21) {
-        $t_test{"echo2.shtml"} = ["<!-- pass undefined echo -->  pass  config ".
-                                  " echomsg  pass", "echo1"];
-    }
 }
 
 my @patterns = (
@@ -111,64 +165,115 @@ my @patterns = (
     'footer',
 );
 
-#
-# in addition to $tests, there are 1 fsize/flastmod test, 1 GET test,
-# 13 XBitHack tests, 2 exec cgi tests, 2 malformed-ssi-directive tests,
-# and 14 tests that use mod_bucketeer to construct brigades for mod_include
-#
-my $tests = scalar(keys %test) + scalar(keys %t_test) + @patterns + 2;
-plan tests => $tests + 33, todo => [scalar(keys %test) + 4],
+# with the tweaks out of the way, we can get on
+# with planning the tests
+
+# first, total the number of hashed tests
+# note that some legacy tests will redefine the main
+# %test hash, so the total is not necessarily the sum
+# of all the keys 
+my %tests = ();
+
+if ($have_apache_21) {
+    %tests = (%test, %todo);
+}
+elsif ($have_apache_2) {
+    %tests = (%test, %todo, %legacy_2_0);
+}
+else {
+    %tests = (%test, %todo, %legacy_1_3);
+}
+
+# now for the TODO tests
+my @todo = ();
+unless ($have_apache_21) {
+    # if 1.3 or 2.0, dynamically determine which of %test
+    # will end up being TODO tests.  
+
+    my $counter = 0;
+    foreach my $test (sort keys %tests) {
+      $counter++;
+      push @todo, $counter if $todo{$test};
+    }
+}
+
+unless ($have_apache_2) {
+    # fsize comes immediately after the hashed tests
+    push @todo, (scalar keys %tests) + 1;
+}
+
+# in addition to %tests, there are 1 fsize and 1 flastmod test,
+# 1 GET test, 2 query string tests, 13 XBitHack tests and 14 
+# tests that use mod_bucketeer to construct brigades for mod_include
+
+plan tests => (scalar keys %tests) + @patterns + 32,
+              todo => \@todo,
               have_module 'include';
 
-Apache::TestRequest::scheme('http'); #ssl not listening on this vhost
-Apache::TestRequest::module('mod_include'); #use this module's port
+foreach $doc (sort keys %tests) {
+    # do as much from %test as we can
+    if (ref $tests{$doc}) {
+        ok t_cmp($tests{$doc}[0],
+                 super_chomp(GET_BODY "$dir$doc", Host => $tests{$doc}[1]),
+                 "GET $dir$doc"
+                );
+    }
+    elsif ($doc =~ m/cgi/) {
+        if (have_cgi) {
+            ok t_cmp($tests{$doc},
+                     super_chomp(GET_BODY "$dir$doc"),
+                     "GET $dir$doc"
+                    );
+        }
+        else {
+            skip "Skipping 'exec cgi' test; no cgi module.", 1;
+        }
+    }
+    else {
+        ok t_cmp($tests{$doc},
+                 super_chomp(GET_BODY "$dir$doc"),
+                 "GET $dir$doc"
+                );
+    }
+}
 
-foreach $doc (sort keys %test) {
-    ok t_cmp($test{$doc},
-             super_chomp(GET_BODY "$dir$doc"),
-             "GET $dir$doc"
+### FLASTMOD/FSIZE TESTS
+
+# marked as TODO in 1.3 - hoping for a format backport
+{
+    my $file = catfile($docroot, splitpath($dir), "size.shtml");
+    my $size = (stat $file)[7];
+
+    # round perl's stat size for <!--#config sizefmt="abbrev"-->
+    # this assumes the size of size.shtml is such that it is
+    # rendered in K (which it is).  if size.shtml is made much
+    # larger or smaller this formatting will need to change too
+    my $abbrev = sprintf("%.1fK", $size/1024);
+                                                                                                                             
+    # and commify for <!--#config sizefmt="bytes"-->
+    my $bytes = commify($size);
+
+    my $expected = join ' ', $bytes, $bytes, $abbrev, $abbrev;
+
+    my $result = super_chomp(GET_BODY "${dir}size.shtml");
+
+    # trim output
+    $result =~ s/X//g;   # the Xs were there just to pad the filesiez
+    $result = single_space($result);
+
+    ok t_cmp("$expected",
+             "$result",
+             "GET ${dir}size.shtml"
             );
 }
 
-$doc = "printenv.shtml";
-ok t_cmp("200",
-         GET("$dir$doc")->code,
-         "GET $dir$doc"
-        );
-
-
-### MALFORMED DIRECTIVE TESTS
-# also test a couple of malformed SSIs that used to cause Apache 1.3 to
-# segfault
-#
-
-# Apache 1.3 has a different parser so you get different output (ie, none)
-my $expected = ($have_apache_2)
-                 ? "[an error occurred while processing this directive]"
-                 : "";
-
-ok t_cmp("$expected",
-         super_chomp(GET_BODY "${dir}if6.shtml"),
-         "GET ${dir}if6.shtml"
-        );
-
-
-$expected = ($have_apache_2)
-                 ? "[an error occurred while processing this directive]"
-                 : "";
-
-ok t_cmp("$expected",
-         super_chomp(GET_BODY "${dir}if7.shtml"),
-         "GET ${dir}if7.shtml"
-        );
-
-### FLASTMOD/FSIZE TESTS
-### marked as TODO since it's broken.
 unless(eval{require POSIX}) {
     skip "POSIX module not found", 1;
 }
 else {
-    my ($size, $mtime) = (stat "$docroot${dir}file.shtml")[7, 9];
+    my $file = catfile($docroot, splitpath($dir), "file.shtml");
+    my $mtime = (stat $file)[9];
+
     my @time = localtime($mtime);
     
     my $strftime = sub($) {
@@ -184,7 +289,7 @@ else {
     my $oldloc = setlocale(&LC_TIME);
     POSIX::setlocale(&LC_TIME, "C");
 
-    $expected = join ' ' =>
+    my $expected = join ' ' =>
         $strftime->("%A, %d-%b-%Y %H:%M:%S %Z"),
         $strftime->("%A, %d-%b-%Y %H:%M:%S %Z"),
         $strftime->("%A, %B %e, %G"),
@@ -192,17 +297,12 @@ else {
         $strftime->("%T"),
         $strftime->("%T");
 
-    # XXX: works, because file.shtml is very small.
-    $expected .= " $size $size $size $size";
-
     POSIX::setlocale(&LC_TIME, $oldloc);
 
-    $expected =~ s/\s+/ /g;
-    $expected =~ s/ $//; $expected =~ s/^ //;
-
     my $result = super_chomp(GET_BODY "${dir}file.shtml");
-    $result =~ s/\s+/ /g;
-    $result =~ s/ $//; $result =~ s/^ //;
+
+    # trim output
+    $result = single_space($result);
 
     ok t_cmp("$expected",
              "$result",
@@ -210,26 +310,28 @@ else {
             );
 }
 
-### EXEC CGI TESTS
-# skipped if !have_cgi
-my %execcgitest = (
-"exec/off/cgi.shtml" =>
-    "[an error occurred while processing this directive]",
-"exec/on/cgi.shtml" =>
-    "perl cgi"
-);
-foreach $doc (sort keys %execcgitest) {
-    if (have_cgi()) {
-        ok t_cmp($execcgitest{$doc},
-                 super_chomp(GET_BODY "$dir$doc"),
-                 "GET $dir$doc"
-                );
-    }
-    else {
-        skip "Skipping 'exec cgi' test; no cgi module.", 1;
-    }
+# some tests that can't be easily assimilated
+
+$doc = "printenv.shtml";
+ok t_cmp("200",
+         GET("$dir$doc")->code,
+         "GET $dir$doc"
+        );
+
+### test include + query string
+$res = GET "${dir}virtual.shtml";
+
+ok $res->is_success;
+
+$str = $res->content;
+
+ok $str;
+
+for my $pat (@patterns) {
+    ok t_cmp(qr{$pat}, $str, "/$pat/");
 }
 
+### MOD_BUCKETEER+MOD_INCLUDE TESTS
 if (WINFU) {
     for (1..13) {
         skip "Skipping XBitHack tests on this platform", 1;
@@ -304,44 +406,20 @@ else {
             );
 }
 
-### test include + query string
-$res = GET "${dir}virtual.shtml";
-
-ok $res->is_success;
-
-$str = $res->content;
-
-ok $str;
-
-for my $pat (@patterns) {
-    ok t_cmp(qr{$pat}, $str, "/$pat/");
-}
-
-### Simple tests for SSI(Start|End)Tags that differ from default
-if ($have_apache_2) {
-    for (sort keys %t_test) {
-        ok t_cmp($t_test{$_}[0],
-                 super_chomp(GET_BODY "$dir$_", Host => $t_test{$_}[1]),
-                 "GET $dir$_"
-                );
-    }
-}
-
-### MOD_BUCKETEER+MOD_INCLUDE TESTS
 # we can use mod_bucketeer to create edge conditions for mod_include, since
 # it allows us to create bucket and brigade boundaries wherever we want
 if (have_module 'mod_bucketeer') {
 
-    $expected = "____ _____ _____ ___________________ </table>  ".
-                "##################################1/8</tr> ".
-                "##################################2/8</tr> ".
-                "##################################3/8</tr> ".
-                "##################################4/8</tr> ".
-                "##################################5/8</tr> ".
-                "##################################6/8$docroot</tr> ".
-                "##################################7/8</tr> ".
-                "##################################8/8</tr> ".
-                "@@@@@@@@ @@@@@@@@@@@@@@@@@@@@@@@@";
+    my $expected = "____ _____ _____ ___________________ </table>  ".
+                   "##################################1/8</tr> ".
+                   "##################################2/8</tr> ".
+                   "##################################3/8</tr> ".
+                   "##################################4/8</tr> ".
+                   "##################################5/8</tr> ".
+                   "##################################6/8$docroot</tr> ".
+                   "##################################7/8</tr> ".
+                   "##################################8/8</tr> ".
+                   "@@@@@@@@ @@@@@@@@@@@@@@@@@@@@@@@@";
 
     $doc = "bucketeer/y.shtml";
     ok t_cmp($expected,
@@ -485,4 +563,22 @@ sub check_xbithack_etag {
     $$data = $etag if $data;
 
     "$etag ; $body";
+}
+
+sub commify {
+    # add standard commas to numbers.  from perlfaq5
+
+    local $_  = shift;
+    1 while s/^([-+]?\d+)(\d{3})/$1,$2/;
+    return $_;
+}
+
+sub single_space {
+    # condense multiple spaces between values to a single
+    # space.  also trim initial and trailing whitespace
+
+    local $_ = shift; 
+    s/\s+/ /g;
+    s/(^ )|( $)//;
+    return $_;
 }
