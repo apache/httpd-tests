@@ -185,10 +185,10 @@ __END__
     }
   
     # override tracing level via -trace opt
-    % t/TEST -trace=crit
+    % t/TEST -trace=debug
   
     # override tracing level via env var
-    % env APACHE_TEST_TRACE_LEVEL=crit t/TEST
+    % env APACHE_TEST_TRACE_LEVEL=debug t/TEST
 
 =head1 DESCRIPTION
 
