@@ -67,6 +67,11 @@ sub configure_libmodperl {
             $lib =~ s/lib$/dll/;
             $cfg = 'LoadFile ' . qq("$lib"\n) if -e $lib;
 	}
+        # add the module we found to the cached modules list
+        # otherwise have_module('mod_perl') doesn't work unless
+        # we have a LoadModule in our base config
+        $self->{modules}->{'mod_perl.c'} = $vars->{libmodperl};
+
         $cfg .= 'LoadModule ' . qq(perl_module "$vars->{libmodperl}"\n);
     }
     else {
