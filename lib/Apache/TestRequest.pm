@@ -10,7 +10,7 @@ use Apache::TestConfig ();
 
 use Carp;
 
-use constant TRY_TIMES => 50;
+use constant TRY_TIMES => 200;
 use constant INTERP_KEY => 'X-PerlInterpreter';
 use constant UA_TIMEOUT => 60 * 10; #longer timeout for debugging
 
