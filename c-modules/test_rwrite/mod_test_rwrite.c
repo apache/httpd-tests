@@ -3,23 +3,21 @@
 #if CONFIG_FOR_HTTPD_TEST
 
 <Location /test_rwrite>
-   SetHandler test-rwrite
+   SetHandler test_rwrite
 </Location>
 
 #endif
 
-#include "httpd.h"
-#include "http_config.h"
-#include "http_protocol.h"
-#include "http_log.h"
-#include "ap_config.h"
+#define APACHE_HTTPD_TEST_HANDLER test_rwrite_handler
+
+#include "apache_httpd_test.h"
 
 static int test_rwrite_handler(request_rec *r)
 {
     long total=0, remaining=1;
     char buff[BUFSIZ];
 
-    if (strcmp(r->handler, "test-rwrite")) {
+    if (strcmp(r->handler, "test_rwrite")) {
         return DECLINED;
     }
     if (r->method_number != M_GET) {
@@ -52,18 +50,5 @@ static int test_rwrite_handler(request_rec *r)
     return OK;
 }
 
-static void test_rwrite_register_hooks(apr_pool_t *p)
-{
-    ap_hook_handler(test_rwrite_handler, NULL, NULL, APR_HOOK_MIDDLE);
-}
-
-module AP_MODULE_DECLARE_DATA test_rwrite_module = {
-    STANDARD20_MODULE_STUFF, 
-    NULL,                  /* create per-dir    config structures */
-    NULL,                  /* merge  per-dir    config structures */
-    NULL,                  /* create per-server config structures */
-    NULL,                  /* merge  per-server config structures */
-    NULL,                  /* table of config file commands       */
-    test_rwrite_register_hooks  /* register hooks                      */
-};
+APACHE_HTTPD_TEST_MODULE(test_rwrite);
 

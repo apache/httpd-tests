@@ -40,7 +40,7 @@ static int input_body_filter_fixup_handler(request_rec *r)
     if ((r->method_number == M_POST) && r->handler &&
         !strcmp(r->handler, "input-body-filter"))
     {
-        r->handler = "echo-post";
+        r->handler = "echo_post";
     }
 
     return OK;
@@ -48,7 +48,7 @@ static int input_body_filter_fixup_handler(request_rec *r)
 
 static int input_body_filter_response_handler(request_rec *r)
 {
-    if (strcmp(r->handler, "echo-post")) {
+    if (strcmp(r->handler, "echo_post")) {
         return DECLINED;
     }
 

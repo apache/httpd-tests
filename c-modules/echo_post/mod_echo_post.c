@@ -3,18 +3,14 @@
 #if CONFIG_FOR_HTTPD_TEST
 
 <Location /echo_post>
-   SetHandler echo-post
+   SetHandler echo_post
 </Location>
 
 #endif
 
-#include "apache_httpd_test.h"
+#define APACHE_HTTPD_TEST_HANDLER echo_post_handler
 
-#include "httpd.h"
-#include "http_config.h"
-#include "http_protocol.h"
-#include "http_log.h"
-#include "ap_config.h"
+#include "apache_httpd_test.h"
 
 static int echo_post_handler(request_rec *r)
 {
@@ -22,7 +18,7 @@ static int echo_post_handler(request_rec *r)
     long nrd, total = 0;
     char buff[BUFSIZ];
 
-    if (strcmp(r->handler, "echo-post")) {
+    if (strcmp(r->handler, "echo_post")) {
         return DECLINED;
     }
     if (r->method_number != M_POST) {
@@ -62,18 +58,4 @@ static int echo_post_handler(request_rec *r)
     return OK;
 }
 
-static void echo_post_register_hooks(apr_pool_t *p)
-{
-    ap_hook_handler(echo_post_handler, NULL, NULL, APR_HOOK_MIDDLE);
-}
-
-module AP_MODULE_DECLARE_DATA echo_post_module = {
-    STANDARD20_MODULE_STUFF, 
-    NULL,                  /* create per-dir    config structures */
-    NULL,                  /* merge  per-dir    config structures */
-    NULL,                  /* create per-server config structures */
-    NULL,                  /* merge  per-server config structures */
-    NULL,                  /* table of config file commands       */
-    echo_post_register_hooks  /* register hooks                      */
-};
-
+APACHE_HTTPD_TEST_MODULE(echo_post);

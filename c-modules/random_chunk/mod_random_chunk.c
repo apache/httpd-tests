@@ -3,7 +3,7 @@
 #if CONFIG_FOR_HTTPD_TEST
 
 <Location /random_chunk>
-   SetHandler random-chunk
+   SetHandler random_chunk
 </Location>
 
 #endif
@@ -92,10 +92,9 @@
  * -djg
  */
 
-#include "httpd.h"
-#include "http_protocol.h"
-#include "http_config.h"
-#include "http_main.h"
+#define APACHE_HTTPD_TEST_HANDLER random_chunk_handler
+
+#include "apache_httpd_test.h"
 
 #define MAX_SEGMENT     32
 #define ONE_WEIGHT      (256-32)
@@ -111,7 +110,7 @@ static int random_chunk_handler(request_rec *r)
     unsigned int len;
     apr_size_t total = 0;
 
-    if (strcmp(r->handler, "random-chunk")) {
+    if (strcmp(r->handler, "random_chunk")) {
         return DECLINED;
     }
 
@@ -176,17 +175,4 @@ error:
     return 0;
 }
 
-static void random_chunk_register_hooks(apr_pool_t *p)
-{
-    ap_hook_handler(random_chunk_handler, NULL, NULL, APR_HOOK_MIDDLE);
-}
-
-module AP_MODULE_DECLARE_DATA random_chunk_module = {
-    STANDARD20_MODULE_STUFF, 
-    NULL,                  /* create per-dir    config structures */
-    NULL,                  /* merge  per-dir    config structures */
-    NULL,                  /* create per-server config structures */
-    NULL,                  /* merge  per-server config structures */
-    NULL,                  /* table of config file commands       */
-    random_chunk_register_hooks  /* register hooks                      */
-};
+APACHE_HTTPD_TEST_MODULE(random_chunk);

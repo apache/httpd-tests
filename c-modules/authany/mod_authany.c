@@ -11,13 +11,11 @@ Alias /authany @DocumentRoot@
 
 #endif
 
-#include "httpd.h"  
-#include "http_config.h"  
-#include "http_request.h"  
-#include "http_protocol.h"  
-#include "http_core.h"  
-#include "http_main.h" 
-#include "http_log.h"  
+#define APACHE_HTTPD_TEST_HOOK_ORDER    APR_HOOK_FIRST
+#define APACHE_HTTPD_TEST_CHECK_USER_ID authany_handler
+#define APACHE_HTTPD_TEST_AUTH_CHECKER  require_any_user
+
+#include "apache_httpd_test.h"
  
 static int require_any_user(request_rec *r)
 {
@@ -65,27 +63,15 @@ static int authany_handler(request_rec *r)
 
      if (!(strtrue(r->user) && strtrue(sent_pw))) {
          ap_note_basic_auth_failure(r);  
+#ifdef APACHE2
+         /* prototype is different in 1.x */
          ap_log_rerror(APLOG_MARK, APLOG_NOERRNO|APLOG_ERR, 0, r,
                        "Both a username and password must be provided");
+#endif
          return HTTP_UNAUTHORIZED;
      }
 
      return OK;
 }
 
-static void authany_register_hooks(apr_pool_t *p)
-{
-    ap_hook_check_user_id(authany_handler, NULL, NULL, APR_HOOK_FIRST);
-    ap_hook_auth_checker(require_any_user, NULL, NULL, APR_HOOK_FIRST);
-}
-
-module AP_MODULE_DECLARE_DATA authany_module =
-{
-    STANDARD20_MODULE_STUFF,
-    NULL,
-    NULL,
-    NULL,
-    NULL,
-    NULL,
-    authany_register_hooks
-};
+APACHE_HTTPD_TEST_MODULE(authany);
