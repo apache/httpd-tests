@@ -83,7 +83,7 @@ sub filter_args {
     while (@filter) {
         my $key = shift @filter;
         # optinal - or -- prefix
-        if ($key =~ /^-?-?(.+)/ && exists $wanted_args->{$1}) {
+        if (defined $key && $key =~ /^-?-?(.+)/ && exists $wanted_args->{$1}) {
             if (@filter) {
                 $keep{$1} = shift @filter;
             }
