@@ -82,7 +82,8 @@ sub startup_pl_code {
 BEGIN {
     use lib '$serverroot';
     for my \$file (qw(modperl_inc.pl modperl_extra.pl)) {
-        eval { require "conf/\$file" };
+        eval { require "conf/\$file" } or
+            die if \$@ !~ /^Can.t locate/;
     }
 }
 
