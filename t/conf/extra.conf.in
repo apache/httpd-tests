@@ -210,12 +210,12 @@ AllowOverride Indexes
 ## mod_env test config
 ##
 <IfModule mod_env.c>
-PassEnv HOSTNAME
+PassEnv TESTHOSTNAME
 SetEnv ENV_TEST "mod_env test environment variable"
 UnsetEnv UNSET
 
-PassEnv HOSTTYPE
-UnsetEnv HOSTTYPE
+PassEnv TESTHOSTTYPE
+UnsetEnv TESTHOSTTYPE
 
 SetEnv NOT_HERE "this will not be here"
 UnsetEnv NOT_HERE

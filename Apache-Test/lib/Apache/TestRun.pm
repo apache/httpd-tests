@@ -411,6 +411,11 @@ sub run {
 
     $self->default_run_opts;
 
+    #export some environment variables for t/modules/env.t
+    #(the values are unimportant)
+    $ENV{TESTHOSTNAME} = 'test.host.name';
+    $ENV{TESTHOSTTYPE} = 'z80';
+
     $self->start;
 
     $self->run_tests;

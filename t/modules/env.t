@@ -9,7 +9,7 @@ use Apache::TestRequest;
 ##
 
 my %test = (
-    'host' => $ENV{HOSTNAME},
+    'host' => $ENV{TESTHOSTNAME},
     'set' => "mod_env test environment variable",
     'unset' => '(none)',
     'type' => '(none)',

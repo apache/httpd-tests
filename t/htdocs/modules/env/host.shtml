@@ -1,1 +1,1 @@
-<!--#echo var="HOSTNAME" -->
+<!--#echo var="TESTHOSTNAME" -->

@@ -1,1 +1,1 @@
-<!--#echo var="HOSTTYPE" -->
+<!--#echo var="TESTHOSTTYPE" -->
