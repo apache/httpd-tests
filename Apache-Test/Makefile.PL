@@ -41,6 +41,13 @@ if (TOP_LEVEL) {
 
 Apache::TestConfig::custom_config_file_stub_write();
 
+my @clean_files =
+    qw(lib/Apache/TestConfigData.pm
+       .mypacklist
+       t/TEST
+       Makefile.old
+      );
+
 WriteMakefile(
     NAME      => 'Apache::Test',
     VERSION   => $VERSION,
@@ -49,19 +56,9 @@ WriteMakefile(
         COMPRESS => 'gzip -9f', SUFFIX=>'gz',
     },
     clean     => {
-        FILES => "@{ clean_files() }",
+        FILES => "@clean_files",
     },
 );
-
-sub clean_files {
-    return [
-            qw(lib/Apache/TestConfigData.pm
-               .mypacklist
-               t/TEST
-               Makefile.old
-              ),
-           ];
-}
 
 sub set_version {
     $VERSION = $Apache::Test::VERSION;
