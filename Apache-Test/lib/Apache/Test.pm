@@ -207,15 +207,30 @@ sub config_enabled {
     defined $Config{$key} and $Config{$key} eq 'define';
 }
 
+sub have_perl_iolayers {
+    if (my $ext = $Config{extensions}) {
+        #XXX: better test?  might need to test patchlevel
+        #if support depends bugs fixed in bleedperl
+        return $ext =~ m:PerlIO/Scalar:;
+    }
+    0;
+}
+
 sub have_perl {
     my $thing = shift;
     #XXX: $thing could be a version
     my $config;
 
-    for my $key ($thing, "use$thing") {
-        if (exists $Config{$key}) {
-            $config = $key;
-            return 1 if config_enabled($key);
+    my $have = \&{"have_perl_$thing"};
+    if (defined &$have) {
+        return 1 if $have->();
+    }
+    else {
+        for my $key ($thing, "use$thing") {
+            if (exists $Config{$key}) {
+                $config = $key;
+                return 1 if config_enabled($key);
+            }
         }
     }
 
