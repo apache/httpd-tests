@@ -397,9 +397,7 @@ sub skip_reason {
     return 0;
 }
 
-# normalize Apache-sytle version strings (2.0.48, 0.9.4)
-
-# normalize Apache-sytle version strings (2.0.48, 0.9.4)
+# normalize Apache-style version strings (2.0.48, 0.9.4)
 # for easy numeric comparison.  note that 2.1 and 2.1.0
 # are considered equivalent.
 sub normalize_vstring {
