@@ -8,6 +8,10 @@ Changes - Apache::Test change logfile
 
 =item 1.05-dev
 
+place mod_perl-specific directives in <IfModule> containers
+within httpd.conf, allowing the default server to start if
+mod_perl isn't present.  [Geoffrey Young]
+
 fix t/request.t to get /index.html, instead of / since not everybody
 uses mod_dir [Steve Piner <stevep@marketview.co.nz>]
 
