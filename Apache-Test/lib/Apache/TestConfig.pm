@@ -754,7 +754,7 @@ sub generate_types_config {
     unless ($self->{inherit_config}->{TypesConfig}) {
         my $types = catfile $self->{vars}->{t_conf}, 'mime.types';
         unless (-e $types) {
-            my $fh = $self->genfile($types, 1);
+            my $fh = $self->genfile($types);
             print $fh $self->types_config_template;
             close $fh;
         }
@@ -793,7 +793,7 @@ sub generate_extra_conf {
 
         open(my $in, $file) or next;
 
-        my $out = $self->genfile($generated, 1);
+        my $out = $self->genfile($generated);
         $self->replace_vars($in, $out);
 
         close $in;
@@ -857,7 +857,7 @@ sub generate_httpd_conf {
 
     my $in = $self->httpd_conf_template($conf_file_in);
 
-    my $out = $self->genfile($conf_file, 1);
+    my $out = $self->genfile($conf_file);
 
     $self->preamble_run($out);
 
@@ -1025,7 +1025,7 @@ sub save {
 
     my $name = 'apache_test_config';
     my $file = catfile $self->{vars}->{t_conf}, "$name.pm";
-    my $fh = $self->genfile($file, 1);
+    my $fh = $self->genfile($file);
 
     $self->trace("saving config data to $name.pm");
 

@@ -135,7 +135,7 @@ sub start_strace {
     my $strace_cmd  = $self->strace_cmd($opts->{debugger}, $file);
     my $httpd       = $config->{vars}->{httpd};
 
-    $config->genfile($file, 1); #just mark for cleanup
+    $config->genfile($file); #just mark for cleanup
 
     my $command = "$strace_cmd $httpd $one_process $args";
 
@@ -154,7 +154,7 @@ sub start_gdb {
     my $one_process = $self->version_of(\%one_process);
 
     my $file = catfile $config->{vars}->{serverroot}, '.gdb-test-start';
-    my $fh   = $config->genfile($file, 1);
+    my $fh   = $config->genfile($file);
 
     print $fh default_gdbinit();
 
