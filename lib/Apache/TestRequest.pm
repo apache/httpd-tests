@@ -435,17 +435,19 @@ sub install_net_socket_new {
     };
 }
 
-install_net_socket_new('Net::NNTP' => sub {
-    my $args = shift;
-    my($host, $port) = split ':',
-      Apache::TestRequest::hostport();
-    $args->{PeerPort} = $port;
-    $args->{PeerAddr} = $host;
-});
+eval {
+    install_net_socket_new('Net::NNTP' => sub {
+        my $args = shift;
+        my($host, $port) = split ':',
+          Apache::TestRequest::hostport();
+        $args->{PeerPort} = $port;
+        $args->{PeerAddr} = $host;
+    });
 
-install_net_socket_new('Net::HTTP' => sub {
-    my $args = shift;
-    $args->{KeepAlive} = 1;
-});
+    install_net_socket_new('Net::HTTP' => sub {
+        my $args = shift;
+        $args->{KeepAlive} = 1;
+    });
+};
 
 1;
