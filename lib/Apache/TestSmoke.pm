@@ -4,7 +4,6 @@ use strict;
 use warnings FATAL => 'all';
 
 use Apache::TestTrace;
-use ModPerl::Config ();
 
 use Getopt::Long qw(GetOptions);
 use Digest::MD5 ();
@@ -356,8 +355,7 @@ sub report_finish {
         my $successes = $self->{total_reduction_successes};
         my $reduction_stats = sprintf "%d/%d (%d%% success)",
             $attempts, $successes, $successes / $attempts * 100;
-
-        my $env = ModPerl::Config::config_as_str();
+        my $cfg_as_string = $self->build_config_as_string;
 
         print $fh <<EOM;
 $sep
@@ -370,10 +368,18 @@ $sep
 --- Ended   at: $end_time ---
 $sep
 The smoke testing was run on the system with the following parameters:
-$env
+$cfg_as_string
 EOM
         close $fh;
     }
+}
+
+sub build_config_as_string {
+    my($self) = @_;
+
+    require Apache::TestConfig;
+
+    return Apache::TestConfig::as_string();
 }
 
 sub kill_proc {
