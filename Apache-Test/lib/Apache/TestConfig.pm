@@ -1407,8 +1407,6 @@ sub which {
 
     return undef unless $program;
 
-    my @results = ();
-
     for my $base (map { catfile($_, $program) } File::Spec->path()) {
         if ($ENV{HOME} and not WIN32) {
             # only works on Unix, but that's normal:
@@ -1416,11 +1414,11 @@ sub which {
             $base =~ s/~/$ENV{HOME}/o;
         }
 
-        return $base if -x $base;
+        return $base if -x $base && -f _;
 
         if (WIN32) {
             for my $ext (@path_ext) {
-                return "$base.$ext" if -x "$base.$ext";
+                return "$base.$ext" if -x "$base.$ext" && -f _;
             }
         }
     }
