@@ -8,6 +8,11 @@ Changes - Apache::Test change logfile
 
 =item 1.14-dev
 
+Make sure that when Apache-Test is a part of modperl-2.0 checkout, the
+interactive configuration is properly run (it must not be run when
+mod_perl 2.0 is tested since it should have all the info needed to run
+the tests). [Stas]
+
 Fix skip test suite functionality in the interactive configuration
 phase [Stas]
 
