@@ -1,5 +1,3 @@
-#t/TEST -proxy
-
 <IfModule mod_vhost_alias.c>
 
     <VirtualHost _default_:mod_vhost_alias>
