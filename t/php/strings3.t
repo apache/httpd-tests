@@ -2,6 +2,7 @@ use strict;
 use warnings FATAL => 'all';
 
 use Apache::Test;
+use Apache::TestUtil;
 use Apache::TestRequest;
 
 my $result = GET_BODY "/php/strings3.php";
@@ -50,5 +51,5 @@ my $count2 = @exp;
 ok $count eq $count2;
 
 foreach (my $i = 0 ; $i < $count ; $i++) {
-    ok $res[$i] eq $exp[$i];
+    ok t_cmp("[".$res[$i]."]", "[".$exp[$i]."]", "test $i");
 }
