@@ -80,6 +80,12 @@ sub user_agent {
     eval { $UA ||= __PACKAGE__->new(@_); };
 }
 
+sub user_agent_request_num {
+    my $res = shift;
+    $res->header('Client-Request-Num') ||  #lwp 5.60
+      $res->header('Client-Response-Num'); #lwp 5.62+
+}
+
 sub do_request {
     my($ua, $method, $url, $callback) = @_;
     my $r = HTTP::Request->new($method, resolve_url($url));
