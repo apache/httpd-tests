@@ -77,7 +77,8 @@ sub start_cmd {
     #XXX: threaded mpm does not respond to SIGTERM with -DONE_PROCESS
     my $one = $self->{rev} == 1 ? '-X' : '';
     my $args = $self->args;
-    return "$self->{config}->{vars}->{httpd} $one $args";
+    my $dversion = "-DAPACHE$self->{rev}"; #for .conf version conditionals
+    return "$self->{config}->{vars}->{httpd} $dversion $one $args";
 }
 
 sub start_gdb {
