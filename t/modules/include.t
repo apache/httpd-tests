@@ -247,7 +247,8 @@ if (have_module 'mod_bucketeer') {
             );
 
 
-    $expected= "pass [an error occurred while processing this directive] pass pass1";
+    $expected= "pass [an error occurred while processing this directive]  "
+               "pass pass1";
     $doc = "bucketeer/y5.shtml";
     ok t_cmp($expected,
              super_chomp(GET_BODY "$dir$doc"),
