@@ -780,13 +780,20 @@ sub perlscript_header {
 
     require FindBin;
 
-    # the live 'lib/' dir of the distro (e.g. modperl-2.0/ModPerl-Registry/lib)
-    my @dirs = canonpath catdir $FindBin::Bin, "lib";
+    my @dirs = ();
 
-    # the live dir of the top dir if any  (e.g. modperl-2.0/lib)
-    if (-e catfile($FindBin::Bin, "..", "Makefile.PL") &&
-        -d catdir($FindBin::Bin, "..", "lib") ) {
-        push @dirs, canonpath catdir $FindBin::Bin, "..", "lib";
+    # mp2 needs its modper-2.0/lib before blib was created
+    if (IS_MOD_PERL_2_BUILD || $ENV{APACHE_TEST_LIVE_DEV}) {
+        # the live 'lib/' dir of the distro
+        # (e.g. modperl-2.0/ModPerl-Registry/lib)
+        my $dir = canonpath catdir $FindBin::Bin, "lib";
+        push @dirs, $dir if -d $dir;
+
+        # the live dir of the top dir if any  (e.g. modperl-2.0/lib)
+        if (-e catfile($FindBin::Bin, "..", "Makefile.PL")) {
+            my $dir = canonpath catdir $FindBin::Bin, "..", "lib";
+            push @dirs, $dir if -d $dir;
+        }
     }
 
     for (qw(. ..)) {
@@ -1442,8 +1449,18 @@ sub add_inc {
     # make sure that Apache-Test/lib will be first in @INC,
     # followed by modperl-2.0/lib (or some other project's lib/),
     # followed by blib/ and finally system-wide libs.
-    lib::->import(map "$self->{vars}->{top_dir}/$_",
-                  qw(Apache-Test/lib lib blib/lib blib/arch));
+    my $top_dir = $self->{vars}->{top_dir};
+    my @dirs = map { catdir $top_dir, "blib", $_ } qw(lib arch);
+
+    my $apache_test_dir = catdir $top_dir, "Apache-Test";
+    unshift @dirs, $apache_test_dir if -d $apache_test_dir;
+
+    if ($ENV{APACHE_TEST_LIVE_DEV}) {
+        my $lib_dir = catdir $top_dir, "lib";
+        push @dirs, $lib_dir if -d $lib_dir;
+    }
+
+    lib::->import(@dirs);
     #print join "\n", "add_inc", @INC, "";
 }
 
