@@ -15,7 +15,7 @@ use vars qw(@ISA @EXPORT $VERSION %SubTests @SkipReasons);
              have_cgi have_access have_auth have_module have_apache
              have_min_apache_version have_apache_version have_perl 
              have_min_perl_version have_min_module_version
-             have_threads under_construction);
+             have_threads under_construction have_apache_mpm);
 $VERSION = '1.04';
 
 %SubTests = ();
@@ -281,6 +281,22 @@ sub have_apache_version {
     }
 }
 
+sub have_apache_mpm {
+    my $wanted = shift;
+    my $cfg = Apache::Test::config();
+    my $current = $cfg->{server}->{mpm};
+
+    if ($current ne $wanted) {
+        push @SkipReasons,
+          "apache $wanted mpm is required," .
+          " this is the $current mpm";
+        return 0;
+    }
+    else {
+        return 1;
+    }
+}
+
 sub config_enabled {
     my $key = shift;
     defined $Config{$key} and $Config{$key} eq 'define';
@@ -539,6 +555,16 @@ For example:
   plan tests => 5, have_apache_version("2.0.40");
 
 requires Apache 2.0.40.
+
+=item have_apache_mpm
+
+Used to require a specific Apache Multi-Processing Module.
+
+For example:
+
+  plan tests => 5, have_apache_mpm('prefork');
+
+requires the prefork MPM.
 
 =item have_perl
 
