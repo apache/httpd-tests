@@ -645,11 +645,12 @@ sub run {
     $self->set_ulimit;
     $self->set_env; #make sure these are always set
 
-    custom_config_load();
-
     my(@argv) = @_;
 
     $self->getopts(\@argv);
+
+    # must be called after getopts so the tracing will be set right
+    custom_config_load();
 
     $self->pre_configure() if $self->can('pre_configure');
 
