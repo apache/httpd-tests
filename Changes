@@ -8,11 +8,15 @@ Changes - Apache::Test change logfile
 
 =item 1.10-dev
 
+Fixed a Windows-only segment which would result in a
+'use of uninitialised value' error if a hash being traversed
+had an entry with a key but an undefined value.  [Ken]
+
 Support continuous configuration line when parsing the inherited
 configuration file [Stas]
 
 Since some of the inherited from the global httpd.conf modules require
-mod_perl to be loaded first, orrange for that to happen. [Stas]
+mod_perl to be loaded first, arrange for that to happen. [Stas]
 
 Don't try to set ulimit unlimited for coredumps on Solaris, unless run
 as root [Rob Kinyon <Rob.Kinyon@progressive-medical.com>]

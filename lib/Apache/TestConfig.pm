@@ -266,7 +266,7 @@ sub new {
 
     if (WINFU) {
         for (keys %$vars) {
-            $vars->{$_} =~ s|\\|\/|g;
+            $vars->{$_} =~ s|\\|\/|g if defined $vars->{$_};
         }
     }
 
