@@ -3,6 +3,7 @@ package Apache::TestServer;
 use strict;
 use warnings FATAL => 'all';
 
+use Config;
 use Socket ();
 use File::Spec::Functions qw(catfile);
 
@@ -74,12 +75,24 @@ sub dversion {
     "-DAPACHE$self->{rev}";
 }
 
+sub config_defines {
+    my @defines = ();
+
+    for my $item (qw(useithreads)) {
+        next unless $Config{$item} and $Config{$item} eq 'define';
+        push @defines, "-DPERL_\U$item";
+    }
+
+    "@defines";
+}
+
 sub args {
     my $self = shift;
     my $vars = $self->{config}->{vars};
     my $dversion = $self->dversion; #for .conf version conditionals
+    my $defines = $self->config_defines;
 
-    "-d $vars->{serverroot} -f $vars->{t_conf_file} $dversion";
+    "-d $vars->{serverroot} -f $vars->{t_conf_file} $dversion $defines";
 }
 
 my %one_process = (1 => '-X', 2 => '-DONE_PROCESS');
