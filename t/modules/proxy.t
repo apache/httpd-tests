@@ -6,7 +6,7 @@ use Apache::TestRequest;
 use Apache::TestUtil;
 use Apache::TestConfig ();
 
-plan tests => 8, need_module 'proxy';
+plan tests => 10, need_module 'proxy';
 
 Apache::TestRequest::module("proxy_http_reverse");
 Apache::TestRequest::user_agent(requests_redirectable => 0);
@@ -23,8 +23,12 @@ if (have_module('cgi')) {
     $r = GET("/reverse/modules/cgi/env.pl?reverse-proxy");
     ok t_cmp($r->code, 200, "reverse proxy with query string");
     ok t_cmp($r->content, qr/QUERY_STRING = reverse-proxy\n/s, "reverse proxied query string OK");
+
+    $r = GET("/reverse/modules/cgi/nph-101.pl");
+    ok t_cmp($r->code, 200, "reverse proxy to nph-101");
+    ok t_cmp($r->content, "this is nph-stdout", "reverse proxy 101 response");
 } else {
-    skip "skipping tests without mod_cgi" foreach(1..4);
+    skip "skipping tests without mod_cgi" foreach (1..6);
 }
 
 if (have_module('alias')) {
