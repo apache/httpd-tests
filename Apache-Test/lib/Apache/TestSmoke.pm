@@ -189,9 +189,6 @@ END {
 sub run {
     my($self) = shift;
 
-    # make sure that there the server is down
-    $self->kill_proc();
-
     $self->Apache::TestRun::warn_core();
     local $SIG{INT};
     $self->install_sighandlers;
@@ -577,18 +574,6 @@ sub run_test {
     $self->logs_end();
 
     # stop server
-    {
-        my $command = $self->{stop_command};
-        my $log = '';
-        IPC::Run3::run3($command, undef, \$log, \$log);
-        my $stopped_ok = ($log =~ /shutdown/) ? 1 : 0;
-        unless ($stopped_ok) {
-            error "failed to stop server\n $log";
-            exit 1;
-        }
-    }
-
-    # double check that we killed them all?
     $self->kill_proc();
 
     if ($self->{bug_mode}) {
@@ -719,16 +704,15 @@ sub build_config_as_string {
 sub kill_proc {
     my($self) = @_;
 
-    # a hack
-    my $t_logs  = $self->{test_config}->{vars}->{t_logs};
-    my $file = catfile $t_logs, "httpd.pid";
-    return unless -f $file;
+    my $command = $self->{stop_command};
+    my $log = '';
+    require IPC::Run3;
+    IPC::Run3::run3($command, undef, \$log, \$log);
 
-    my $pid = `cat $file`;
-    chomp $pid;
-    return unless $pid;
-
-    kill SIGINT => $pid;
+    my $stopped_ok = ($log =~ /shutdown/) ? 1 : 0;
+    unless ($stopped_ok) {
+        error "failed to stop server\n $log";
+    }
 }
 
 sub opt_help {

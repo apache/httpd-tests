@@ -8,6 +8,17 @@ Changes - Apache::Test change logfile
 
 =item 1.05-dev
 
+TestRun was using httpd.pid file to ensure that the server is killed
+before starting it, if the file existed. This was a problem on win32
+platforms, where a process scheduler tries to re-use the pids that
+were just freed, which may have killed a valid process which is not
+even Apache.exe. So we try not to rely on that file, and if the server
+wasn't properly stopped and still running, users will learn about
+that, since the port will be busy, and Apache will fail to
+start. Users have to kill it manually. TestSmoke is no longer using an
+explicit kill `cat httpd.pid` to stop Apache, but delegates the
+stopping procedure to TestRun [Steve Hay, Randy Kobes]
+
 use IPC::Run3 in Apache::TestSmoke to run t/TEST commands,
 so as t/SMOKE can be used on Win32 [Stas, Steve Hay, Randy Kobes]
 
