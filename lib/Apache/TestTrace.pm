@@ -1,6 +1,7 @@
 package Apache::TestTrace;
 
 use strict;
+use warnings FATAL => 'all';
 
 use Exporter ();
 our (@Levels, @Utils);
