@@ -1,3 +1,15 @@
+- general config: adjust Apache/TestConfig.pm not to write irrelevant
+  httpd.conf sections (e.g. <IfModule prefork.c> for win32, and vice
+  versa, A-T knows exactly what mpm it needs to write the config for).
+  Thus reducing the clutter.
+
+- winnt case: Apache/TestConfig.pm config for <IfModule mpm_winnt.c>
+  before Apache-2.0.50 ThreadsPerChild had to be at least as big as
+  the number of Vhosts. This was fixed in 2.0.50. Since A-T knows the
+  httpd version, it shouldn't start so many threads for httpd >=
+  2.0.50, but @MinClients@. Also add BACK_COMPAT_MARKER in the logic
+  so when no longer support httpd < 2.0.50, this logic could be removed.
+
 - sometimes the server aborts completely after the test suite has run
   some of the tests (e.g. win32's server has crashed and no
   replacement is available), but the client part continues to run
