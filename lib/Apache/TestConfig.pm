@@ -29,7 +29,8 @@ our %Usage = (
    servername    => 'ServerName (default is localhost)',
    user          => 'User to run test server as (default is $USER)',
    group         => 'Group to run test server as (default is $GROUP)',
-   bindir        => 'Apache bin/ dir (default is apxs -q SBINDIR)',
+   bindir        => 'Apache bin/ dir (default is apxs -q BINDIR)',
+   sbindir       => 'Apache sbin/ dir (default is apxs -q SBINDIR)',
    httpd         => 'server to use for testing (default is $bindir/httpd)',
    target        => 'name of server binary (default is apxs -q TARGET)',
    apxs          => 'location of apxs (default is from Apache::BuildConfig)',
@@ -229,7 +230,8 @@ sub configure_apxs {
 
     my $vars = $self->{vars};
 
-    $vars->{bindir}   ||= $self->apxs('SBINDIR');
+    $vars->{bindir}   ||= $self->apxs('BINDIR');
+    $vars->{sbindir}  ||= $self->apxs('SBINDIR');
     $vars->{target}   ||= $self->apxs('TARGET');
     $vars->{conf_dir} ||= $self->apxs('SYSCONFDIR');
 
@@ -244,10 +246,16 @@ sub configure_httpd {
 
     $vars->{target} ||= 'httpd';
 
-    if ($vars->{bindir}) {
-        $vars->{httpd} ||= catfile $vars->{bindir}, $vars->{target};
-    }
-    else {
+    unless ($vars->{httpd}) {
+        #sbindir should be bin/ with the default layout
+        #but its eaiser to workaround apxs than fix apxs
+        for my $dir (map { $vars->{$_} } qw(sbindir bindir)) {
+            my $httpd = catfile $dir, $vars->{target};
+            next unless -x $httpd;
+            $vars->{httpd} = $httpd;
+            last;
+        }
+
         $vars->{httpd} ||= $self->default_httpd;
     }
 
