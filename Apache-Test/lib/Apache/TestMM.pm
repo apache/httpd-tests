@@ -60,7 +60,6 @@ EOF
     my $cover;
 
     if (eval { require Devel::Cover }) {
-                                                                                                                             
         my $atdir = File::Spec->catfile($ENV{HOME}, '.apache-test');
 
         $cover = <<"EOF"
@@ -75,7 +74,7 @@ EOF
     else {
 
         $cover = <<'EOF';
-                                                                                                                             
+
 testcover :
 	@echo "Cannot run testcover action unless Devel::Cover is installed"
 EOF
@@ -100,10 +99,10 @@ test_config :
 	$(PASSENV) \
 	$(FULLPERL) -I$(INST_ARCHLIB) -I$(INST_LIB) \
 	t/TEST $(APACHE_TEST_EXTRA_ARGS) -conf
-                                                                                                                             
+
 cmodules: test_config
 	cd c-modules && $(MAKE) all
-                                                                                                                             
+
 cmodules_clean: test_config
 	cd c-modules && $(MAKE) clean
 EOF
