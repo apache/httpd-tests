@@ -284,7 +284,7 @@ my @extra_subdirs = qw(Response Protocol Hooks Filter);
 # add the subdirs to @INC early, in case mod_perl is started earlier
 sub configure_pm_tests_inc {
     my $self = shift;
-   for my $subdir (@extra_subdirs) {
+    for my $subdir (@extra_subdirs) {
         my $dir = catfile $self->{vars}->{t_dir}, lc $subdir;
         next unless -d $dir;
 
