@@ -1,17 +1,19 @@
 use 5.005;
 
+use lib qw(lib);
+use Apache::Test5005compat;
+
+use strict;
+use warnings;
+
 use ExtUtils::MakeMaker;
 use Symbol;
 
-use lib qw(lib);
-
-my $VERSION;
-
 use File::Spec::Functions qw(catfile catdir);
 
-use Apache::Test5005compat;
-
 use Apache::TestMM qw(test); #enable 'make test'
+
+my $VERSION;
 
 my $cleanup_packlist = ".mypacklist";
 
