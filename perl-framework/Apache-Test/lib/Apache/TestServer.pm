@@ -346,7 +346,10 @@ sub start {
         return 0;
     }
 
-    my $server_up = sub { $self->{config}->http_raw_get('/index.html') };
+    my $server_up = sub {
+        local $SIG{__WARN__} = sub {}; #avoid "cannot connect ..." warnings
+        $self->{config}->http_raw_get('/index.html');
+    };
 
     if ($server_up->()) {
         return 1;
