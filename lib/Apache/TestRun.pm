@@ -456,6 +456,7 @@ sub new_test_config {
 }
 
 sub set_ulimit_via_sh {
+    return if Apache::TestConfig::WINFU;
     return if $ENV{APACHE_TEST_ULIMIT_SET};
     my $binsh = '/bin/sh';
     return unless -e $binsh;
