@@ -316,12 +316,14 @@ sub stop {
     if (Apache::TestConfig::WIN32) {
         if ($self->{config}->{win32obj}) {
             $self->{config}->{win32obj}->Kill(0);
+            warning "server $self->{name} shutdown";
             return 1;
         }
         else {
             require Win32::Process;
             my $pid = $self->pid;
             Win32::Process::KillProcess($pid, 0);
+            warning "server $self->{name} shutdown";
             return 1;
 	}
     }
@@ -440,10 +442,13 @@ sub start {
         my $one_process = $self->version_of(\%one_process);
         require Win32::Process;
         my $obj;
+        # We need the "1" below to inherit the calling processes
+        # handles when running Apache::TestSmoke so as to properly
+        # dup STDOUT/STDERR
         Win32::Process::Create($obj,
                                $httpd,
                                "$cmd $one_process",
-                               0,
+                               1,
                                Win32::Process::NORMAL_PRIORITY_CLASS(),
                                '.') || die Win32::Process::ErrorReport();
         $config->{win32obj} = $obj;

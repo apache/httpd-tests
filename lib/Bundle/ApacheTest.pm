@@ -38,6 +38,8 @@ HTML::HeadParser   - To get the correct $res->base
 
 LWP                - For libwww-perl
 
+IPC::Run3          - Used in Apache::TestSmoke
+
 =head1 DESCRIPTION
 
 This bundle lists all the CPAN modules used by Apache-Test.

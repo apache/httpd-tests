@@ -8,6 +8,9 @@ Changes - Apache::Test change logfile
 
 =item 1.05-dev
 
+use IPC::Run3 in Apache::TestSmoke to run t/TEST commands,
+so as t/SMOKE can be used on Win32 [Stas, Steve Hay, Randy Kobes]
+
 place mod_perl-specific directives in <IfModule> containers
 within httpd.conf, allowing the default server to start if
 mod_perl isn't present.  [Geoffrey Young]
