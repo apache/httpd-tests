@@ -51,6 +51,7 @@ sub test_pm_refresh {
     $Test::TESTOUT = \*STDOUT;
     $Test::planned = 0;
     $Test::ntest = 1;
+    %Test::todo = ();
 }
 
 sub init_test_pm {
