@@ -35,7 +35,7 @@ sub configure_libmodperl {
     else {
         my $msg = "unable to locate $libname\n";
         $cfg = "#$msg";
-        $self->trace($msg);
+        debug $msg;
     }
     $self->preamble(IfModule => '!mod_perl.c', $cfg);
 }
@@ -302,7 +302,7 @@ sub configure_pm_tests {
                 $handler =~ s/response//i; #s/PerlResponseHandler/PerlHandler/
             }
 
-            $self->trace("configuring $module");
+            debug "configuring $module";
 
             if (my $cv = $add_hook_config{$hook}) {
                 $self->$cv($module, \@args);

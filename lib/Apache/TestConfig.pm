@@ -588,7 +588,7 @@ sub find_apache_module {
     for (@trys) {
         my $file = catfile $_, $module;
         if (-e $file) {
-            $self->trace("found $module => $file");
+            debug "found $module => $file";
             return $file;
         }
     }
@@ -667,7 +667,7 @@ sub clean_add_path {
 sub genfile_trace {
     my($self, $file) = @_;
     my $name = abs2rel $file, $self->{vars}->{t_dir};
-    $self->trace("generating $name");
+    debug "generating $name";
 }
 
 sub genfile_warning {
@@ -774,11 +774,11 @@ sub clean {
 
     for (keys %{ $self->{clean}->{files} }) {
         if (-e $_) {
-            $self->trace("unlink $_");
+            debug "unlink $_";
             unlink $_;
         }
         else {
-            $self->trace("unlink $_: $!");
+            debug "unlink $_: $!";
         }
     }
 
@@ -791,7 +791,7 @@ sub clean {
             my $notempty = grep { ! /^\.{1,2}$/ } readdir $dh;
             closedir $dh;
             next if $notempty;
-            $self->trace("rmdir $_");
+            debug "rmdir $_";
             rmdir $_;
         }
     }
@@ -1183,12 +1183,6 @@ sub error_log {
 
 #utils
 
-sub trace {
-    my $self = shift;
-    return unless $self->{verbose};
-    print "@_\n";
-}
-
 #duplicating small bits of Apache::Build so we dont require it
 sub which {
     foreach (map { catfile $_, $_[0] } File::Spec->path) {
@@ -1289,7 +1283,7 @@ sub save {
     my $file = catfile $self->{vars}->{t_conf}, "$name.pm";
     my $fh = $self->genfile($file);
 
-    $self->trace("saving config data to $name.pm");
+    debug "saving config data to $name.pm";
 
     (my $obj = $self->freeze) =~ s/^/    /;
 
