@@ -123,8 +123,8 @@ sub t_cmp ($$;$) {
     }
 
     t_debug("testing : " . pop) if @_ == 3;
-    t_debug("received: " . struct_as_string(0, $received));
     t_debug("expected: " . struct_as_string(0, $expected));
+    t_debug("received: " . struct_as_string(0, $received));
     return t_is_equal($received, $expected);
 }
 
