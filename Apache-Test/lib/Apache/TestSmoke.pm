@@ -16,7 +16,7 @@ use FindBin;
 use constant DEFAULT_TIMES  => 10;
 
 # how many various seeds to try in NONSTOP mode
-use constant DEFAULT_ITERATIONS  => 50;
+use constant DEFAULT_ITERATIONS  => 10;
 
 # if after this number of tries to reduce the number of tests fails we
 # give up on more tries
@@ -130,12 +130,25 @@ sub run {
     exit;
 }
 
+sub sep {
+    my ($char, $title) = @_;
+    my $width = 60;
+    if ($title) {
+        my $side = int( ($width - length($title) - 2) / 2);
+        my $pad  = ($side+1) * 2 + length($title) < $width ? 1 : 0;
+        return $char x $side . " $title " . $char x ($side+$pad);
+    }
+    else {
+        return $char x $width;
+    }
+}
+
 sub run_iter {
     my($self, $iter) = @_;
 
     my $reduce_iter = 0;
     my @good = ();
-    warning "\n" . "-" x 60;
+    warning "\n" . sep("-");
     warning sprintf "[%03d-%02d-%02d] trying all tests $self->{times} times",
         $iter, $reduce_iter, 0;
 
@@ -311,10 +324,11 @@ sub report_start {
 
     open my $fh, ">$file" or die "cannot open $file for writing: $!";
     $self->{fh} = $fh;
-    my $sep = "-" x 74;
+    my $sep = sep("-");
+    my $title = sep('=', "Special Tests Sequence Failure Finder Report");
 
         print $fh <<EOM;
--=== Special Tests Sequence Failure Finder Report ===-
+$title
 $sep
 First iteration used:
 $self->{start_command}
@@ -349,7 +363,7 @@ sub report_finish {
     if (my $fh = delete $self->{fh}) {
         my $failures = scalar keys %{ $self->{results} };
 
-        my $sep = "-" x 74;
+        my $sep = sep("-");
         my $cfg_as_string = $self->build_config_as_string;
         my $unique_seqs   = scalar keys %{ $self->{results} };
         my $attempts      = $self->{total_reduction_attempts};
@@ -368,9 +382,10 @@ sub report_finish {
             }
         }
 
+        my $title = sep('=', "Summary");
         print $fh <<EOM;
 
--================================= Summary ==============================-
+$title
 Completion              : $completion
 Status                  : $status
 Tests run               : $self->{total_tests_run}
@@ -392,7 +407,8 @@ $sep
 --- Started at: $start_time ---
 --- Ended   at: $end_time ---
 $sep
-The smoke testing was run on the system with the following parameters:
+The smoke testing was run on the system with the following
+parameters:
 
 $cfg_as_string
 
