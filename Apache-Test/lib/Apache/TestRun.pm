@@ -15,6 +15,8 @@ use Config;
 my @std_run      = qw(start-httpd run-tests stop-httpd);
 my @others       = qw(verbose configure clean help ping);
 my @flag_opts    = (@std_run, @others);
+my @string_opts  = qw(order);
+my @num_opts     = qw(times);
 my @list_opts    = qw(preamble postamble);
 my @hash_opts    = qw(header);
 my @exit_opts    = qw(clean help ping debug);
@@ -23,6 +25,8 @@ my @request_opts = qw(get head post);
 my %usage = (
    'start-httpd' => 'start the test server',
    'run-tests'   => 'run the tests',
+   'times=N'     => 'repeat the tests N times',
+   'order=mode'  => 'run the tests in one of the modes: (repeat|rotate|random)',
    'stop-httpd'  => 'stop the test server',
    'verbose'     => 'verbose output',
    'configure'   => 'force regeneration of httpd.conf',
@@ -116,7 +120,8 @@ sub getopts {
     my(%opts, %vopts, %conf_opts);
 
     GetOptions(\%opts, @flag_opts, @exit_opts,
-               (map "$_=s", @request_opts),
+               (map "$_=s", @request_opts,@string_opts),
+               (map "$_=i", @num_opts),
                (map { ("$_=s", $vopts{$_} ||= []) } @list_opts),
                (map { ("$_=s", $vopts{$_} ||= {}) } @hash_opts));
 
@@ -249,6 +254,7 @@ sub start {
     } elsif ($self->{opts}->{'run-tests'} and !$self->{server}->ping) {
         # make sure that the server is up when -run-tests is used
         warning "the test server wasn't not running: starting it...";
+        $self->{opts}->{'stop-httpd'} = 1;
         exit 1 unless $self->{server}->start;
     }
 }
@@ -259,6 +265,8 @@ sub run_tests {
     my $test_opts = {
         verbose => $self->{opts}->{verbose},
         tests   => $self->{tests},
+        times   => $self->{opts}->{times},
+        order   => $self->{opts}->{order},
     };
 
     #make sure we use an absolute path to perl
