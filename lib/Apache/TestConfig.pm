@@ -1192,6 +1192,29 @@ EOF
     close $fh or die "failed to write $file: $!";
 }
 
+sub as_string {
+    my $cfg = '';
+    my $command = '';
+
+    # httpd opts
+    my $test_config = Apache::TestConfig->new;
+    if (my $httpd = $test_config->{vars}->{httpd}) {
+        $command = "$httpd -V";
+        $cfg .= "\n*** $command\n";
+        $cfg .= qx{$command};
+    } else {
+        $cfg .= "\n\n*** The httpd binary was not found\n";
+    }
+
+    # perl opts
+    my $perl = $^X;
+    $command = "$perl -V";
+    $cfg .= "\n\n*** $command\n";
+    $cfg .= qx{$command};
+
+    return $cfg;
+}
+
 1;
 
 =head1 NAME
