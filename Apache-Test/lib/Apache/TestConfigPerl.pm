@@ -294,12 +294,28 @@ sub configure_pm_tests {
                 push @args, @handler_cfg;
             }
 
+            my $args_hash = list_to_hash_of_lists(\@args);
             $self->postamble($self->$container($module),
-                             { @args }) if @args;
+                             $args_hash) if @args;
 
             $self->write_pm_test($module, lc $base, lc $sub);
         }, $dir);
     }
+}
+
+
+# turn a balanced (key=>val) list with potentially multiple indentical
+# keys into a hash of lists.
+#############
+sub list_to_hash_of_lists {
+    my $arr = shift;
+    my %hash = ();
+    my $pairs = @$arr / 2;
+    for my $i (0..($pairs-1)) {
+        my ($key, $val) = ($arr->[$i*2], $arr->[$i*2+1]);
+        push @{ $hash{$key} }, $val;
+    }
+    return \%hash;
 }
 
 # We have to test whether tests have APACHE_TEST_CONFIGURE() in them
