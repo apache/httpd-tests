@@ -6,6 +6,7 @@ use warnings FATAL => 'all';
 use Socket ();
 use File::Spec::Functions qw(catfile);
 
+use Apache::TestTrace;
 use Apache::TestConfig ();
 
 sub trace {
@@ -146,13 +147,16 @@ sub stop {
 
     my $port = $self->{config}->{vars}->{port};
 
+    warning("server $self->{name} is not running"),
+        return unless $self->ping;
+
     while ($self->ping) {
         #my $state = $tried_kill ? "still" : "already";
         #print "Port $port $state in use\n";
 
         if ($pid = $self->pid and !$tried_kill++) {
             if (kill TERM => $pid) {
-                print "server $self->{name} shutdown (pid=$pid)\n";
+                warning "server $self->{name} shutdown (pid=$pid)";
                 sleep 1;
 
                 for (1..4) {
@@ -161,7 +165,7 @@ sub stop {
                         last;
                     }
                     if ($_ == 1) {
-                        print "port $port still in use...";
+                        warning "port $port still in use...";
                     }
                     else {
                         print "...";
@@ -170,28 +174,28 @@ sub stop {
                 }
 
                 if ($self->ping) {
-                    print "\nserver was shutdown but port $port ",
-                          "is still in use, please shutdown the service ",
-                          "using this port or select another port ",
-                          "for the tests\n";
+                    error "\nserver was shutdown but port $port ".
+                          "is still in use, please shutdown the service ".
+                          "using this port or select another port ".
+                          "for the tests";
                 }
                 else {
                     print "done\n";
                 }
             }
             else {
-                print "kill $pid failed: $!\n";
+                error "kill $pid failed: $!";
             }
         }
         else {
-            print "port $port is in use, ",
-                  "cannot determine server pid to shutdown\n";
+            error "port $port is in use, ".
+                  "cannot determine server pid to shutdown";
             return -1;
         }
 
         if (--$tries <= 0) {
-            print "cannot shutdown server on Port $port, ",
-                  "please shutdown manually\n";
+            error "cannot shutdown server on Port $port, ".
+                  "please shutdown manually";
             return -1;
         }
     }
@@ -233,7 +237,7 @@ sub start {
 
     unless (-x $httpd) {
         my $why = -e $httpd ? "is not executable" : "does not exist";
-        print "cannot start server: httpd ($httpd) $why\n";
+        error "cannot start server: httpd ($httpd) $why";
         return 0;
     }
 
@@ -241,7 +245,7 @@ sub start {
     system "$cmd &";
 
     while ($old_pid and $old_pid == $self->pid) {
-        print "old pid file ($old_pid) still exists\n";
+        warning "old pid file ($old_pid) still exists\n";
         sleep 1;
     }
 
@@ -292,7 +296,7 @@ sub start {
         return 1;
     }
     else {
-        print "still waiting for server to warm up...";
+        warning "still waiting for server to warm up...";
         sleep 1;
     }
 
