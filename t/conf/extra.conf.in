@@ -48,6 +48,30 @@
     </IfModule>
 </IfDefine>
 
+<IfModule @PHP_MODULE@>
+    <Directory @SERVERROOT@/htdocs/php/safemode>
+        php_admin_value safe_mode 1
+        php_admin_value safe_mode_exec_dir /usr/bin
+        php_admin_value open_basedir @SERVERROOT@
+        php_admin_value display_errors 0
+        php_admin_value log_errors 1
+        php_admin_value safe_mode_allowed_env_vars FOO_
+        php_admin_value safe_mode_protected_env_vars FOO_FEE
+    </Directory>
+
+    <Directory @SERVERROOT@/htdocs/php/safemode/noexec>
+        php_admin_value safe_mode_exec_dir /tmp
+    </Directory>
+
+    <Directory @SERVERROOT@/htdocs/php/safemode/nofile>
+        php_admin_value open_basedir @SERVERROOT@/htdocs/php/safemode/nofile
+    </Directory>
+
+    <Directory @SERVERROOT@/htdocs/php/safemode/error>
+        php_admin_value display_errors 1
+    </Directory>
+</IfModule>
+
 ##
 ## mod_expires test config
 ##
