@@ -30,7 +30,7 @@ for my $module (@modules) {
     my $response = Apache::TestRequest::getline($sock);
 
     $response =~ s/[\r\n]+$//;
-    ok t_cmp('200 localhost - ready', $response,
+    ok t_cmp($response, '200 localhost - ready',
              'welcome response');
 
     for my $data ('LIST', 'GROUP dev.httpd.apache.org', 'ARTICLE 401') {
@@ -38,6 +38,6 @@ for my $module (@modules) {
 
         $response = Apache::TestRequest::getline($sock);
         chomp($response) if (defined($response));
-        ok t_cmp($data, $response, 'echo');
+        ok t_cmp($response, $data, 'echo');
     }
 }

@@ -99,6 +99,12 @@ static apr_status_t nntp_like_send_welcome(conn_rec *c)
     return ap_pass_brigade(c->output_filters, bb);
 }
 
+static int nntp_like_pre_connection(conn_rec *c, void *csd)
+{
+    apr_socket_timeout_set(csd, c->base_server->keep_alive_timeout);
+    return DECLINED;
+}
+
 static int nntp_like_process_connection(conn_rec *c)
 {
     apr_bucket_brigade *bb;
@@ -110,7 +116,7 @@ static int nntp_like_process_connection(conn_rec *c)
     if (!cfg->enabled) {
         return DECLINED;
     }
-    
+
     /* handshake if talking over SSL */
     if ((rv = nntp_like_init_connection(c)) != APR_SUCCESS) {
         return rv;
@@ -123,7 +129,7 @@ static int nntp_like_process_connection(conn_rec *c)
 
     do {
         bb = apr_brigade_create(c->pool, c->bucket_alloc);
-        
+
         if ((rv = ap_get_brigade(c->input_filters, bb,
                                  AP_MODE_GETLINE,
                                  APR_BLOCK_READ, 0) != APR_SUCCESS || 
@@ -134,7 +140,8 @@ static int nntp_like_process_connection(conn_rec *c)
         }
 
         APR_BRIGADE_INSERT_TAIL(bb, apr_bucket_flush_create(c->bucket_alloc));
-        rv = ap_pass_brigade(c->output_filters, bb);    
+
+        rv = ap_pass_brigade(c->output_filters, bb);
     } while (rv == APR_SUCCESS);
 
     return OK;
@@ -142,6 +149,8 @@ static int nntp_like_process_connection(conn_rec *c)
 
 static void nntp_like_register_hooks(apr_pool_t *p)
 {
+    ap_hook_pre_connection(nntp_like_pre_connection, NULL, NULL,
+                           APR_HOOK_MIDDLE);
     ap_hook_process_connection(nntp_like_process_connection,
                                NULL, NULL,
                                APR_HOOK_MIDDLE);

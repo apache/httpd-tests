@@ -15,8 +15,8 @@ my @req_strings =  ("/echo_post",
                     "/i_do_not_exist_in_your_wildest_imagination");
 
 # This is expanded out.
-my @resp_strings = ("HTTP/1.1 200 OK",
-                    "HTTP/1.1 404 Not Found",
+my @resp_strings = ("HTTP/1.1 413 Request Entity Too Large",
+                    "HTTP/1.1 413 Request Entity Too Large",
                     "HTTP/1.1 200 OK",
                     "HTTP/1.1 404 Not Found",
                     "HTTP/1.1 200 OK",
@@ -51,7 +51,8 @@ for my $data (@test_strings) {
     # Read the status line
     chomp(my $response = Apache::TestRequest::getline($sock) || '');
     $response =~ s/\s$//;
-    ok t_cmp($resp_strings[$cycle++], $response, "response codes");
+    ok t_cmp($response, $resp_strings[$cycle++],
+             "response codes POST for $request_uri with Content-Length: $data");
 
     do {
         chomp($response = Apache::TestRequest::getline($sock) || '');
