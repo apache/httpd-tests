@@ -27,8 +27,10 @@ plan tests => (keys %test) * 1, test_module('env', 'include');
 my ($actual, $expected);
 foreach (sort keys %test) {
     $expected = $test{$_};
-    $actual = GET_BODY "/modules/env/$_.shtml";
-    chomp $actual;
-    print "$_: EXPECT ->$expected<- ACTUAL ->$actual<-\n";
-    ok ($actual eq $expected);
+    sok {
+        $actual = GET_BODY "/modules/env/$_.shtml";
+        chomp $actual;
+        print "$_: EXPECT ->$expected<- ACTUAL ->$actual<-\n";
+        return $actual eq $expected;
+    };
 }
