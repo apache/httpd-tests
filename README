@@ -77,5 +77,11 @@ POST url (read content from string)
 POST url (read content from stdin)
 % t/TEST -post /TestApache::post content - < foo.txt
 
+POST url (generate a body of data 1024 bytes in length)
+% t/TEST -post /TestApache::post content x1024
+
+POST url (only print headers, e.g. useful to just check Content-length)
+% t/TEST -post_head /TestApache::post content x100000
+
 start server under gdb
 % t/TEST -debug
