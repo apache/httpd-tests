@@ -19,7 +19,6 @@ use File::Spec::Functions qw(catfile catdir);
 use File::Basename qw(basename dirname);
 use Getopt::Long qw(GetOptions);
 use Config;
-use FindBin;
 
 use constant IS_APACHE_TEST_BUILD => Apache::TestConfig::IS_APACHE_TEST_BUILD;
 
@@ -1252,6 +1251,7 @@ sub custom_config_file_stub_write {
     # 'make install' will then pick and install system-wide. but
     # remember that $FindBin::Bin is the location of top-level
     # 'Makefile.PL'
+    require FindBin; # load it only for this particular use
     my $path = catfile $FindBin::Bin, "lib",
         Apache::TestRun::CUSTOM_CONFIG_FILE;
 
