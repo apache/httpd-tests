@@ -310,6 +310,10 @@ Alias /manual @inherit_documentroot@/manual
         Options +Indexes
         AllowOverride Indexes
     </Directory>
+    <Directory @SERVERROOT@/htdocs/modules/autoindex2>
+        Options +Indexes
+        AllowOverride  All
+    </Directory>
 </IfModule>
 
 ##
