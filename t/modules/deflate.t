@@ -8,6 +8,7 @@ use Apache::TestRequest;
 my @server_deflate_uris=("/modules/deflate/index.html",
                          "/modules/deflate/apache_pb.gif",
                          "/modules/deflate/asf_logo_wide.jpg",
+                         "/modules/deflate/zero.txt",
                         );
 my $server_inflate_uri="/modules/deflate/echo_post";
 
