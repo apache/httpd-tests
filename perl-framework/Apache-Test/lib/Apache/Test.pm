@@ -20,12 +20,8 @@ sub test_pm_refresh {
 sub init_test_pm {
     my $r = shift;
 
-    if (defined &Apache::RequestRec::puts) {
-        package Apache::RequestRec;
-        unless (defined &PRINT) {
-            *PRINT = \&puts;
-        }
-        tie *STDOUT, __PACKAGE__, $r;
+    if (defined &Apache::RequestRec::TIEHANDLE) {
+        tie *STDOUT, $r;
     }
     else {
         $r->send_http_header; #1.xx
