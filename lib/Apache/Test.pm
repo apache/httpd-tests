@@ -165,6 +165,7 @@ sub plan {
             my $reason = join ', ',
               @SkipReasons ? @SkipReasons : "no reason given";
             print "1..0 # skipped: $reason\n";
+            @SkipReasons = (); # reset
             exit; #XXX: Apache->exit
         }
     }
