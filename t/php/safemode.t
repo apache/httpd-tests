@@ -8,7 +8,7 @@ use Apache::TestUtil;
 plan tests => 9, need_php;
 
 ok t_cmp(GET_BODY("/php/safemode/system.php"),
-         "Hello World\n");
+         "HelloWorld\n");
 
 ok t_cmp(GET_BODY("/php/safemode/putenv.php"), 
          "HelloWorld",

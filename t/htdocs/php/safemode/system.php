@@ -1,2 +1,2 @@
-<?php system("printf 'Hello World'"); ?>
+<?php system("printf HelloWorld"); ?>
 
