@@ -74,9 +74,12 @@ sub new_test_server {
 }
 
 sub new {
-    my($class, $args) = @_;
+    my $class = shift;
+    my $args;
 
-    $args = ($args and ref($args)) ? {%$args} : {@_}; #copy
+    $args = shift if $_[0] and ref $_[0];
+
+    $args = $args ? {%$args} : {@_}; #copy
 
     my $thaw = {};
 
