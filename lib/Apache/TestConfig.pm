@@ -1156,18 +1156,29 @@ sub generate_httpd_conf {
 
     $self->gendir($vars->{t_logs});
 
+    my @very_last_postamble = ();
     if (my $extra_conf = $self->generate_extra_conf) {
         for my $file (@$extra_conf) {
+            my $entry;
             if ($file =~ /\.conf$/) {
                 next if $file =~ m|/httpd\.conf$|;
-                $self->postamble(Include => qq("$file"));
+                $entry = qq(Include "$file");
             }
             elsif ($file =~ /\.pl$/) {
-                $self->postamble(PerlRequire => qq("$file"));
+                $entry = qq(PerlRequire "$file");
             }
             else {
-                # nothing yet
+                next;
             }
+
+            # put the .last includes very last
+            if ($file =~ /\.last\.(conf|pl)$/) {
+                 push @very_last_postamble, $entry;
+            }
+            else {
+                $self->postamble($entry);
+            }
+
         }
     }
 
@@ -1202,6 +1213,8 @@ sub generate_httpd_conf {
     print $out "\n";
 
     $self->postamble_run($out);
+
+    print $out join "\n", @very_last_postamble;
 
     close $in;
     close $out or die "close $conf_file: $!";
