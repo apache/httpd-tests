@@ -564,7 +564,7 @@ sub http_raw_get {
       $include_headers{$h} : $h;
 
     require Apache::TestRequest;
-    Apache::TestRequest::http_raw_get($self->{hostport},
+    Apache::TestRequest::http_raw_get($self,
                                       $url, $ih);
 }
 

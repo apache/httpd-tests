@@ -27,11 +27,23 @@ our @ISA = qw(LWP::UserAgent);
 my $UA;
 my $Config;
 
+sub hostport {
+    my $config = shift;
+    my $hostport = $config->{hostport};
+
+    if (my $module = $Apache::TestRequest::Module) {
+        $hostport = $config->{vhosts}->{$module}->{hostport};
+    }
+
+    $hostport;
+}
+
 sub resolve_url {
     my $url = shift;
     return $url if $url =~ m,^(\w+):/,;
     $url = "/$url" unless $url =~ m,^/,;
-    return "http://$Config->{hostport}$url";
+    my $hostport = hostport($Config);
+    return "http://$hostport$url";
 }
 
 my %wanted_args = map {$_, 1} qw(username password realm content);
@@ -145,9 +157,10 @@ for my $name (qw(GET HEAD)) {
 }
 
 sub http_raw_get {
-    my($hostport, $url, $want_headers) = @_;
+    my($config, $url, $want_headers) = @_;
 
     $url ||= "/";
+    my $hostport = hostport($config);
 
     require IO::Socket;
     my $s = IO::Socket::INET->new($hostport);

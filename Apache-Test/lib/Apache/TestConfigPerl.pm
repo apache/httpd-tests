@@ -178,12 +178,19 @@ sub add_module_config {
 
     while (<$fh>) {
         next unless /\S+/;
+        chomp;
         $self->replace;
         my($directive, $rest) = split /\s+/, $_, 2;
         if ($outside_container{$directive}) {
             $self->postamble($directive => $rest);
         }
         elsif ($directive =~ m/^<(\w+)/) {
+            if ($directive eq '<VirtualHost') {
+                $rest =~ s/>$//;
+                my $port = $self->new_vhost($rest);
+                $self->postamble(Listen => $port);
+                $rest = "_default_:$port>";
+            }
             $self->postamble($directive => $rest);
             my $end = "</$1>";
             while (<$fh>) {
