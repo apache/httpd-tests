@@ -63,6 +63,7 @@ my %test = (
 "parse1.shtml"          =>    "-->",
 "parse2.shtml"          =>    "\"",
 "if11.shtml"            =>    "pass",
+"malformed.shtml"       =>    "[an error occurred while processing this directive] malformed.shtml"
 );
 
 #this test does not work on win32 (<!--#exec cmd="echo pass"-->)
