@@ -18,7 +18,12 @@ sub t_cmp {
     print "testing : $comment\n" if defined $comment;
     print "expected: " . (defined $expected ? $expected : "undef") . "\n";
     print "received: " . (defined $received ? $received : "undef") . "\n";
-    defined $expected && defined $received && $expected eq $received;
+    if (defined $expected && defined $received) {
+        return $expected eq $received;
+    } else {
+        # undef == undef! a valid test
+        return (defined $expected || defined $received) ? 0 : 1;
+    }
 }
 
 sub t_write_file {
@@ -124,6 +129,12 @@ fed directly to the ok() function, like this:
   ok t_cmp(1, 1, "1 == 1?");
 
 the third argument (I<$comment>) is optional, but a nice to use.
+
+It is valid to use I<undef> as an expected value. Therefore:
+
+  1 == t_cmp(undef, undef, "undef == undef?");
+
+is true.
 
 =item t_write_file()
 
