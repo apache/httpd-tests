@@ -221,6 +221,9 @@ sub getopts {
         my %levels = map {$_ => 1} @Apache::TestTrace::Levels;
         if (exists $levels{ $opts{trace} }) {
             $Apache::TestTrace::Level = $opts{trace};
+            # propogate the override for the server-side.
+            # -trace overrides any previous APACHE_TEST_TRACE_LEVEL settings
+            $ENV{APACHE_TEST_TRACE_LEVEL} = $opts{trace};
         }
         else {
             error "unknown trace level: $opts{trace}",
