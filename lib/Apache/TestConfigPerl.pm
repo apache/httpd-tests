@@ -250,7 +250,7 @@ sub configure_pm_tests {
             my $module = abs2rel $file, $dir;
             $module =~ s,\.pm$,,;
             $module = join '::', splitdir $module;
-            
+
             $self->run_apache_test_config($file, $module);
 
             my($base, $sub) =
@@ -312,7 +312,7 @@ sub run_apache_test_config {
         require $file;
         # double check that it's a real sub
         if ($module->can('APACHE_TEST_CONFIGURE')) {
-            eval { $module->APACHE_TEST_CONFIGURE(); };
+            eval { $module->APACHE_TEST_CONFIGURE($self); };
             warn $@ if $@;
         }
     }
