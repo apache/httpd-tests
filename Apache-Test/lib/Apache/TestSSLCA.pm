@@ -33,7 +33,7 @@ my $pass    = 'httpd';
 my $passin  = "-passin pass:$pass";
 my $passout = "-passout pass:$pass";
 
-my %ca_dn = (
+my $ca_dn = {
     asf => {
         C  => 'US',
         ST => 'California',
@@ -43,15 +43,19 @@ my %ca_dn = (
         CN => '',
         Email => 'test-dev@httpd.apache.org',
     },
-);
+};
 
-my %cert_dn = (
+my $cert_dn = {
     client_snakeoil => {
         C  => 'AU',
         ST => 'Queensland',
         L  => 'Mackay',
         O  => 'Snake Oil, Ltd.',
         OU => 'Staff',
+    },
+    client_ok => {
+    },
+    client_revoked => {
     },
     server => {
         CN => 'localhost',
@@ -60,18 +64,28 @@ my %cert_dn = (
         CN => 'localhost',
         OU => 'httpd-test/perl-framework',
     },
-);
+};
+
+sub ca_dn {
+    $ca_dn = shift if @_;
+    $ca_dn;
+}
+
+sub cert_dn {
+    $cert_dn = shift if @_;
+    $cert_dn;
+}
 
 sub dn {
     my $name = shift;
 
-    my %dn = %{ $ca_dn{$CA} }; #default values
+    my %dn = %{ $ca_dn->{$CA} }; #default values
     $dn{CN} ||= $name; #try make sure each Common Name is different
 
-    my $cert_dn = $cert_dn{$name};
+    my $default_dn = $cert_dn->{$name};
 
-    if ($cert_dn) {
-        while (my($key, $value) = each %$cert_dn) {
+    if ($default_dn) {
+        while (my($key, $value) = each %$default_dn) {
             #override values
             $dn{$key} = $value;
         }
@@ -279,7 +293,7 @@ sub revoke_cert {
 sub setup {
     $CA = shift;
 
-    unless ($ca_dn{$CA}) {
+    unless ($ca_dn->{$CA}) {
         die "unknown CA $CA";
     }
 
@@ -290,25 +304,27 @@ sub setup {
     init();
     new_ca();
 
-    my @names = qw(server client_ok client_revoked client_snakeoil);
+    my @names = keys %$cert_dn;
 
     for my $name (@names) {
-        new_key($name);
+        my @key_args = ();
+        if ($name =~ /_des3$/) {
+            push @key_args, '-des3';
+        }
+
+        new_key($name, @key_args);
         new_cert($name);
+
+        if ($name =~ /_revoked$/) {
+            revoke_cert($name);
+        }
     }
-
-    @names = qw(server_des3);
-
-    for my $name (@names) {
-        new_key($name, '-des3');
-        new_cert($name);
-    }
-
-    revoke_cert('client_revoked');
 }
 
 sub generate {
     $Config = shift;
+
+    $CA = shift || $Config->{vars}->{sslcaorg};
 
     my $root = $Config->{vars}->{sslca};
 
@@ -327,9 +343,9 @@ sub generate {
 
     chdir $dir;
 
-    warning "generating SSL CA";
+    warning "generating SSL CA for $CA";
 
-    setup('asf');
+    setup($CA);
 
     chdir $pwd;
 }
