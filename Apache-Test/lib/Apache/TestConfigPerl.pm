@@ -204,6 +204,8 @@ PerlChildInitHandler PerlTransHandler PerlPostReadRequestHandler
 PerlSwitches PerlRequire PerlModule
 };
 
+my %special_directives = map { ("<$_>" => "</$_>") } qw(base noautoconfig);
+
 #test .pm's can have configuration after the __DATA__ token
 sub add_module_config {
     my($self, $module, $args) = @_;
@@ -228,21 +230,23 @@ sub add_module_config {
             next;
         }
         my($directive, $rest) = split /\s+/, $_, 2;
-        $directives{$directive}++;
+        $directives{$directive}++ unless $directive =~ /^</;
         $rest = '' unless defined $rest;
-        if ($outside_container{$directive}) {
-            $self->postamble($directive => $rest);
-        }
-        elsif ($directive eq '<Base>') {
-            # <Base> and </Base> are removed
-            my $end = "</Base>";
+
+        if (my $end_tag = $special_directives{lc $directive}) {
+            # special directives like <Base> and </Base> are removed
+            my $indent;
             while (<$fh>) {
                 chomp;
-                last if m:^\Q$end:;
+                last if m:^\Q$end_tag:i;
+                $indent = /^(\s+)/ ? $1 : '' unless defined $indent;
                 $self->replace;
-                s/^\s*//; # align for base
+                s/^$indent//; # align for base
                 $self->postamble($_);
             }
+        }
+        elsif ($outside_container{$directive}) {
+            $self->postamble($directive => $rest);
         }
         elsif ($directive =~ /IfModule/) {
             $self->postamble($_);
