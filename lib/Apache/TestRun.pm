@@ -433,6 +433,8 @@ sub run {
 
     $self->{test_config} = $self->new_test_config;
 
+    $self->warn_core();
+
     $self->{server} = $self->{test_config}->server;
 
     local($SIG{__DIE__}, $SIG{INT});
@@ -478,6 +480,20 @@ sub scan {
         my $again = $times++ ? "again" : "";
         error "oh $oh, server dumped core $again";
         error "for stacktrace, run: gdb $vars->{httpd} -core $core";
+    }, $vars->{top_dir});
+}
+
+# warn the user that there is a core file before the tests
+# start. suggest to delete it before proceeding or a false alarm can
+# be generated at the end of the test routine run.
+sub warn_core {
+    my $self = shift;
+    my $vars = $self->{test_config}->{vars};
+
+    finddepth(sub {
+        return unless /^core$/;
+        my $core = "$File::Find::dir/$_";
+        error "consider removing an old $core file before running tests";
     }, $vars->{top_dir});
 }
 
