@@ -3,7 +3,6 @@ use warnings FATAL => 'all';
 
 use Apache::Test;
 use Apache::TestRequest;
-use Apache::TestConfig;
 
 ##
 ## mod_alias test
@@ -85,8 +84,8 @@ echo
 echo $string
 EOF
 
-my $config = Apache::TestConfig->thaw;
-my $script = "$config->{vars}->{t_dir}/htdocs/modules/alias/script";
+my $vars = Apache::Test::vars();
+my $script = "$vars->{t_dir}/htdocs/modules/alias/script";
 
 open (CGI, ">$script");
 print CGI $cgi;
@@ -110,5 +109,5 @@ ok ('404' eq GET_RC "/aliascgi-nada");
 
 ## clean up ##
 unlink $script;
-unlink "$config->{vars}->{t_logs}/mod_cgi.log"
-    if -e "$config->{vars}->{t_logs}/mod_cgi.log";
+unlink "$vars->{t_logs}/mod_cgi.log"
+    if -e "$vars->{t_logs}/mod_cgi.log";

@@ -3,13 +3,13 @@ use warnings FATAL => 'all';
 
 use Apache::Test;
 use Apache::TestRequest;
-use Apache::TestConfig;
 
 ##
 ## mod_access test
 ##
 
-my $localhost_name = Apache::TestRequest::vars()->{servername};
+my $vars = Apache::Test::vars();
+my $localhost_name = $vars->{servername};
 my @localhost = (
     'from all',
     "from $localhost_name",
@@ -27,7 +27,7 @@ my @deny = @localhost;
 plan tests => (@order * @allow * @deny * 2) + (@order * @allow),
     test_module 'access';
 
-my $dir = Apache::TestRequest::vars()->{t_dir};
+my $dir = $vars->{t_dir};
 $dir .=  "/htdocs/modules/access/htaccess";
 
 sub write_htaccess {

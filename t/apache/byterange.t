@@ -7,7 +7,7 @@ use File::Basename;
 
 my $ua = Apache::TestRequest::user_agent();
 
-my $vars = Apache::TestRequest::vars();
+my $vars = Apache::Test::vars();
 my $perlpod = $vars->{perlpod};
 my @pods;
 

@@ -12,8 +12,8 @@ plan tests => 1, test_module 'info';
 
 my $uri = '/server-info';
 my $info = GET_BODY $uri;
-my $test_config = Apache::TestRequest::test_config();
-my $mods = $test_config->{modules};
+my $config = Apache::Test::config();
+my $mods = $config->{modules};
 my (@actual,@expected) = ((),());
 
 ## extract module names from html ##

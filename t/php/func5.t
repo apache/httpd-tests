@@ -3,11 +3,8 @@ use warnings FATAL => 'all';
 
 use Apache::Test;
 use Apache::TestRequest;
-use Apache::TestConfig;
 
 plan tests => 2, test_module 'php4';
-
-my $env = Apache::TestConfig->thaw;
 
 my $file = "htdocs/php/func5.php.ran";
 unlink $file if -e $file;

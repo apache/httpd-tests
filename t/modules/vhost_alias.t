@@ -4,7 +4,6 @@ use warnings FATAL => 'all';
 use Apache::Test;
 use Apache::TestUtil;
 use Apache::TestRequest;
-use Apache::TestConfig ();
 
 my $url        = '/index.html';
 my $cgi_name   = "test-cgi.sh";
@@ -17,8 +16,8 @@ plan tests => @vh * 2, sub { have_module('vhost_alias') && have_cgi() };
 
 Apache::TestRequest::scheme('http'); #ssl not listening on this vhost
 
-my $config = Apache::TestRequest::test_config();
-my $vars   = Apache::TestRequest::vars();
+my $config = Apache::Test::config();
+my $vars   = Apache::Test::vars();
 local $vars->{port} = $config->port('mod_vhost_alias');
 
 ## test environment setup ##

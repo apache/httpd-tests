@@ -5,7 +5,7 @@ use Apache::Test;
 use Apache::TestRequest;
 use File::Basename;
 
-my $vars = Apache::TestRequest::vars();
+my $vars = Apache::Test::vars();
 my $perlpod = $vars->{perlpod};
 my @pods;
 

@@ -46,7 +46,7 @@ plan tests => $tests, \&have_cgi;
 
 my ($expected, $actual);
 my $path = "/modules/cgi";
-my $vars = Apache::TestRequest::vars();
+my $vars = Apache::Test::vars();
 my $t_logs = $vars->{t_logs};
 my $cgi_log = "$t_logs/mod_cgi.log";
 my ($bogus,$log_size,$stat) = (0,0,0);

@@ -11,7 +11,7 @@ use Apache::TestRequest;
 plan tests => 1, test_module 'status';
 
 my $uri = '/server-status';
-my $servername = Apache::TestRequest::vars()->{servername};
+my $servername = Apache::Test::vars()->{servername};
 
 my $html_head =<<HTML;
 <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2 Final//EN">

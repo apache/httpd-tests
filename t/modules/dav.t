@@ -3,7 +3,6 @@ use warnings FATAL => 'all';
 
 use Apache::Test;
 use Apache::TestRequest;
-use Apache::TestConfig;
 
 ##
 ## mod_dav tests
@@ -12,9 +11,9 @@ use Apache::TestConfig;
 plan tests => 14, [qw(dav HTTP::DAV)];
 require HTTP::DAV;
 
-my $apache = Apache::TestConfig->thaw;
+my $vars = Apache::Test::vars();
 my $dav = HTTP::DAV->new;
-my $server = "$apache->{vars}->{servername}:$apache->{vars}->{port}";
+my $server = "$vars->{servername}:$vars->{port}";
 
 my $response;
 my $dir = "modules/dav";
