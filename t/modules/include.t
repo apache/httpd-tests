@@ -19,8 +19,7 @@ my $have_apache_1 = have_apache 1;
 my $have_apache_2 = have_apache 2;
 my $have_apache_21 = have_min_apache_version "2.1.0";
 my $have_apache_20 = $have_apache_2 && ! $have_apache_21;
-my $vars = Apache::Test::vars();
-my $docroot = $vars->{documentroot};
+my $htdocs = Apache::Test::vars('documentroot');
 
 # these match the SSI files with their expected results.
 # the expectations are set by the current 2.1 mod_include
@@ -239,7 +238,7 @@ foreach $doc (sort keys %tests) {
 
 # marked as TODO in 1.3 - hoping for a format backport
 {
-    my $file = catfile($docroot, splitpath($dir), "size.shtml");
+    my $file = catfile($htdocs, splitpath($dir), "size.shtml");
     my $size = (stat $file)[7];
 
     # round perl's stat size for <!--#config sizefmt="abbrev"-->
@@ -269,7 +268,7 @@ unless(eval{require POSIX}) {
     skip "POSIX module not found", 1;
 }
 else {
-    my $file = catfile($docroot, splitpath($dir), "file.shtml");
+    my $file = catfile($htdocs, splitpath($dir), "file.shtml");
     my $mtime = (stat $file)[9];
 
     my @time = localtime($mtime);
@@ -340,7 +339,7 @@ else {
     # test xbithack off
     $doc = "xbithack/off/test.html";
     foreach ("0444", "0544", "0554") {
-        chmod oct($_), "htdocs/$dir$doc";
+        chmod oct($_), "$htdocs/$dir$doc";
         ok t_cmp("<BODY> <!--#include virtual=\"../../inc-two.shtml\"--> </BODY>",
                  super_chomp(GET_BODY "$dir$doc"),
                  "XBitHack off [$_]"
@@ -349,14 +348,14 @@ else {
 
     # test xbithack on
     $doc = "xbithack/on/test.html";
-    chmod 0444, "htdocs$dir$doc";
+    chmod 0444, "$htdocs$dir$doc";
     ok t_cmp("<BODY> <!--#include virtual=\"../../inc-two.shtml\"--> </BODY>",
              super_chomp(GET_BODY "$dir$doc"),
              "XBitHack on [0444]"
             );
 
     foreach ("0544", "0554") {
-        chmod oct($_), "htdocs/$dir$doc";
+        chmod oct($_), "$htdocs/$dir$doc";
         ok t_cmp("No Last-modified date ; <BODY> inc-two.shtml body  </BODY>",
                  check_xbithack(GET "$dir$doc"),
                  "XBitHack on [$_]"
@@ -365,12 +364,12 @@ else {
 
     # test xbithack full
     $doc = "xbithack/full/test.html";
-    chmod 0444, "htdocs/$dir$doc";
+    chmod 0444, "$htdocs/$dir$doc";
     ok t_cmp("<BODY> <!--#include virtual=\"../../inc-two.shtml\"--> </BODY>",
              super_chomp(GET_BODY "$dir$doc"),
              "XBitHack full [0444]"
             );
-    chmod 0544, "htdocs/$dir$doc";
+    chmod 0544, "$htdocs/$dir$doc";
     ok t_cmp("No Last-modified date ; <BODY> inc-two.shtml body  </BODY>",
              check_xbithack(GET "$dir$doc"),
              "XBitHack full [0544]"
@@ -378,7 +377,7 @@ else {
 
     my $lm;
 
-    chmod 0554, "htdocs/$dir$doc";
+    chmod 0554, "$htdocs/$dir$doc";
     ok t_cmp("Has Last-modified date ; <BODY> inc-two.shtml body  </BODY>",
              check_xbithack(GET("$dir$doc"), \$lm),
              "XBitHack full [0554]"
@@ -393,7 +392,7 @@ else {
              "XBitHack full [0554] / If-Modified-Since"
             );
 
-    chmod 0544, "htdocs/$dir$doc";
+    chmod 0544, "$htdocs/$dir$doc";
     ok t_cmp(200, GET("$dir$doc", 'If-Modified-Since' => $lm)->code,
              "XBitHack full [0544] / If-Modified-Since"
             );
@@ -414,7 +413,7 @@ if (have_module 'mod_bucketeer') {
                    "##################################3/8</tr> ".
                    "##################################4/8</tr> ".
                    "##################################5/8</tr> ".
-                   "##################################6/8$docroot</tr> ".
+                   "##################################6/8$htdocs</tr> ".
                    "##################################7/8</tr> ".
                    "##################################8/8</tr> ".
                    "@@@@@@@@ @@@@@@@@@@@@@@@@@@@@@@@@";

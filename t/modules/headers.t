@@ -8,7 +8,8 @@ use Apache::TestRequest;
 ## mod_headers tests
 ##
 
-my $htaccess = "htdocs/modules/headers/htaccess/.htaccess";
+my $htdocs = Apache::Test::vars('documentroot');
+my $htaccess = "$htdocs/modules/headers/htaccess/.htaccess";
 my @header_types = ('set', 'append', 'add', 'unset');
     
 plan tests => 

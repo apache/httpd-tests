@@ -16,6 +16,7 @@ my $vars = Apache::Test::vars();
 my $dav = HTTP::DAV->new;
 my $server = "$vars->{servername}:$vars->{port}";
 
+my $htdocs = Apache::Test::vars('documentroot');
 my $response;
 my $dir = "modules/dav";
 my $uri = "/$dir/dav.html";
@@ -33,10 +34,10 @@ my $body = <<CONTENT;
 CONTENT
 
 ## make sure its clean before we begin ##
-unlink "htdocs$uri" if -e "htdocs$uri";
-mkdir "htdocs/$dir", oct('755') unless -e "htdocs/$dir";
+unlink "$htdocs$uri" if -e "$htdocs$uri";
+mkdir "$htdocs/$dir", oct('755') unless -e "$htdocs/$dir";
 
-Apache::TestUtil::t_chown("htdocs/$dir");
+Apache::TestUtil::t_chown("$htdocs/$dir");
 
 ## set up resource and lock it ##
 my $resource = $dav->new_resource( -uri => "http://$server$uri");
@@ -155,5 +156,5 @@ print "expect 404 not found got: $actual\n";
 ok $actual == 404;
 
 ## clean up ##
-rmdir "htdocs/$dir/.DAV" or print "warning: could not remove .DAV dir: $!";
-rmdir "htdocs/$dir" or print "warning: could not remove dav dir: $!";
+rmdir "$htdocs/$dir/.DAV" or print "warning: could not remove .DAV dir: $!";
+rmdir "$htdocs/$dir" or print "warning: could not remove dav dir: $!";

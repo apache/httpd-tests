@@ -5,6 +5,7 @@ use Apache::Test;
 use Apache::TestRequest;
 
 my $vars = Apache::Test::vars();
+my $htdocs = Apache::Test::vars('documentroot');
 
 ##
 ## mod_setenvif tests
@@ -45,14 +46,14 @@ my @var = qw(VAR_ONE VAR_TWO VAR_THREE);
 my $good_ua = '^libwww-perl/.*';
 my $bad_ua = 'foo-browser/0.1';
 
-my $htaccess = 'htdocs/modules/setenvif/htaccess/.htaccess';
+my $htaccess = "$htdocs/modules/setenvif/htaccess/.htaccess";
 
 plan tests => @var * 7 + (keys %var_att) * 6 * @var,
     have_module qw(setenvif include);
 
 sub write_htaccess {
     my $string = shift;
-    open (HT, ">$htaccess") or die "cant open $htaccess: $!";
+    open (HT, ">$htaccess") or die "can't open $htaccess: $!";
     print HT $string;
     close(HT);
 }

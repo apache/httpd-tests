@@ -21,7 +21,8 @@ use Time::Local;
 ## calculate "modification plus 10 years 6 months 2 weeks 3 days 12 hours 30 minutes 19 seconds"
 my $expires_default = calculate_seconds(10,6,2,3,12,30,19);
 
-my $htaccess = "htdocs/modules/expires/htaccess/.htaccess";
+my $htdocs = Apache::Test::vars('documentroot');
+my $htaccess = "$htdocs/modules/expires/htaccess/.htaccess";
 my @page = qw(index.html text.txt image.gif foo.jpg);
 my @types = qw(text/plain image/gif image/jpeg);
 my @directive = qw(ExpiresDefault ExpiresByType);

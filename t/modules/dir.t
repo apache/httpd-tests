@@ -10,7 +10,8 @@ use Apache::TestRequest;
 
 my @index = qw(1 2 3 4 5 6 7 8 9 0);
 my @bad_index = qw(foo goo moo bleh);
-my $htaccess = "htdocs/modules/dir/htaccess/.htaccess";
+my $htdocs = Apache::Test::vars('documentroot');
+my $htaccess = "$htdocs/modules/dir/htaccess/.htaccess";
 my $url = "/modules/dir/htaccess/";
 my ($actual, $expected);
 

@@ -13,9 +13,10 @@ use Apache::TestRequest;
 ## with IndexOrderDefault directive and FancyIndexing.
 ## more to come...
 
+my $htdocs = Apache::Test::vars('documentroot');
 my $ai_dir = "/modules/autoindex";
 my $uri_prefix = "$ai_dir/htaccess";
-my $dir = "htdocs$uri_prefix";
+my $dir = "$htdocs$uri_prefix";
 my $htaccess = "$dir/.htaccess";
 my $readme = 'autoindex test README';
 my $s = 'HITHERE';
@@ -78,7 +79,7 @@ my %file =
 plan tests => 84, ['autoindex'];
 
 ## set up environment ##
-$cfg->gendir("htdocs/$ai_dir");
+$cfg->gendir("$htdocs/$ai_dir");
 $cfg->gendir("$dir");
 test_content('create');
 
@@ -379,7 +380,7 @@ HEAD
 ## clean up ##
 test_content('destroy');
 rmdir $dir or print "warning: cant rmdir $dir: $!\n";
-rmdir "htdocs/$ai_dir";
+rmdir "$htdocs/$ai_dir";
 
 sub write_htaccess {
     open (HT, ">$htaccess") or die "cant open $htaccess: $!";
