@@ -167,6 +167,9 @@ sub get_tests {
     @tests = $self->prune(@tests);
 
     if (my $skip = $self->skip) {
+        # Allow / \ and \\ path delimiters in SKIP file
+        $skip =~ s![/\\\\]+![/\\\\]!g;
+
         @tests = grep { not /(?:$skip)/ } @tests;
     }
 

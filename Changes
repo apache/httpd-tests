@@ -8,6 +8,9 @@ Changes - Apache::Test change logfile
 
 =item 1.14-dev
 
+Allow / \ and \\ path delimiters in SKIP file [Markus Wichitill
+<mawic@gmx.de>]
+
 Added an apxs query cache for improved test performance [Gozer]
 
 run_tests make target no longer invokes t/TEST -clean, making it
