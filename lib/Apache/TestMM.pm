@@ -90,8 +90,9 @@ sub generate_script {
 
     $body .= Apache::TestConfig->modperl_2_inc_fixup;
 
-    if (@Apache::TestMM::Argv) {
-        $body .= "\n\%Apache::TestConfig::Argv = qw(@Apache::TestMM::Argv);\n";
+    while (my($k, $v) = splice @Apache::TestMM::Argv, 0, 2) {
+        $v =~ s/\|/\\|/g;
+        $body .= "\n\$Apache::TestConfig::Argv{'$k'} = q|$v|;\n";
     }
 
     my $in = Symbol::gensym();
