@@ -9,7 +9,7 @@ use warnings FATAL => 'all';
 use Apache::TestTrace;
 
 use File::Spec::Functions qw(rel2abs splitdir file_name_is_absolute);
-use File::Basename qw(basename);
+use File::Basename qw(dirname basename);
 
 sub strip_quotes {
     local $_ = shift || $_;
@@ -43,7 +43,8 @@ sub spec_add_config {
     $self->$where($directive => $val);
 }
 
-#resolve relative files like Apache->server_root_relative
+# resolve relative files like Apache->server_root_relative
+# this function doesn't test whether the resolved file exists
 sub server_file_rel2abs {
     my($self, $file, $base) = @_;
 
@@ -87,14 +88,26 @@ sub server_file_rel2abs {
             # return early, skipping file test below
             return $file;
         }
-
     }
 
-    if (-e $result) {
-        debug "$file successfully resolved to existing file $result";
+    my $dir = dirname $result;
+    # $file might not exist (e.g. if it's a glob pattern like
+    # "conf/*.conf" but what we care about here is to check whether
+    # the base dir was successfully resolved. we don't check whether
+    # the file exists at all. it's the responsibility of the caller to
+    # do this check
+    if (defined $dir && -e $dir && -d _) {
+        if (-e $result) {
+            debug "$file successfully resolved to existing file $result";
+        }
+        else {
+            debug "base dir of '$file' successfully resolved to $dir";
+        }
+
     }
     else {
-        warning "file $result does not exist";
+        $dir ||= '';
+        warning "dir '$dir' does not exist (while resolving '$file')";
 
         # old behavior was to return the resolved but non-existent
         # file.  preserve that behavior and return $result anyway.
