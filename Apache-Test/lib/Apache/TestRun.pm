@@ -359,6 +359,7 @@ sub configure {
     }
 
     my $test_config = $self->{test_config};
+    $test_config->sslca_generate;
     $test_config->generate_ssl_conf if $self->{opts}->{ssl};
     $test_config->cmodules_configure;
     $test_config->generate_httpd_conf;

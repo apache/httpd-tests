@@ -4,6 +4,8 @@ use warnings FATAL => 'all';
 use Apache::Test;
 use Apache::TestRequest;
 use Apache::TestUtil;
+use Apache::TestSSLCA qw(dn dn_oneline);
+
 use Time::localtime;
 
 my $config = Apache::Test::config();
@@ -20,33 +22,22 @@ my $port = $config->port;
 my $url = '/test_ssl_var_lookup';
 my(%lookup, @vars);
 
-my %client_dn = (
-    C  => 'US',
-    ST => 'California',
-    L  => 'San Francisco',
-    O  => 'ASF',
-    OU => 'httpd-test',
-    CN => 'client_ok',
-);
+my %client_dn = dn('client_ok');
 
-my $client_dn = dn_string(\%client_dn);
+my $client_dn = dn_oneline(\%client_dn);
 
-my %client_i_dn = %client_dn;
-$client_i_dn{CN} = 'localhost';
-my $client_i_dn = dn_string(\%client_i_dn);
+my %client_i_dn = dn('cacert');
 
-my %server_dn = (
-    C  => 'US',
-    ST => 'California',
-    L  => 'San Francisco',
-    O  => 'httpd-test',
-    CN => 'localhost',
-);
+my $client_i_dn = dn_oneline(\%client_i_dn);
 
-my $server_dn = dn_string(\%server_dn);
+my %server_dn = dn('server');
 
-my %server_i_dn = %server_dn;
-my $server_i_dn = dn_string(\%server_i_dn);
+my $server_dn = dn_oneline(\%server_dn);
+
+my %server_i_dn = %client_i_dn;
+my $server_i_dn = $client_i_dn;
+
+my $cert_datefmt = '^\w{3} \d{2} \d{2}:\d{2}:\d{2} \d{4} GMT$';
 
 while (<DATA>) {
     chomp;
@@ -87,18 +78,6 @@ sub verify {
     my $str = GET_BODY("$url?$key", cert => 'client_ok',
                        @headers);
     t_cmp($lookup{$key}, $str, "$key");
-}
-
-sub dn_string {
-    my($dn) = @_;
-    my $string = "";
-
-    for my $k (qw(C ST L O OU CN)) {
-        next unless $dn->{$k};
-        $string .= "/$k=$dn->{$k}";
-    }
-
-    $string;
 }
 
 __END__
@@ -148,18 +127,18 @@ HTTPS                        'on'
 ENV:THE_ARGS                 'ENV:THE_ARGS'
 
 #XXX: should use Net::SSLeay to parse the certs
-#rather than hardcode this data
-#as the test certs could change in the future
-SSL_CLIENT_M_VERSION         '3'
-SSL_SERVER_M_VERSION         '3'
-SSL_CLIENT_M_SERIAL          '02'
-SSL_SERVER_M_SERIAL          '01'
+#rather than just pattern match and hardcode
+
+SSL_CLIENT_M_VERSION         qr(^\d+$)
+SSL_SERVER_M_VERSION         qr(^\d+$)
+SSL_CLIENT_M_SERIAL          qr(^\d+$)
+SSL_SERVER_M_SERIAL          qr(^\d+$)
 SSL_PROTOCOL                 'TLSv1'
-SSL_CLIENT_V_START           'Aug 13 02:05:09 2001 GMT'
-SSL_SERVER_V_START           'Aug 11 20:52:30 2001 GMT'
+SSL_CLIENT_V_START           qr($cert_datefmt);
+SSL_SERVER_V_START           qr($cert_datefmt);
 SSL_SESSION_ID
-SSL_CLIENT_V_END             'Aug 13 02:05:09 2002 GMT'
-SSL_SERVER_V_END             'Aug 11 20:52:30 2002 GMT'
+SSL_CLIENT_V_END             qr($cert_datefmt);
+SSL_SERVER_V_END             qr($cert_datefmt);
 SSL_CIPHER                   'EDH-RSA-DES-CBC3-SHA'
 SSL_CIPHER_EXPORT            'false'
 SSL_CIPHER_ALGKEYSIZE        '168'
@@ -176,7 +155,7 @@ SSL_SERVER_S_DN_L            "$server_dn{L}"
 SSL_CLIENT_S_DN_O            "$client_dn{O}"
 SSL_SERVER_S_DN_O            "$server_dn{O}"
 SSL_CLIENT_S_DN_OU           "$client_dn{OU}"
-SSL_SERVER_S_DN_OU
+SSL_SERVER_S_DN_OU           "$server_dn{OU}"
 SSL_CLIENT_S_DN_CN           "$client_dn{CN}"
 SSL_SERVER_S_DN_CN           "$server_dn{CN}"
 SSL_CLIENT_S_DN_T
@@ -205,7 +184,7 @@ SSL_SERVER_I_DN_L            "$server_i_dn{L}"
 SSL_CLIENT_I_DN_O            "$client_i_dn{O}"
 SSL_SERVER_I_DN_O            "$server_i_dn{O}"
 SSL_CLIENT_I_DN_OU           "$client_i_dn{OU}"
-SSL_SERVER_I_DN_OU
+SSL_SERVER_I_DN_OU           "$server_i_dn{OU}"
 SSL_CLIENT_I_DN_CN           "$client_i_dn{CN}"
 SSL_SERVER_I_DN_CN           "$server_i_dn{CN}"
 SSL_CLIENT_I_DN_T

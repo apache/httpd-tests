@@ -527,8 +527,8 @@ sub same_interp_do {
 
 sub set_client_cert {
     my $name = shift;
-    my $config = Apache::Test::config();
-    my $dir = "$config->{vars}->{t_conf}/ssl";
+    my $vars = Apache::Test::vars();
+    my $dir = join '/', $vars->{sslca}, $vars->{sslcaorg};
 
     if ($name) {
         $ENV{HTTPS_CERT_FILE} = "$dir/certs/$name.crt";

@@ -3,42 +3,34 @@ use warnings FATAL => 'all';
 use Apache::Test;
 use Apache::TestRequest;
 use Apache::TestConfig ();
+use Apache::TestSSLCA ();
 
-my %server_expect = (
-    SSL_SERVER_I_DN_C => 'US',
-    SSL_SERVER_I_DN_CN => 'localhost',
-    SSL_SERVER_I_DN_L => 'San Francisco',
-    SSL_SERVER_I_DN_O => 'httpd-test',
-    SSL_SERVER_I_DN_ST => 'California',
-);
+my $cert = 'client_snakeoil';
 
-my %client_expect = (
-    SSL_CLIENT_S_DN_C => 'AU',
-    SSL_CLIENT_S_DN_CN => 'localhost',
-    SSL_CLIENT_S_DN_L => 'Mackay',
-    SSL_CLIENT_S_DN_O => 'Snake Oil, Ltd.',
-    SSL_CLIENT_S_DN_OU => 'Staff',
-    SSL_CLIENT_S_DN_ST => 'Queensland',
-);
+my $server_expect =
+  Apache::TestSSLCA::dn_vars('cacert', 'SERVER_I');
+
+my $client_expect =
+  Apache::TestSSLCA::dn_vars($cert, 'CLIENT_S');
 
 my $url = '/ssl-cgi/env.pl';
 
-my $tests = (keys(%server_expect) + keys(%client_expect)) * 2;
+my $tests = (keys(%$server_expect) + keys(%$client_expect)) * 2;
 plan tests => $tests, \&have_cgi;
 
 Apache::TestRequest::scheme('https');
 
 my $env = getenv(GET_STR($url));
 
-verify($env, \%server_expect);
-verify($env, \%client_expect, 1);
+verify($env, $server_expect);
+verify($env, $client_expect, 1);
 
 $url = '/require-ssl-cgi/env.pl';
 
-$env = getenv(GET_STR($url, cert => 'client_snakeoil'));
+$env = getenv(GET_STR($url, cert => $cert));
 
-verify($env, \%server_expect);
-verify($env, \%client_expect);
+verify($env, $server_expect);
+verify($env, $client_expect);
 
 sub verify {
     my($env, $expect, $ne) = @_;
@@ -46,7 +38,6 @@ sub verify {
     while (my($key, $val) = each %$expect) {
         ok $ne ? not exists $env->{$key} : $env->{$key} eq $val;
     }
-
 }
 
 sub getenv {

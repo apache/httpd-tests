@@ -27,15 +27,15 @@
 
     SSLCipherSuite ALL:!ADH:RC4+RSA:+HIGH:+MEDIUM:+LOW:+SSLv2:+EXP:+eNULL
 
-    SSLCertificateFile @ServerRoot@/conf/ssl/certs/server.crt
+    SSLCertificateFile @SSLCA@/asf/certs/server.crt
 
-    SSLCertificateKeyFile @ServerRoot@/conf/ssl/keys/server.pem
+    SSLCertificateKeyFile @SSLCA@/asf/keys/server.pem
 
-    #SSLCertificateChainFile @ServerRoot@/conf/ssl/ca.crt
+    #SSLCertificateChainFile @SSLCA@/asf/certs/cachain.crt
 
-    SSLCACertificateFile @ServerRoot@/conf/ssl/certs/ca-bundle.crt
+    SSLCACertificateFile @SSLCA@/asf/certs/cacert.crt
 
-    SSLCARevocationFile @ServerRoot@/conf/ssl/crl/ca-bundle.crl
+    SSLCARevocationFile @SSLCA@/asf/crl/ca-bundle.crl
 
     <VirtualHost @ssl_module_name@>
         SSLEngine on
@@ -90,7 +90,7 @@
                 SSLOptions           +FakeBasicAuth
                 AuthName             "Snake Oil Authentication"
                 AuthType             Basic
-                AuthUserFile         @ServerRoot@/conf/ssl/ssl.htpasswd
+                AuthUserFile         @SSLCA@/asf/ssl.htpasswd
                 require              valid-user
             </Location>
         </IfModule>
