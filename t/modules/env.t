@@ -29,7 +29,7 @@ foreach (sort keys %test) {
     $expected = $test{$_} || 'ERROR EXPECTED UNDEFINED';
     sok {
         $actual = GET_BODY "/modules/env/$_.shtml";
-        chomp $actual;
+        $actual =~ s/[\r\n]+$//s;
         print "$_: EXPECT ->$expected<- ACTUAL ->$actual<-\n";
         return $actual eq $expected;
     };
