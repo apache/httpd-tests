@@ -15,7 +15,7 @@ use Getopt::Long qw(GetOptions);
 use Config;
 
 my @std_run      = qw(start-httpd run-tests stop-httpd);
-my @others       = qw(verbose configure clean help ping ssl);
+my @others       = qw(verbose configure clean help ping ssl http11);
 my @flag_opts    = (@std_run, @others);
 my @string_opts  = qw(order);
 my @ostring_opts = qw(proxy);
@@ -43,6 +43,7 @@ my %usage = (
    'debug[=name]'    => 'start server under debugger name (e.g. gdb, ddd, ...)',
    'breakpoint=bp'   => 'set breakpoints (multiply bp can be set)',
    'header'          => "add headers to (".join('|', @request_opts).") request",
+   'http11'          => 'run all tests with HTTP/1.1 (keep alive) requests',
    'ssl'             => 'run tests through ssl',
    'proxy'           => 'proxy requests (default proxy is localhost)',
    (map { $_, "\U$_\E url" } @request_opts),
@@ -245,6 +246,10 @@ sub configure_opts {
     $test_config->{vars}->{scheme} =
       $opts->{ssl} ? 'https' :
         $self->{conf_opts}->{scheme} || 'http';
+
+    if ($opts->{http11}) {
+        $ENV{APACHE_TEST_HTTP11} = 1;
+    }
 
     if (exists $opts->{proxy}) {
         my $max = $test_config->{vars}->{maxclients};
