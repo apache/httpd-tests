@@ -22,7 +22,7 @@ use Exporter ();
 use Config;
 use Apache::TestConfig ();
 
-use vars qw(@ISA @EXPORT $VERSION %SubTests @SkipReasons);
+use vars qw(@ISA @EXPORT %EXPORT_TAGS $VERSION %SubTests @SkipReasons);
 
 @ISA = qw(Exporter);
 @EXPORT = qw(ok skip sok plan have have_lwp have_http11
@@ -30,6 +30,12 @@ use vars qw(@ISA @EXPORT $VERSION %SubTests @SkipReasons);
              have_min_apache_version have_apache_version have_perl 
              have_min_perl_version have_min_module_version
              have_threads under_construction have_apache_mpm);
+
+# everything but ok(), skip(), and plan() - Test::More provides these
+my @test_more_exports = grep { ! /^(ok|skip|plan)$/ } @EXPORT;
+
+%EXPORT_TAGS = (withtestmore => \@test_more_exports);
+
 $VERSION = '1.10';
 
 %SubTests = ();
@@ -729,6 +735,28 @@ returned. If one or more arguments are passed the corresponding values
 are returned.
 
 =back
+
+=head1 Test::More Integration
+
+There are a few caveats if you want to use I<Apache::Test> with 
+I<Test::More> instead of the default I<Test> backend.  The first is
+that I<Test::More> requires you to use its own C<plan()> function
+and not the one that ships with I<Apache::Test>.  I<Test::More> also
+defines C<ok()> and C<skip()> functions that are different, and 
+simply C<use>ing both modules in your test script will lead to redefined
+warnings for these subroutines.
+
+To assist I<Test::More> users we have created a special I<Apache::Test>
+import tag, C<:withtestmore>, which will export all of the standard
+I<Apache::Test> symbols into your namespace except the ones that collide
+with I<Test::More>.
+
+    use Apache::Test qw(:withtestmore);
+    use Test::More;
+
+    plan tests => 1;           # Test::More::plan()
+
+    ok ('yes', 'testing ok');  # Test::More::ok()
 
 =head1 Apache::TestToString Class
 
