@@ -183,6 +183,10 @@ sub configure_startup_pl {
             next unless $_;
             print $fh "use lib '$_';\n";
         }
+        my $tlib = catdir $self->{vars}->{t_dir}, 'lib';
+        if (-d $tlib) {
+            print $fh "use lib '$tlib';\n";
+        }
         my $fixup = Apache::TestConfig->modperl_2_inc_fixup();
         print $fh $fixup;
 

@@ -8,6 +8,12 @@ Changes - Apache::Test change logfile
 
 =item 1.13-dev
 
+If a directory t/lib exists from where the tests are run, adjust
+@INC so that this directory is added when running the tests,
+both within t/TEST and within t/conf/modperl_inc.pl.
+This allows inclusion of modules specific to the tests that 
+aren't intended to be installed. [Stas, Randy]
+
 make a special case for threaded mpm configuration, to ensure that
 unless maxclients was specified, MaxClients will be exactly twice
 bigger than ThreadsPerChild (minclients), since if we don't do that,

@@ -881,6 +881,11 @@ sub perlscript_header {
         }
     }
 
+    {
+        my $dir = canonpath catdir $FindBin::Bin, "t", "lib";
+        push @dirs, $dir if -d $dir;
+    }
+
     my $dirs = join("\n    ", '', @dirs) . "\n";;
 
     return <<"EOF";
