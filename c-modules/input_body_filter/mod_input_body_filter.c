@@ -81,7 +81,9 @@ typedef struct input_body_ctx_t {
 } input_body_ctx_t;
 
 static int input_body_filter_handler(ap_filter_t *f, apr_bucket_brigade *bb, 
-                                     ap_input_mode_t mode, apr_off_t *readbytes)
+                                     ap_input_mode_t mode, 
+                                     apr_read_type_e block,
+                                     apr_off_t *readbytes)
 {
     apr_status_t rv;
     apr_pool_t *p = f->r->pool;
@@ -94,7 +96,7 @@ static int input_body_filter_handler(ap_filter_t *f, apr_bucket_brigade *bb,
 
     if (APR_BRIGADE_EMPTY(ctx->b))
     {
-        if ((rv = ap_get_brigade(f->next, ctx->b, mode,
+        if ((rv = ap_get_brigade(f->next, ctx->b, mode, block,
                                  readbytes)) != APR_SUCCESS) {
             return rv;
         }
@@ -113,7 +115,7 @@ static int input_body_filter_handler(ap_filter_t *f, apr_bucket_brigade *bb,
             break;
         }
 
-        rv = apr_bucket_read(bucket, &data, &len, mode);
+        rv = apr_bucket_read(bucket, &data, &len, block);
 
         if (rv != APR_SUCCESS) {
             return rv;

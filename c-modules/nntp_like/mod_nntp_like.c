@@ -75,8 +75,8 @@ static apr_status_t nntp_like_init_connection(conn_rec *c)
 
     bb = apr_brigade_create(c->pool);
 
-    rv = ap_get_brigade(c->input_filters, bb,
-                        AP_MODE_INIT, &zero);
+    rv = ap_get_brigade(c->input_filters, bb, AP_MODE_INIT, 
+                        APR_BLOCK_READ, &zero);
 
     apr_brigade_destroy(bb);
 
@@ -127,7 +127,8 @@ static int nntp_like_process_connection(conn_rec *c)
 
     for (;;) {
         if ((rv = ap_get_brigade(c->input_filters, bb,
-                                 AP_MODE_BLOCKING, &zero) != APR_SUCCESS || 
+                                 AP_MODE_GETLINE,
+                                 APR_BLOCK_READ, &zero) != APR_SUCCESS || 
              APR_BRIGADE_EMPTY(bb)))
         {
             apr_brigade_destroy(bb);
