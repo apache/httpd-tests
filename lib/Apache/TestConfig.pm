@@ -406,7 +406,7 @@ sub add_config_hooks_run {
             $self->$_();
         }
         else {
-            print "WARNING: cannot run configure hook: `$_'\n";
+            error "cannot run configure hook: `$_'";
         }
     }
 
