@@ -395,6 +395,10 @@ sub start {
         for my $module (sort $by_port keys %$vh) {
             print "server $vh->{$module}->{name} listening ($module)\n",
         }
+
+        if ($config->configure_proxy) {
+            print "tests will be proxied through $vars->{proxy}\n";
+        }
     }
     else {
         $self->failed_msg("server failed to start!");
