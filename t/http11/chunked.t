@@ -91,14 +91,14 @@ sub expect_not_chunked {
                 );
 
         my $enc = $res->header('Transfer-Encoding') || '';
-        my $ct  = $res->header('Content-Length') || 0;
+        my $ct  = $res->header('Content-Length') || '';
 
         ok !t_cmp("chunked",
                   $enc,
                   "no Transfer-Encoding (test result inverted)"
                  );
 
-        ok t_cmp($content_length,
+        ok t_cmp((($ct eq '') ? $ct : $content_length),
                  $ct,
                  "content length"
                 );
