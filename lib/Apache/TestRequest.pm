@@ -61,28 +61,6 @@ sub wanted_args {
     \%wanted_args;
 }
 
-sub filter_args {
-    my $args = shift;
-    my(@pass, %keep);
-
-    my @filter = @$args;
-
-    if (ref($filter[0])) {
-        push @pass, shift @filter;
-    }
-
-    while (my($key, $val) = splice @filter, 0, 2) {
-        if ($wanted_args{$key}) {
-            $keep{$key} = $val;
-        }
-        else {
-            push @pass, $key, $val;
-        }
-    }
-
-    return (\@pass, \%keep);
-}
-
 our $RedirectOK = 1;
 
 sub redirect_ok {
@@ -119,7 +97,7 @@ sub prepare {
     eval { $UA ||= __PACKAGE__->new; };
 
     my $url = resolve_url(shift);
-    my($pass, $keep) = filter_args(\@_);
+    my($pass, $keep) = Apache::TestConfig::filter_args(\@_, \%wanted_args);
 
     %credentials = ();
     if ($keep->{username}) {
