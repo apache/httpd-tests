@@ -7,6 +7,7 @@ use Apache::TestUtil;
 use File::stat;
 
 my $have_apache_2 = have_apache 2;
+my $have_apache_21 = have_min_apache_version "2.1.0";
 
 ## mod_cgi test
 ##
@@ -70,7 +71,23 @@ my %test = (
     'acceptpathinfodefault.sh/foo' => {
         'rc' => 200,
         'expect' => '/foo'
-    }
+    },
+    'stderr1.pl' => {
+        'rc' => 200,
+        'expect' => 'this is stdout'
+    },
+    'stderr2.pl' => {
+        'rc' => 200,
+        'expect' => 'this is also stdout'
+    },
+    'stderr3.pl' => {
+        'rc' => 200,
+        'expect' => 'this is more stdout'
+    },
+    'nph-stderr.pl' => {
+        'rc' => 200,
+        'expect' => 'this is nph-stdout'
+    },
 );
 
 #XXX: find something that'll on other platforms (/bin/sh aint it)
@@ -81,6 +98,12 @@ if (Apache::TestConfig::WINFU() || !$have_apache_2) {
     delete @test{qw(acceptpathinfoon.sh acceptpathinfoon.sh/foo)};
     delete @test{qw(acceptpathinfooff.sh acceptpathinfooff.sh/foo)};
     delete @test{qw(acceptpathinfodefault.sh acceptpathinfodefault.sh/foo)};
+}
+
+# CGI stderr handling is broken in 2.0 on all platforms, and fixed
+# in 2.1 only on Unixes.
+if ($have_apache_2 && (!$have_apache_21 || Apache::TestConfig::WINFU())) {
+    delete @test{qw(stderr1.pl stderr2.pl stderr3.pl nph-stderr.pl)};
 }
 
 my $tests = ((keys %test) * 2) + (@post_content * 3) + 4;
