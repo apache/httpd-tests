@@ -24,7 +24,7 @@ my @list_opts    = qw(preamble postamble breakpoint);
 my @hash_opts    = qw(header);
 my @help_opts    = qw(clean help ping);
 my @exit_opts    = (@help_opts,@debug_opts);
-my @request_opts = qw(get head post);
+my @request_opts = qw(get post head);
 
 my %usage = (
    'start-httpd'     => 'start the test server',
@@ -92,16 +92,6 @@ sub split_args {
         }
 
         push @args, $_;
-    }
-
-    #default HEAD|GET to /
-    for (my $i = 0; $i < @args; $i++) {
-        if ($args[$i] =~ /^-(get|head)/) {
-            unless ($args[$i+1] and $args[$i+1] =~ m:^/:) {
-                splice @args, $i+1, 0, '/';
-            }
-            last;
-        }
     }
 
     $self->{tests} = \@tests;
@@ -395,8 +385,8 @@ sub run_request {
     my($request, $url) = ("", "");
 
     for (@request_opts) {
-        next unless $opts->{$_};
-        $url = $opts->{$_};
+        next unless exists $opts->{$_};
+        $url = $opts->{$_} if $opts->{$_};
         $request = join $request ? '_' : '', $request, $_;
     }
 
