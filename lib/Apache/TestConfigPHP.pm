@@ -50,13 +50,15 @@ my %warn_style = (
     html    => sub { "<!-- @_ -->" },
     c       => sub { "/* @_ */" },
     ini     => sub { join '', grep {s/^/; /gm} @_ },
+    php     => sub { join '', "<?php\n", grep {s/^/# /gm} @_ },
     default => sub { join '', grep {s/^/\# /gm} @_ },
 );
                                                                                                                              
 my %file_ext = (
     map({$_ => 'html'} qw(htm html)),
     map({$_ => 'c'   } qw(c h)),
-    map({$_ => 'ini'   } qw(ini)),
+    map({$_ => 'ini' } qw(ini)),
+    map({$_ => 'php' } qw(php)),
 );
                                                                                                                              
 sub warn_style_sub_ref {
@@ -150,7 +152,7 @@ sub configure_php_functions {
     my $file = catfile $dir, 'test-more.php';
 
     $self->gendir($dir);
-    my $fh = $self->genfile($file, undef, 1);
+    my $fh = $self->genfile($file);
 
     print $fh $test_more;
 
@@ -167,7 +169,7 @@ sub configure_php_ini {
     my $log  = catfile $self->{vars}->{t_logs}, 'error_log';
 
     $self->gendir($dir);
-    my $fh = $self->genfile($file, undef);
+    my $fh = $self->genfile($file);
 
     $php_ini =~ s/\@error_log\@/error_log $log/;
     print $fh $php_ini;
@@ -416,7 +418,6 @@ soap.wsdl_cache_enabled=1
 soap.wsdl_cache_dir="/tmp"
 soap.wsdl_cache_ttl=86400
 END_OF_FILE
-<?php
 /*******************************************************************\
 *                        PROJECT INFORMATION                        *
 *                                                                   *
