@@ -76,8 +76,8 @@ sub write_pm_test {
     my $fh = $self->genfile($t);
 
     print $fh <<EOF;
-use Apache::TestConfig ();
-print Apache::TestConfig->thaw->http_raw_get("/$pm");
+use Apache::Test ();
+print Apache::Test::config()->http_raw_get("/$pm");
 EOF
 
     close $fh or die "close $t: $!";
