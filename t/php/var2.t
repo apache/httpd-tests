@@ -3,6 +3,7 @@ use warnings FATAL => 'all';
 
 use Apache::Test;
 use Apache::TestRequest;
+use Apache::TestUtil;
 
 plan tests => 2, have_module 'php4';
 
@@ -20,8 +21,14 @@ $expected =~ s/\+/ /g;
 
 ## POST
 my $return = POST_BODY $page, content => $data;
-ok $return eq $expected;
+ok t_cmp($expected,
+         $return,
+         "POST request for $page, content=\"$data\""
+        );
 
 ## GET
 $return = GET_BODY "$page?$data";
-ok $return eq $expected;
+ok t_cmp($expected,
+         $return,
+         "GET request for $page?$data"
+        );
