@@ -10,7 +10,7 @@ Apache::TestRequest::scheme('http'); #XXX: lwp does not properly support this
 
 my @sizes = (100, 5000, 25432, 75962, 100_000, 300_000);
 
-plan tests => @sizes * 3, test_module 'random_chunk';
+plan tests => @sizes * 4, test_module 'random_chunk';
 
 my $location = '/random_chunk';
 my $requests = 0;
@@ -25,10 +25,13 @@ for my $size (@sizes) {
     }
 
     ok $res->protocol eq 'HTTP/1.1';
+    my $enc = $res->header('Transfer-Encoding') || '';
+    ok $enc eq 'chunked';
+
     ok length($body) == $length;
 
     $requests++;
-    my $request_num = $res->header("Client-Request-Num");
+    my $request_num = $res->header('Client-Request-Num');
 
     ok $request_num == $requests;
 }
