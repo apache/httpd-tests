@@ -18,7 +18,7 @@ use constant IS_MOD_PERL_2_BUILD => IS_MOD_PERL_2 &&
     require Apache::Build && Apache::Build::IS_MOD_PERL_BUILD();
 
 use constant IS_APACHE_TEST_BUILD =>
-    grep { -e "$_/lib/Apache/TestConfig.pm" } qw(. ..);
+    grep { -e "$_/lib/Apache/TestConfig.pm" } qw(Apache-Test . ..);
 
 use Symbol ();
 use File::Copy ();
