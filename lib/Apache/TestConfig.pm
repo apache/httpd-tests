@@ -189,6 +189,7 @@ sub new {
     $vars->{group}        ||= $self->default_group;
     $vars->{serveradmin}  ||= join '@', $vars->{user}, $vars->{servername};
     $vars->{maxclients}   ||= 1;
+    $vars->{proxy}        ||= '';
 
     $self->configure_apxs;
     $self->configure_httpd;
@@ -543,12 +544,36 @@ sub replace {
     s/@(\w+)@/$self->{vars}->{lc $1}/g;
 }
 
+#XXX: probably have too many ways todo this by now, ho-hum
+sub configure_vhost {
+    my($self, $pre, $module, $post) = @_;
+
+    #don't allocate a port if this module is not configured
+    if ($module =~ /^mod_/ and not $self->{modules}->{"$module.c"}) {
+        return join '', $pre, $module, $post;
+    }
+
+    my $port = $self->new_vhost($module);
+
+    join '', "Listen $port\n", $pre, $port, $post;
+}
+
+sub replace_vhost_modules {
+    my $self = shift;
+    #example: <VirtualHost _default_:mod_proxy>
+    s{^(\s*<VirtualHost\s+_default_:)(\D+)(\s*>\s*)}
+      {
+          $self->configure_vhost($1, $2, $3);
+      }ie;
+}
+
 sub replace_vars {
     my($self, $in, $out) = @_;
 
     local $_;
     while (<$in>) {
         $self->replace;
+        $self->replace_vhost_modules;
         print $out $_;
     }
 }
@@ -649,6 +674,7 @@ sub generate_ssl_conf {
 
 sub generate_httpd_conf {
     my $self = shift;
+    my $vars = $self->{vars};
 
     #generated httpd.conf depends on these things to exist
     $self->generate_types_config;
@@ -662,6 +688,12 @@ sub generate_httpd_conf {
         for my $file (@$extra_conf) {
             $self->postamble(Include => qq("$file"));
         }
+    }
+
+    #if we proxy to ourselves, must bump the maxclients
+    if ($vars->{proxy} =~ /^on$/i) {
+        $vars->{maxclients}++;
+        $vars->{proxy} = $self->{vhosts}->{'mod_proxy'}->{hostport};
     }
 
     my $conf_file = $self->{vars}->{t_conf_file};
@@ -776,9 +808,13 @@ sub sync_vars {
     my $svars = $self->{vars};
 
     for my $key (@_) {
-        next if exists $tvars->{$key} and
-                exists $svars->{$key} and
-                $tvars->{$key} eq $svars->{$key};
+        for my $v ($tvars, $svars) {
+            if (exists $v->{$key} and not defined $v->{$key}) {
+                $v->{$key} = ''; #rid undef
+            }
+        }
+        next if exists $tvars->{$key} and exists $svars->{$key} and
+                       $tvars->{$key} eq $svars->{$key};
         $tvars->{$key} = $svars->{$key};
         $changed = 1;
     }

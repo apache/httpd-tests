@@ -18,6 +18,7 @@ my @std_run      = qw(start-httpd run-tests stop-httpd);
 my @others       = qw(verbose configure clean help ping ssl);
 my @flag_opts    = (@std_run, @others);
 my @string_opts  = qw(order);
+my @ostring_opts = qw(proxy);
 my @debug_opts   = qw(debug);
 my @num_opts     = qw(times);
 my @list_opts    = qw(preamble postamble breakpoint);
@@ -43,6 +44,7 @@ my %usage = (
    'breakpoint=bp'   => 'set breakpoints (multiply bp can be set)',
    'header'          => "add headers to (".join('|', @request_opts).") request",
    'ssl'             => 'run tests through ssl',
+   'proxy'           => 'proxy requests (default proxy is localhost)',
    (map { $_, "\U$_\E url" } @request_opts),
 );
 
@@ -128,7 +130,7 @@ sub getopts {
     my(%opts, %vopts, %conf_opts);
 
     GetOptions(\%opts, @flag_opts, @help_opts,
-               (map "$_:s", @debug_opts, @request_opts),
+               (map "$_:s", @debug_opts, @request_opts, @ostring_opts),
                (map "$_=s", @string_opts),
                (map "$_=i", @num_opts),
                (map { ("$_=s", $vopts{$_} ||= []) } @list_opts),
@@ -225,9 +227,18 @@ sub install_sighandlers {
          }";
 }
 
+#throw away cached config and start fresh
+sub refresh {
+    my $self = shift;
+    $self->opt_clean;
+    $self->{conf_opts}->{save} = delete $self->{conf_opts}->{thaw} || 1;
+    $self->{test_config} = $self->new_test_config($self->{conf_opts});
+    $self->{server} = $self->{test_config}->server;
+}
+
 sub configure_opts {
     my $self = shift;
-    my $cached = shift;
+    my $save = shift;
 
     my($test_config, $opts) = ($self->{test_config}, $self->{opts});
 
@@ -235,7 +246,21 @@ sub configure_opts {
       $opts->{ssl} ? 'https' :
         $self->{conf_opts}->{scheme} || 'http';
 
-    return if $cached;
+    if (exists $opts->{proxy}) {
+        my $max = $test_config->{vars}->{maxclients};
+        $opts->{proxy} ||= $test_config->{vars}->{proxy} || 'on';
+
+        if ($opts->{proxy} eq 'on' and $max == 1) {
+            $$save = 1;
+            warning "server must be reconfigured for proxy";
+            $self->refresh;
+            $test_config = $self->{test_config};
+        }
+
+        $test_config->{vars}->{proxy} = $opts->{proxy};
+    }
+
+    return unless $$save;
 
     my $preamble  = sub { shift->preamble($opts->{preamble}) };
     my $postamble = sub { shift->postamble($opts->{postamble}) };
@@ -247,20 +272,19 @@ sub configure_opts {
 sub configure {
     my $self = shift;
 
-    my $test_config = $self->{test_config};
+    my $save = \$self->{conf_opts}->{save};
+    $self->configure_opts($save);
 
-    my $cached = not $self->{conf_opts}->{save};
-    $self->configure_opts($cached);
-
-    if ($cached) {
+    unless ($$save) {
         #update minor changes to cached config
         #without complete regeneration
         #for example this allows switching between
         #'t/TEST' and 't/TEST -ssl'
-        $test_config->sync_vars(qw(scheme));
+        $self->{test_config}->sync_vars(qw(scheme proxy));
         return;
     }
 
+    my $test_config = $self->{test_config};
     $test_config->generate_ssl_conf if $self->{opts}->{ssl};
     $test_config->cmodules_configure;
     $test_config->generate_httpd_conf;
@@ -359,7 +383,7 @@ sub run {
 
     if ($self->{opts}->{configure}) {
         warning "cleaning out current configuration";
-        $self->{test_config}->clean;
+        $self->opt_clean;
     }
 
     $self->configure;

@@ -89,6 +89,19 @@ sub redirect_ok {
 
 my %credentials;
 
+#subclass LWP::UserAgent
+sub new {
+    my $self = shift->SUPER::new(@_);
+
+    my $config = test_config();
+    if (my $proxy = $config->{vars}->{proxy}) {
+        #t/TEST -proxy
+        $self->proxy(http => "http://$proxy");
+    }
+
+    $self;
+}
+
 sub get_basic_credentials {
     my($self, $realm, $uri, $proxy) = @_;
 

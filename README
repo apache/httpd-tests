@@ -92,5 +92,8 @@ start server under gdb
 run .t test under the perl debugger
 % t/TEST -d perl t/modules/access.t
 
-run all tests over ssl
+run all tests through mod_ssl
 % t/TEST -ssl
+
+run all test through mod_proxy
+% t/TEST -proxy
