@@ -338,6 +338,11 @@ sub run {
     local($SIG{__DIE__}, $SIG{INT});
     $self->install_sighandlers;
 
+    if ($self->{opts}->{configure}) {
+        warning "cleaning out current configuration";
+        $self->{test_config}->clean;
+    }
+
     $self->configure;
 
     if ($self->{opts}->{configure}) {
