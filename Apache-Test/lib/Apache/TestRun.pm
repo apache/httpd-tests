@@ -684,8 +684,7 @@ sub run {
     $self->pre_configure();
 
     # can't setup the httpd-specific parts of the config object yet
-    $self->{test_config} =
-        Apache::TestConfig->new_common($self->{conf_opts});
+    $self->{test_config} = $self->new_test_config();
 
     $self->warn_core();
 
@@ -697,7 +696,7 @@ sub run {
     $self->try_exit_opts;
 
     # httpd is found here (unless it was already configured before)
-    $self->{test_config}->httpd_config;
+    $self->{test_config}->httpd_config();
 
     if ($self->{opts}->{configure}) {
         warning "cleaning out current configuration";
