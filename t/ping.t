@@ -5,13 +5,11 @@ use Apache::Test;
 
 plan tests => 3;
 
-use Apache::TestConfig ();
+my $config = Apache::Test::config();
 
-my $test_config = Apache::TestConfig->thaw;
+ok $config;
 
-ok $test_config;
-
-my $server = $test_config->server;
+my $server = $config->server;
 
 ok $server;
 
