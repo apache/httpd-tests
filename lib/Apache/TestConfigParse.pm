@@ -8,7 +8,7 @@ use warnings FATAL => 'all';
 
 use Apache::TestTrace;
 
-use File::Spec::Functions qw(rel2abs splitdir);
+use File::Spec::Functions qw(rel2abs splitdir file_name_is_absolute);
 use File::Basename qw(basename);
 
 sub strip_quotes {
@@ -47,14 +47,56 @@ sub spec_add_config {
 sub server_file_rel2abs {
     my($self, $file, $base) = @_;
 
-    $base ||= $self->{inherit_config}->{ServerRoot};
+    my ($serverroot, $result) = ();
 
-    unless ($base) {
-        warning "unable to resolve $file (ServerRoot not defined yet?)";
-        return $file;
+    # order search sequence
+    my @tries = ([ $base,
+                       'user-supplied $base' ],
+                 [ $self->{inherit_config}->{ServerRoot},
+                       'httpd.conf inherited ServerRoot' ],
+                 [ $self->apxs('PREFIX'),
+                       'apxs-derived ServerRoot' ]);
+
+    if (file_name_is_absolute($file)) {
+        debug "$file is already absolute";
+        $result = $file;
+    }
+    else {
+        foreach my $try (@tries) {
+            next unless defined $try->[0];
+
+            if (-d $try->[0]) {
+                $serverroot = $try->[0];
+                debug "using $try->[1] to resolve $file";
+                last;
+            }
+        }
+
+        if ($serverroot) {
+            $result = rel2abs $file, $serverroot;
+        }
+        else {
+            warning "unable to resolve $file - cannot find a suitable ServerRoot";
+            warning "please specify a ServerRoot in your httpd.conf or use apxs";
+
+            # return early, skipping file test below
+            return $file;
+        }
+
     }
 
-    rel2abs $file, $base;
+    if (-e $result) {
+        debug "$file successfully resolved to existing file $result"; 
+    }
+    else {
+        warning "configuration file $result does not exist";
+
+        # fall back to relative file we started with
+        # same as older behavior which returned $file on error
+        $result = $file;
+    }
+
+    return $result;
 }
 
 sub server_file {
