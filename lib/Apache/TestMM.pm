@@ -96,10 +96,15 @@ run_tests :
 
 test :: pure_all test_clean run_tests
 
-cmodules:
+test_config :
+	$(PASSENV) \
+	$(FULLPERL) -I$(INST_ARCHLIB) -I$(INST_LIB) \
+	t/TEST $(APACHE_TEST_EXTRA_ARGS) -conf
+                                                                                                                             
+cmodules: test_config
 	cd c-modules && $(MAKE) all
-
-cmodules_clean:
+                                                                                                                             
+cmodules_clean: test_config
 	cd c-modules && $(MAKE) clean
 EOF
 
