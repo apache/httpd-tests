@@ -8,12 +8,12 @@ Apache::TestRequest::user_agent(keep_alive => 1);
 
 Apache::TestRequest::scheme('http'); #XXX: lwp does not properly support this
 
-                       #XXX need to spend more time with http11
-my @sizes = (100_000); #(100, 5000, 100_000, 300_000);
+my @sizes = (100, 5000, 25432, 75962, 100_000, 300_000);
 
-plan tests => @sizes * 2, test_module 'random_chunk';
+plan tests => @sizes * 3, test_module 'random_chunk';
 
 my $location = '/random_chunk';
+my $requests = 0;
 
 for my $size (@sizes) {
     my $res = GET "/random_chunk?0,$size";
@@ -26,5 +26,10 @@ for my $size (@sizes) {
 
     ok $res->protocol eq 'HTTP/1.1';
     ok length($body) == $length;
+
+    $requests++;
+    my $request_num = $res->header("Client-Request-Num");
+
+    ok $request_num == $requests;
 }
 
