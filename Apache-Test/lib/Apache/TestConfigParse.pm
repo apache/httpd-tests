@@ -222,6 +222,7 @@ sub httpd_version {
     my $cmd = "$httpd -v";
     open my $v, '-|', $cmd or die "$cmd failed: $!";
 
+    local $_;
     while (<$v>) {
         next unless s/^Server\s+version:\s*//i;
         chomp;
