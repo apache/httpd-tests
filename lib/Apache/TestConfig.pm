@@ -11,8 +11,10 @@ use constant COLOR   => ($ENV{APACHE_TEST_COLOR} && -t STDOUT) ? 1 : 0;
 
 use constant DEFAULT_PORT => 8529;
 
-use constant IS_MOD_PERL_2_BUILD =>
-    eval { require mod_perl } && $mod_perl::VERSION >= 1.99 &&
+use constant IS_MOD_PERL_2       =>
+    eval { require mod_perl } && $mod_perl::VERSION >= 1.99;
+
+use constant IS_MOD_PERL_2_BUILD => IS_MOD_PERL_2 &&
     eval { require Apache::Build } && Apache::Build::IS_MOD_PERL_BUILD();
 
 use Symbol ();
@@ -117,7 +119,7 @@ sub passenv_makestr {
 sub server { shift->{server} }
 
 sub modperl_2_inc_fixup {
-    IS_MOD_PERL_2_BUILD ? '' : "use Apache2;\n";
+    (IS_MOD_PERL_2 && !IS_MOD_PERL_2_BUILD) ? "use Apache2;\n" : '';
 }
 
 sub modperl_build_config {
@@ -640,6 +642,14 @@ sub find_apache_module {
             return $file;
         }
     }
+
+    # if the module wasn't found try to lookup in the list of modules
+    # inherited from the system-wide httpd.conf
+    my $name = $module;
+    $name =~ s/\.s[ol]$/.c/;  #mod_info.so => mod_info.c
+    $name =~ s/^lib/mod_/; #libphp4.so => mod_php4.c
+    return $self->{modules}->{$name} if $self->{modules}->{$name};
+
 }
 
 #generate files and directories

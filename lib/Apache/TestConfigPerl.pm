@@ -17,9 +17,11 @@ sub configure_libmodperl {
 
     my $server = $self->{server};
     my $libname = $server->version_of(\%libmodperl);
-
     my $vars = $self->{vars};
-    if ($server->{rev} >= 2) {
+
+    # XXX: $server->{rev} could be set to 2 as a fallback, even when
+    # the wanted version is 1. So check that we use mod_perl 2
+    if ($server->{rev} >= 2 && IS_MOD_PERL_2) {
         if (my $build_config = $self->modperl_build_config()) {
             $libname = $build_config->{MODPERL_LIB_SHARED};
             $vars->{libmodperl} ||= $self->find_apache_module($libname);
@@ -49,7 +51,7 @@ sub configure_libmodperl {
 
     my $cfg = '';
 
-    if (exists $vars->{libmodperl} && -e $vars->{libmodperl}) {
+    if ($vars->{libmodperl} && -e $vars->{libmodperl}) {
         if (Apache::TestConfig::WIN32) {
             my $lib = "$Config{installbin}\\$Config{libperl}";
             $lib =~ s/lib$/dll/;
@@ -58,7 +60,7 @@ sub configure_libmodperl {
         $cfg .= 'LoadModule ' . qq(perl_module "$vars->{libmodperl}"\n);
     }
     else {
-        my $msg = "unable to locate $libname\n";
+        my $msg = "unable to locate $libname (could be a static build)\n";
         $cfg = "#$msg";
         debug $msg;
     }

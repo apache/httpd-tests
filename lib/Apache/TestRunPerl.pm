@@ -4,6 +4,7 @@ use strict;
 use warnings FATAL => 'all';
 
 use Apache::TestRun ();
+use Apache::TestConfigParse ();
 
 use File::Spec::Functions qw(catfile);
 
@@ -14,12 +15,8 @@ use vars qw(@ISA);
 sub pre_configure {
     my $self = shift;
 
-    # don't pick up 'LoadModule ... mod_perl.so' from the global
-    # httpd.conf, when using the locally built .so in the mod_perl 2.0
-    # 'make test'
-    if (Apache::TestConfig::IS_MOD_PERL_2_BUILD()) {
-        Apache::TestConfig::config_parse_skip_module_add('mod_perl.c');
-    }
+    # Apache::TestConfigPerl already configures mod_perl.so
+    Apache::TestConfig::autoconfig_skip_module_add('mod_perl.c');
 }
 
 sub configure_modperl {
