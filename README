@@ -73,7 +73,7 @@ start the server
 % t/TEST -start
 
 run just this test (if server is running, will not be re-started)
-% t/TEST t/apr/netlib.t
+% t/TEST t/apr/table
 
 run just the apr tests
 % t/TEST t/apr
