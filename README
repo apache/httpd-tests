@@ -89,5 +89,8 @@ GET url (only print headers, e.g. useful to just check Content-length)
 start server under gdb
 % t/TEST -debug
 
+run .t test under the perl debugger
+% t/TEST -d perl t/modules/access.t
+
 run all tests over ssl
 % t/TEST -ssl

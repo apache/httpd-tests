@@ -46,12 +46,24 @@ my %usage = (
    (map { $_, "\U$_\E url" } @request_opts),
 );
 
+sub fixup {
+    #make sure we use an absolute path to perl
+    #else Test::Harness uses the perl in our PATH
+    #which might not be the one we want
+    $^X = $Config{perlpath} if $^X eq 'perl';
+}
+
 sub new {
     my $class = shift;
-    bless {
+
+    my $self = bless {
         tests => [],
         @_,
     }, $class;
+
+    $self->fixup;
+
+    $self;
 }
 
 #split arguments into test files/dirs and options
@@ -280,7 +292,8 @@ sub start {
 
     if ($self->{opts}->{'start-httpd'}) {
         exit 1 unless $self->{server}->start;
-    } elsif ($self->{opts}->{'run-tests'} and !$self->{server}->ping) {
+    }
+    elsif ($self->{opts}->{'run-tests'} and !$self->{server}->ping) {
         # make sure that the server is up when -run-tests is used
         warning "server isn't running, attempting to start it...";
         $self->{opts}->{'stop-httpd'} = 1;
@@ -297,11 +310,6 @@ sub run_tests {
         times   => $self->{opts}->{times},
         order   => $self->{opts}->{order},
     };
-
-    #make sure we use an absolute path to perl
-    #else Test::Harness uses the perl in our PATH
-    #which might not be the one we want
-    $^X = $Config{perlpath} if $^X eq 'perl';
 
     if (grep { exists $self->{opts}->{$_} } @request_opts) {
         run_request($self->{test_config}, $self->{opts});
@@ -432,13 +440,32 @@ sub opt_ping {
     warning "no server is running on $name";
 }
 
+sub test_inc {
+    map { "$_/Apache-Test/lib" } qw(. ..);
+}
+
+sub set_perl5lib {
+    $ENV{PERL5LIB} = join $Config{path_sep}, shift->test_inc();
+}
+
 sub opt_debug {
     my $self = shift;
     my $server = $self->{server};
 
+    my $opts = $self->{opts};
     my $debug_opts = {};
+
     for (qw(debugger breakpoint)) {
-        $debug_opts->{$_} = $self->{opts}->{$_};
+        $debug_opts->{$_} = $opts->{$_};
+    }
+
+    if ($opts->{debugger} eq 'perl') {
+        $opts->{'run-tests'} = 1;
+        $self->start; #if not already running
+        $self->set_perl5lib;
+        system $^X, '-d', @{ $self->{tests} };
+        $self->stop;
+        exit;
     }
 
     $server->stop;
