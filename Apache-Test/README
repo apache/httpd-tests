@@ -8,7 +8,8 @@ see Makefile.PL for howto enable 'make test'
 see t/TEST as an example test harness
 
 For an extensive documentation see
-modperl-2.0/docs/devel/testing/testing.pod or
+modperl-2.0/docs/devel/testing/testing.pod
+ or
 http://cvs.apache.org/viewcvs.cgi/modperl-docs/src/docs/2.0/devel/testing/testing.pod
 
 see t/*.t for example tests
