@@ -1,9 +1,0 @@
-<!--#echo var="undefined variable" -->
-<!--#config echomsg="pass" -->
-<!--#echo var="undefined variable" -->
-<!--#config echomsg="config" -->
-<!--#echo var="undefined variable" -->
-<!--#config echomsg="echomsg" -->
-<!--#echo var="undefined variable" -->
-<!--#config echomsg="pass" -->
-<!--#echo var="undefined variable" -->

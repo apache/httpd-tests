@@ -1,5 +1,0 @@
-Makefile
-.libs
-mod_echo_post_chunk.lo
-mod_echo_post_chunk.slo
-mod_echo_post_chunk.la
