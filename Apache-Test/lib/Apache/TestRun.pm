@@ -406,8 +406,8 @@ usage: TEST [options ...]
    where options include:
 EOM
 
-    while (my($key, $val) = each %usage) {
-        printf "   -%-16s %s\n", $key, $val;
+    for (sort keys %usage){
+        printf "   -%-16s %s\n", $_, $usage{$_};
     }
 
     print "\n   configuration options:\n";

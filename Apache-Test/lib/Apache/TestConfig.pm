@@ -35,8 +35,8 @@ my %usage = (
 
 sub usage {
     for my $hash (\%usage) {
-        while (my($key, $val) = each %$hash) {
-            printf "   %-16s %s\n", $key, $val;
+        for (sort keys %$hash){
+            printf "   -%-16s %s\n", $_, $hash->{$_};
         }
     }
 }
