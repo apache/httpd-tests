@@ -121,10 +121,9 @@ static int nntp_like_process_connection(conn_rec *c)
         return rv;
     }
 
-    /* just for testing purposes, this is the same logic as mod_echo */
-    bb = apr_brigade_create(c->pool, c->bucket_alloc);
-
-    for (;;) {
+    do {
+        bb = apr_brigade_create(c->pool, c->bucket_alloc);
+        
         if ((rv = ap_get_brigade(c->input_filters, bb,
                                  AP_MODE_GETLINE,
                                  APR_BLOCK_READ, 0) != APR_SUCCESS || 
@@ -135,8 +134,8 @@ static int nntp_like_process_connection(conn_rec *c)
         }
 
         APR_BRIGADE_INSERT_TAIL(bb, apr_bucket_flush_create(c->bucket_alloc));
-        ap_pass_brigade(c->output_filters, bb);    
-    }
+        rv = ap_pass_brigade(c->output_filters, bb);    
+    } while (rv == APR_SUCCESS);
 
     return OK;
 }
