@@ -395,7 +395,7 @@ sub refresh {
     my $self = shift;
     $self->opt_clean(1);
     $self->{conf_opts}->{save} = delete $self->{conf_opts}->{thaw} || 1;
-    $self->{test_config} = $self->new_test_config()->complete_config;
+    $self->{test_config} = $self->new_test_config();
     $self->{server} = $self->{test_config}->server;
 }
 
@@ -683,7 +683,9 @@ sub run {
 
     $self->pre_configure();
 
-    $self->{test_config} = $self->new_test_config();
+    # can't setup the httpd-specific parts of the config object yet
+    $self->{test_config} =
+        Apache::TestConfig->new_common($self->{conf_opts});
 
     $self->warn_core();
 
@@ -695,7 +697,7 @@ sub run {
     $self->try_exit_opts;
 
     # httpd is found here (unless it was already configured before)
-    $self->{test_config}->complete_config;
+    $self->{test_config}->httpd_config;
 
     if ($self->{opts}->{configure}) {
         warning "cleaning out current configuration";

@@ -189,6 +189,20 @@ sub new_test_server {
 
 sub new {
     my $class = shift;
+
+    # httpd-independent components
+    my $self = $class->new_common(@_);
+
+    # components requiring httpd knowledge
+    $self->httpd_config;
+
+    $self;
+}
+
+# setup httpd-independent components
+sub new_common {
+    my $class = shift;
+
     my $args;
 
     $args = shift if $_[0] and ref $_[0];
@@ -326,7 +340,7 @@ sub new {
 
 # figure out where httpd is and run extra config hooks which require
 # knowledge of where httpd is
-sub complete_config {
+sub httpd_config {
     my $self = shift;
 
     my $vars = $self->{vars};
