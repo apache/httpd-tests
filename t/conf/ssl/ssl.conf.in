@@ -205,10 +205,34 @@ SetEnvIf User-Agent ".*MSIE.*" nokeepalive ssl-unclean-shutdown
 #CustomLog @ServerRoot@/logs/ssl_request_log \
 #          "%t %h %{SSL_PROTOCOL}x %{SSL_CIPHER}x \"%r\" %b"
 
+#t/ssl/verify.t
 Alias /verify @DocumentRoot@
+
 <Location /verify>
     SSLVerifyClient require
     SSLVerifyDepth  10
+</Location>
+
+#t/ssl/require.t
+Alias /require/asf @DocumentRoot@
+Alias /require/snakeoil @DocumentRoot@
+
+<Location /require/asf>
+    SSLVerifyClient require
+    SSLVerifyDepth  10
+    SSLRequire (%{SSL_CIPHER} !~ m/^(EXP|NULL)-/ \
+                and %{SSL_CLIENT_S_DN_O} eq "ASF" \
+                and %{SSL_CLIENT_S_DN_OU} in \
+                     {"httpd-test", "httpd", "modperl"} )
+</Location>
+
+<Location /require/snakeoil>
+    SSLVerifyClient require
+    SSLVerifyDepth  10
+    SSLRequire (%{SSL_CIPHER} !~ m/^(EXP|NULL)-/ \
+                and %{SSL_CLIENT_S_DN_O} eq "Snake Oil, Ltd." \
+                and %{SSL_CLIENT_S_DN_OU} in \
+                     {"Staff", "CA", "Dev"} )
 </Location>
 
 </VirtualHost>
