@@ -1,4 +1,4 @@
-#!/usr/bin/perl
+
 # numbers.pl
 # program rewrite map for mod_rewrite testing
 #
