@@ -241,6 +241,10 @@ sub start {
 
     if ($self->{opts}->{'start-httpd'}) {
         exit 1 unless $self->{server}->start;
+    } elsif ($self->{opts}->{'run-tests'} and !$self->{server}->ping) {
+        # make sure that the server is up when -run-tests is used
+        print "the test server wasn't not running: starting it...\n";
+        exit 1 unless $self->{server}->start;
     }
 }
 
