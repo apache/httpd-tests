@@ -84,7 +84,7 @@ sub generate_script {
 
     close $out or die "close $file: $!";
     close $in;
-    chmod 0544, $file;
+    chmod 0555, $file;
 }
 
 sub filter_args {
