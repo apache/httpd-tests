@@ -1101,6 +1101,7 @@ sub generate_httpd_conf {
     if (my $extra_conf = $self->generate_extra_conf) {
         for my $file (@$extra_conf) {
             if ($file =~ /\.conf$/) {
+                next if $file =~ m|/httpd\.conf$|;
                 $self->postamble(Include => qq("$file"));
             }
             elsif ($file =~ /\.pl$/) {
