@@ -879,9 +879,10 @@ The problem is that the path (including all parent directories):
 must be 'rwx' by user '$user', so Apache can read and write under that
 path.
 
-There are several ways to resolve this issue. One is to move '$dir' to
-'/tmp/' and repeat the 'make test' phase. The other is not to run
-'make test' as root.
+There are several ways to resolve this issue. One is to move and
+rebuild the distribution to '/tmp/' and repeat the 'make test'
+phase. The other is not to run 'make test' as root (i.e. building
+under your /home/user directory).
 
 You can test whether some directory is suitable for 'make test' under
 'root', by running the following test:
