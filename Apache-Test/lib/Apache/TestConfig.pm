@@ -1037,10 +1037,13 @@ sub open_cmd {
     # untaint some %ENV fields
     local @ENV{ qw(IFS CDPATH ENV BASH_ENV) };
 
-    # Temporarly untaint PATH
+    # Temporarily untaint PATH
     (local $ENV{PATH}) = ( $ENV{PATH} =~ /(.*)/ );
     # -T disallows relative directories in the PATH
     $ENV{PATH} = join ':', grep !/^\./, split /:/, $ENV{PATH};
+
+    # launder for -T
+    $cmd =~ /(.*)/; $cmd = $1;
 
     my $handle = Symbol::gensym();
     open $handle, "$cmd|" or die "$cmd failed: $!";
