@@ -153,6 +153,10 @@ sub t_is_equal {
                 t_is_equal($a->{$key}, $b->{$key}) || return 0;
             }
         }
+        elsif ($ref_a eq 'Regexp') {
+            #t_cmp(qr{^Apache}, $server_version)
+            return $b =~ $a;
+        }
         else {
             # try to compare the references
             return $a eq $b;
