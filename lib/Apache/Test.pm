@@ -254,7 +254,7 @@ sub need_min_module_version {
     # need_module requires the perl module
     return 0 unless need_module($module);
 
-    return 1 if eval { $module->VERSION($version) };
+    return 1 if eval {  no warnings qw(numeric); $module->VERSION($version) };
 
     push @SkipReasons, "$module version $version or higher is required";
     return 0;
