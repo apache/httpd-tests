@@ -139,6 +139,10 @@ sub run {
 
     Apache::TestSort->run(\@tests, $args);
 
+    #when running 't/TEST t/dir' shell tab completion adds a /
+    #dir//foo output is annoying, fix that.
+    s:/+:/:g for @tests;
+
     Test::Harness::runtests(@tests);
 }
 
