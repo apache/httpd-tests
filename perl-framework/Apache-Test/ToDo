@@ -1,8 +1,0 @@
- - print STDERR is buffered in test handlers, whereas warn() works
-   normally. select() helps, but STDERR should be unbuffered in first
-   place.
-
- - Apache::TestServer::start_debugger will choose between start_gdb,
-   start_dbx, ddd etc., counting on people who want to use other
-   debuggers to submit patches.
-
