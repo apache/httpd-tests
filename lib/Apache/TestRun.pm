@@ -250,7 +250,7 @@ sub getopts {
     $self->{reconfigure} = $opts{configure} ||
       (grep { $opts{$_}->[0] } qw(preamble postamble)) ||
         (grep { $Apache::TestConfig::Usage{$_} } keys %conf_opts ) ||
-          $self->passenv() || (! -e 'conf/httpd.conf');
+          $self->passenv() || (! -e 't/conf/httpd.conf');
 
     if (exists $opts{debug}) {
         $opts{debugger} = $opts{debug};
