@@ -323,6 +323,8 @@ sub configure_httpd {
             $vars->{httpd} = $httpd;
             last;
         }
+
+        $vars->{httpd} ||= $self->default_httpd;
     }
 
     if ($vars->{httpd}) {
@@ -512,7 +514,7 @@ sub default_apxs {
         return $build_config->{MP_APXS};
     }
 
-    $ENV{APXS} || which('apxs');
+    $ENV{APXS};
 }
 
 sub default_httpd {
@@ -527,7 +529,7 @@ sub default_httpd {
         }
     }
 
-    $ENV{APACHE} || which($vars->{target});
+    $ENV{APACHE};
 }
 
 my $localhost;
