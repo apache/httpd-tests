@@ -52,7 +52,7 @@ use vars qw(%Usage);
    proxyssl_url  => 'url for testing ProxyPass / https (default is localhost)',
    sslca         => 'location of SSL CA (default is $t_conf/ssl/ca)',
    sslcaorg      => 'SSL CA organization to use for tests (default is asf)',
-   (map { $_ . '_module_name', "$_ module name"} qw(cgi ssl thread)),
+   (map { $_ . '_module_name', "$_ module name"} qw(cgi ssl thread access)),
 );
 
 sub usage {
@@ -232,6 +232,7 @@ sub new {
     $self->default_module(cgi    => [qw(mod_cgi mod_cgid)]);
     $self->default_module(thread => [qw(worker threaded)]);
     $self->default_module(ssl    => [qw(mod_ssl)]);
+    $self->default_module(access => [qw(mod_access mod_authz_host)]);
 
     $self->{hostport} = $self->hostport;
 
