@@ -80,7 +80,7 @@ SCRIPT
 
     $ext = Apache::TestUtil::write_shell_script("$d$cgi_name",
                                                 $cgi_content);
-    chmod 0755, "$d$cgi_name";
+    chmod 0755, "$d$cgi_name.$ext";
 }
 
 ## run tests ##
