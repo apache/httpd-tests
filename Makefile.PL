@@ -145,7 +145,6 @@ if (TOP_LEVEL && $ExtUtils::MakeMaker::VERSION < 6.06) {
     # now that we're using subversion, make sure that
     # .svn directories are skipped during the build process
     # for old versions of MakeMaker
-
     *MY::libscan = sub {
         my $self = shift;
 
@@ -155,6 +154,8 @@ if (TOP_LEVEL && $ExtUtils::MakeMaker::VERSION < 6.06) {
 
         return $path;
     };
+    # avoid warning: used only once: possible typo at ...
+    *MY::libscan = *MY::libscan;
 }
 
 sub MY::postamble {
@@ -207,7 +208,7 @@ sub add_Apache__test_target {
         $string;
     };
 
-    *MY::top_targets  = sub {
+    *MY::top_targets = sub {
         my $self = shift;
         my $string = $self->MM::top_targets;
 
