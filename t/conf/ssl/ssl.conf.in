@@ -37,7 +37,7 @@
 
     SSLCARevocationFile @ServerRoot@/conf/ssl/crl/ca-bundle.crl
 
-    <VirtualHost _default_:@ssl_module_name@>
+    <VirtualHost @ssl_module_name@>
         SSLEngine on
 
         #t/ssl/verify.t
