@@ -52,6 +52,7 @@ use vars qw(%Usage);
    httpd         => 'server to use for testing (default is $bindir/httpd)',
    target        => 'name of server binary (default is apxs -q TARGET)',
    apxs          => 'location of apxs (default is from Apache::BuildConfig)',
+   timeout       => 'seconds to wait for the server to start (default is 60)',
    httpd_conf    => 'inherit config from this file (default is apxs derived)',
    maxclients    => 'maximum number of concurrent clients (default is 1)',
    perlpod       => 'location of perl pod documents (for testing downloads)',
