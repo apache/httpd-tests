@@ -37,7 +37,7 @@ sub cmodule_find {
 sub cmodules_configure {
     my($self, $dir) = @_;
 
-    unless ($self->{MP_APXS}) {
+    unless ($self->{APXS}) {
         warning "cannot build c-modules without apxs";
         return;
     }
@@ -126,7 +126,7 @@ sub cmodules_write_makefile {
     open my $fh, '>', $makefile or die "open $makefile: $!";
 
     print $fh <<EOF;
-APXS=$self->{MP_APXS}
+APXS=$self->{APXS}
 all: $lib
 
 $lib: $name.c

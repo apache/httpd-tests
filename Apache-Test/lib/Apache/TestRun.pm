@@ -322,8 +322,8 @@ sub start {
 
     unless ($test_config->{vars}->{httpd}) {
         error "no test server configured, please specify an httpd or ".
-              ($test_config->{MP_APXS} ?
-               "an apxs other than $test_config->{MP_APXS}" : "apxs").
+              ($test_config->{APXS} ?
+               "an apxs other than $test_config->{APXS}" : "apxs").
                " or put either in your PATH";
         exit 1;
     }

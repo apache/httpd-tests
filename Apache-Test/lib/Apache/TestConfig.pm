@@ -88,7 +88,7 @@ sub passenv_makestr {
 
 sub server { shift->{server} }
 
-sub build_config {
+sub modperl_build_config {
     eval {
         require Apache::BuildConfig;
     } or return undef;
@@ -223,7 +223,10 @@ sub default_module {
 sub configure_apxs {
     my $self = shift;
 
-    return unless $self->{MP_APXS} = $self->default_apxs;
+    $self->{APXS} = $self->default_apxs;
+
+    return unless $self->{APXS};
+
     my $vars = $self->{vars};
 
     $vars->{bindir}   ||= $self->apxs('SBINDIR');
@@ -400,7 +403,7 @@ sub default_apxs {
 
     return $self->{vars}->{apxs} if $self->{vars}->{apxs};
 
-    if (my $build_config = build_config()) {
+    if (my $build_config = modperl_build_config()) {
         return $build_config->{MP_APXS};
     }
 
@@ -796,9 +799,9 @@ sub which {
 
 sub apxs {
     my($self, $q) = @_;
-    return unless $self->{MP_APXS};
-    my $val = qx($self->{MP_APXS} -q $q 2>/dev/null);
-    warn "APXS ($self->{MP_APXS}) query for $q failed\n" unless $val;
+    return unless $self->{APXS};
+    my $val = qx($self->{APXS} -q $q 2>/dev/null);
+    warn "APXS ($self->{APXS}) query for $q failed\n" unless $val;
     $val;
 }
 
