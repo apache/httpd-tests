@@ -11,6 +11,12 @@ our @EXPORT = qw(ok plan have_lwp);
 our $VERSION = '0.01';
 
 #so Perl's Test.pm can be run inside mod_perl
+sub test_pm_refresh {
+    $Test::TESTOUT = \*STDOUT;
+    $Test::planned = 0;
+    $Test::ntest = 1;
+}
+
 sub init_test_pm {
     my $r = shift;
 
@@ -27,9 +33,7 @@ sub init_test_pm {
 
     $r->content_type('text/plain');
 
-    $Test::TESTOUT = \*STDOUT;
-    $Test::planned = 0;
-    $Test::ntest = 1;
+    test_pm_refresh();
 }
 
 sub plan {
@@ -51,6 +55,33 @@ sub plan {
     }
 
     Test::plan(@_);
+}
+
+package Apache::TestToString;
+
+sub TIEHANDLE {
+    my $string = "";
+    bless \$string;
+}
+
+sub PRINT {
+    my $string = shift;
+    $$string .= join '', @_;
+}
+
+sub start {
+    tie *STDOUT, __PACKAGE__;
+    Apache::Test::test_pm_refresh();
+}
+
+sub finish {
+    my $s;
+    {
+        my $o = tied *STDOUT;
+        $s = $$o;
+    }
+    untie *STDOUT;
+    $s;
 }
 
 1;
