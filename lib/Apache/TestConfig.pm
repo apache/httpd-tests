@@ -1553,7 +1553,7 @@ HostnameLookups Off
 </IfModule>
 
 <IfModule prefork.c>
-    StartServers         @MaxClients@
+    StartServers         1
     MaxClients           @MaxClients@
     MaxRequestsPerChild  0
 </IfModule>
