@@ -8,6 +8,10 @@ Changes - Apache::Test change logfile
 
 =item 1.16-dev
 
+added Apache::TestRunPHP and Apache::TestConfigPHP classes,
+which provide a framework for server-side testing via PHP scripts
+[Geoffrey Young]
+
 fix problem with multiple all.t files where only the final
 file was being run through the test harness.  [Geoffrey Young]
 
