@@ -542,8 +542,8 @@ sub start {
     $mpm = "($mpm MPM)" if $mpm;
     print "using $version $mpm\n";
 
-    my $timeout = $ENV{APACHE_TEST_STARTUP_TIMEOUT} ||
-                  $vars->{startup_timeout} ||
+    my $timeout = $vars->{startup_timeout} ||
+                  $ENV{APACHE_TEST_STARTUP_TIMEOUT} ||
                   60;
 
     my $start_time = time;
