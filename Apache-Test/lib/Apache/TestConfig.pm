@@ -274,6 +274,7 @@ sub configure_httpd {
         #sbindir should be bin/ with the default layout
         #but its eaiser to workaround apxs than fix apxs
         for my $dir (map { $vars->{$_} } qw(sbindir bindir)) {
+            next unless defined $dir;
             my $httpd = catfile $dir, $vars->{target};
             next unless -x $httpd;
             $vars->{httpd} = $httpd;
@@ -1197,7 +1198,7 @@ sub as_string {
     my $command = '';
 
     # httpd opts
-    my $test_config = Apache::TestConfig->new;
+    my $test_config = Apache::TestConfig->new({thaw=>1});
     if (my $httpd = $test_config->{vars}->{httpd}) {
         $command = "$httpd -V";
         $cfg .= "\n*** $command\n";
