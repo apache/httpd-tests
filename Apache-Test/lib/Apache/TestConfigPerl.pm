@@ -238,10 +238,9 @@ sub add_module_config {
             my $end = "</$1>";
             while (<$fh>) {
                 chomp;
-                s/^\s+//;
                 $self->replace;
                 $self->postamble($_);
-                last if m:^\Q$end:;
+                last if m:^\s*\Q$end:;
             }
         }
         else {
