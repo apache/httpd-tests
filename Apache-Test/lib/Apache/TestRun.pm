@@ -24,7 +24,7 @@ my @list_opts    = qw(preamble postamble breakpoint);
 my @hash_opts    = qw(header);
 my @help_opts    = qw(clean help ping);
 my @exit_opts    = (@help_opts,@debug_opts);
-my @request_opts = qw(get head post);
+my @request_opts = qw(get head post post_head);
 
 my %usage = (
    'start-httpd'     => 'start the test server',

@@ -173,9 +173,17 @@ sub upload_file {
     ));
 }
 
+#mainly useful for POST_HEAD
+sub header_string {
+    my $r = shift;
+    $r->content("");
+    $r->as_string;
+}
+
 my %shortcuts = (RC   => sub { shift->code },
                  OK   => sub { shift->is_success },
                  STR  => sub { shift->as_string },
+                 HEAD => sub { header_string(shift) },
                  BODY => sub { shift->content });
 
 for my $name (@EXPORT) {
