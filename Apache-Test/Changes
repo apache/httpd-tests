@@ -8,7 +8,7 @@ Changes - Apache::Test change logfile
 
 =item 1.06-dev
 
-added -timeout and $ENV{APACHE_TEST_START_TIMEOUT} as places
+added -startup_timeout and $ENV{APACHE_TEST_STARTUP_TIMEOUT} as places
 to specify the maximum number of seconds to wait for the test
 server to start.  the default is still 60 seconds.  [Geoffrey Young]
 
