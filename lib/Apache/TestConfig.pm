@@ -1186,6 +1186,11 @@ sub prepare_t_conf {
     $self->gendir($self->{vars}->{t_conf});
 }
 
+my %aliases = (
+    "perl-pod"     => "perlpod",
+    "binary-httpd" => "httpd",
+    "binary-perl"  => "perl",
+);
 sub generate_httpd_conf {
     my $self = shift;
     my $vars = $self->{vars};
@@ -1249,6 +1254,11 @@ sub generate_httpd_conf {
     }
 
     $self->replace_vars($in, $out);
+
+    for (keys %aliases) {
+        next unless $vars->{$aliases{$_}};
+        print $out "Alias /getfiles-$_ $vars->{$aliases{$_}}\n";
+    }
 
     print $out "\n";
 
@@ -1632,9 +1642,3 @@ HostnameLookups Off
     SetHandler server-status
 </Location>
 
-#so we can test downloading some files of various size
-Alias /getfiles-perl-pod          @PerlPod@
-
-#and some big ones
-Alias /getfiles-binary-httpd      @httpd@
-Alias /getfiles-binary-perl       @perl@
