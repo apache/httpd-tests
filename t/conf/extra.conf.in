@@ -185,6 +185,10 @@
         RewriteRule ^proxy.html$ http://@SERVERNAME@:@PORT@/modules/rewrite/lucky13.html [L,P]
 
     </Directory>
+
+    ### Proxy pass-through to env.pl
+    RewriteRule ^/modules/rewrite/proxy2/(.*)$ http://@SERVERNAME@:@PORT@/modules/cgi/$1 [L,P]
+
 </IfModule>
 
 ##
