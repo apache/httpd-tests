@@ -16,7 +16,7 @@ my $tests = @server_deflate_uris;
 my $vars = Apache::Test::vars();
 my $module = 'default';
 
-plan tests => $tests, need_module 'deflate';
+plan tests => $tests, need 'deflate', 'echo_post';
 
 print "testing $module\n";
 
