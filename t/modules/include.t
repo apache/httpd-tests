@@ -270,9 +270,15 @@ if (have_module 'mod_bucketeer') {
              "GET $dir$doc"
             );
 
+    $expected= "FalseSetDone";
+    $doc = "bucketeer/y8.shtml";
+    ok t_cmp($expected,
+             super_chomp(GET_BODY "$dir$doc"),
+             "GET $dir$doc"
+            );
 }
 else {
-    for (1..9) {
+    for (1..10) {
         skip "Skipping bucket boundary tests, no mod_bucketeer", 1;
     }
 }
