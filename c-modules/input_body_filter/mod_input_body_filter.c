@@ -161,6 +161,7 @@ static void input_body_filter_register_hooks(apr_pool_t *p)
 
     ap_register_input_filter(INPUT_BODY_FILTER_NAME,
                              input_body_filter_handler, 
+                             NULL,
                              AP_FTYPE_RESOURCE);  
 }
 
