@@ -104,13 +104,12 @@ sub t_TEST_plus_httpd_arg {
     unlike $err, qr/\[  error\]/, $cmd;
 
     # test that httpd is found in t/REPORT (if exists)
-    $cmd = "t/REPORT";
-    if (-e $cmd) {
+    SKIP: {
+        $cmd = "t/REPORT";
+        skip "$cmd doesn't exist", 1 unless -e $cmd;
+
         ($out, $err) = myrun3($cmd);
         like $out, qr/Server version: $c->{httpd_version}/, $cmd;
-    }
-    else {
-        ok 1;
     }
 }
 
