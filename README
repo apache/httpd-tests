@@ -202,3 +202,8 @@ shortest sequences found that lead to the same failure.
 for more options do:
 % t/SMOKE -help
 
+###################
+# Got a question? #
+###################
+Post it to the test-dev <at> httpd.apache.org list. 
+For more information see: http://httpd.apache.org/test/.
