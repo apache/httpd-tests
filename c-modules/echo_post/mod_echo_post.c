@@ -1,5 +1,3 @@
-#define HTTPD_TEST_REQUIRE_APACHE 2
-
 #if CONFIG_FOR_HTTPD_TEST
 
 <Location /echo_post>
