@@ -3,6 +3,7 @@ use warnings FATAL => 'all';
 
 use Apache::Test;
 use Apache::TestRequest;
+use Apache::TestUtil;
 
 ##
 ## mod_dav tests
@@ -34,8 +35,8 @@ CONTENT
 ## make sure its clean before we begin ##
 unlink "htdocs$uri" if -e "htdocs$uri";
 mkdir "htdocs/$dir", oct('755') unless -e "htdocs/$dir";
-my ($login,$pass,$uid,$gid) = getpwnam($vars->{user});
-chown $uid, $gid, "htdocs/$dir";
+
+Apache::TestUtil::chown("htdocs/$dir");
 
 ## set up resource and lock it ##
 my $resource = $dav->new_resource( -uri => "http://$server$uri");
