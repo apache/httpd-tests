@@ -64,7 +64,7 @@ sub cmodules_configure {
 sub cmodules_generate_include {
     my $self = shift;
     my $fh = $self->genfile("$self->{cmodules_dir}/apache_httpd_test.h");
-    while (read DATA, my $buf, 1024) {
+    while (read Apache::TestConfigC::DATA, my $buf, 1024) {
         print $fh $buf;
     }
     close $fh;
@@ -209,6 +209,7 @@ sub cmodules_clean {
     unlink "$self->{cmodules_dir}/Makefile";
 }
 
+package Apache::TestConfigC; #Apache/TestConfig.pm also has __DATA__
 1;
 __DATA__
 #ifndef APACHE_HTTPD_TEST_H
