@@ -2241,14 +2241,14 @@ sub _custom_config_prompt_path {
         }
 
         unless (File::Spec->file_name_is_absolute($ans)) {
-            my $cwd = Cwd::cwd();
             warn "The path '$ans' is not an absolute path. " .
                 "Please specify an absolute path\n";
             next;
         }
 
-        warn("'$ans' doesn't exist\n"),     next unless -e $ans;
-        warn("'$ans' is not executable\n"), next unless -x $ans;
+        warn("'$ans' doesn't exist.\n"),     next unless -e $ans;
+        warn("'$ans' is not a file.\n"),     next unless -f _;
+        warn("'$ans' is not executable.\n"), next unless -x _;
 
         return $ans;
     }
