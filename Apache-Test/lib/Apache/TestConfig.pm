@@ -774,8 +774,9 @@ sub sync_vars {
     my $svars = $self->{vars};
 
     for my $key (@_) {
-        next if $tvars->{$key} and $svars->{$key} and
-          $tvars->{$key} eq $svars->{$key};
+        next if exists $tvars->{$key} and
+                exists $svars->{$key} and
+                $tvars->{$key} eq $svars->{$key};
         $tvars->{$key} = $svars->{$key};
         $changed = 1;
     }
