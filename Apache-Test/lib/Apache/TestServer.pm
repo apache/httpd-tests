@@ -560,7 +560,14 @@ sub start {
             last;
         }
         elsif ($delta > $timeout) {
-            print $preamble, "giving up after $delta secs\n";
+            my $suggestion = $timeout + 300;
+            print $preamble, "not ok\n";
+            error <<EOI;
+giving up after $delta secs. If you think that your system
+is slow or overloaded try again with a longer timeout value.
+by setting the environment variable APACHE_TEST_STARTUP_TIMEOUT
+to a high value (e.g. $suggestion) and repeat the last command.
+EOI
             last;
         }
     }
