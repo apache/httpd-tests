@@ -8,7 +8,6 @@ use warnings FATAL => 'all';
 use Apache::Test;
 use Apache::TestRequest;
 use Apache::TestUtil;
-use LWP;
 
 #
 # These values are chosen to exceed the limits in extra.conf, namely:
@@ -50,13 +49,15 @@ my $res;
 # appropriate level of LWP support.
 #
 
-if ($LWP::VERSION < 5.60) {
+my $no_chunking = defined($LWP::VERSION) && $LWP::VERSION < 5.60;
+if ($no_chunking) {
     print "# Chunked upload tests will NOT be performed;\n",
           "# LWP 5.60 or later is required and you only have ",
           "$LWP::VERSION installed.\n";
 }
+
 my $subtests = (@conditions * 2) + 2;
-plan tests => $subtests;
+plan tests => $subtests, \&have_lwp;
 
 my $testnum = 1;
 foreach my $cond (@conditions) {
@@ -94,7 +95,7 @@ foreach my $cond (@conditions) {
                 # drained and discarded.
                 #
                 if ($chunked) {
-                    if ($LWP::VERSION < 5.60) {
+                    if ($no_chunking) {
                         my $msg = 'Chunked upload not tested; '
                             . 'not supported by this version of LWP';
                         print "#  $msg\n";
