@@ -49,12 +49,12 @@ for my $data (@test_strings) {
     $sock->print("\n");
 
     # Read the status line
-    chomp(my $response = Apache::TestRequest::getline($sock));
+    chomp(my $response = Apache::TestRequest::getline($sock) || '');
     $response =~ s/\s$//;
     ok t_cmp($resp_strings[$cycle++], $response, "response codes");
 
     do {
-        chomp($response = Apache::TestRequest::getline($sock));
+        chomp($response = Apache::TestRequest::getline($sock) || '');
         $response =~ s/\s$//;
     }
     while ($response ne "");
