@@ -93,6 +93,7 @@ sub new {
         #dont generate any new config
         $thaw->{$_} = $args->{$_} for keys %$args;
         $thaw->{server} = $thaw->new_test_server;
+        $thaw->add_inc;
         return $thaw;
     }
 
