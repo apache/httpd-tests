@@ -148,6 +148,47 @@ sub apply_take2 {
     }
 }
 
+sub inherit_config_file_or_directory {
+    my ($self, $item) = @_;
+
+    if (-d $item) {
+        my $dir = $item;
+        debug "descending config directory: $dir";
+
+        for my $entry (glob "$dir/*") {
+            $self->inherit_config_file_or_directory($entry);
+        }
+        return;
+    }
+
+    my $file = $item;
+    debug "inheriting config file: $file";
+
+    my $fh = Symbol::gensym();
+    open($fh, $file) or return;
+
+    my $c = $self->{inherit_config};
+    while (<$fh>) {
+        s/^\s*//; s/\s*$//; s/^\#.*//;
+        next if /^$/;
+        (my $directive, $_) = split /\s+/, $_, 2;
+
+        if ($directive eq "Include") {
+            my $include = $self->server_file_rel2abs($_);
+            $self->inherit_config_file_or_directory($include);
+        }
+
+        #parse what we want
+        while (my($spec, $wanted) = each %wanted_config) {
+            next unless $wanted->{$directive};
+            my $method = "parse_\L$spec";
+            $self->$method($c, $directive);
+        }
+    }
+
+    close $fh;
+}
+
 sub inherit_config {
     my $self = shift;
 
@@ -170,11 +211,6 @@ sub inherit_config {
 
     return unless $file;
 
-    debug "inheriting config file: $file";
-
-    my $fh = Symbol::gensym();
-    open($fh, $file) or return;
-
     my $c = $self->{inherit_config};
 
     #initialize array refs and such
@@ -184,18 +220,7 @@ sub inherit_config {
         }
     }
 
-    while (<$fh>) {
-        s/^\s*//; s/\s*$//; s/^\#.*//;
-        next if /^$/;
-        (my $directive, $_) = split /\s+/, $_, 2;
-
-        #parse what we want
-        while (my($spec, $wanted) = each %wanted_config) {
-            next unless $wanted->{$directive};
-            my $method = "parse_\L$spec";
-            $self->$method($c, $directive);
-        }
-    }
+    $self->inherit_config_file_or_directory($file);
 
     #apply what we parsed
     while (my($spec, $wanted) = each %wanted_config) {
@@ -207,8 +232,6 @@ sub inherit_config {
             $cv->($self, $c, $directive);
         }
     }
-
-    close $fh;
 }
 
 sub get_httpd_static_modules {
