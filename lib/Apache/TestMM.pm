@@ -86,7 +86,7 @@ sub generate_script {
 
     unlink $file if -e $file;
 
-    my $body = "BEGIN { eval { require blib; } }\n";
+    my $body = "BEGIN { eval { require blib && blib->import; } }\n";
 
     $body .= Apache::TestConfig->modperl_2_inc_fixup;
 
