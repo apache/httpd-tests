@@ -92,6 +92,8 @@ sub cmodules_write_makefiles {
     close $fh or die "close $file: $!";
 }
 
+my %lib_dir = (1 => "", 2 => ".libs/");
+
 sub cmodules_write_makefile {
     my($self, $mod) = @_;
 
@@ -99,13 +101,16 @@ sub cmodules_write_makefile {
     my $makefile = "$mod->{dir}/Makefile";
     notice "writing $makefile";
 
+    my $libdir = $self->server->version_of(\%lib_dir);
+    my $lib = "$libdir$name.so";
+
     open my $fh, '>', $makefile or die "open $makefile: $!";
 
     print $fh <<EOF;
 APXS=$self->{MP_APXS}
-all: $name
+all: $lib
 
-$name: $name.c
+$lib: $name.c
 	\$(APXS) -c $name.c
 
 clean:
