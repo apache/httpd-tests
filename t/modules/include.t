@@ -10,6 +10,7 @@ use constant WINFU => Apache::TestConfig::WINFU;
 ## mod_include tests
 my ($doc);
 my $dir = "/modules/include/";
+my $have_apache_2 = have_apache 2;
 
 my %test = (
 "echo.shtml"            =>    "echo.shtml",
@@ -59,12 +60,13 @@ if (WINFU) {
     delete $test{'exec/on/cmd.shtml'};
 }
 
+
 #
-# in addition to $tests, there is 1 GET test, 9 XBitHack tests,
-# and 2 exec cgi tests
+# in addition to $tests, there are 1 GET test, 9 XBitHack tests,
+# 2 exec cgi tests, and 2 malformed-ssi-directive tests
 #
 my $tests = keys %test;
-plan tests => $tests + 12, have_module 'include';
+plan tests => $tests + 14, have_module 'include';
 
 foreach $doc (sort keys %test) {
     ok t_cmp($test{$doc},
@@ -77,6 +79,34 @@ $doc = "printenv.shtml";
 ok t_cmp("200",
          GET("$dir$doc")->code,
          "GET $dir$doc"
+        );
+
+
+### MALFORMED DIRECTIVE TESTS
+# also test a couple of malformed SSI's that used to cause Apache 1.3 to
+# segfault
+#
+
+# Apache 1.3 has a different parser so you get different output (ie, none)
+my $expected = ($have_apache_2)
+                 ? "[an error occurred while processing this directive]".
+                   "[an error occurred while processing this directive]".
+                   "[an error occurred while processing this directive]"
+                 : "";
+
+ok t_cmp("$expected",
+         super_chomp(GET_BODY "${dir}if6.shtml"),
+         "GET ${dir}if6.shtml"
+        );
+
+
+$expected = ($have_apache_2)
+                 ? "[an error occurred while processing this directive]"
+                 : "";
+
+ok t_cmp("$expected",
+         super_chomp(GET_BODY "${dir}if7.shtml"),
+         "GET ${dir}if7.shtml"
         );
 
 
