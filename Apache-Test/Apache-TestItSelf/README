@@ -18,7 +18,7 @@ the normal run-time test suite.
 
   a. Apache-Test config test suite
 
-  % t/TEST -config sample/apache_test_config.pm
+  % t/TEST -config sample/testitself_conf_apache_test_core.pl
 
   this runs against the test suite under:
 
@@ -26,8 +26,8 @@ the normal run-time test suite.
 
   it's the same as calling:
 
-  % t/TEST -base ~/apache.org/Apache-Test/Apache-TestItSelf/Apache-TestMe/t \
-  -config sample/apache_test_config.pm
+  % t/TEST -base ~/apache.org/Apache-Test/Apache-TestItSelf/Apache-TestMe \
+  -config sample/testitself_conf_apache_test_core.pl
 
 
 
@@ -38,7 +38,7 @@ the normal run-time test suite.
   Apache-Test test suite
 
   % t/TEST -base ~/apache.org/Apache-Test \
-  -config sample/apache_test_config.pm
+  -config sample/testitself_conf_apache_test_core.pl
 
 
 
@@ -49,7 +49,7 @@ the normal run-time test suite.
   modperl-2.0 test suite
 
   % t/TEST -base ~/apache.org/mp2-svn \
-  -config sample/modperl2_testitself_config.pm t/httpd_arg.t t/interactive.t
+  -config sample/testitself_conf_mp2_core.pl t/httpd_arg.t t/interactive.t
 
 
 
@@ -62,7 +62,7 @@ the normal run-time test suite.
 
 
   % t/TEST -base ~/work/modules/Apache-VMonitor-2.0 \
-  -config sample/apache2_modules_testitself_config.pm
+  -config sample/testitself_conf_mp2_modules.pl
 
 
 -----------------------------
