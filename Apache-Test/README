@@ -107,5 +107,11 @@ turn on -v and LWP trace mode (level 2) in Apache::TestRequest
 run all tests through mod_ssl
 % t/TEST -ssl
 
+run all tests with HTTP/1.1 (keep alive) requests
+% t/TEST -http11
+
+run all tests with HTTP/1.1 (keep alive) requests through mod_ssl
+% t/TEST -http11
+
 run all test through mod_proxy
 % t/TEST -proxy

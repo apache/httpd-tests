@@ -55,6 +55,9 @@ sub vars {
 
 sub user_agent {
     my $args = {@_};
+
+    $args->{keep_alive} ||= $ENV{APACHE_TEST_HTTP11};
+
     if ($args->{keep_alive}) {
         eval {
             require LWP::Protocol::https11;
