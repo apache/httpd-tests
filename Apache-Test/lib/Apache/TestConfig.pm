@@ -1044,6 +1044,14 @@ EOF
 sub generate_types_config {
     my $self = shift;
 
+    # handle the case when mod_mime is built as a shared object
+    # but wasn't included in the system-wide httpd.conf
+    my $mod_mime = $self->find_apache_module('mod_mime.so');
+    if ($mod_mime && -e $mod_mime) {
+        $self->preamble(IfModule => '!mod_mime.c',
+                        qq{LoadModule mime_module "$mod_mime"\n});
+    }
+
     unless ($self->{inherit_config}->{TypesConfig}) {
         my $types = catfile $self->{vars}->{t_conf}, 'mime.types';
         unless (-e $types) {
@@ -1286,7 +1294,7 @@ sub generate_httpd_conf {
     if ($mod_alias && -e $mod_alias) {
         print $out <<EOF;
 <IfModule !mod_alias.c>
-    LoadModule alias_module $mod_alias
+    LoadModule alias_module "$mod_alias"
 </IfModule>
 EOF
     }
