@@ -445,9 +445,30 @@ whether:
   plan tests => 5, have_module qw(CGI Find::File);
   plan tests => 5, have_module ['CGI', 'Find::File', 'cgid'];
 
-Requires Apache C and Perl modules. In case of C modules, the test
-will be done by prefixing I<mod_>. The function accept a list of
+Requires Apache C and Perl modules. The function accept a list of
 arguments or a reference to a list.
+
+In case of C modules, depending on how the module name was passed it
+may pass through the following completions:
+
+=over
+
+=item 1 have_module 'proxy_http.c'
+
+If there is the I<.c> extension, the module name will be looked up as
+is, i.e. I<'proxy_http.c'>.
+
+=item 2 have_module 'mod_cgi'
+
+The I<.c> extension will be appended before the lookup, turning it into
+I<'mod_cgi.c'>.
+
+=item 3 have_module 'cgi'
+
+The I<.c> extension and I<mod_> prefix will be added before the
+lookup, turning it into I<'mod_cgi.c'>.
+
+=back
 
 =item have
 
