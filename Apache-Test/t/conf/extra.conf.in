@@ -4,3 +4,31 @@
 <IfModule mod_alias.c>
   Redirect /redirect http://@ServerName@/redirected/
 </IfModule>
+
+<IfModule mod_perl.c>
+  <IfDefine APACHE2>
+    PerlModule Apache2
+  </IfDefine>
+
+  <Location /TestMore__testpm>
+    SetHandler perl-script
+    <IfDefine APACHE2>
+      PerlResponseHandler TestMore::testpm
+    </IfDefine>
+    <IfDefine APACHE1>
+      PerlHandler TestMore::testpm
+    </IfDefine>
+  </Location>
+
+  <Location /TestMore__testmorepm>
+    SetHandler perl-script
+    <IfDefine APACHE2>
+      PerlResponseHandler TestMore::testmorepm
+    </IfDefine>
+    <IfDefine APACHE1>
+      PerlHandler TestMore::testmorepm
+    </IfDefine>
+  </Location>
+</IfModule>
+
+
