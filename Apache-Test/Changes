@@ -8,6 +8,12 @@ Changes - Apache::Test change logfile
 
 =item 1.13-dev
 
+make a special case for threaded mpm configuration, to ensure that
+unless maxclients was specified, MaxClients will be exactly twice
+bigger than ThreadsPerChild (minclients), since if we don't do that,
+Apache will reduce MaxClients to the same value as
+ThreadsPerChild. [Stas]
+
 
 
 =item 1.12 - June 28, 2004
