@@ -246,6 +246,7 @@ sub configure {
         return;
     }
 
+    $test_config->generate_ssl_conf if $self->{opts}->{ssl};
     $test_config->cmodules_configure;
     $test_config->generate_httpd_conf;
     $test_config->save;
