@@ -8,6 +8,9 @@ Changes - Apache::Test change logfile
 
 =item 1.13-dev
 
+Add APACHE_TEST_EXTRA_ARGS make variable to all invocations to t/TEST
+to allow passing extra arguments from the command line. [Gozer]
+
 When APACHE_TEST_NO_STICKY_PREFERENCES=1 is used don't even try to
 interactively configure the server, as we don't save any config it was
 entering an infinite loop. [Stas]
