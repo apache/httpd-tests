@@ -18,6 +18,7 @@ lib/Apache/TestConfig.pm
 lib/Apache/TestConfigC.pm
 lib/Apache/TestConfigParse.pm
 lib/Apache/TestConfigPerl.pm
+lib/Apache/TestConfigPHP.pm
 lib/Apache/TestHandler.pm
 lib/Apache/TestHarness.pm
 lib/Apache/TestMB.pm
@@ -28,6 +29,7 @@ lib/Apache/TestReportPerl.pm
 lib/Apache/TestRequest.pm
 lib/Apache/TestRun.pm
 lib/Apache/TestRunPerl.pm
+lib/Apache/TestRunPHP.pm
 lib/Apache/TestSSLCA.pm
 lib/Apache/TestServer.pm
 lib/Apache/TestSmoke.pm
