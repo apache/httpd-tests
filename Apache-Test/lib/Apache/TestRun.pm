@@ -630,7 +630,7 @@ sub run {
 
     # reconstruct argv, preserve multiwords args, eg 'PerlTrace all'
     my $argv = join " ", map { /^-/ ? $_ : qq['$_'] } @ARGV;
-    $original_command = "$0 $argv";
+    $original_command = "$^X $0 $argv";
     $orig_cwd = Cwd::cwd();
     $self->set_ulimit;
     $self->set_env; #make sure these are always set
