@@ -41,13 +41,12 @@ static int test_rwrite_handler(request_rec *r)
         long nrd = ap_rwrite(buff, len, r);
         total += nrd;
 
-        fprintf(stderr, "[mod_test_rwrite] "
-                "wrote %ld bytes (wanted %d, remaining=%ld)\n",
-                nrd, len, remaining);
+        fprintf(stderr, "[mod_test_rwrite] wrote %ld of %d bytes\n",
+                nrd, len);
     }
     
     fprintf(stderr,
-            "[mod_test_rwrite] done writing %ld bytes, %ld bytes remain\n",
+            "[mod_test_rwrite] done writing %ld of %ld bytes\n",
             total, remaining);
     
     return OK;
