@@ -24,27 +24,40 @@ my $dir = "/modules/include/";
 ## 21: big fat test
 
 my %test = (
-"echo.shtml"       =>    "echo.shtml",
-"set.shtml"        =>    "set works",
-"include1.shtml"   =>    "inc-two.shtml body  include.shtml body",
-"include2.shtml"   =>    "inc-two.shtml body  include.shtml body",
-"include3.shtml"   =>    "inc-two.shtml body  inc-one.shtml body  include.shtml body",
-"include4.shtml"   =>    "inc-two.shtml body  inc-one.shtml body  include.shtml body",
-"include5.shtml"   =>    "inc-two.shtml body  inc-one.shtml body  inc-three.shtml body  include.shtml body",
-"include6.shtml"   =>    "inc-two.shtml body  inc-one.shtml body  inc-three.shtml body  include.shtml body",
-"foo.shtml"        =>    "[an error occurred while processing this directive] foo.shtml body",
-"foo1.shtml"       =>    "[an error occurred while processing this directive] foo.shtml body",
-"foo2.shtml"       =>    "[an error occurred while processing this directive] foo.shtml body",
-"encode.shtml"     =>    "\# \%\^ \%23\%20\%25\%5e",
-"errmsg1.shtml"    =>    "errmsg",
-"errmsg2.shtml"    =>    "errmsg",
-"errmsg3.shtml"    =>    "errmsg",
-"if1.shtml"        =>    "pass",
-"if2.shtml"        =>    "pass   pass",
-"if3.shtml"        =>    "pass   pass   pass",
-"if4.shtml"        =>    "pass   pass",
-"if5.shtml"        =>    "pass  pass  pass",
-"big.shtml"        =>    "hello   pass  pass   pass     hello"
+"echo.shtml"            =>    "echo.shtml",
+"set.shtml"             =>    "set works",
+"include1.shtml"        =>    "inc-two.shtml body  include.shtml body",
+"include2.shtml"        =>    "inc-two.shtml body  include.shtml body",
+"include3.shtml"        =>
+    "inc-two.shtml body  inc-one.shtml body  include.shtml body",
+"include4.shtml"        =>
+    "inc-two.shtml body  inc-one.shtml body  include.shtml body",
+"include5.shtml"        =>
+    "inc-two.shtml body  inc-one.shtml body  inc-three.shtml body  include.shtml body",
+"include6.shtml"        =>
+    "inc-two.shtml body  inc-one.shtml body  inc-three.shtml body  include.shtml body",
+"foo.shtml"             =>
+    "[an error occurred while processing this directive] foo.shtml body",
+"foo1.shtml"            =>
+    "[an error occurred while processing this directive] foo.shtml body",
+"foo2.shtml"            =>
+    "[an error occurred while processing this directive] foo.shtml body",
+"encode.shtml"          =>    "\# \%\^ \%23\%20\%25\%5e",
+"errmsg1.shtml"         =>    "errmsg",
+"errmsg2.shtml"         =>    "errmsg",
+"errmsg3.shtml"         =>    "errmsg",
+"if1.shtml"             =>    "pass",
+"if2.shtml"             =>    "pass   pass",
+"if3.shtml"             =>    "pass   pass   pass",
+"if4.shtml"             =>    "pass   pass",
+"if5.shtml"             =>    "pass  pass  pass",
+"big.shtml"             =>    "hello   pass  pass   pass     hello",
+"inc-rfile.shtml"       =>
+    "inc-extra2.shtml body  inc-extra1.shtml body  inc-rfile.shtml body",
+"inc-rvirtual.shtml"    =>
+    "inc-extra2.shtml body  inc-extra1.shtml body  inc-rvirtual.shtml body",
+"extra/inc-bogus.shtml" =>
+    "[an error occurred while processing this directive] inc-bogus.shtml body"
 );
 
 my $tests = keys %test;
