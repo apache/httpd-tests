@@ -5,6 +5,10 @@ use Apache::TestRequest;
 use Apache::TestConfig ();
 use Apache::TestSSLCA ();
 
+#if keepalives are on, renegotiation not happen again once
+#a client cert is presented.
+Apache::TestRequest::user_agent_keepalive(0);
+
 my $cert = 'client_snakeoil';
 
 my $server_expect =
