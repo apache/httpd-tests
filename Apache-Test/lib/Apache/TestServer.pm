@@ -18,9 +18,10 @@ my $CTRL_M = COLOR ? "\r" : "\n";
 # some debuggers use the same syntax as others, so we reuse the same
 # code by using the following mapping
 my %debuggers = (
-    gdb    => 'gdb',
-    ddd    => 'gdb',
-    strace => 'strace',
+    gdb      => 'gdb',
+    ddd      => 'gdb',
+    valgrind => 'valgrind',
+    strace   => 'strace',
 );
 
 sub new {
@@ -124,6 +125,27 @@ sub strace_cmd {
     my($self, $strace, $file) = @_;
     #XXX truss, ktrace, etc.
     "$strace -f -o $file -s1024";
+}
+
+sub valgrind_cmd {
+    my($self, $valgrind) = @_;
+    "$valgrind -v --leak-check=yes --show-reachable=yes";
+}
+
+sub start_valgrind {
+    my $self = shift;
+    my $opts = shift;
+
+    my $config       = $self->{config};
+    my $args         = $self->args;
+    my $one_process  = $self->version_of(\%one_process);
+    my $valgrind_cmd = $self->valgrind_cmd($opts->{debugger});
+    my $httpd        = $config->{vars}->{httpd};
+
+    my $command = "$valgrind_cmd $httpd $one_process $args";
+
+    debug $command;
+    system $command;
 }
 
 sub start_strace {
