@@ -39,6 +39,7 @@ my %test = (
 "errmsg2.shtml"         =>    "errmsg",
 "errmsg3.shtml"         =>    "errmsg",
 "errmsg4.shtml"         =>    $have_apache_2 ? "pass errmsg" : "pass",
+"errmsg5.shtml"         =>    "<!-- pass -->",
 "if1.shtml"             =>    "pass",
 "if2.shtml"             =>    "pass   pass",
 "if3.shtml"             =>    "pass   pass   pass",
