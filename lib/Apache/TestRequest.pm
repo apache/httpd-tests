@@ -437,7 +437,7 @@ sub lwp_call {
         lwp_trace($r);
     }
 
-    die $error if $error;
+    Carp::croak($error) if $error;
 
     return $shortcut ? $r->$shortcut() : $r;
 }
