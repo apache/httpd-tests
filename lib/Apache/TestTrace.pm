@@ -64,8 +64,8 @@ else {
         crit    => '%%%',
         error   => '!!!',
         warning => '***',
-        notice  => '---',
-        info    => '___',
+        notice  => '-  ',
+        info    => '   ',
         debug   => '==>',
         todo    => 'todo',
     );
@@ -84,7 +84,7 @@ sub c_trace {
 sub nc_trace {
     my $level = shift;
     print $LogFH 
-        map { sprintf "%-4s: %s\n", $colors{$level}, $_ } expand(@_);
+        map { sprintf "%-3s %s\n", $colors{$level}, $_ } expand(@_);
 }
 
 {
