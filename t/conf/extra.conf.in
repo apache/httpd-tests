@@ -396,6 +396,29 @@ LimitRequestFields    32
 </Directory>
 
 ##
+## Digest test config
+##
+<IfDefine APACHE2>
+    <IfModule mod_auth_digest.c>
+        Alias /digest @DocumentRoot@
+        <Location /digest>
+            Require valid-user
+            AuthType Digest
+            AuthName realm1
+            # 2.0
+            <IfModule mod_auth.c>
+                AuthDigestFile realm1
+            </IfModule>
+            # 2.1
+            <IfModule mod_authn_file.c>
+                AuthUserFile realm1
+            </IfModule>
+       </Location>
+       SetEnvIf X-Browser "MSIE" AuthDigestEnableQueryStringHack=On
+    </IfModule>
+</IfDefine>
+
+##
 ## ErrorDocument handling
 ## create it's own virtual host so it doesn't interfere
 ## with other tests for 404 messages
