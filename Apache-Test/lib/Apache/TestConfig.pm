@@ -1240,12 +1240,16 @@ sub error_log {
 #utils
 
 #For Win32 systems, stores the extensions used for executable files
+#They may be . prefixed, so we will strip the leading periods.
 
 my @path_ext = ();
 
 if (WIN32) {
     if ($ENV{PATHEXT}) {
         push @path_ext, split ';', $ENV{PATHEXT};
+        for my $ext (@path_ext) {
+            $ext =~ s/^\.*(.+)$/$1/;
+        }
     }
     else {
         #Win9X: doesn't have PATHEXT
