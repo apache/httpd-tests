@@ -13,7 +13,7 @@ use constant TOP_LEVEL => !exists $ENV{MOD_PERL_2_BUILD};
 use ExtUtils::MakeMaker;
 use Symbol;
 
-use Apache::TestMM qw(test); #enable 'make test'
+use Apache::TestMM qw(test clean); #enable 'make test and make clean'
 use Apache::TestRun;
 
 my $VERSION;
