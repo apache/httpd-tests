@@ -6,7 +6,7 @@ Changes - Apache::Test change logfile
 
 =over 3
 
-=item 1.05-dev
+=item 1.05 - October 23, 2003
 
 core scanning changes [Stas]
 - speedup by not chdir'ing into subdirs
