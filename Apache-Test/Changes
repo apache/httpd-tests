@@ -8,6 +8,9 @@ Changes - Apache::Test change logfile
 
 =item 1.17-dev
 
+Apache::TestTrace: don't export by default the 'todo' utility's symbol
+since it collides with Test::More [Stas]
+
 Tweak the handling of mp2 source build case in
 Apache::TestConfig::httpd_config(), apparently mp2 source build
 doesn't always know where httpd/apxs are, so we need to give a better

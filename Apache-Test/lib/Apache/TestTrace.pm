@@ -27,7 +27,7 @@ BEGIN {
 }
 
 @ISA     = qw(Exporter);
-@EXPORT  = (@Subs);
+@EXPORT  = (@Levels);
 $VERSION = '0.01';
 use subs (@Subs);
 
