@@ -591,7 +591,7 @@ my %scheme_fixups = (
 sub scheme_fixup {
     my $scheme = shift;
     my $fixup = $scheme_fixups{$scheme};
-    return unless defined &$fixup;
+    return unless $fixup;
     $fixup->();
 }
 
