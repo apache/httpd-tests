@@ -396,7 +396,7 @@ sub configure_pm_tests {
 
         my $args_hash = list_to_hash_of_lists(\@args);
         $self->postamble($self->$container($module),
-            $args_hash) if @args;
+                         $args_hash) if @args;
 
         $self->write_pm_test($module, lc $base, lc $sub);
     }
