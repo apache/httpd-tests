@@ -362,11 +362,21 @@ sub start {
         exit 1;
     }
 
-    if ($self->{opts}->{'start-httpd'}) {
-        exit 1 unless $self->{server}->start;
+    my $opts = $self->{opts};
+    my $server = $self->{server};
+
+    #if t/TEST -d is running make sure we don't try to stop/start the server
+    my $file = $server->debugger_file;
+    if (-e $file and $opts->{'start-httpd'}) {
+        warning "server is running under the debugger, defaulting to -run";
+        $opts->{'start-httpd'} = 0;
     }
-    elsif ($self->{opts}->{'run-tests'}) {
-        if (!$self->{server}->ping) {
+
+    if ($opts->{'start-httpd'}) {
+        exit 1 unless $server->start;
+    }
+    elsif ($opts->{'run-tests'}) {
+        if (!$server->ping) {
             error "server is not ready yet, try again.";
             exit;
         }
