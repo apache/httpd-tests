@@ -19,8 +19,9 @@ sub configure_modperl {
     $test_config->preamble_register(qw(configure_libmodperl));
 
     $test_config->postamble_register(qw(configure_inc
-                                        configure_pm_tests
-                                        configure_startup_pl));
+                                        configure_pm_tests_inc
+                                        configure_startup_pl
+                                        configure_pm_tests));
 }
 
 sub configure {
