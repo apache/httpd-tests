@@ -629,16 +629,35 @@ sub oh {
 #e.g. t/core or t/core.12499
 my $core_pat = '^core(\.\d+)?' . "\$";
 
+# $self->scan_core_incremental([$only_top_dir])
 # normally would be called after each test
 # and since it updates the list of seen core files
 # scan_core() won't report these again
 # currently used in Apache::TestSmoke
+#
+# if $only_t_dir arg is true only the t_dir dir (t/) will be scanned
 sub scan_core_incremental {
-    my $self = shift;
+    my($self, $only_t_dir) = @_;
     my $vars = $self->{test_config}->{vars};
-    my $times = 0;
-    my @msg = ();
 
+    if ($only_t_dir) {
+        require IO::Dir;
+        my @cores = ();
+        for (IO::Dir->new($vars->{t_dir})->read) {
+            next unless -f;
+            next unless /$core_pat/o;
+            my $core = catfile $vars->{t_dir}, $_;
+            next if exists $core_files{$core} && $core_files{$core} == -M $core;
+            $core_files{$core} = -M $core;
+            push @cores, $core;
+        }
+        return @cores 
+            ? join "\n", "server dumped core, for stacktrace, run:",
+                map { "gdb $vars->{httpd} -core $_" } @cores
+            : ();
+    }
+
+    my @msg = ();
     finddepth({ no_chdir => 1,
                 wanted   => sub {
         return unless -f $_;
@@ -656,10 +675,8 @@ sub scan_core_incremental {
             # other unique identifier, in case the same test is run
             # more than once and each time it caused a segfault
             $core_files{$core} = -M $core;
-            my $oh = oh();
-            my $again = $times++ ? "again" : "";
-            push @msg, "oh $oh, server dumped core $again",
-                "for stacktrace, run: gdb $vars->{httpd} -core $core";
+            push @msg, "server dumped core, for stacktrace, run:\n" .
+                "gdb $vars->{httpd} -core $core";
         }
     }}, $vars->{top_dir});
 

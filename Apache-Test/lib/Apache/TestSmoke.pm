@@ -503,7 +503,7 @@ sub run_test {
             IPC::Run3::run3($test_command, undef, \$log, \$log);
             my $ok = ($log =~ /All tests successful/) ? 1 : 0;
 
-            my @core_files_msg = $self->Apache::TestRun::scan_core_incremental;
+            my @core_files_msg = $self->Apache::TestRun::scan_core_incremental(1);
 
             # if the test has caused core file(s) it's not ok
             $ok = 0 if @core_files_msg;
