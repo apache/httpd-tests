@@ -6,6 +6,8 @@ Changes - Apache::Test change logfile
 
 =over 3
 
+=item 1.20-dev
+
 =item 1.19 - January 5, 2005
 
 Test for module.c instead of module.so for IfModule in
