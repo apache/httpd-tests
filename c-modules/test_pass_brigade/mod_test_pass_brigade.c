@@ -27,6 +27,7 @@ static int test_pass_brigade_handler(request_rec *r)
     size_t total=0, remaining=1;
     char *buff;
     size_t buff_size = 8192;
+    apr_bucket_brigade *bb;
 
     if (strcmp(r->handler, "test_pass_brigade")) {
         return DECLINED;
@@ -43,15 +44,16 @@ static int test_pass_brigade_handler(request_rec *r)
 
     buff = malloc(buff_size);
     memset(buff, 'a', buff_size);
+    bb = apr_brigade_create(r->pool, c->bucket_alloc);
 
     while (total < remaining) {
         int left = (remaining - total);
         int len = left <= buff_size ? left : buff_size;
-        apr_bucket_brigade *bb = apr_brigade_create(r->pool, c->bucket_alloc);
         apr_bucket *bucket = apr_bucket_heap_create(buff, len, NULL,
                                                     c->bucket_alloc);
         apr_status_t status;
 
+        apr_brigade_cleanup(bb);
         APR_BRIGADE_INSERT_TAIL(bb, bucket);
 
         status = ap_pass_brigade(r->output_filters->next, bb);
@@ -71,6 +73,7 @@ static int test_pass_brigade_handler(request_rec *r)
                 len, len);
     }
     
+    apr_brigade_destroy(bb);
     fprintf(stderr,
             "[mod_test_pass_brigade] done writing %ld of %ld bytes\n",
             total, remaining);
