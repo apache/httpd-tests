@@ -5,6 +5,7 @@ use warnings FATAL => 'all';
 
 use constant WIN32 => $^O eq 'MSWin32';
 
+use File::Find qw(finddepth);
 use File::Spec::Functions qw(catfile abs2rel splitdir
                              catdir file_name_is_absolute);
 use Cwd qw(fastcwd);
@@ -554,10 +555,14 @@ sub httpd_conf_template {
 sub generate_extra_conf {
     my $self = shift;
 
-    my @extra_conf;
-    my $t_conf = $self->{vars}->{t_conf};
+    my(@extra_conf, @conf_in);
 
-    for my $file (<$t_conf/*.conf.in>) {
+    finddepth(sub {
+        return unless /\.conf\.in$/;
+        push @conf_in, catdir $File::Find::dir, $_;
+    }, $self->{vars}->{t_conf});
+
+    for my $file (@conf_in) {
         (my $generated = $file) =~ s/\.in$//;
         push @extra_conf, $generated;
 
