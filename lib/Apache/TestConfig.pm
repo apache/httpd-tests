@@ -514,8 +514,11 @@ sub find_apache_module {
 sub genwarning {
     my($self, $type) = @_;
     return unless $type;
-    return "#WARNING: this file is generated, do not edit\n" .
-           calls_trace();
+    my $warning = "#WARNING: this file is generated, do not edit\n" .
+      calls_trace();
+    #1 => #  warning
+    #2 => /* warning */
+    return $type > 1 ? "/*\n$warning*/\n" : $warning;
 }
 
 sub calls_trace {
