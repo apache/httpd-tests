@@ -225,6 +225,8 @@ sub inherit_config {
             my $default_conf = $self->{httpd_defines}->{SERVER_CONFIG_FILE};
             $default_conf ||= catfile qw(conf httpd.conf);
             $file = catfile $base, $default_conf;
+            # SERVER_CONFIG_FILE might be an absolute path
+            $file = $default_conf if !-e $file and -e $default_conf;
         }
     }
 

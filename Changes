@@ -8,6 +8,10 @@ Changes - Apache::Test change logfile
 
 =item 1.00
 
+when inheriting httpd.conf on some platforms SERVER_CONFIG_FILE is an
+absolute path, so try to use that if found. [Haroon Rafique
+<haroon.rafique@utoronto.ca>]
+
 new Apache::Test functions: 
 have_min_apache_version - to require a minimal Apache version. 
 have_apache_version     - to require a specific Apache version. 
