@@ -619,3 +619,375 @@ sub content_assert {
 }
 
 1;
+
+=head1 NAME
+
+Apache::TestRequest - Send requests to your Apache test server
+
+=head1 SYNOPSIS
+
+  use Apache::Test qw(ok have_lwp);
+  use Apache::TestRequest qw(GET POST);
+  use Apache::Constants qw(HTTP_OK);
+
+  plan tests => 1, have_lwp;
+
+  my $res = GET '/test.html';
+  ok $res->code == HTTP_OK, "Request is ok";
+
+=head1 DESCRIPTION
+
+B<Apache::TestRequest> provides convenience functions to allow you to
+make requests to your Apache test server in your test scripts. It
+subclasses C<LWP::UserAgent>, so that you have access to all if its
+methods, but also exports a number of useful functions likely useful
+for majority of your test requests. Users of the old C<Apache::test>
+(or C<Apache::testold>) module, take note! Herein lie most of the
+functions you'll need to use to replace C<Apache::test> in your test
+suites.
+
+Each of the functions exported by C<Apache::TestRequest> uses an
+C<LWP::UserAgent> object to submit the request and retrieve its
+results. The return value for many of these functions is an
+HTTP::Response object. See L<HTTP::Response|HTTP::Response> for
+documentation of its methods, which you can use in your tests. For
+example, use the C<code()> and C<content()> methods to test the
+response code and content of your request. Using C<GET>, you can
+perform a couple of tests using these methods like this:
+
+  use Apache::Test qw(ok have_lwp);
+  use Apache::TestRequest qw(GET POST);
+  use Apache::Constants qw(HTTP_OK);
+
+  plan tests => 2, have_lwp;
+
+  my $uri = "/test.html?foo=1&bar=2";
+  my $res = GET $uri;
+  ok $res->code == HTTP_OK, "Check that the request was OK";
+  ok $res->content eq "foo => 1, bar => 2", "Check its content";
+
+Note that you can also use C<Apache::TestRequest> with
+C<Test::Builder> and its derivatives, including C<Test::More>:
+
+  use Test::More;
+  # ...
+  is $res->code, HTTP_OK, "Check that the request was OK";
+  is $res->content, "foo => 1, bar => 2", "Check its content";
+
+=head1 CONFIGURATION FUNCTION
+
+You can tell C<Apache::TestRequest> what kind of C<LWP::UserAgent>
+object to use for its convenience functions with C<user_agent()>. This
+function uses its arguments to construct an internal global
+C<LWP::UserAgent> object that will be used for all subsequent requests
+made by the convenience functions. The arguments it takes are the same
+as for the C<LWP::UserAgent> constructor. See the
+C<L<LWP::UserAgent|LWP::UserAgent>> documentation for a complete list.
+
+The C<user_agent()> function only creates the internal
+C<LWP::UserAgent> object the first time it is called. Since this
+function is called internally by C<Apache::TestRequest>, you should
+always use the C<reset> parameter to force it to create a new global
+C<LWP::UserAgent> Object:
+
+  Apache::TestRequest::user_agent(reset => 1, %params);
+
+C<user_agent()> differs from C<< LWP::UserAgent->new >> in two
+additional ways. First, it supports an additional parameter,
+C<keep_alive>, which enables connection persistence, where the same
+connection is used to process multiple requests (and, according to the
+C<L<LWP::UserAgent|LWP::UserAgent>> documentation, has the effect of
+loading and enabling the new experimental HTTP/1.1 protocol module).
+
+And finally, the semantics of the C<requests_redirectable> parameter
+is different than for C<LWP::UserAgent>. C<Apache::TestRequest> never
+follows redirects for POST requests. However, it either follows
+redirects for all other kinds of requests, or it doesn't. Thus
+C<requests_redirectable> is a boolean value instead of the array
+reference that C<LWP::UserAgent> expects. Thus, to force
+C<Apache::TestRequest> not to follow redirects in any of its
+convenience functions, pass a false value to C<requests_redirectable>:
+
+  Apache::TestRequest::user_agent(reset => 1,
+                                  requests_redirectable => 0);
+
+=head1 FUNCTIONS
+
+C<Apache::TestRequest> exports a number of functions that will likely
+prove convenient for use in the majority of your request tests.
+
+=head2 Optional Parameters
+
+Each function also takes a number of optional arguments.
+
+=over 4
+
+=item redirect_ok
+
+By default they will follow redirects retrieved from the server. To
+prevent this behavior, pass a false value to a C<redirect_ok>
+parameter:
+
+  my $res = GET $uri, redirect_ok => 0;
+
+Alternately, if all of your tests need to disable redirects, tell
+C<Apache::TestRequest> to use an C<LWP::UserAgent> object that
+disables redirects:
+
+  Apache::TestRequest::user_agent( reset => 1,
+                                   requests_redirectable => 0 );
+
+=item cert
+
+If you need to force an SSL request to use a particular SSL
+certificate, pass the name of the certificate via the C<cert>
+parameter:
+
+  my $res = GET $uri, cert = 'my_cert';
+
+=item content
+
+If you need to add content to your request, use the C<content>
+parameter:
+
+  my $res = GET $uri, content = 'hello world!';
+
+=item filename
+
+The name of a local file on the file system to be sent to the Apache
+test server via C<UPLOAD()> and its friends.
+
+=back
+
+=head2 The Functions
+
+=over 4
+
+=item GET
+
+  my $res = GET $uri;
+
+Sends a simple GET request to the Apache test server. Returns an
+C<HTTP::Response> object.
+
+=item GET_STR
+
+A shortcut function for C<< GET($uri)->as_string >>.
+
+=item GET_BODY
+
+A shortcut function for C<< GET($uri)->content >>.
+
+=item GET_BODY_ASSERT
+
+Use this function when your test is outputting content that you need
+to check, and you want to make sure that the request was successful
+before comparing the contents of the request. If the request was
+unsuccessful, C<GET_BODY_ASSERT> will return an error
+message. Otherwise it will simply return the content of the request
+just as C<GET_BODY> would.
+
+=item GET_OK
+
+A shortcut function for C<< GET($uri)->is_success >>.
+
+=item GET_RC
+
+A shortcut function for C<< GET($uri)->code >>.
+
+=item GET_HEAD
+
+Throws out the content of the request, and returns the string
+representation of the request. Since the body has been thrown out, the
+representation will consist solely of the headers. Furthermore,
+C<GET_HEAD> inserts a "#" at the beginning of each line of the return
+string, so that the contents are suitable for printing to STDERR
+during your tests without interfering with the workings of
+C<Test::Harness>.
+
+=item HEAD
+
+  my $res = HEAD $uri;
+
+Sends a HEAD request to the Apache test server. Returns an
+C<HTTP::Response> object.
+
+=item HEAD_STR
+
+A shortcut function for C<< HEAD($uri)->as_string >>.
+
+=item HEAD_BODY
+
+A shortcut function for C<< HEAD($uri)->content >>. Of course, this
+means that it will likely return nothing.
+
+=item HEAD_BODY_ASSERT
+
+Use this function when your test is outputting content that you need
+to check, and you want to make sure that the request was successful
+before comparing the contents of the request. If the request was
+unsuccessful, C<HEAD_BODY_ASSERT> will return an error
+message. Otherwise it will simply return the content of the request
+just as C<HEAD_BODY> would.
+
+=item HEAD_OK
+
+A shortcut function for C<< GET($uri)->is_success >>.
+
+=item HEAD_RC
+
+A shortcut function for C<< GET($uri)->code >>.
+
+=item HEAD_HEAD
+
+Throws out the content of the request, and returns the string
+representation of the request. Since the body has been thrown out, the
+representation will consist solely of the headers. Furthermore,
+C<GET_HEAD> inserts a "#" at the beginning of each line of the return
+string, so that the contents are suitable for printing to STDERR
+during your tests without interfering with the workings of
+C<Test::Harness>.
+
+=item PUT
+
+  my $res = PUT $uri;
+
+Sends a simple PUT request to the Apache test server. Returns an
+C<HTTP::Response> object.
+
+=item PUT_STR
+
+A shortcut function for C<< PUT($uri)->as_string >>.
+
+=item PUT_BODY
+
+A shortcut function for C<< PUT($uri)->content >>.
+
+=item PUT_BODY_ASSERT
+
+Use this function when your test is outputting content that you need
+to check, and you want to make sure that the request was successful
+before comparing the contents of the request. If the request was
+unsuccessful, C<PUT_BODY_ASSERT> will return an error
+message. Otherwise it will simply return the content of the request
+just as C<PUT_BODY> would.
+
+=item PUT_OK
+
+A shortcut function for C<< PUT($uri)->is_success >>.
+
+=item PUT_RC
+
+A shortcut function for C<< PUT($uri)->code >>.
+
+=item PUT_HEAD
+
+Throws out the content of the request, and returns the string
+representation of the request. Since the body has been thrown out, the
+representation will consist solely of the headers. Furthermore,
+C<PUT_HEAD> inserts a "#" at the beginning of each line of the return
+string, so that the contents are suitable for printing to STDERR
+during your tests without interfering with the workings of
+C<Test::Harness>.
+
+=item POST
+
+  my $res = POST $uri, arg  => $val, arg2 => $val;
+
+Sends a POST request to the Apache test server and returns an
+HTTP::Response object. Any parameters passed after C<$uri> that do not
+correspond to those documented in L<Optional Parameters|/Optional
+Parameters> will be submitted to the Apache test server as the POST
+content.
+
+=item POST_STR
+
+A shortcut function for C<< POST($uri, @args)->content >>.
+
+=item POST_BODY
+
+A shortcut function for C<< POST($uri, @args)->content >>.
+
+=item POST_BODY_ASSERT
+
+Use this function when your test is outputting content that you need
+to check, and you want to make sure that the request was successful
+before comparing the contents of the request. If the request was
+unsuccessful, C<POST_BODY_ASSERT> will return an error
+message. Otherwise it will simply return the content of the request
+just as C<POST_BODY> would.
+
+=item POST_OK
+
+A shortcut function for C<< POST($uri, @args)->is_success >>.
+
+=item POST_RC
+
+A shortcut function for C<< POST($uri, @args)->code >>.
+
+=item POST_HEAD
+
+Throws out the content of the request, and returns the string
+representation of the request. Since the body has been thrown out, the
+representation will consist solely of the headers. Furthermore,
+C<POST_HEAD> inserts a "#" at the beginning of each line of the return
+string, so that the contents are suitable for printing to STDERR
+during your tests without interfering with the workings of
+C<Test::Harness>.
+
+=item UPLOAD
+
+  my $res = UPLOAD $uri, \@args, filename => $filename;
+
+Sends a request to the Apache test server that includes an uploaded
+file. Other POST parameters can be passed as a second argument as an
+array reference.
+
+C<Apache::TestRequest> will read in the contents of the file named via
+the C<filename> parameter for submission to the server. If you'd
+rather, you can submit use the C<content> parameter instead of
+C<filename>, and its value will be submitted to the Apache server as
+file contents:
+
+  my $res = UPLOAD $uri, undef, content => "This is file content";
+
+The name of the file sent to the server will simply be "b". Note that
+in this case, you cannot pass other POST arguments to C<UPLOAD()> --
+they would be ignored.
+
+=item UPLOAD_BODY
+
+A shortcut function for C<< UPLOAD($uri, @params)->content >>.
+
+=item UPLOAD_BODY_ASSERT
+
+Use this function when your test is outputting content that you need
+to check, and you want to make sure that the request was successful
+before comparing the contents of the request. If the request was
+unsuccessful, C<UPLOAD_BODY_ASSERT> will return an error
+message. Otherwise it will simply return the content of the request
+just as C<UPLOAD_BODY> would.
+
+=item OPTIONS
+
+META: complete
+
+=back
+
+=head1 SEE ALSO
+
+L<Apache::Test|Apache::Test> is the main Apache testing module. Use it
+to set up your tests, create a plan, and to ensure that you have the
+Apache version and modules you need.
+
+Use L<Apache::TestMM|Apache::TestMM> in your I<Makefile.PL> to set up
+your distribution for testing.
+
+=head1 AUTHOR
+
+Doug MacEachern with contributions from Geoffrey Young, Philippe
+M. Chiasson, Stas Bekman and others. Documentation by David Wheeler.
+
+Questions can be asked at the test-dev <at> httpd.apache.org list. For
+more information see: I<http://httpd.apache.org/test/> and
+I<http://perl.apache.org/docs/general/testing/testing.html>.
