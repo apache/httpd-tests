@@ -15,6 +15,7 @@ my $time = localtime();
 
 #Apache::TestRequest::scheme('https');
 local $vars->{scheme} = 'https';
+my $port = $config->port;
 
 my $url = '/test_ssl_var_lookup';
 my(%lookup, @vars);
@@ -117,7 +118,7 @@ AUTH_TYPE
 QUERY_STRING                'QUERY_STRING'
 SERVER_SOFTWARE             qr(^$server->{version})
 SERVER_ADMIN                $vars->{serveradmin}
-SERVER_PORT
+SERVER_PORT                 "$port"
 SERVER_NAME                 $vars->{servername}
 SERVER_PROTOCOL             qr(^HTTP/1\.\d$)
 REMOTE_IDENT
