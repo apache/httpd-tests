@@ -17,19 +17,32 @@ sub configure_libmodperl {
     my $server = $self->{server};
     my $libname = $server->version_of(\%libmodperl);
 
+    my $vars = $self->{vars};
     if ($server->{rev} >= 2) {
         if (my $build_config = $self->modperl_build_config()) {
-            $libname = $build_config->{MODPERL_LIB_SHARED}
+            $libname = $build_config->{MODPERL_LIB_SHARED};
         }
+        else {
+            # XXX: can we test whether mod_perl was linked statically
+            # so we don't need to preload it
+            # if (!linked statically) {
+            #     die "can't find mod_perl built for perl version $]"
+            # }
+            error "can't find mod_perl.so built for perl version $]";
+        }
+        # don't use find_apache_module or we may end up with the wrong
+        # shared object, built against different perl
     }
-
-    my $vars = $self->{vars};
-
-    $vars->{libmodperl} ||= $self->find_apache_module($libname);
+    else {
+        # mod_perl 1.0
+        $vars->{libmodperl} ||= $self->find_apache_module($libname);
+        # XXX: how do we find out whether we have a static or dynamic
+        # mod_perl build? die if its dynamic and can't find the module
+    }
 
     my $cfg = '';
 
-    if (-e $vars->{libmodperl}) {
+    if (exists $vars->{libmodperl} && -e $vars->{libmodperl}) {
         if (Apache::TestConfig::WIN32) {
             my $lib = "$Config{installbin}\\$Config{libperl}";
             $lib =~ s/lib$/dll/;
