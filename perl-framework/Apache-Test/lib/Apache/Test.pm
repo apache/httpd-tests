@@ -86,7 +86,7 @@ __END__
 
 =head1 NAME
 
-Apache::Test - Test.pm with helpers for testing Apache
+Apache::Test - Test.pm wrapper with helpers for testing Apache
 
 =head1 SYNOPSIS
 
