@@ -1,0 +1,9 @@
+#t/TEST -proxy
+
+<IfModule mod_proxy.c>
+
+    <VirtualHost _default_:mod_proxy>
+        ProxyRequests On
+    </VirtualHost>
+
+</IfModule>
