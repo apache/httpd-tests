@@ -97,6 +97,7 @@ sub new {
         mpms => default_mpms(),
         make => $Config{make},
         builds => {},
+        name => "",
         extra_config => {
             'httpd-2.0' => [],
         },
@@ -345,6 +346,9 @@ my @srclib_dirs = qw(
 
 sub install_name {
     my($self, $builds, $configs, $mpm) = @_;
+
+    return $self->{name} if $self->{name};
+
     my $name = join '-', $mpm, @$builds, @$configs;
 
     if (my $tag = $self->cvs_name) {
@@ -581,6 +585,7 @@ my %options = (
     mpms    => "MPMs to build (e.g. 'prefork')",
     flavor  => "build flavor (e.g. 'debug shared')",
     modules => "enable modules (e.g. 'all exp')",
+    name    => "change name of the build/install directory",
 );
 
 my %opts;
@@ -601,8 +606,8 @@ $opts{prefix}  ||= join '/', Cwd::cwd(), 'farm';
 #$opts{cvsroot} ||= '';
 $opts{version} ||= '2.0';
 $opts{mpms}    ||= 'prefork';
-$opts{flavor}  ||= 'debug shared';
-$opts{modules} ||= 'all exp';
+$opts{flavor}  ||= 'debug-shared';
+$opts{modules} ||= 'all-exp';
 
 #my @versions = qw(2.0);
 
@@ -613,7 +618,7 @@ $opts{modules} ||= 'all exp';
 
 #my @modules = ([qw(all exp)]);
 
-my $split = sub { split /\s+/, delete $opts{ $_[0] } };
+my $split = sub { split '-', delete $opts{ $_[0] } };
 
 my @versions = $opts{version};
 
