@@ -23,7 +23,8 @@ my %core_files  = ();
 my %original_t_perms = ();
 
 my @std_run      = qw(start-httpd run-tests stop-httpd);
-my @others       = qw(verbose configure clean help ssl http11);
+my @others       = qw(configure clean help ssl http11);
+my @verbose_opts = qw(verbose);
 my @flag_opts    = (@std_run, @others);
 my @string_opts  = qw(order trace);
 my @ostring_opts = qw(proxy ping);
@@ -41,7 +42,7 @@ my %usage = (
    'times=N'         => 'repeat the tests N times',
    'order=mode'      => 'run the tests in one of the modes: (repeat|rotate|random|SEED)',
    'stop-httpd'      => 'stop the test server',
-   'verbose'         => 'verbose output',
+   'verbose[=1]'     => 'verbose output',
    'configure'       => 'force regeneration of httpd.conf (tests will not be run)',
    'clean'           => 'remove all generated test files',
    'help'            => 'display this message',
@@ -166,6 +167,7 @@ sub getopts {
     # grab from @ARGV only the options that we expect
     GetOptions(\%opts, @flag_opts, @help_opts,
                (map "$_:s", @debug_opts, @request_opts, @ostring_opts),
+               (map "$_:1", @verbose_opts),
                (map "$_=s", @string_opts),
                (map "$_=i", @num_opts),
                (map { ("$_=s", $vopts{$_} ||= []) } @list_opts),
