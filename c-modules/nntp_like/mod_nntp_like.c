@@ -71,12 +71,11 @@ static apr_status_t nntp_like_init_connection(conn_rec *c)
 {
     apr_bucket_brigade *bb;
     apr_status_t rv;
-    apr_off_t zero = 0;
 
     bb = apr_brigade_create(c->pool);
 
     rv = ap_get_brigade(c->input_filters, bb, AP_MODE_INIT, 
-                        APR_BLOCK_READ, &zero);
+                        APR_BLOCK_READ, 0);
 
     apr_brigade_destroy(bb);
 
@@ -103,7 +102,6 @@ static int nntp_like_process_connection(conn_rec *c)
 {
     apr_bucket_brigade *bb;
     apr_status_t rv;
-    apr_off_t zero = 0;
     nntp_like_srv_cfg_t *cfg =
         ap_get_module_config(c->base_server->module_config,
                              &nntp_like_module);
@@ -128,7 +126,7 @@ static int nntp_like_process_connection(conn_rec *c)
     for (;;) {
         if ((rv = ap_get_brigade(c->input_filters, bb,
                                  AP_MODE_GETLINE,
-                                 APR_BLOCK_READ, &zero) != APR_SUCCESS || 
+                                 APR_BLOCK_READ, 0) != APR_SUCCESS || 
              APR_BRIGADE_EMPTY(bb)))
         {
             apr_brigade_destroy(bb);

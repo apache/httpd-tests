@@ -83,7 +83,7 @@ typedef struct input_body_ctx_t {
 static int input_body_filter_handler(ap_filter_t *f, apr_bucket_brigade *bb, 
                                      ap_input_mode_t mode, 
                                      apr_read_type_e block,
-                                     apr_off_t *readbytes)
+                                     apr_off_t readbytes)
 {
     apr_status_t rv;
     apr_pool_t *p = f->r->pool;
