@@ -46,7 +46,14 @@ sub sok (&;$) {
         return;
     }
 
-    ok $sub->();
+    my($package, $filename, $line) = caller;
+
+    # trick ok() into reporting the caller filename/line when a
+    # sub-test fails in sok()
+    return eval <<EOE;
+#line $line $filename
+    ok(\$sub->());
+EOE
 }
 
 #so Perl's Test.pm can be run inside mod_perl
