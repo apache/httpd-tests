@@ -6,7 +6,7 @@ Changes - Apache::Test change logfile
 
 =over 3
 
-=item 1.09-dev
+=item 1.09 - March 8, 2004
 
 remove the dependency on APR::UUID (i.e. mod_perl 2.0) in the
 same_interpreter framework (use plain time/rand/$$ concatenation)
