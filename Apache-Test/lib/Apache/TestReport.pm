@@ -8,6 +8,11 @@ use Apache::TestConfig ();
 
 use File::Spec::Functions qw(catfile);
 
+sub new {
+    my $class = shift;
+    bless { @_ }, $class;
+}
+
 # generate t/REPORT script (or a different filename) which will drive
 # Apache::TestReport
 sub generate_script {
@@ -15,23 +20,32 @@ sub generate_script {
 
     $file ||= catfile 't', 'REPORT';
 
-    local $/;
-    my $content = <DATA>;
+    my $header = Apache::TestConfig->perlscript_header;
 
-    my %replace = (
-        class  => $class,
-        header => Apache::TestConfig->perlscript_header,
-    );
-
-    while (my($key, $val) = each %replace) {
-        $content =~ s/__\U${key}__/$replace{$key}/g;
-    }
+    my $content = join "\n",
+      $header, "use $class;", "$class->new(\@ARGV)->run;";
 
     Apache::Test::config()->write_perlscript($file, $content);
-
 }
 
-sub build_config_as_string { Apache::TestConfig::as_string() }
+sub replace {
+    my($self, $template) = @_;
+
+    $template =~ s{\@(\w+)\@} {
+        my $method = lc $1;
+        eval { $self->$method() } || $self->{$1} || '';
+    }eg;
+
+    $template;
+}
+
+sub run {
+    my $self = shift;
+
+    print $self->replace($self->template);
+}
+
+sub config { Apache::TestConfig::as_string() }
 
 sub report_to { 'test-dev@httpd.apache.org' }
 
@@ -47,28 +61,17 @@ email to $to-subscribe\@$where.
 EOF
 }
 
-1;
-__DATA__
+sub executable { $0 }
 
-__HEADER__
+sub date { scalar gmtime() . " GMT" }
 
-use __CLASS__ ();
-
-my %map = (
-    CONFIG     => __CLASS__->build_config_as_string,
-    EXECUTABLE => $0,
-    DATE       => scalar gmtime() . " GMT",
-    POSTIT_NOTE => __CLASS__->postit_note,
-);
-{
+sub template {
     local $/ = undef;
-    my $template = <DATA>;
-    $template =~ s/\@(\w+)\@/$map{$1}||''/eg;
-    print $template;
+    <DATA>;
 }
 
+1;
 __DATA__
-
 
 -------------8<---------- Start Bug Report ------------8<----------
 1. Problem Description:
