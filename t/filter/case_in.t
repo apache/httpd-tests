@@ -13,9 +13,11 @@ my %urls = (
 
 my @filter = ('X-AddInputFilter' => 'CaseFilterIn'); #mod_client_add_filter
 
-my %modules = map { $_, Apache::Test::have_module($_) } keys %urls;
+for my $module (keys %urls) {
+    delete $urls{$module} unless have_module($module);
+}
 
-my $tests = 1 + grep { $modules{$_} } keys %urls;
+my $tests = 1 + scalar keys %urls;
 
 plan tests => $tests, need_module 'case_filter_in';
 
@@ -24,13 +26,11 @@ ok 1;
 my $data = "v1=one&v3=two&v2=three";
 
 for my $module (sort keys %urls) {
-    if ($modules{$module}) {
-        my $r = POST $urls{$module}, @filter, content => $data;
-        print "# testing $module with $urls{$module}\n";
-        print "# expected 200\n";
-        print "# received ".$r->code."\n";
-        verify($r);
-    }
+    my $r = POST $urls{$module}, @filter, content => $data;
+    print "# testing $module with $urls{$module}\n";
+    print "# expected 200\n";
+    print "# received ".$r->code."\n";
+    verify($r);
 }
 
 sub verify {

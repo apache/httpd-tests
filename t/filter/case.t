@@ -14,22 +14,22 @@ my %urls = (
 
 my @filter = ('X-AddOutputFilter' => 'CaseFilter'); #mod_client_add_filter
 
-my %modules = map { $_, have_module($_) } keys %urls;
+for my $module (keys %urls) {
+    delete $urls{$module} unless have_module($module);
+}
 
-my $tests = 1 + grep { $modules{$_} } keys %urls;
+my $tests = 1 + scalar keys %urls;
 
 plan tests => $tests, need_module 'case_filter';
 
 verify(GET '/', @filter);
 
 for my $module (sort keys %urls) {
-    if ($modules{$module}) {
-        my $r = GET $urls{$module}, @filter;
-        print "# testing $module with $urls{$module}\n";
-        print "# expected 200\n";
-        print "# received ".$r->code."\n";
-        verify($r);
-    }
+    my $r = GET $urls{$module}, @filter;
+    print "# testing $module with $urls{$module}\n";
+    print "# expected 200\n";
+    print "# received ".$r->code."\n";
+    verify($r);
 }
 
 sub verify {
