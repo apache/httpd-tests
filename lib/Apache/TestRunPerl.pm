@@ -19,6 +19,7 @@ use warnings FATAL => 'all';
 
 use Apache::TestRun ();
 use Apache::TestConfigParse ();
+use Apache::TestTrace;
 
 use File::Spec::Functions qw(catfile);
 
@@ -37,6 +38,27 @@ sub configure_modperl {
     my $self = shift;
 
     my $test_config = $self->{test_config};
+
+    my $rev = $test_config->server->{rev};
+    my $ver = $test_config->server->{version};
+
+    # sanity checking and loading the right mod_perl version
+    if ($rev == 2) {
+        eval { require Apache2 && require mod_perl };
+    } else {
+        eval { require mod_perl };
+    }
+    if ($@) {
+        error "You are using mod_perl response handlers ",
+            "but do not have a mod_perl capable Apache.";
+        Apache::TestRun::exit_perl(0);
+    }
+    if (($rev == 1 and $mod_perl::VERSION >= 1.99) ||
+        ($rev == 2 and $mod_perl::VERSION < 1.99)) {
+        error "Found mod_perl/$mod_perl::VERSION, " .
+            "but it can't be used with Apache/$ver";
+        Apache::TestRun::exit_perl(0);
+    }
 
     $test_config->preamble_register(qw(configure_libmodperl));
 
@@ -64,3 +86,21 @@ sub refresh {
 }
 
 1;
+__END__
+
+=head1 NAME
+
+Apache::TestRunPerl - Run mod_perl-requiring Test Suite
+
+=head1 SYNOPSIS
+
+  use Apache::TestRunPerl;
+  Apache::TestRunPerl->new->run(@ARGV);
+
+=head1 DESCRIPTION
+
+The C<Apache::TestRunPerl> package controls the configuration and
+running of the test suite. It's a subclass of C<Apache::TestRun>, and
+should be used only when you need to run mod_perl tests.
+
+=cut

@@ -480,14 +480,6 @@ sub configure_pm_tests_sort {
 sub configure_pm_tests {
     my $self = shift;
 
-    # since server wasn't started yet, the modules in blib under
-    # Apache2 can't be seen. So we must load Apache2.pm, without which
-    # run_apache_test_config might fail to require modules
-    require mod_perl;
-    if ($mod_perl::VERSION > 1.99) {
-        require Apache2;
-    }
-
     my @entries = ();
     $self->configure_pm_tests_pick(\@entries);
     $self->configure_pm_tests_sort(\@entries);
