@@ -72,10 +72,12 @@ sub generate_script {
 
     unlink $file if -e $file;
 
-    my $body = Apache::TestConfig->modperl_2_inc_fixup;
+    my $body = "use blib;\n";
+
+    $body .= Apache::TestConfig->modperl_2_inc_fixup;
 
     if (@Apache::TestMM::Argv) {
-        $body .= "\%Apache::TestConfig::Argv = qw(@Apache::TestMM::Argv);\n";
+        $body .= "\n\%Apache::TestConfig::Argv = qw(@Apache::TestMM::Argv);\n";
     }
 
     my $in = Symbol::gensym();
