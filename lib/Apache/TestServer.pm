@@ -9,6 +9,7 @@ use File::Spec::Functions qw(catfile);
 
 use Apache::TestTrace;
 use Apache::TestConfig ();
+use Apache::TestRequest ();
 
 my $CTRL_M = $ENV{APACHE_TEST_NO_COLOR} ? "\n" : "\r";
 
@@ -483,7 +484,7 @@ sub wait_till_is_up {
 
     my $server_up = sub {
         local $SIG{__WARN__} = sub {}; #avoid "cannot connect ..." warnings
-        $config->http_raw_get('/index.html');
+        Apache::TestRequest::GET_OK('/index.html');
     };
 
     if ($server_up->()) {
