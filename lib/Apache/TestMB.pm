@@ -15,7 +15,7 @@ sub new {
     my $self = $pkg->SUPER::new(@_);
     $self->{properties}{apache_test_args} = $vars;
     $self->{properties}{apache_test_script} ||= 't/TEST';
-    $self->generate_test_script;
+    $self->generate_script;
     return $self;
 }
 
@@ -92,7 +92,7 @@ sub ACTION_cmodules       { shift->_cmodues('all')   }
 sub ACTION_cmodules_clean { shift->_cmodues('clean') }
 
 # XXX I'd love to make this optional.
-sub generate_test_script {
+sub generate_script {
     my $self = shift;
 
     # If a file name has been passed in, use it. Otherwise, use the
