@@ -2409,7 +2409,6 @@ DocumentRoot "@DocumentRoot@"
 
 PidFile     @t_logs@/httpd.pid
 ErrorLog    @t_logs@/error_log
-Lockfile    @t_logs@/accept.lock
 LogLevel    debug
 
 <IfModule mod_log_config.c>
@@ -2429,6 +2428,7 @@ HostnameLookups Off
 </Directory>
 
 <IfModule @THREAD_MODULE@>
+    LockFile             @t_logs@/accept.lock
     StartServers         1
     MinSpareThreads      @MinClients@
     MaxSpareThreads      @MinClients@
@@ -2438,6 +2438,7 @@ HostnameLookups Off
 </IfModule>
 
 <IfModule perchild.c>
+    LockFile             @t_logs@/accept.lock
     NumServers           1
     StartThreads         @MinClients@
     MinSpareThreads      @MinClients@
@@ -2447,6 +2448,7 @@ HostnameLookups Off
 </IfModule>
 
 <IfModule prefork.c>
+    LockFile             @t_logs@/accept.lock
     StartServers         @MinClients@
     MinSpareServers      @MinClients@
     MaxSpareServers      @MinClients@
@@ -2455,6 +2457,7 @@ HostnameLookups Off
 </IfModule>
 
 <IfDefine APACHE1>
+    LockFile             @t_logs@/accept.lock
     StartServers         @MinClients@
     MinSpareServers      @MinClients@
     MaxSpareServers      @MinClients@
