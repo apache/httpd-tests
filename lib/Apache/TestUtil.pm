@@ -11,7 +11,7 @@ use vars qw($VERSION @ISA @EXPORT %CLEAN);
 
 $VERSION = '0.01';
 @ISA     = qw(Exporter);
-@EXPORT = qw(t_cmp t_write_file t_open_file t_mkdir t_rmtree
+@EXPORT = qw(t_cmp t_debug t_write_file t_open_file t_mkdir t_rmtree
              t_is_equal);
 
 %CLEAN = ();
@@ -24,10 +24,18 @@ sub t_cmp {
         ' usage: $res = t_cmp($expected, $received, [$comment])'
             if @_ < 2 || @_ > 3;
 
-    print "# testing : ", pop, "\n" if @_ == 3;
-    print "# expected: ", struct_as_string(0, $_[0]), "\n";
-    print "# received: ", struct_as_string(0, $_[1]), "\n";
+    t_debug("testing : " . pop) if @_ == 3;
+    t_debug("expected: " . struct_as_string(0, $_[0]));
+    t_debug("received: " . struct_as_string(0, $_[1]));
     return t_is_equal(@_);
+}
+
+*expand = HAS_DUMPER ?
+    sub { map { ref $_ ? Data::Dumper::Dumper($_) : $_ } @_ } :
+    sub { @_ };
+
+sub t_debug {
+    print map {"# $_\n"} map {split /\n/} expand(@_);
 }
 
 sub t_write_file {
@@ -35,7 +43,7 @@ sub t_write_file {
     die "must pass a filename" unless defined $file;
     my $fh = Symbol::gensym();
     open $fh, ">$file" or die "can't open $file: $!";
-    print "# writing file: $file\n";
+    t_debug("writing file: $file");
     print $fh join '', @_ if @_;
     close $fh;
     $CLEAN{files}{$file}++;
@@ -46,7 +54,7 @@ sub t_open_file {
     die "must pass a filename" unless defined $file;
     my $fh = Symbol::gensym();
     open $fh, ">$file" or die "can't open $file: $!";
-    print "# writing file: $file\n";
+    t_debug("writing file: $file");
     $CLEAN{files}{$file}++;
     return $fh;
 }
@@ -76,7 +84,7 @@ sub t_mkdir {
     my $dir = shift;
     die "must pass a dirname" unless defined $dir;
     mkdir $dir, 0755 unless -d $dir;
-    print "# creating dir: $dir\n";
+    t_debug("creating dir: $dir");
     $CLEAN{dirs}{$dir}++;
 }
 
@@ -168,17 +176,16 @@ sub t_is_equal {
     return 1;
 }
 
-END{
-
+END {
     # remove files that were created via this package
     for (grep {-e $_ && -f _ } keys %{ $CLEAN{files} } ) {
-        print "# removing file: $_\n";
+        t_debug("removing file: $_");
         unlink $_;
     }
 
     # remove dirs that were created via this package
     for (grep {-e $_ && -d _ } keys %{ $CLEAN{dirs} } ) {
-        print "# removing dir tree: $_\n";
+        t_debug("removing dir tree: $_");
         t_rmtree($_);
     }
 }
@@ -256,6 +263,18 @@ datastructures can be deeply nested. For example you can compare:
         "hash of array of hashes");
 
 This function is automatically exported.
+
+=item t_debug()
+
+  t_debug("testing feature foo");
+  t_debug("test", [1..3], 5, {a=>[1..5]});
+
+t_debug() prints out any datastructure while prepending C<#> at the
+beginning of each line, to make the debug printouts comply with
+C<Test::Harness>'s requirements. This function should be always used
+for debug prints, since if in the future the debug printing will
+change (e.g. redirected into a file) your tests won't need to be
+changed.
 
 =item t_write_file()
 
