@@ -8,6 +8,14 @@ Changes - Apache::Test change logfile
 
 =item 1.14-dev
 
+Apache::TestSmoke imrovements: [Stas]
+ o the command line option -iterations=N should always be respected
+   (previously it was internally overriden for order!='random').
+ o since IPC::Run3 broke the Ctrl-C handler, we started to loose any
+   intermediate results, should the run be aborted. So for now, try to
+   always store those results in the temp file:
+   smoke-report...$iter.temp
+
 fix 'require blib' in scripts to also call 'blib->import', required to
 have an effect under perl 5.6.x. [Stas]
 
