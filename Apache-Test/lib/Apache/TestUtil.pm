@@ -9,7 +9,7 @@ use Exporter ();
 use Carp ();
 use Config;
 use File::Basename qw(dirname);
-use File::Spec::Functions qw(catfile);
+use File::Spec::Functions qw(catfile file_name_is_absolute);
 use Symbol ();
 
 use Apache::Test ();
@@ -26,7 +26,8 @@ $VERSION = '0.01';
     t_client_log_error_is_expected t_client_log_warn_is_expected
 );
 
-@EXPORT_OK = qw(t_write_perl_script t_write_shell_script t_chown);
+@EXPORT_OK = qw(t_write_perl_script t_write_shell_script t_chown
+               t_catfile_apache t_catfile);
 
 %CLEAN = ();
 
@@ -302,6 +303,26 @@ END {
         t_debug("removing dir tree: $_");
         t_rmtree($_);
     }
+}
+
+# essentially File::Spec->catfile, but on Win32
+# returns the long path name, if the file is absolute
+sub t_catfile {
+    my $f = catfile(@_);
+    return $f unless file_name_is_absolute($f);
+    return Apache::TestConfig::WIN32 ?
+        Win32::GetLongPathName($f) : $f;
+}
+
+# Apache uses a Unix-style specification for files, with
+# forward slashes for directory separators. This is
+# essentially File::Spec::Unix->catfile, but on Win32
+# returns the long path name, if the file is absolute
+sub t_catfile_apache {
+    my $f = File::Spec::Unix->catfile(@_);
+    return $f unless file_name_is_absolute($f);
+    return Apache::TestConfig::WIN32 ?
+        Win32::GetLongPathName($f) : $f;
 }
 
 1;
@@ -617,6 +638,22 @@ See the explanation for C<t_client_log_error_is_expected()> for more
 details.
 
 This function is exported by default.
+
+=item t_catfile('a', 'b', 'c')
+
+This function is essentially C<File::Spec-E<gt>catfile>, but
+on Win32 will use C<Win32::GetLongpathName()> to convert the
+result to a long path name (if the result is an absolute file).
+The function is not exported by default.
+
+=item t_catfile_apache('a', 'b', 'c')
+
+This function is essentially C<File::Spec::Unix-E<gt>catfile>, but
+on Win32 will use C<Win32::GetLongpathName()> to convert the
+result to a long path name (if the result is an absolute file).
+It is useful when comparing something to that returned by Apache,
+which uses a Unix-style specification with forward slashes for
+directory separators. The function is not exported by default.
 
 =back
 
