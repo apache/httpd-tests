@@ -54,6 +54,14 @@ sub vars {
 }
 
 sub user_agent {
+    my $args = {@_};
+    if ($args->{keep_alive}) {
+        eval {
+            require LWP::Protocol::https11;
+            LWP::Protocol::implementor('https', 'LWP::Protocol::https11');
+        };
+    }
+
     eval { $UA ||= __PACKAGE__->new(@_); };
 }
 
@@ -444,11 +452,6 @@ eval {
           Apache::TestRequest::hostport();
         $args->{PeerPort} = $port;
         $args->{PeerAddr} = $host;
-    });
-
-    install_net_socket_new('Net::HTTP' => sub {
-        my $args = shift;
-        $args->{KeepAlive} = 1;
     });
 };
 
