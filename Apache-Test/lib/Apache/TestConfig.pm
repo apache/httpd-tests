@@ -30,11 +30,12 @@ use constant DEFAULT_PORT => 8529;
 use constant IS_MOD_PERL_2       =>
     eval { require mod_perl && $mod_perl::VERSION >= 1.99 } || 0;
 
-use constant IS_MOD_PERL_2_BUILD => IS_MOD_PERL_2 &&
-    require Apache::Build && Apache::Build::IS_MOD_PERL_BUILD();
-
 use constant IS_APACHE_TEST_BUILD =>
     grep { -e "$_/lib/Apache/TestConfig.pm" } qw(Apache-Test . ..);
+
+use constant IS_MOD_PERL_2_BUILD =>
+    IS_MOD_PERL_2 && !IS_APACHE_TEST_BUILD &&
+    require Apache::Build && Apache::Build::IS_MOD_PERL_BUILD();
 
 use constant CUSTOM_CONFIG_FILE => 'Apache/TestConfigData.pm';
 
@@ -325,12 +326,24 @@ sub new {
 sub httpd_config {
     my $self = shift;
 
-    my $vars = $self->{vars};
-
     $self->configure_apxs;
     $self->configure_httpd;
 
+    my $vars = $self->{vars};
     unless ($vars->{httpd} or $vars->{apxs}) {
+
+        # mod_perl 2.0 build always knows the right httpd location
+        # (and optionally apxs)
+        if (IS_MOD_PERL_2_BUILD) {
+            # XXX: at the moment not sure what could go wrong, but it
+            # shouldn't enter interactive config, which doesn't work
+            # with mod_perl 2.0 build (by design)
+            die "something is wrong, mod_perl 2.0 build should have " .
+                "supplied all the needed information to run the tests. " .
+                "Please post lib/Apache/BuildConfig.pm along with the " .
+                "bug report";
+        }
+
         if ($ENV{APACHE_TEST_NO_STICKY_PREFERENCES}) {
             error "You specified APACHE_TEST_NO_STICKY_PREFERENCES=1 " .
                 "in which case you must explicitly specify -httpd " .
