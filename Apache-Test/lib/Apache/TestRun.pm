@@ -250,7 +250,8 @@ sub configure_opts {
         my $max = $test_config->{vars}->{maxclients};
         $opts->{proxy} ||= $test_config->{vars}->{proxy} || 'on';
 
-        if ($opts->{proxy} eq 'on' and $max == 1) {
+        #if config is cached and MaxClients == 1, must reconfigure
+        if (!$$save and $opts->{proxy} eq 'on' and $max == 1) {
             $$save = 1;
             warning "server must be reconfigured for proxy";
             $self->refresh;
