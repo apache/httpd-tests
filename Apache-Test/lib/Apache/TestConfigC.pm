@@ -37,6 +37,11 @@ sub cmodule_find {
 sub cmodules_configure {
     my($self, $dir) = @_;
 
+    unless ($self->{MP_APXS}) {
+        warning "cannot build c-modules without apxs";
+        return;
+    }
+
     $dir ||= catfile $self->{vars}->{top_dir}, 'c-modules';
 
     unless (-d $dir) {
