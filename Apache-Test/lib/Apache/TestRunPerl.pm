@@ -16,6 +16,8 @@ sub configure_modperl {
 
     my $test_config = $self->{test_config};
 
+    $test_config->config_parse_skip_module_add('mod_perl.c');
+
     $test_config->preamble_register(qw(configure_libmodperl));
 
     $test_config->postamble_register(qw(configure_inc
