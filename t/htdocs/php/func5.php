@@ -2,7 +2,7 @@
 
 function foo()
 {
-        print "foo() has been called.\n";
+        error_log("foo() has been called.", 0);
 }
 
 register_shutdown_function("foo");

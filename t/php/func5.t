@@ -18,9 +18,6 @@ ok $result eq $expected;
 
 ## open error_log and verify the last line is:
 ## foo() has been called.
-##
-## this is kind of lame and may not work...i dont know how php is
-## SUPPPOSED to work in this situation...
 
 my $error_log = "$env->{vars}->{t_logs}/error_log";
 open(ERROR_LOG, $error_log);
