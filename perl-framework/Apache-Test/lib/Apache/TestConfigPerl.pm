@@ -83,7 +83,7 @@ BEGIN {
     use lib '$serverroot';
     for my \$file (qw(modperl_inc.pl modperl_extra.pl)) {
         eval { require "conf/\$file" } or
-            die if \$@ !~ /^Can.t locate/;
+            die if grep { -e "\$_/conf/\$file" } \@INC;
     }
 }
 
