@@ -75,10 +75,14 @@ EOF
 my %startup_pl = (1 => 'PerlRequire', 2 => 'PerlSwitches');
 
 sub startup_pl_code {
-    return <<'EOF';
+    my $self = shift;
+    my $serverroot = $self->{vars}->{serverroot};
+
+    return <<"EOF";
 BEGIN {
-    for my $file (qw(modperl_inc.pl modperl_extra.pl)) {
-        eval { require "conf/$file" };
+    use lib '$serverroot';
+    for my \$file (qw(modperl_inc.pl modperl_extra.pl)) {
+        eval { require "conf/\$file" };
     }
 }
 
