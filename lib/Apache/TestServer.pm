@@ -10,6 +10,8 @@ use File::Spec::Functions qw(catfile);
 use Apache::TestTrace;
 use Apache::TestConfig ();
 
+my $CTRL_M = $ENV{APACHE_TEST_NO_COLOR} ? "\n" : "\r";
+
 # some debuggers use the same syntax as others, so we reuse the same
 # code by using the following mapping
 my %debuggers = (
@@ -429,10 +431,12 @@ sub start {
     my $timeout = 60; # secs XXX: make a constant?
 
     my $start_time = time;
-    my $preamble = "\rwaiting for server to start: ";
+    my $preamble = "${CTRL_M}waiting for server to start: ";
     while (1) {
         my $delta = time - $start_time;
-        print $preamble, sprintf "%02d:%02d", (gmtime $delta)[1,0];
+        unless ($ENV{APACHE_TEST_NO_COLOR}) {
+            print $preamble, sprintf "%02d:%02d", (gmtime $delta)[1,0];
+        }
         sleep 1;
         if ($self->pid) {
             print $preamble, "ok (waited $delta secs)\n";
@@ -487,17 +491,19 @@ sub wait_till_is_up {
     }
 
     my $start_time = time;
-    my $preamble = "\rstill waiting for server to warm up: ";
+    my $preamble = "${CTRL_M}still waiting for server to warm up: ";
     while (1) {
         my $delta = time - $start_time;
-        print $preamble, sprintf "%02d:%02d", (gmtime $delta)[1,0];
+        unless ($ENV{APACHE_TEST_NO_COLOR}) {
+            print $preamble, sprintf "%02d:%02d", (gmtime $delta)[1,0];
+        }
         sleep $sleep_interval;
         if ($server_up->()) {
-            print "\rthe server is up (waited $delta secs)             \n";
+            print "${CTRL_M}the server is up (waited $delta secs)             \n";
             return 1;
         }
         elsif ($delta > $timeout) {
-            print "\rthe server is down, giving up after $delta secs\n";
+            print "${CTRL_M}the server is down, giving up after $delta secs\n";
             return 0;
         }
     }
