@@ -196,6 +196,16 @@ sub getline {
     $sock->$method();
 }
 
+sub socket_trace {
+    my $sock = shift;
+    return unless $sock->can('get_peer_certificate');
+
+    #like having some -v info
+    my $cert = $sock->get_peer_certificate;
+    print "Cipher:  ", $sock->get_cipher, "\n";
+    print "Peer DN: ", $cert->subject_name, "\n";
+}
+
 sub prepare {
     user_agent();
 
