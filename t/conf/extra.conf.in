@@ -99,6 +99,7 @@ RewriteRule ^([1-6])$ ${numbers-rnd:$1}.html [S=2]
 RewriteCond %{ENV:MAPTYPE} =dbm
 RewriteRule ^([1-6])$ ${numbers-dbm:$1}.html [S=1]
 RewriteCond %{ENV:MAPTYPE} =prg
+RewriteRule ^([1-6])$ ${numbers-prg:$1}.html [L]
 </Directory>
 </IfModule>
 
@@ -133,5 +134,19 @@ Options +Includes
 <IfModule mod_access.c>
 <Directory @SERVERROOT@/htdocs/modules/access/htaccess>
 AllowOverride Limit
+</Directory>
+</IfModule>
+
+##
+## mod_cgi test config
+##
+<IfModule mod_cgi.c>
+AddHandler cgi-script .sh
+AddHandler cgi-script .pl
+ScriptLog @SERVERROOT@/logs/mod_cgi.log
+ScriptLogLength 8192
+ScriptLogBuffer 256
+<Directory @SERVERROOT@/htdocs/modules/cgi>
+Options +ExecCGI
 </Directory>
 </IfModule>
