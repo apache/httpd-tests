@@ -46,6 +46,7 @@ EOF
 
 sub generate_script {
     my $file = shift;
+    unlink $file if -e $file;
     open my $in, "$file.PL" or die "Couldn't open $file.PL: $!";
     open my $out, '>', $file or die "Couldn't open $file: $!";
     print "generating script...$file\n";
