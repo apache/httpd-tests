@@ -1,5 +1,3 @@
-#define HTTPD_TEST_REQUIRE_APACHE 2
-
 #if CONFIG_FOR_HTTPD_TEST
 
 Alias /authany @DocumentRoot@
@@ -52,6 +50,7 @@ static int authany_handler(request_rec *r)
 {
      const char *sent_pw; 
      int rc = ap_get_basic_auth_pw(r, &sent_pw); 
+     char *user;
 
      if (rc != OK) {
          return rc;
@@ -61,10 +60,20 @@ static int authany_handler(request_rec *r)
          return DECLINED;
      }
 
-     if (!(strtrue(r->user) && strtrue(sent_pw))) {
-         ap_note_basic_auth_failure(r);  
+#ifdef APACHE1
+     user = r->connection->user;
+#endif
 #ifdef APACHE2
-         /* prototype is different in 1.x */
+     user = r->user;
+#endif
+
+     if (!(strtrue(user) && strtrue(sent_pw))) {
+         ap_note_basic_auth_failure(r);  
+#ifdef APACHE1
+         ap_log_rerror(APLOG_MARK, APLOG_NOERRNO|APLOG_ERR, r,
+                       "Both a username and password must be provided");
+#endif
+#ifdef APACHE2
          ap_log_rerror(APLOG_MARK, APLOG_NOERRNO|APLOG_ERR, 0, r,
                        "Both a username and password must be provided");
 #endif
