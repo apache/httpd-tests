@@ -69,6 +69,7 @@ my %modname_alias = (
     'mod_proxy_http.c'    => 'proxy_http.c',
     'mod_proxy_ftp.c'     => 'proxy_ftp.c',
     'mod_proxy_connect.c' => 'proxy_connect.c',
+    'mod_modperl.c'       => 'mod_perl.c',
 );
 
 #inherit LoadModule
