@@ -14,7 +14,7 @@ my @num = qw(1 2 3 4 5 6);
 my @url = qw(forbidden gone perm temp);
 my $r;
 
-plan tests => @map * @num + 7, need_module 'rewrite';
+plan tests => @map * @num + 8, need_module 'rewrite';
 
 foreach (@map) {
     foreach my $n (@num) {
@@ -52,6 +52,10 @@ $r = GET_BODY("/modules/rewrite/", 'Accept' => 'lucky13');
 chomp $r;
 $r =~ s/\r//g;
 ok ($r eq "JACKPOT");
+
+$r = GET_BODY("/modules/rewrite/qsa.html?baz=bee");
+chomp $r;
+ok t_cmp($r, qr/\nQUERY_STRING = foo=bar\&baz=bee\n/s, "query-string append test");
 
 if (have_module('mod_proxy')) {
     $r = GET_BODY("/modules/rewrite/proxy.html");
