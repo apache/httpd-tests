@@ -24,7 +24,8 @@ foreach (sort keys %test) {
     sok {
         $actual = GET_BODY "/modules/env/$_.shtml";
         $actual =~ s/[\r\n]+$//s;
-        print "$_: EXPECT ->$expected<- ACTUAL ->$actual<-\n";
+        print "# $_: /modules/env/$_.shtml\n",
+              "# $_: EXPECT ->$expected<- ACTUAL ->$actual<-\n";
         return $actual eq $expected;
     };
 }

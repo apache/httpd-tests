@@ -8,7 +8,8 @@ plan tests => 2;
 
 my $four_oh_four = GET_STR "/404/not/found/test";
 
-print "$four_oh_four\n";
+print "# GET_STR Response:\n# ",
+      join("\n# ", split(/\n/, $four_oh_four)), "\n";
 
 ok (($four_oh_four =~ /HTTP\/1\.[01] 404 Not Found/)
     || ($four_oh_four =~ /RC:\s+404.*Message:\s+Not Found/s));
