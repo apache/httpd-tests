@@ -3,6 +3,7 @@ use warnings FATAL => 'all';
 
 use Apache::Test;
 use Apache::TestRequest;
+use Apache::TestUtil;
 
 ##
 ## mod_alias test
@@ -87,9 +88,7 @@ EOF
 my $vars = Apache::Test::vars();
 my $script = "$vars->{t_dir}/htdocs/modules/alias/script";
 
-open (CGI, ">$script");
-print CGI $cgi;
-close (CGI);
+t_write_file($script,$cgi);
 chmod 0755, $script;
 
 ## if we get the script here it will be plain text ##
@@ -108,6 +107,4 @@ print "verifying bad script alias.\n";
 ok ('404' eq GET_RC "/aliascgi-nada");
 
 ## clean up ##
-unlink $script;
-unlink "$vars->{t_logs}/mod_cgi.log"
-    if -e "$vars->{t_logs}/mod_cgi.log";
+t_rmtree("$vars->{t_logs}/mod_cgi.log");
