@@ -204,6 +204,7 @@ sub new {
     $vars->{scheme}       ||= 'http';
     $vars->{servername}   ||= $self->default_servername;
     $vars->{port}         ||= $self->default_port;
+    $vars->{remote_addr}  ||= $self->our_remote_addr;
 
     $vars->{user}         ||= $self->default_user;
     $vars->{group}        ||= $self->default_group;
@@ -476,6 +477,14 @@ sub default_servername {
 #XXX: could check if the port is in use and select another if so
 sub default_port {
     $ENV{APACHE_PORT} || 8529;
+}
+
+my $remote_addr;
+
+sub our_remote_addr {
+    my $self = shift;
+    my $name = $self->default_servername;
+    $remote_addr ||= Socket::inet_ntoa((gethostbyname($name))[-1]);
 }
 
 sub default_loopback {
