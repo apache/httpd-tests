@@ -16,8 +16,9 @@ use vars qw($VERSION @ISA @EXPORT %CLEAN);
 
 $VERSION = '0.01';
 @ISA     = qw(Exporter);
-@EXPORT = qw(t_cmp t_debug t_write_file t_open_file t_mkdir t_rmtree
-             t_is_equal);
+
+@EXPORT = qw(t_cmp t_debug t_append_file t_write_file t_open_file
+             t_mkdir t_rmtree t_is_equal);
 
 %CLEAN = ();
 
@@ -43,6 +44,22 @@ sub t_debug {
     print map {"# $_\n"} map {split /\n/} grep {defined} expand(@_);
 }
 
+sub t_open_file {
+    my $file = shift;
+
+    die "must pass a filename" unless defined $file;
+
+    # create the parent dir if it doesn't exist yet
+    makepath(dirname $file);
+
+    my $fh = Symbol::gensym();
+    open $fh, ">$file" or die "can't open $file: $!";
+    t_debug("writing file: $file");
+    $CLEAN{files}{$file}++;
+
+    return $fh;
+}
+
 sub t_write_file {
     my $file = shift;
 
@@ -59,7 +76,7 @@ sub t_write_file {
     $CLEAN{files}{$file}++;
 }
 
-sub t_open_file {
+sub t_append_file {
     my $file = shift;
 
     die "must pass a filename" unless defined $file;
@@ -67,12 +84,13 @@ sub t_open_file {
     # create the parent dir if it doesn't exist yet
     makepath(dirname $file);
 
-    my $fh = Symbol::gensym();
-    open $fh, ">$file" or die "can't open $file: $!";
-    t_debug("writing file: $file");
-    $CLEAN{files}{$file}++;
+    # add to the cleanup list only if we created it now
+    $CLEAN{files}{$file}++ unless -e $file;
 
-    return $fh;
+    my $fh = Symbol::gensym();
+    open $fh, ">>$file" or die "can't open $file: $!";
+    print $fh join '', @_ if @_;
+    close $fh;
 }
 
 sub write_shell_script {
@@ -369,6 +387,23 @@ automagically created.
 
 The generated file will be automatically deleted at the end of the
 program's execution.
+
+This function is exported by default.
+
+=item t_append_file()
+
+  t_append_file($filename, @lines);
+
+t_append_file() is similar to t_write_file(), but it doesn't clobber
+existing files and appends C<@lines> to the end of the file. If the
+file doesn't exist it will create it.
+
+If parent directories of C<$filename> don't exist they will be
+automagically created.
+
+The generated file will be registered to be automatically deleted at
+the end of the program's execution, only if the file was created by
+t_append_file().
 
 This function is exported by default.
 
