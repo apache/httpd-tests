@@ -778,16 +778,17 @@ sub generate_script {
         $content = "\%Apache::TestConfig::Argv = qw(@Apache::TestMM::Argv);\n";
     }
 
-    $content .= <<'EOM';
+    $content .= <<EOM;
 use strict;
 use warnings FATAL => 'all';
 
 use FindBin;
-use lib "$FindBin::Bin/../Apache-Test/lib";
+use lib "\$FindBin::Bin/../Apache-Test/lib";
+use lib 'lib';
 
-use Apache::TestRun ();
+use $class ();
 
-Apache::TestRun->new->run(@ARGV);
+$class->new->run(\@ARGV);
 EOM
 
     Apache::Test::config()->write_perlscript($file, $content);
