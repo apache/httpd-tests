@@ -480,7 +480,7 @@ sub opt_debug {
         $opts->{'run-tests'} = 1;
         $self->start; #if not already running
         $self->set_perl5lib;
-        system $^X, '-d', @{ $self->{tests} };
+        system $^X, '-MApache::TestPerlDB', '-d', @{ $self->{tests} };
         $self->stop;
         exit;
     }
