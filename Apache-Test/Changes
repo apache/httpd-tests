@@ -8,6 +8,15 @@ Changes - Apache::Test change logfile
 
 =item 1.08_dev
 
+In order to make Apache-Test compatible with the rest of Perl testing
+frameworks, we no longer chdir into t/, but run from the root of the
+project (where t/ resides). A test needing to know where it's running
+from (e.g. to read/write files/dirs on the filesystem), should do that
+relative to the serverroot, documentroot and other server
+configuration variables, available via
+Apache::Test::vars('serverroot'), Apache::Test::vars('documentroot'),
+etc. [Stas]
+
 generate t/conf if it does not already exist, which
 it may not if the tests are entirely autoconfigured.
 [Geoffrey Young]
