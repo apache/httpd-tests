@@ -251,7 +251,7 @@ sub prepare {
         $credentials{$keep->{realm} || '__ALL__'} =
           [$keep->{username}, $keep->{password}];
     }
-    if (my $content = $keep->{content}) {
+    if (defined(my $content = $keep->{content})) {
         if ($content eq '-') {
             $content = join '', <STDIN>;
         }
