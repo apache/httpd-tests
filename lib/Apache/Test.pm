@@ -14,7 +14,7 @@ use vars qw(@ISA @EXPORT $VERSION %SubTests @SkipReasons);
 @EXPORT = qw(ok skip sok plan have have_lwp have_http11
              have_cgi have_access have_auth have_module have_apache
              have_perl have_threads under_construction);
-$VERSION = '0.01';
+$VERSION = '1.0';
 
 %SubTests = ();
 @SkipReasons = ();
