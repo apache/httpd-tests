@@ -8,6 +8,10 @@ Changes - Apache::Test change logfile
 
 =item 1.10-dev
 
+$ENV{APACHE_TEST_NO_STICKY_PREFERENCES}, if true, will both suppress
+generation of persistent preferences and ignore any that already exist.
+[Geoffrey Young]
+
 make the project's test suite relocatable, handling the case where
 after Apache-Test configuration was created and not cleaned up before
 the directory was moved. This is especially important for those cases

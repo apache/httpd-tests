@@ -1381,6 +1381,11 @@ sub custom_config_file_stub_write {
 sub custom_config_save {
     my $self = shift;
 
+    if ($ENV{APACHE_TEST_NO_STICKY_PREFERENCES}) {
+        debug "skipping save of custom config data";
+        return;
+    }
+
     my $vars = $self->{test_config}->{vars};
     my $conf_opts = $self->{conf_opts};
     my $config_dump = '';
@@ -1533,6 +1538,12 @@ EOC
 
 my $custom_config_loaded = 0;
 sub custom_config_load {
+
+    if ($ENV{APACHE_TEST_NO_STICKY_PREFERENCES}) {
+        debug "skipping load of custom config data";
+        return;
+    }
+
     debug "trying to load custom config data";
 
     return if $custom_config_loaded;
@@ -1808,6 +1819,10 @@ C<APACHE_TEST_APXS>, C<APACHE_TEST_PORT>, C<APACHE_TEST_USER>, and
 C<APACHE_TEST_GROUP>) or by giving the relevant option (C<-httpd>,
 C<-apxs>, C<-port>, C<-user>, and C<-group>) when the C<TEST> script
 is run.
+
+To avoid either using previous persistent configurations or saving
+current configurations, set the C<APACHE_TEST_NO_STICKY_PREFERENCES>
+environment variable to a true value.
 
 Finally it's possible to permanently override the previously saved
 options by passing C<L<-save|/Saving_Custom_Configuration_Options>>.
