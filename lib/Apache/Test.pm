@@ -299,6 +299,13 @@ the test is skipped if the scalar has a false value. For example:
 
   plan tests => 5, 0;
 
+But this won't hint the reason for skipping therefore it's better to
+use skip_unless():
+
+  plan tests => 5, skip_unless(sub { $a == $b }, "$a != $b");
+
+see skip_unless() for more info.
+
 =item * an C<ARRAY> reference
 
 have_module() is called for each value in this array. The test is
@@ -336,6 +343,16 @@ only sub-tests 1 and 3 will be run, the rest will be skipped.
 =item skip
 
 Same as I<Test::skip>, see I<Test.pm> documentation.
+
+=item skip_unless
+
+  skip_unless($cond_sub, $reason);
+
+skip_unless() is used with plan(), it executes C<$cond_sub> code
+reference and if it returns a false value C<$reason> gets printed as a
+reason for test skipping.
+
+see plan().
 
 =item test_pm_refresh
 
