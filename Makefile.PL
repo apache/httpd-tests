@@ -19,5 +19,8 @@ for (@scripts) {
 WriteMakefile(
     NAME         => 'Apache::Test',
     VERSION_FROM => 'lib/Apache/Test.pm',
+    dist      => {
+	COMPRESS => 'gzip -9f', SUFFIX=>'gz',
+    },
 );
 
