@@ -908,7 +908,9 @@ TransferLog @t_logs@/access_log
 
 ServerAdmin @ServerAdmin@
 
-KeepAlive       Off
+#needed for http/1.1 testing
+KeepAlive       On
+
 HostnameLookups Off
 
 <Directory />
