@@ -31,7 +31,7 @@ my %usage = (
    'start-httpd'     => 'start the test server',
    'run-tests'       => 'run the tests',
    'times=N'         => 'repeat the tests N times',
-   'order=mode'      => 'run the tests in one of the modes: (repeat|rotate|random)',
+   'order=mode'      => 'run the tests in one of the modes: (repeat|rotate|random|SEED)',
    'stop-httpd'      => 'stop the test server',
    'verbose'         => 'verbose output',
    'configure'       => 'force regeneration of httpd.conf (tests will not be run)',
