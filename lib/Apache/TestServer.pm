@@ -196,8 +196,6 @@ sub stop {
         }
     }
 
-    $self->clean unless $aborted;
-
     return $pid;
 }
 
