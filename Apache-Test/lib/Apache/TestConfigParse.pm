@@ -169,7 +169,7 @@ sub get_httpd_static_modules {
     return unless $httpd;
 
     my $cmd = "$httpd -l";
-    open my $list, '-|', $cmd or die "$cmd failed: $!";
+    my $list = $self->open_cmd($cmd);
 
     while (<$list>) {
         s/\s+$//;
@@ -189,7 +189,7 @@ sub get_httpd_defines {
     return unless $httpd;
 
     my $cmd = "$httpd -V";
-    open my $proc, '-|', $cmd or die "$cmd failed: $!";
+    my $proc = $self->open_cmd($cmd);
 
     while (<$proc>) {
         chomp;
@@ -220,10 +220,8 @@ sub httpd_version {
 
     my $version;
     my $cmd = "$httpd -v";
-    # untaint %ENV
-    local %ENV;
-    delete @ENV{ qw(PATH IFS CDPATH ENV BASH_ENV) };
-    open my $v, '-|', $cmd or die "$cmd failed: $!";
+
+    my $v = $self->open_cmd($cmd);
 
     local $_;
     while (<$v>) {

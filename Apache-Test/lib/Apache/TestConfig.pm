@@ -568,6 +568,17 @@ sub gendir {
     $self->{clean}->{dirs}->{$dir} = 1;
 }
 
+sub open_cmd {
+    my($self, $cmd) = @_;
+    # untaint %ENV
+    local %ENV;
+    delete @ENV{ qw(PATH IFS CDPATH ENV BASH_ENV) };
+
+    open my $handle, '-|', $cmd or die "$cmd failed: $!";
+
+    return $handle;
+}
+
 sub clean {
     my $self = shift;
     $self->{clean_level} = shift || 2; #2 == really clean, 1 == reconfigure
