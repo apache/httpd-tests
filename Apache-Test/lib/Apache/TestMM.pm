@@ -3,6 +3,7 @@ package Apache::TestMM;
 use strict;
 use warnings FATAL => 'all';
 
+use Config;
 use Apache::TestConfig ();
 
 sub import {
