@@ -1,5 +1,5 @@
 <?php
-        for($i=0;$i<$argc;$i++) {
-                echo "$i: ".$argv[$i]."\n";
+	for($i=0;$i<$HTTP_SERVER_VARS["argc"];$i++) {
+                echo "$i: ".$HTTP_SERVER_VARS["argv"][$i]."\n";
         }
 ?>
