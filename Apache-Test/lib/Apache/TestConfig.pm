@@ -11,7 +11,7 @@ use Cwd qw(fastcwd);
 
 use Apache::TestConfigPerl ();
 use Apache::TestConfigParse ();
-
+use Apache::TestTrace;
 use Apache::TestServer ();
 
 my %usage = (
