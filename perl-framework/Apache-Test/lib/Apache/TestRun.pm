@@ -183,7 +183,7 @@ sub install_sighandlers {
             warning "\ncaught SIGINT";
             exit;
         }
-        notice "\nhalting tests";
+        warning "\nhalting tests";
         $server->stop if $opts->{'start-httpd'};
         exit;
     };
@@ -233,10 +233,10 @@ sub start {
     my $test_config = $self->{test_config};
 
     unless ($test_config->{vars}->{httpd}) {
-        error "no test server configured, please specify an httpd or ",
+        error "no test server configured, please specify an httpd or ".
               ($test_config->{MP_APXS} ?
-               "an apxs other than $test_config->{MP_APXS}" : "apxs"),
-               "or put either in your PATH";
+               "an apxs other than $test_config->{MP_APXS}" : "apxs").
+               " or put either in your PATH";
         exit 1;
     }
 
