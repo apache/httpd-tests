@@ -4,7 +4,7 @@ package Apache::TestConfig; #not TestConfigPerl on purpose
 
 use strict;
 use warnings FATAL => 'all';
-use File::Spec::Functions qw(catfile splitdir abs2rel);
+use File::Spec::Functions qw(catfile splitdir abs2rel file_name_is_absolute);
 use File::Find qw(finddepth);
 use Apache::TestTrace;
 use Apache::TestRequest;
@@ -19,9 +19,17 @@ sub configure_libmodperl {
     my $libname = $server->version_of(\%libmodperl);
     my $vars = $self->{vars};
 
-    # XXX: $server->{rev} could be set to 2 as a fallback, even when
+    if ($vars->{libmodperl}) {
+        # if set, libmodperl was specified from the command line and
+        # should be used instead of the one that is looked up
+
+        # resolve a non-absolute path
+        $vars->{libmodperl} = $self->find_apache_module($vars->{libmodperl})
+            unless file_name_is_absolute($vars->{libmodperl});
+    }
+    # $server->{rev} could be set to 2 as a fallback, even when
     # the wanted version is 1. So check that we use mod_perl 2
-    if ($server->{rev} >= 2 && IS_MOD_PERL_2) {
+    elsif ($server->{rev} >= 2 && IS_MOD_PERL_2) {
         if (my $build_config = $self->modperl_build_config()) {
             $libname = $build_config->{MODPERL_LIB_SHARED};
             $vars->{libmodperl} ||= $self->find_apache_module($libname);

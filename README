@@ -94,6 +94,12 @@ run on a different server:
 configure an httpd other than the default (that apxs figures out)
 % t/TEST -httpd ~/ap/httpd-2.0/httpd
 
+configure a DSO mod_perl object other than the default (that stored in
+Apache::BuildConfig)
+% t/TEST -libmodperl ~/ap/httpd-2.0/modules/mod_perl-5.8.0.so
+or one that can be found relative to LIBEXECDIR
+% t/TEST -libmodperl mod_perl-5.6.1.so
+
 switch to another apxs
 % t/TEST -apxs ~/ap/httpd-2.0-prefork/bin/apxs
 
