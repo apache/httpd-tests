@@ -68,25 +68,23 @@ sub generate_script {
     my $file = shift;
 
     unlink $file if -e $file;
-    my $in = Symbol::gensym();
-    my $out = Symbol::gensym();
-    open $in, "$file.PL" or die "Couldn't open $file.PL: $!";
-    open $out, ">$file" or die "Couldn't open $file: $!";
 
-    info "generating script $file";
-
-    print $out "#!$Config{perlpath}\n",
-               "# WARNING: this file is generated, edit $file.PL instead\n";
+    my $content = '';
 
     if (@Apache::TestMM::Argv) {
-        print $out "\%Apache::TestConfig::Argv = qw(@Apache::TestMM::Argv);\n";
+        $content = "\%Apache::TestConfig::Argv = qw(@Apache::TestMM::Argv);\n";
     }
 
-    print $out join '', <$in>;
-
-    close $out or die "close $file: $!";
+    my $in = Symbol::gensym();
+    open $in, "$file.PL" or die "Couldn't open $file.PL: $!";
+    {
+        local $/;
+        $content .= <$in>;
+    }
     close $in;
-    chmod 0555, $file;
+
+    info "generating script $file";
+    Apache::Test::config()->write_perlscript($file, $content);
 }
 
 sub filter_args {
