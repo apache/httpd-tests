@@ -229,7 +229,8 @@ sub configure_pm_tests {
             return unless /\.pm$/;
             my @args;
 
-            my $module = catfile $File::Find::dir, $_;
+            my $pm = $_;
+            my $module = catfile $File::Find::dir, $pm;
             $self->add_module_config($module, \@args);
             $module = abs2rel $module, $dir;
             $module =~ s,\.pm$,,;
@@ -239,6 +240,12 @@ sub configure_pm_tests {
               map { s/^test//i; $_ } split '::', $module;
 
             my $hook = $hooks{$sub} || $hooks{$subdir} || $subdir;
+
+            if ($hook eq 'OutputFilter' and $pm =~ /^i/) {
+                #XXX: tmp hack
+                $hook = 'InputFilter';
+            }
+
             my $handler = join $hook, qw(Perl Handler);
 
             if ($self->server->{rev} < 2 and lc($hook) eq 'response') {
