@@ -49,7 +49,7 @@ the normal run-time test suite.
   modperl-2.0 test suite
 
   % t/TEST -base ~/apache.org/mp2-svn \
-  -config sample/modperl2_testitself_config.pm httpd_arg.t interactive.t
+  -config sample/modperl2_testitself_config.pm t/httpd_arg.t t/interactive.t
 
 
 
