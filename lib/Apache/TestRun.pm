@@ -668,6 +668,8 @@ sub run {
     $self->set_ulimit;
     $self->set_env; #make sure these are always set
 
+    $self->detect_relocation($orig_cwd);
+
     my(@argv) = @_;
 
     $self->getopts(\@argv);
@@ -678,9 +680,6 @@ sub run {
     $self->pre_configure() if $self->can('pre_configure');
 
     $self->{test_config} = $self->new_test_config();
-
-    # make it easy to move the whole distro
-    $self->refresh unless -e $self->{test_config}->{vars}->{top_dir};
 
     $self->warn_core();
 
@@ -725,6 +724,59 @@ sub run {
     $self->run_tests;
 
     $self->stop;
+}
+
+# make it easy to move the whole distro w/o running
+# 't/TEST -clean' before moving. when moving the whole package,
+# the old cached config will stay, so we want to nuke it only if
+# we realize that it's no longer valid. we can't just check the
+# existance of the saved top_dir value, since the project may have
+# been copied and the old dir could be still there, but that's not
+# the one that we work in
+sub detect_relocation {
+    my($self, $cur_top_dir) = @_;
+
+    my $config_file = catfile qw(t conf apache_test_config.pm);
+    return unless -e $config_file;
+
+    my %inc = %INC;
+    eval { require "$config_file" };
+    warn($@), return if $@;
+
+    my $cfg = 'apache_test_config'->new;
+    %INC = %inc; # be stealth
+
+    # if the top_dir from saved config doesn't match the current
+    # top_dir, that means that the whole project was relocated to a
+    # different directory, w/o running t/TEST -clean first (in each
+    # directory with a test suite)
+    my $cfg_top_dir = $cfg->{vars}->{top_dir};
+    return unless $cfg_top_dir;
+    return if $cfg_top_dir eq $cur_top_dir;
+
+    # if that's the case silently fixup the saved config to use the
+    # new paths, and force a complete cleanup. if we don't fixup the
+    # config files, the cleanup process won't be able to locate files
+    # to delete and re-configuration will fail
+    {
+        # in place editing
+        local @ARGV = $config_file;
+        local $^I = "";
+        while (<>) {
+            s{$cfg_top_dir}{$cur_top_dir}g;
+            print;
+        }
+    }
+
+    my $cleanup_cmd = "$^X $0 -clean";
+    warning "cleaning up the old config";
+    # XXX: do we care to check success?
+    system $cleanup_cmd;
+
+    # XXX: I tried hard to accomplish that w/o starting a new process,
+    # but too many things get on the way, so for now just keep it as an
+    # external process, as it's absolutely transparent to the normal
+    # app-run
 }
 
 my @oh = qw(jeez golly gosh darn shucks dangit rats nuts dangnabit crap);
