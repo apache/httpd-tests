@@ -105,7 +105,11 @@ sub filter_args {
 }
 
 my %passenv = map { $_,1 } qw{
-APXS APACHE APACHE_GROUP APACHE_USER APACHE_PORT
+    APACHE_TEST_APXS
+    APACHE_TEST_HTTPD
+    APACHE_TEST_GROUP
+    APACHE_TEST_USER
+    APACHE_TEST_PORT
 };
 
 sub passenv {
@@ -464,7 +468,7 @@ sub default_group {
     #use only first value if $) contains more than one
     $gid =~ s/^(\d+).*$/$1/;
 
-    my $group = $ENV{APACHE_GROUP} || (getgrgid($gid) || "#$gid");
+    my $group = $ENV{APACHE_TEST_GROUP} || (getgrgid($gid) || "#$gid");
 
     if ($group eq 'root') {
         # similar to default_user, we want to avoid perms problems,
@@ -484,7 +488,7 @@ sub default_user {
 
     my $uid = $>;
 
-    my $user = $ENV{APACHE_USER} || (getpwuid($uid) || "#$uid");
+    my $user = $ENV{APACHE_TEST_USER} || (getpwuid($uid) || "#$uid");
 
     if ($user eq 'root') {
         my $other = (getpwnam('nobody'))[0];
@@ -514,7 +518,7 @@ sub default_apxs {
         return $build_config->{MP_APXS};
     }
 
-    $ENV{APXS};
+    $ENV{APACHE_TEST_APXS};
 }
 
 sub default_httpd {
@@ -529,7 +533,7 @@ sub default_httpd {
         }
     }
 
-    $ENV{APACHE};
+    $ENV{APACHE_TEST_HTTPD};
 }
 
 my $localhost;
@@ -560,10 +564,10 @@ sub default_servername {
 sub select_first_port {
     my $self = shift;
 
-    my $port ||= $ENV{APACHE_PORT} || $self->{vars}{port} || DEFAULT_PORT;
+    my $port ||= $ENV{APACHE_TEST_PORT} || $self->{vars}{port} || DEFAULT_PORT;
 
     # memoize
-    $ENV{APACHE_PORT} = $port;
+    $ENV{APACHE_TEST_PORT} = $port;
 
     return $port unless $port eq 'select';
 
@@ -587,7 +591,7 @@ sub select_first_port {
         unless $port == DEFAULT_PORT;
 
     # memoize
-    $ENV{APACHE_PORT} = $port;
+    $ENV{APACHE_TEST_PORT} = $port;
 
     return $port;
 }

@@ -77,11 +77,11 @@ my @data_vars_must = qw(httpd apxs);
 my @data_vars_opt  = qw(user group port);
 # mapping from $Apache::TestConfigData::vars to $ENV settings
 my %vars_to_env = (
-    httpd => 'APACHE',
-    user  => 'APACHE_USER',
-    group => 'APACHE_GROUP',
-    apxs  => 'APXS',
-    port  => 'APACHE_PORT',
+    httpd => 'APACHE_TEST_HTTPD',
+    apxs  => 'APACHE_TEST_APXS',
+    user  => 'APACHE_TEST_USER',
+    group => 'APACHE_TEST_GROUP',
+    port  => 'APACHE_TEST_PORT',
 );
 
 sub fixup {
@@ -1152,8 +1152,8 @@ sub custom_config_add_conf_opts {
     # situation where both are saved in custom config but only one
     # (let's say httpd) is overriden by the command line /env var and
     # a hell may break loose if we take that overriden httpd value and
-    # also useapxs from custom config which could point to a different
-    # server . So if there is an override of apxs or httpd, do not use
+    # also use apxs from custom config which could point to a different
+    # server. So if there is an override of apxs or httpd, do not use
     # the custom config for apxs or httpd.
     my $vars_must_overriden = grep {
         $ENV{ $vars_to_env{$_} } || $args->{$_}
@@ -1428,9 +1428,9 @@ option. For example:
 
   % t/TEST -httpd /path/to/alternative/httpd
 
-or via the environment variable APACHE. For example:
+or via the environment variable APACHE_TEST_HTTPD. For example:
 
-  % APACHE=/path/to/alternative/httpd t/TEST
+  % APACHE_TEST_HTTPD=/path/to/alternative/httpd t/TEST
 
 ];
 
@@ -1443,7 +1443,9 @@ or via the environment variable APACHE. For example:
         for (grep defined $_,
              map({ catfile $vars->{$_}, $vars->{target} } qw(sbindir bindir)),
              $test_config->default_httpd, which($vars->{target}),
-             $ENV{APACHE}, $ENV{APACHE2}, map {which($_)} @tries) {
+             $ENV{APACHE}, $ENV{APACHE2},
+             $ENV{APACHE_TEST_HTTPD}, $ENV{APACHE_TEST_HTTPD2},
+             map {which($_)} @tries) {
             $choices{$_}++ if -e $_ && -x _;
         }
         my $optional = 0;
@@ -1468,9 +1470,9 @@ option. For example:
 
   % t/TEST -apxs /path/to/alternative/apxs
 
-or via the environment variable APACHE. For example:
+or via the environment variable APACHE_TEST_APXS. For example:
 
-  % APXS=/path/to/alternative/apxs t/TEST
+  % APACHE_TEST_APXS=/path/to/alternative/apxs t/TEST
 
 ];
     {
@@ -1478,8 +1480,8 @@ or via the environment variable APACHE. For example:
         for (grep defined $_,
              map({ catfile $vars->{$_}, 'apxs' } qw(sbindir bindir)),
              $test_config->default_apxs,
-             $ENV{APXS},  which('apxs'),
-             $ENV{APXS2}, which('apxs2')) {
+             $ENV{APXS},  $ENV{APACHE_TEST_APXS},  which('apxs'),
+             $ENV{APXS2}, $ENV{APACHE_TEST_APXS2}, which('apxs2')) {
             $choices{$_}++ if -e $_ && -x _;
         }
         my $optional = 1;
@@ -1648,10 +1650,11 @@ values of C<httpd>, C<apxs>, C<port>, C<user>, and C<group>, if set,
 to a configuration file C<Apache::TestConfigData>.  This information
 will then be used in setting these options for subsequent uses of
 C<Apache-Test> unless temprorarily overridden, either by setting the
-appropriate environment variable (C<APACHE>, C<APXS>, C<APACHE_PORT>,
-C<APACHE_USER>, and C<APACHE_GROUP>) or by giving the relevant option
-(C<-httpd>, C<-apxs>, C<-port>, C<-user>, and C<-group>) when the
-C<TEST> script is run.
+appropriate environment variable (C<APACHE_TEST_HTTPD>,
+C<APACHE_TEST_APXS>, C<APACHE_TEST_PORT>, C<APACHE_TEST_USER>, and
+C<APACHE_TEST_GROUP>) or by giving the relevant option (C<-httpd>,
+C<-apxs>, C<-port>, C<-user>, and C<-group>) when the C<TEST> script
+is run.
 
 Finally it's possible to permanently override the previously saved
 options by passing C<L<-save|/Saving_Custom_Configuration_Options>>.
