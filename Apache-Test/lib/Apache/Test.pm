@@ -13,7 +13,7 @@ use vars qw(@ISA @EXPORT $VERSION %SubTests @SkipReasons);
 @ISA = qw(Exporter);
 @EXPORT = qw(ok skip sok plan have have_lwp have_http11
              have_cgi have_access have_auth have_module
-             have_apache have_perl);
+             have_apache have_perl have_threads);
 $VERSION = '0.01';
 
 %SubTests = ();
@@ -262,6 +262,28 @@ sub have_perl {
 
     return 0;
 }
+
+sub have_threads {
+    my $status = 1;
+
+    # check APR support
+    my $build_config = Apache::TestConfig->modperl_build_config;
+    my $apr_config = $build_config->get_apr_config();
+    unless ($apr_config->{HAS_THREADS}) {
+        $status = 0;
+        push @SkipReasons, "Apache/APR was built without threads support";
+    }
+
+    # check Perl's useithreads
+    my $key = 'useithreads';
+    unless (exists $Config{$key} and config_enabled($key)) {
+        $status = 0;
+        push @SkipReasons, "Perl was not built with 'ithreads' enabled";
+    }
+
+    return $status;
+}
+
 
 package Apache::TestToString;
 
