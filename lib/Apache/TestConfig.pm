@@ -321,6 +321,7 @@ sub configure_httpd {
         #handle both $prefix/bin/httpd and $prefix/Apache.exe
         for (1,2) {
             pop @chunks;
+            last unless @chunks;
             $self->{httpd_basedir} = catfile @chunks;
             last if -d "$self->{httpd_basedir}/bin";
         }
