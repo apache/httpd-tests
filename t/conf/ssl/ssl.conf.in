@@ -127,7 +127,6 @@
             <IfModule mod_auth_basic.c>
                 <Location /ssl-fakebasicauth2>
                     SSLVerifyClient      require
-                    SSLRequire           %{SSL_CLIENT_VERIFY} eq "SUCCESS"
                     SSLOptions           +FakeBasicAuth +StdEnvVars
                     AuthName             "Snake Oil Authentication"
                     AuthType             Basic
