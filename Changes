@@ -6,7 +6,7 @@ Changes - Apache::Test change logfile
 
 =over 3
 
-=item 1.11-dev
+=item 1.11 - May 21, 2004
 
 if we fail to match the Apache revision (which is OK at the early
 stages, like 'perl Makefile.PL', default to a non-existing revision
