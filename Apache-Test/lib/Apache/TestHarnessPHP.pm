@@ -103,20 +103,30 @@ sub run {
     Test::Harness::runtests($self->get_tests($args, @_));
 }
 
-sub _command {
-    return 'php';
-}
+sub _command_line {
 
-sub _switches {
+    my $self = shift;
+    my $file = shift;
 
-    my $conf = catfile(Apache::Test::vars('serverroot'), 'conf');
+    return $self->SUPER::_command_line($file)
+        unless $file =~ m/\.php$/;
 
+    $file = qq["$file"] if ($file =~ /\s/) && ($file !~ /^".*"$/);
+
+    my $server_root = Apache::Test::vars('serverroot');
+
+    $ENV{SERVER_ROOT} = $server_root;
+
+    my $conf = catfile($server_root, 'conf');
+                                                                                                                             
     my $ini = catfile($conf, 'php.ini');
 
     my $switches = join ' ', "--php-ini $ini",
                              "--define include_path=$conf";
 
-    return $switches;
+    my $line = "php $switches $file";
+                                                                                                                             
+    return $line;
 }
 
 1;
