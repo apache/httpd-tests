@@ -8,6 +8,9 @@ Changes - Apache::Test change logfile
 
 =item 1.08_dev
 
+Make it possible to run TEST (or another driving script) from any path
+(e.g. t/TEST, ./TEST, /full/path/to/t/TEST) [Stas]
+
 If at least one *conf*.in files is modified since the last
 configuration, make sure to regenerate them all, so the right ports
 will be assigned. [Stas]
