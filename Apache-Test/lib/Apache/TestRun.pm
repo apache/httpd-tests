@@ -626,7 +626,15 @@ sub set_env {
 sub run {
     my $self = shift;
 
-    custom_config_load();
+    # assuming that test files are always in the same directory as the
+    # driving script, make it possible to run the test suite from any place
+    # use a full path, which will work after chdir (e.g. ./TEST)
+    $0 = File::Spec->rel2abs($0);
+    if (-e $0) {
+        my $top = dirname dirname $0;
+        chdir $top;
+        error $top;
+    }
 
     # reconstruct argv, preserve multiwords args, eg 'PerlTrace all'
     my $argv = join " ", map { /^-/ ? $_ : qq['$_'] } @ARGV;
@@ -634,6 +642,8 @@ sub run {
     $orig_cwd = Cwd::cwd();
     $self->set_ulimit;
     $self->set_env; #make sure these are always set
+
+    custom_config_load();
 
     my(@argv) = @_;
 
