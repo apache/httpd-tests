@@ -28,4 +28,15 @@ sub new_test_config {
     return $self->SUPER::new_test_config;
 }
 
+sub bug_report {
+    my $self = shift;
+
+    print <<EOI;
++-----------------------------------------------------+
+| To report problems please refer to the SUPPORT file |
++-----------------------------------------------------+
+EOI
+}
+
 MyTest->new->run(@ARGV);
+
