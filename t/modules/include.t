@@ -210,15 +210,15 @@ plan tests => (scalar keys %tests) + @patterns + 32,
 foreach $doc (sort keys %tests) {
     # do as much from %test as we can
     if (ref $tests{$doc}) {
-        ok t_cmp($tests{$doc}[0],
-                 super_chomp(GET_BODY "$dir$doc", Host => $tests{$doc}[1]),
+        ok t_cmp(super_chomp(GET_BODY "$dir$doc", Host => $tests{$doc}[1]),
+                 $tests{$doc}[0],
                  "GET $dir$doc"
                 );
     }
     elsif ($doc =~ m/cgi/) {
         if (have_cgi) {
-            ok t_cmp($tests{$doc},
-                     super_chomp(GET_BODY "$dir$doc"),
+            ok t_cmp(super_chomp(GET_BODY "$dir$doc"),
+                     $tests{$doc},
                      "GET $dir$doc"
                     );
         }
@@ -227,8 +227,8 @@ foreach $doc (sort keys %tests) {
         }
     }
     else {
-        ok t_cmp($tests{$doc},
-                 super_chomp(GET_BODY "$dir$doc"),
+        ok t_cmp(super_chomp(GET_BODY "$dir$doc"),
+                 $tests{$doc},
                  "GET $dir$doc"
                 );
     }
@@ -258,8 +258,8 @@ foreach $doc (sort keys %tests) {
     $result =~ s/X//g;   # the Xs were there just to pad the filesiez
     $result = single_space($result);
 
-    ok t_cmp("$expected",
-             "$result",
+    ok t_cmp("$result",
+             "$expected",
              "GET ${dir}size.shtml"
             );
 }
@@ -301,8 +301,8 @@ else {
     # trim output
     $result = single_space($result);
 
-    ok t_cmp("$expected",
-             "$result",
+    ok t_cmp("$result",
+             "$expected",
              "GET ${dir}file.shtml"
             );
 }
@@ -310,8 +310,8 @@ else {
 # some tests that can't be easily assimilated
 
 $doc = "printenv.shtml";
-ok t_cmp("200",
-         GET("$dir$doc")->code,
+ok t_cmp(GET("$dir$doc")->code,
+         "200",
          "GET $dir$doc"
         );
 
@@ -340,8 +340,8 @@ else {
     $doc = "xbithack/off/test.html";
     foreach ("0444", "0544", "0554") {
         chmod oct($_), "$htdocs/$dir$doc";
-        ok t_cmp("<BODY> <!--#include virtual=\"../../inc-two.shtml\"--> </BODY>",
-                 super_chomp(GET_BODY "$dir$doc"),
+        ok t_cmp(super_chomp(GET_BODY "$dir$doc"),,
+                 "<BODY> <!--#include virtual=\"../../inc-two.shtml\"--> </BODY>",
                  "XBitHack off [$_]"
                 );
     }
@@ -349,15 +349,15 @@ else {
     # test xbithack on
     $doc = "xbithack/on/test.html";
     chmod 0444, "$htdocs$dir$doc";
-    ok t_cmp("<BODY> <!--#include virtual=\"../../inc-two.shtml\"--> </BODY>",
-             super_chomp(GET_BODY "$dir$doc"),
+    ok t_cmp(super_chomp(GET_BODY "$dir$doc"),
+             "<BODY> <!--#include virtual=\"../../inc-two.shtml\"--> </BODY>",
              "XBitHack on [0444]"
             );
 
     foreach ("0544", "0554") {
         chmod oct($_), "$htdocs/$dir$doc";
-        ok t_cmp("No Last-modified date ; <BODY> inc-two.shtml body  </BODY>",
-                 check_xbithack(GET "$dir$doc"),
+        ok t_cmp(check_xbithack(GET "$dir$doc"),
+                 "No Last-modified date ; <BODY> inc-two.shtml body  </BODY>",
                  "XBitHack on [$_]"
                 );
     }
@@ -365,40 +365,40 @@ else {
     # test xbithack full
     $doc = "xbithack/full/test.html";
     chmod 0444, "$htdocs/$dir$doc";
-    ok t_cmp("<BODY> <!--#include virtual=\"../../inc-two.shtml\"--> </BODY>",
-             super_chomp(GET_BODY "$dir$doc"),
+    ok t_cmp(super_chomp(GET_BODY "$dir$doc"),
+             "<BODY> <!--#include virtual=\"../../inc-two.shtml\"--> </BODY>",
              "XBitHack full [0444]"
             );
     chmod 0544, "$htdocs/$dir$doc";
-    ok t_cmp("No Last-modified date ; <BODY> inc-two.shtml body  </BODY>",
-             check_xbithack(GET "$dir$doc"),
+    ok t_cmp(check_xbithack(GET "$dir$doc"),
+             "No Last-modified date ; <BODY> inc-two.shtml body  </BODY>",
              "XBitHack full [0544]"
             );
 
     my $lm;
 
     chmod 0554, "$htdocs/$dir$doc";
-    ok t_cmp("Has Last-modified date ; <BODY> inc-two.shtml body  </BODY>",
-             check_xbithack(GET("$dir$doc"), \$lm),
+    ok t_cmp(check_xbithack(GET("$dir$doc"), \$lm),
+             "Has Last-modified date ; <BODY> inc-two.shtml body  </BODY>",
              "XBitHack full [0554]"
             );
 
-    ok t_cmp("No ETag ; ",
-             check_xbithack_etag(GET("$dir$doc", 'If-Modified-Since' => $lm)),
+    ok t_cmp(check_xbithack_etag(GET("$dir$doc", 'If-Modified-Since' => $lm)),
+             "No ETag ; ",
              "XBitHack full [0554] / ETag"
             );
 
-    ok t_cmp(304, GET("$dir$doc", 'If-Modified-Since' => $lm)->code,
+    ok t_cmp(GET("$dir$doc", 'If-Modified-Since' => $lm)->code, 304,
              "XBitHack full [0554] / If-Modified-Since"
             );
 
     chmod 0544, "$htdocs/$dir$doc";
-    ok t_cmp(200, GET("$dir$doc", 'If-Modified-Since' => $lm)->code,
+    ok t_cmp(GET("$dir$doc", 'If-Modified-Since' => $lm)->code, 200,
              "XBitHack full [0544] / If-Modified-Since"
             );
 
-    ok t_cmp("No ETag ; <BODY> inc-two.shtml body  </BODY>",
-             check_xbithack_etag(GET("$dir$doc", 'If-Modified-Since' => $lm)),
+    ok t_cmp(check_xbithack_etag(GET("$dir$doc", 'If-Modified-Since' => $lm)),
+             "No ETag ; <BODY> inc-two.shtml body  </BODY>",
              "XBitHack full [0544] / ETag"
             );
 }
@@ -419,8 +419,8 @@ if (have_module 'mod_bucketeer') {
                    "@@@@@@@@ @@@@@@@@@@@@@@@@@@@@@@@@";
 
     $doc = "bucketeer/y.shtml";
-    ok t_cmp($expected,
-             super_chomp(GET_BODY "$dir$doc"),
+    ok t_cmp(super_chomp(GET_BODY "$dir$doc"),
+             $expected,
              "GET $dir$doc"
             );
 
@@ -445,16 +445,16 @@ if (have_module 'mod_bucketeer') {
         $body =~ s/\002/^B/g;
         $body =~ s/\006/^F/g;
         $body =~ s/\020/^P/g;
-        ok t_cmp($expected,
-                 $body,
+        ok t_cmp($body,
+                 $expected,
                  "GET $dir$doc"
                 );
     }
 
     $expected = "[an error occurred while processing this directive]";
     $doc = "bucketeer/y4.shtml";
-    ok t_cmp($expected,
-             super_chomp(GET_BODY "$dir$doc"),
+    ok t_cmp(super_chomp(GET_BODY "$dir$doc"),
+             $expected,
              "GET $dir$doc"
             );
 
@@ -462,44 +462,44 @@ if (have_module 'mod_bucketeer') {
     $expected= "pass [an error occurred while processing this directive]  ".
                "pass pass1";
     $doc = "bucketeer/y5.shtml";
-    ok t_cmp($expected,
-             super_chomp(GET_BODY "$dir$doc"),
+    ok t_cmp(super_chomp(GET_BODY "$dir$doc"),
+             $expected,
              "GET $dir$doc"
             );
 
     $expected= "BeforeIfElseBlockAfterIf";
     $doc = "bucketeer/y6.shtml";
-    ok t_cmp($expected,
-             super_chomp(GET_BODY "$dir$doc"),
+    ok t_cmp(super_chomp(GET_BODY "$dir$doc"),
+             $expected,
              "GET $dir$doc"
             );
 
     $expected= "Before If <!-- comment -->SomethingElse".
                "<!-- right after if -->After if";
     $doc = "bucketeer/y7.shtml";
-    ok t_cmp($expected,
-             super_chomp(GET_BODY "$dir$doc"),
+    ok t_cmp(super_chomp(GET_BODY "$dir$doc"),
+             $expected,
              "GET $dir$doc"
             );
 
     $expected= "FalseSetDone";
     $doc = "bucketeer/y8.shtml";
-    ok t_cmp($expected,
-             super_chomp(GET_BODY "$dir$doc"),
+    ok t_cmp(super_chomp(GET_BODY "$dir$doc"),
+             $expected,
              "GET $dir$doc"
             );
 
     $expected= "FalseSetDone";
     $doc = "bucketeer/y9.shtml";
-    ok t_cmp($expected,
-             super_chomp(GET_BODY "$dir$doc"),
+    ok t_cmp(super_chomp(GET_BODY "$dir$doc"),
+             $expected,
              "GET $dir$doc"
             );
 
     $expected= "\"pass\"";
     $doc = "bucketeer/y10.shtml";
-    ok t_cmp($expected,
-             super_chomp(GET_BODY "$dir$doc"),
+    ok t_cmp(super_chomp(GET_BODY "$dir$doc"),
+             $expected,
              "GET $dir$doc"
             );
 
@@ -507,15 +507,15 @@ if (have_module 'mod_bucketeer') {
 
     $expected= "----retagged3.shtml";
     $doc = "bucketeer/retagged3.shtml";
-    ok t_cmp($expected,
-             super_chomp(GET_BODY "$dir$doc", Host => 'retagged1'),
+    ok t_cmp(super_chomp(GET_BODY "$dir$doc", Host => 'retagged1'),
+             $expected,
              "GET $dir$doc"
             );
 
     $expected= "---pass";
     $doc = "bucketeer/retagged4.shtml";
-    ok t_cmp($expected,
-             super_chomp(GET_BODY "$dir$doc", Host => 'retagged2'),
+    ok t_cmp(super_chomp(GET_BODY "$dir$doc", Host => 'retagged2'),
+             $expected,
              "GET $dir$doc"
             );
 }
