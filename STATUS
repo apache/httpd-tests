@@ -1,5 +1,5 @@
 httpd-test/perl-framework STATUS:				-*-text-*-
-Last modified at [$Date: 2002/02/06 15:46:26 $]
+Last modified at [$Date: 2002/02/06 18:57:59 $]
 
 Stuff to do:
     * finish the t/TEST exit code issue (ORed with 0x2C if
@@ -15,7 +15,9 @@ Tests to be written:
 
     * t/apache
       - simulations of network failures (incomplete POST bodies,
-        chunked and unchunked; missing POST bodies; ...)
+        chunked and unchunked; missing POST bodies; slooow
+        client connexions, such as taking 1 minute to send
+        1KiB; ...)
 
     * t/modules/autoindex
       - something seems possibly broken with inheritance on 2.0
