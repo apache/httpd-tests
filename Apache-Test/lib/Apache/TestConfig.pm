@@ -1582,7 +1582,7 @@ HostnameLookups Off
 </IfModule>
 
 <IfModule mpm_winnt.c>
-    ThreadsPerChild      10
+    ThreadsPerChild      20
     MaxRequestsPerChild  0
 </IfModule>
 
