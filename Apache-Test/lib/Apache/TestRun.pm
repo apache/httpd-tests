@@ -67,6 +67,17 @@ sub fixup {
     $^X = $Config{perlpath} unless -e $^X;
 }
 
+# if the test suite was aborted because of a user-error we don't want
+# to call the bugreport and invite users to submit a bug report -
+# after all it's a user error. but we still want the program to fail,
+# so raise this flag in such a case.
+my $user_error = 0;
+sub user_error {
+    my $self = shift;
+    $user_error = shift if @_;
+    $user_error;
+}
+
 sub new {
     my $class = shift;
 
@@ -322,8 +333,8 @@ sub install_sighandlers {
 
 sub try_bug_report {
     my $self = shift;
-    if ($? && $self->{opts}->{bugreport} && 
-              $self->can('bug_report')) {
+    if ($? && !$self->user_error &&
+        $self->{opts}->{bugreport} && $self->can('bug_report')) {
         $self->bug_report;
     }
 }
@@ -869,8 +880,9 @@ EOI
     my $res = qx[$check] || '';
     warning "result: $res";
     unless ($res eq 'OK') {
+        $self->user_error(1);
         #$self->restore_t_perms;
-        error(<<"EOI") && die "\n";
+        error <<"EOI";
 You are running the test suite under user 'root'.
 Apache cannot spawn child processes as 'root', therefore
 we attempt to run the test suite with user '$user' ($uid:$gid).
@@ -889,6 +901,7 @@ You can test whether some directory is suitable for 'make test' under
   % $check
 from that directory.
 EOI
+        exit_perl 0;
     }
 }
 
