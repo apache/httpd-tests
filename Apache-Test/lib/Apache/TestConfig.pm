@@ -1146,6 +1146,20 @@ sub check_vars {
     }
 }
 
+sub extra_conf_files_needing_update {
+    my $self = shift;
+
+    my @need_update = ();
+    finddepth(sub {
+        return unless /\.in$/;
+        (my $generated = $File::Find::name) =~ s/\.in$//;
+        push @need_update, $generated 
+            unless -e $generated && -M $generated < -M $File::Find::name;
+    }, $self->{vars}->{t_conf});
+
+    return @need_update;
+}
+
 sub generate_extra_conf {
     my $self = shift;
 
@@ -1166,19 +1180,15 @@ sub generate_extra_conf {
         }
     }
 
-    my $regenerate = 0;
     for my $file (@conf_files) {
         (my $generated = $file) =~ s/\.in$//;
-        push @extra_conf, $generated;
-
-        $regenerate++ unless -e $generated && -M $generated < -M $file;
-
         debug "Will 'Include' $generated config file";
+        push @extra_conf, $generated;
     }
 
     # if at least one .in file was generated, regenerate them all (so
     # information like assigned port numbers will be correct)
-    if ($regenerate) {
+    if ($self->extra_conf_files_needing_update) {
         # forget the vhosts cache, since a different port could be assigned
         $self->{vhosts} = {};
 
@@ -1400,11 +1410,8 @@ sub need_reconfiguration {
                -M $exe < -M $vars->{t_conf_file};
 
     # if .in files are newer than their derived versions
-    if (my $extra_conf = $self->generate_extra_conf) {
-        for my $file (@$extra_conf) {
-            push @reasons, "$file.in is newer than $file"
-                if -e $file && -M "$file.in" < -M $file;
-        }
+    for my $file ($self->extra_conf_files_needing_update) {
+        push @reasons, "$file.in is newer than $file";
     }
 
     # if special env variables are used (since they can change any time)
