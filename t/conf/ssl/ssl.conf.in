@@ -248,14 +248,16 @@ Alias /require-ssl-cgi @DocumentRoot@/modules/cgi
 
 </VirtualHost>
 
-<Location /ssl-fakebasicauth>
-    SSLVerifyClient      require
-    SSLVerifyDepth       5
-    SSLOptions           +FakeBasicAuth
-    AuthName             "Snake Oil Authentication"
-    AuthType             Basic
-    AuthUserFile         @ServerRoot@/conf/ssl/ssl.htpasswd
-    require              valid-user
-</Location>
+<IfModule mod_auth.c>
+    <Location /ssl-fakebasicauth>
+        SSLVerifyClient      require
+        SSLVerifyDepth       5
+        SSLOptions           +FakeBasicAuth
+        AuthName             "Snake Oil Authentication"
+        AuthType             Basic
+        AuthUserFile         @ServerRoot@/conf/ssl/ssl.htpasswd
+        require              valid-user
+    </Location>
+</IfModule>
 
 </IfModule>

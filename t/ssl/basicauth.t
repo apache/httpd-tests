@@ -6,7 +6,7 @@ use Apache::TestConfig ();
 
 my $url = '/ssl-fakebasicauth/index.html';
 
-plan tests => 3;
+plan tests => 3, have_module 'auth';
 
 Apache::TestRequest::scheme('https');
 
