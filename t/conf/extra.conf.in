@@ -157,6 +157,9 @@
         RewriteCond %{ENV:MAPTYPE} =prg
         RewriteRule ^([1-6])$ ${numbers-prg:$1}.html [L]
 
+        ## Proxy pass-through
+        RewriteRule ^proxy.html$ http://@SERVERNAME@:@PORT@/modules/rewrite/lucky13.html [L,P]
+
     </Directory>
 </IfModule>
 

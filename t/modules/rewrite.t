@@ -14,7 +14,7 @@ my @num = qw(1 2 3 4 5 6);
 my @url = qw(forbidden gone perm temp);
 my $r;
 
-plan tests => @map * @num + 3, need_module 'rewrite';
+plan tests => @map * @num + 4, need_module 'rewrite';
 
 foreach (@map) {
     foreach my $n (@num) {
@@ -52,3 +52,11 @@ $r = GET_BODY("/modules/rewrite/", 'Accept' => 'lucky13');
 chomp $r;
 $r =~ s/\r//g;
 ok ($r eq "JACKPOT");
+
+if (have_module('mod_proxy')) {
+    $r = GET_BODY("/modules/rewrite/proxy.html");
+    chomp $r;
+    ok t_cmp($r, "JACKPOT", "request was proxied");
+} else {
+    skip "Skipping rewrite to proxy; no proxy module.";
+}
