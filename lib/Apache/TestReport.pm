@@ -83,27 +83,27 @@ sub executable { $0 }
 my $core_dump;
 sub core_dump {
     my $self = shift;
-    
+
     $core_dump = "";
-    
+
     if (eval { require Devel::GDB }) {
         find(\&dump_core_file, 't')
     }
-    
+
     $core_dump || '  [CORE TRACE COMES HERE]';
 }
 
 sub dump_core_file {
     return unless /^core(\.\d+)?$/;
-    
+
     my $core = $_;
     my $gdb = new Devel::GDB ();
     my $test_config = Apache::TestConfig->new({thaw=>1});
     my $httpd = $test_config->{vars}->{httpd};
-    
+
     return unless defined $httpd;
-    
-    $core_dump .= join '', 
+
+    $core_dump .= join '',
            $gdb->get("file $httpd"),
            $gdb->get('sharedlibrary'),
            $gdb->get("core $core"),
