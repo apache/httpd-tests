@@ -55,6 +55,7 @@ sub request {
             content => $content || '',
         }, 'Apache::TestClientRequest'),
         headers_as_string => '',
+        method => $method,
     };
 
     my($response_line, $header_term);
@@ -134,7 +135,7 @@ sub as_string {
 }
 
 my @methods = qw(
-request protocol code message
+request protocol code message method
 headers_as_string headers content
 );
 
