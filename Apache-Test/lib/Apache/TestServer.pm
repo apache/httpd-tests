@@ -130,7 +130,7 @@ sub strace_cmd {
 
 sub valgrind_cmd {
     my($self, $valgrind) = @_;
-    "$valgrind -v --leak-check=yes --show-reachable=yes";
+    "$valgrind -v --leak-check=yes --show-reachable=yes --error-limit=no";
 }
 
 sub start_valgrind {
