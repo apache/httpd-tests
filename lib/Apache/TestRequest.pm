@@ -27,6 +27,12 @@ our @ISA = qw(LWP::UserAgent);
 my $UA;
 my $Config;
 
+sub module {
+    my $module = shift;
+    $Apache::TestRequest::Module = $module if $module;
+    $Apache::TestRequest::Module;
+}
+
 sub hostport {
     my $config = shift || test_config();
     my $hostport = $config->hostport;
