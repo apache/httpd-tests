@@ -398,13 +398,10 @@ EOM
 
     if 'tests' argument isn't provided all available tests will be run
 EOM
-
-    1;
 }
 
-
-__END__
 1;
+__END__
 
 =head1 NAME
 
