@@ -8,6 +8,15 @@ Changes - Apache::Test change logfile
 
 =item 1.08_dev
 
+Special to Apache-Test environment variables:
+APXS APACHE APACHE_GROUP APACHE_USER APACHE_PORT
+are now moved to:
+APACHE_TEST_APXS APACHE_TEST_HTTPD APACHE_TEST_GROUP 
+APACHE_TEST_USER APACHE_TEST_PORT
+respectively, for consistency with other APACHE_TEST_ env vars and in
+order not to interfere with other projects that may use the same env
+vars. [Stas]
+
 if $self->{reconfigure} is true, make sure to perform a complete
 reconfiguration, to solve the bug where conf.in files weren't reparsed
 and vhost hostport info was getting lost on subsequent runs when
