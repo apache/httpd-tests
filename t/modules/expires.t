@@ -60,7 +60,7 @@ foreach my $page (@page) {
 }
 
 ## testing with .htaccess ##
-foreach my $on_off qw(On Off) {
+foreach my $on_off (qw(On Off)) {
 
     my $ExpiresActive = "ExpiresActive $on_off\n";
     write_htaccess($ExpiresActive);
@@ -79,7 +79,7 @@ foreach my $on_off qw(On Off) {
             $ExpiresDefault, $ExpiresByType);
 
         ## testing with just ExpiresDefault directive ##
-        $a_m = qw(A M)[int(rand(2))];
+        $a_m = (qw(A M))[int(rand(2))];
         ($gmsec, $ExpiresDefault) = get_rand_time_str($a_m);
         %exp = default_exp();
         set_exp('default', "$a_m$gmsec");
@@ -93,7 +93,7 @@ foreach my $on_off qw(On Off) {
         }
 
         ## just ExpiresByType directive ##
-        $a_m = qw(A M)[int(rand(2))];
+        $a_m = (qw(A M))[int(rand(2))];
         ($gmsec, $ExpiresByType) = get_rand_time_str($a_m);
         %exp = default_exp();
         set_exp($t, "$a_m$gmsec");
@@ -107,11 +107,11 @@ foreach my $on_off qw(On Off) {
         }
 
         ## both ##
-        $a_m = qw(A M)[int(rand(2))];
+        $a_m = (qw(A M))[int(rand(2))];
         ($gmsec, $ExpiresDefault) = get_rand_time_str($a_m);
         %exp = default_exp();
         set_exp('default', "$a_m$gmsec");
-        $a_m = qw(A M)[int(rand(2))];
+        $a_m = (qw(A M))[int(rand(2))];
         ($gmsec, $ExpiresByType) = get_rand_time_str($a_m);
         set_exp($t, "$a_m$gmsec");
         $directive_string = $ExpiresActive .

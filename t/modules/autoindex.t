@@ -85,10 +85,10 @@ test_content('create');
 foreach my $fancy (0,1) {
 
     ## test default order requests ##
-    foreach my $order qw(Ascending Descending) {
+    foreach my $order (qw(Ascending Descending)) {
         $O = substr($order, 0, 1);
 
-        foreach my $component qw(Name Date Size) {
+        foreach my $component (qw(Name Date Size)) {
             $C = substr($component, 0, 1);
             $C = 'M' if $C eq 'D';
             my $config_string = '';
@@ -99,8 +99,8 @@ foreach my $fancy (0,1) {
             sok { ai_test($config_string,$C,$O,$uri) };
 
             ## test explicit order requests ##
-            foreach $C qw(N M S) {
-                foreach $O qw(A D) {
+            foreach $C (qw(N M S)) {
+                foreach $O (qw(A D)) {
                     my $test_uri;
                     if ($have_apache_2) {
                         $test_uri = "$uri?C=$C\&O=$O";
