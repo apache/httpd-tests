@@ -22,6 +22,8 @@ $LogFH = \*STDERR;
 
 # private data
 use constant HAS_COLOR  => eval {
+    #XXX: another way to color WINFU terms?
+    !(grep { $^O eq $_ } qw(MSWin32 cygwin NetWare)) and
     !$ENV{APACHE_TEST_NO_COLOR} and require Term::ANSIColor;
 };
 use constant HAS_DUMPER => eval { require Data::Dumper;    };
