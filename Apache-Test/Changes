@@ -8,6 +8,12 @@ Changes - Apache::Test change logfile
 
 =item 1.10-dev
 
+Use function prototypes in Apache::TestUtil functions t_cmp() and
+t_is_equal() to handle the case when an argument to the function, is a
+function call itself which may return undef (previously had to
+explicitly force a scalar context to get the undef value). The idea
+was borrowed from Test::More. [Stas]
+
 Fixed a Windows-only segment which would result in a
 'use of uninitialised value' error if a hash being traversed
 had an entry with a key but an undefined value.  [Ken]
