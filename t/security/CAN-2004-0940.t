@@ -1,0 +1,12 @@
+use strict;
+use warnings FATAL => 'all';
+
+use Apache::Test;
+use Apache::TestUtil;
+use Apache::TestRequest;
+
+plan tests => 1, need_module 'include';
+
+# 1.3.32 and earlier will segfault
+ok t_cmp(GET_RC("/security/CAN-2004-0940.shtml"), 
+         200, 'response was 200');

@@ -420,6 +420,7 @@ LimitRequestFields    32
 ## Test config for security issues
 ##
 <Directory @SERVERROOT@/htdocs/security>
+    Options +Includes
     AllowOverride All
     Order allow,deny
     Allow from all
