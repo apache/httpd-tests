@@ -30,7 +30,12 @@ AddLanguage fu .fu
 AddHandler type-map .var
 
 <IfModule mod_negotiation.c>
+<IfDefine APACHE1>
 CacheNegotiatedDocs
+</IfDefine>
+<IfDefine APACHE2>
+CacheNegotiatedDocs On
+</IfDefine>
 <Directory @SERVERROOT@/htdocs/modules/negotiation/en>
 Options +MultiViews
 LanguagePriority en fr de fu
@@ -101,11 +106,17 @@ RewriteCond %{ENV:MAPTYPE} =prg
 ## mod_include test config
 ##
 <IfModule mod_include.c>
+<IfDefine APACHE1>
 AddType text/html .shtml
 AddHandler server-parsed .shtml
-
+</IfDefine>
 <Directory @SERVERROOT@/htdocs/modules/include>
 Options +Includes IncludesNOEXEC
+<IfDefine APACHE2>
+<Files ~ *.shtml>
+SetOutputFilter INCLUDES
+</Files>
+</IfDefine>
 </Directory>
 <Directory @SERVERROOT@/htdocs/modules/include/xbithack>
 Options +Includes IncludesNOEXEC
