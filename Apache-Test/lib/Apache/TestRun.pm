@@ -616,6 +616,17 @@ sub new_test_config {
 sub set_ulimit_via_sh {
     return if Apache::TestConfig::WINFU;
     return if $ENV{APACHE_TEST_ULIMIT_SET};
+
+    # only root can allow unlimited core dumps on Solaris (8 && 9?)
+    if (Apache::TestConfig::SOLARIS) {
+        my $user = getpwuid($>) || '';
+        if ($user ne 'root') {
+            warning "Skipping 'set unlimited ulimit for coredumps', " .
+                "since we are running as a non-root user on Solaris";
+            return;
+        }
+    }
+
     my $binsh = '/bin/sh';
     return unless -e $binsh;
     $ENV{APACHE_TEST_ULIMIT_SET} = 1;
