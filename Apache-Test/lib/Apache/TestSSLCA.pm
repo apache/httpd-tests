@@ -259,11 +259,11 @@ sub revoke_cert {
     openssl ca => "-revoke certs/$name.crt", @args;
 
     unless (-e SSLCA_DB) {
-	#hack require for win32
-	my $new = join '.', SSLCA_DB, 'new';
-	if (-e $new) {
-	    cp $new, SSLCA_DB;
-	}
+        #hack required for win32
+        my $new = join '.', SSLCA_DB, 'new';
+        if (-e $new) {
+            cp $new, SSLCA_DB;
+        }
     }
 
     #generates crl from the index.txt database
