@@ -31,6 +31,9 @@ my %client_i_dn = dn('ca');
 my $client_i_dn = dn_oneline(\%client_i_dn);
 
 my %server_dn = dn('server');
+#turn into a pattern match: httpd-test/([-\w]+)
+#so we can test with different server keys/certs
+$server_dn{OU} =~ s:^([-\w]+/)([-\w]+)$:$1([-\\w]+):;
 
 my $server_dn = dn_oneline(\%server_dn);
 
@@ -145,7 +148,7 @@ SSL_CIPHER_ALGKEYSIZE        qr(^\d+$)
 SSL_CIPHER_USEKEYSIZE        qr(^\d+$)
 
 SSL_CLIENT_S_DN              "$client_dn"
-SSL_SERVER_S_DN              "$server_dn"
+SSL_SERVER_S_DN              qr(^$server_dn$)
 SSL_CLIENT_S_DN_C            "$client_dn{C}"
 SSL_SERVER_S_DN_C            "$server_dn{C}"
 SSL_CLIENT_S_DN_ST           "$client_dn{ST}"
@@ -155,7 +158,7 @@ SSL_SERVER_S_DN_L            "$server_dn{L}"
 SSL_CLIENT_S_DN_O            "$client_dn{O}"
 SSL_SERVER_S_DN_O            "$server_dn{O}"
 SSL_CLIENT_S_DN_OU           "$client_dn{OU}"
-SSL_SERVER_S_DN_OU           "$server_dn{OU}"
+SSL_SERVER_S_DN_OU           qr(^$server_dn{OU})
 SSL_CLIENT_S_DN_CN           "$client_dn{CN}"
 SSL_SERVER_S_DN_CN           "$server_dn{CN}"
 SSL_CLIENT_S_DN_T
