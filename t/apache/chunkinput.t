@@ -23,7 +23,7 @@ my $vars = Apache::Test::vars();
 my $module = 'default';
 my $cycle = 0;
 
-plan tests => $tests;
+plan tests => $tests, ['echo_post_chunk'];
 
 print "testing $module\n";
 
