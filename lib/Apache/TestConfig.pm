@@ -500,6 +500,8 @@ sub default_localhost {
 sub default_servername {
     my $self = shift;
     $localhost ||= $self->default_localhost;
+    die "Can't figure out the default localhost's server name"
+        unless $localhost;
 }
 
 # memoize the selected value (so we make sure that the same port is used
