@@ -74,7 +74,8 @@ sub have_http11 {
         return 1;
     }
     else {
-        push @SkipReasons, "LWP cannot handle HTTP 1.1";
+        push @SkipReasons,
+           "LWP version 5.60+ required for HTTP/1.1 support";
         return 0;
     }
 }
@@ -85,7 +86,7 @@ sub have_lwp {
         return 1;
     }
     else {
-        push @SkipReasons, "must have LWP installed";
+        push @SkipReasons, "libwww-perl is not installed";
         return 0;
     }
 }
@@ -163,7 +164,7 @@ sub have_module {
         eval "require $_";
         #print $@ if $@;
         if ($@) {
-            push @reasons, "cannot find $_";
+            push @reasons, "cannot find module '$_'";
             next;
         }
     }
@@ -183,22 +184,39 @@ sub have_cgi {
 sub have_apache {
     my $version = shift;
     my $cfg = Apache::Test::config();
-    if ($cfg->{server}->{rev} == $version) {
+    my $rev = $cfg->{server}->{rev};
+
+    if ($rev == $version) {
         return 1;
     }
     else {
-        push @SkipReasons, "need apache $version, but this is $cfg->{server}->{rev}";
+        push @SkipReasons,
+          "apache version $version required, this is version $rev";
         return 0;
     }
+}
+
+sub config_enabled {
+    my $key = shift;
+    defined $Config{$key} and $Config{$key} eq 'define';
 }
 
 sub have_perl {
     my $thing = shift;
     #XXX: $thing could be a version
+    my $config;
+
     for my $key ($thing, "use$thing") {
-        return 1 if $Config{$key} and $Config{$key} eq 'define';
+        if (exists $Config{$key}) {
+            $config = $key;
+            return 1 if config_enabled($key);
+        }
     }
-    push @SkipReasons, "Perl was built with neither $thing nor use$thing";
+
+    push @SkipReasons, $config ?
+      "Perl was not built with $config enabled" :
+        "$thing is not available with this version of Perl";
+
     return 0;
 }
 
