@@ -1370,7 +1370,8 @@ sub sslca_clean {
     my $self = shift;
 
     # XXX: httpd config is required, for now just skip ssl clean if
-    # there is none
+    # there is none. should probably add some flag which will tell us
+    # when httpd_config was already run
     return unless $self->{vars}->{httpd} && $self->{vars}->{ssl_module};
 
     return unless $self->sslca_can;
