@@ -7,6 +7,7 @@ use warnings FATAL => 'all';
 use File::Spec::Functions qw(catfile splitdir abs2rel);
 use File::Find qw(finddepth);
 use Apache::TestTrace;
+use Apache::TestRequest;
 use Config;
 
 my %libmodperl  = (1 => 'libperl.so', 2 => 'mod_perl.so');
@@ -92,7 +93,7 @@ sub configure_inc {
 }
 
 sub write_pm_test {
-    my($self, $pm, $base, $sub) = @_;
+    my($self, $module, $base, $sub) = @_;
 
     my $dir = catfile $self->{vars}->{t_dir}, $base;
     my $t = catfile $dir, "$sub.t";
@@ -101,9 +102,11 @@ sub write_pm_test {
     $self->gendir($dir);
     my $fh = $self->genfile($t);
 
+    my $path = Apache::TestRequest::module2path($module);
+
     print $fh <<EOF;
 use Apache::TestRequest 'GET';
-my \$res = GET "/$pm";
+my \$res = GET "/$path";
 if (\$res->is_success) {
     print \$res->content;
 }
@@ -193,7 +196,8 @@ my %container_config = (
 
 sub location_container {
     my($self, $module) = @_;
-    Location => "/$module";
+    my $path = Apache::TestRequest::module2path($module);
+    Location => "/$path";
 }
 
 sub vhost_container {
@@ -491,7 +495,6 @@ sub configure_pm_tests {
         $self->write_pm_test($module, lc $base, lc $sub);
     }
 }
-
 
 # turn a balanced (key=>val) list with potentially multiple indentical
 # keys into a hash of lists.

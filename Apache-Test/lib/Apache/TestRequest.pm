@@ -68,6 +68,17 @@ sub scheme {
     $Apache::TestRequest::Scheme;
 }
 
+sub module2path {
+    my $package = shift;
+
+    # httpd (1.3 && 2) / winFU have problems when the first path's
+    # segment includes ':' (security precaution which breaks the rfc)
+    # so we can't use /TestFoo::bar as path_info
+    (my $path = $package) =~ s/::/__/g;
+
+    return $path;
+}
+
 sub user_agent {
     my $args = {@_};
 
