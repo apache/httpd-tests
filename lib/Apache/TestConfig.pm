@@ -192,6 +192,12 @@ sub new {
     $vars->{t_logs}       ||= catfile $vars->{serverroot}, 'logs';
     $vars->{t_conf_file}  ||= catfile $vars->{t_conf},   'httpd.conf';
 
+    if (WINFU) {
+        for (keys %$vars) {
+            $vars->{$_} =~ s|\\|\/|g;
+        }
+    }
+
     $vars->{scheme}       ||= 'http';
     $vars->{servername}   ||= $self->default_servername;
     $vars->{port}         ||= $self->default_port;
