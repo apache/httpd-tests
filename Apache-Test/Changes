@@ -6,7 +6,7 @@ Changes - Apache::Test change logfile
 
 =over 3
 
-=item 1.15-dev
+=item 1.15 - October 22, 2004
 
 add new test_config make target, equivalent to t/TEST -conf,
 and make it a prerequisite for the cmodules make target.  now
