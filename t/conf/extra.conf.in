@@ -187,6 +187,9 @@
         ## Query-string append
         RewriteRule ^qsa.html$ http://@SERVERNAME@:@PORT@/modules/cgi/env.pl?foo=bar [QSA,L]
 
+        ## Proxy and QSA
+        RewriteRule ^proxy-qsa.html$ http://@SERVERNAME@:@PORT@/modules/cgi/env.pl?foo=bar [QSA,L,P]
+
     </Directory>
 
     ### Proxy pass-through to env.pl
