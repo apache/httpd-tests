@@ -248,6 +248,9 @@ sub default_run_opts {
     $opts->{'run-tests'} ||= @$tests;
 }
 
+my $parent_pid = $$;
+sub is_parent { $$ == $parent_pid }
+
 my $caught_sig_int = 0;
 
 sub install_sighandlers {
@@ -276,9 +279,8 @@ sub install_sighandlers {
     #must eval "" to "install" this END block, otherwise it will
     #always run, a subclass might not want that
 
-    eval 'my $parent_pid = $$;
-          END {
-             return unless $$ == $parent_pid; # because of fork
+    eval 'END {
+             return unless is_parent(); # because of fork
              local $?; # preserve the exit status
              eval {
                 Apache::TestRun->new(test_config =>
