@@ -25,7 +25,11 @@ my $data = "v1=one&v3=two&v2=three";
 
 for my $module (sort keys %urls) {
     if ($modules{$module}) {
-        verify(POST $urls{$module}, @filter, content => $data);
+        my $r = POST $urls{$module}, @filter, content => $data;
+        print "# testing $module with $urls{$module}\n";
+        print "# expected 200\n";
+        print "# received ".$r->code."\n";
+        verify($r);
     }
 }
 

@@ -24,12 +24,17 @@ verify(GET '/', @filter);
 
 for my $module (sort keys %urls) {
     if ($modules{$module}) {
-        verify(GET $urls{$module}, @filter);
+        my $r = GET $urls{$module}, @filter;
+        print "# testing $module with $urls{$module}\n";
+        print "# expected 200\n";
+        print "# received ".$r->code."\n";
+        verify($r);
     }
 }
 
 sub verify {
     my $r = shift;
+    my $url = shift;
     my $body = $r->content;
 
     ok $r->code == 200 and $body
