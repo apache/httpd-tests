@@ -897,9 +897,12 @@ phase. The other is not to run 'make test' as root (i.e. building
 under your /home/user directory).
 
 You can test whether some directory is suitable for 'make test' under
-'root', by running the following test:
+'root', by running a simple test. For example to test a directory
+'$dir', run:
+
   % $check
-from that directory.
+Only if the test prints 'OK', the directory is suitable to be used for
+testing.
 EOI
         exit_perl 0;
     }
