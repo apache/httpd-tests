@@ -64,6 +64,7 @@ use vars qw(%Usage);
    sslca           => 'location of SSL CA (default is $t_conf/ssl/ca)',
    sslcaorg        => 'SSL CA organization to use for tests (default is asf)',
    libmodperl      => 'path to mod_perl\'s .so (full or relative to LIBEXECDIR)',
+   defines         => 'values to add as -D defines (for example, "VAR1 VAR2")',
    (map { $_ . '_module_name', "$_ module name"} qw(cgi ssl thread access auth)),
 );
 
@@ -254,6 +255,7 @@ sub new {
     $vars->{maxclients}   ||= 1;
     $vars->{proxy}        ||= 'off';
     $vars->{proxyssl_url} ||= '';
+    $vars->{defines}      ||= '';
 
     $self->configure_apxs;
     $self->configure_httpd;

@@ -88,6 +88,8 @@ sub config_defines {
         push @defines, "-DPERL_\U$item";
     }
 
+    push @defines, map { "-D$_" } split " ", shift->{config}->{vars}->{defines};
+
     "@defines";
 }
 
