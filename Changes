@@ -8,6 +8,10 @@ Changes - Apache::Test change logfile
 
 =item 1.05-dev
 
+Apache 1.3 servers now run in standard prefork mode under
+normal operation.  single server mode (httpd -X) was replaced
+with MaxClients set to 1 by default.  [Geoffrey Young]
+
 =item 1.04 - September 29, 2003
 
 if the server stops reading from the client before it has sent all its
