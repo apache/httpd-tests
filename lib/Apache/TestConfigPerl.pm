@@ -180,6 +180,7 @@ sub configure_startup_pl {
         my $include_pl = catfile $self->{vars}->{t_conf}, 'modperl_inc.pl';
         my $fh = $self->genfile($include_pl);
         for (reverse @$inc) {
+            next unless $_;
             print $fh "use lib '$_';\n";
         }
         my $fixup = Apache::TestConfig->modperl_2_inc_fixup();
