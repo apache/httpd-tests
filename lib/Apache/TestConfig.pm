@@ -774,6 +774,30 @@ sub generate_httpd_conf {
     close $out or die "close $conf_file: $!";
 }
 
+sub need_reconfiguration {
+    my $self = shift;
+    my @reasons = ();
+    my $vars = $self->{vars};
+
+    # if httpd.conf is older than httpd executable
+    push @reasons, 
+        "$vars->{httpd} is newer than $vars->{t_conf_file}"
+            if -e $vars->{httpd} && 
+               -e $vars->{t_conf_file} &&
+               -M $vars->{httpd} < -M $vars->{t_conf_file};
+
+    # if .in files are newer than their derived versions
+    if (my $extra_conf = $self->generate_extra_conf) {
+        for my $file (@$extra_conf) {
+            push @reasons, "$file.in is newer than $file"
+                if -e $file && -M "$file.in" < -M $file;
+        }
+    }
+
+    return @reasons;
+}
+
+
 #shortcuts
 
 my %include_headers = (GET => 1, HEAD => 2);

@@ -245,6 +245,7 @@ sub refresh {
 sub configure_opts {
     my $self = shift;
     my $save = shift;
+    my $refreshed = 0;
 
     my($test_config, $opts) = ($self->{test_config}, $self->{opts});
 
@@ -256,6 +257,16 @@ sub configure_opts {
         $ENV{APACHE_TEST_HTTP11} = 1;
     }
 
+    if (my @reasons = $self->{test_config}->need_reconfiguration) {
+        warning "forcing re-configuration:";
+        warning "\t- $_." for @reasons;
+        unless ($refreshed) {
+            $self->refresh;
+            $refreshed = 1;
+            $test_config = $self->{test_config};
+        }
+    }
+
     if (exists $opts->{proxy}) {
         my $max = $test_config->{vars}->{maxclients};
         $opts->{proxy} ||= 'on';
@@ -263,9 +274,12 @@ sub configure_opts {
         #if config is cached and MaxClients == 1, must reconfigure
         if (!$$save and $opts->{proxy} eq 'on' and $max == 1) {
             $$save = 1;
-            warning "server must be reconfigured for proxy";
-            $self->refresh;
-            $test_config = $self->{test_config};
+            warning "server is reconfigured for proxy";
+            unless ($refreshed) {
+                $self->refresh;
+                $refreshed = 1;
+                $test_config = $self->{test_config};
+            }
         }
 
         $test_config->{vars}->{proxy} = $opts->{proxy};
