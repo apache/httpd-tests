@@ -271,6 +271,7 @@ sub configure_pm_tests {
             $self->add_module_config($file, \@args);
             my $module = abs2rel $file, $dir;
             $module =~ s,\.pm$,,;
+            $module =~ s/^[a-z]://i; #strip drive if any
             $module = join '::', splitdir $module;
 
             $self->run_apache_test_config($file, $module);
