@@ -30,7 +30,8 @@ $VERSION = '0.01';
 
 %CLEAN = ();
 
-use constant HAS_DUMPER => eval { require Data::Dumper; };
+# 5.005's Data::Dumper has problems to dump certain datastructures
+use constant HAS_DUMPER => eval { $] >= 5.6 && require Data::Dumper; };
 use constant INDENT     => 4;
 
 sub t_cmp {
