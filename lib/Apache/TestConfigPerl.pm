@@ -164,6 +164,7 @@ sub new_vhost {
 
 my %outside_container = map { $_, 1 } qw{
 Alias AliasMatch AddType
+PerlChildInitHandler PerlTransHandler PerlPostReadRequestHandler
 };
 
 #test .pm's can have configuration after the __DATA__ token
@@ -210,7 +211,8 @@ sub add_module_config {
 #@INC is auto-modified so each test .pm can be found
 #modules can add their own configuration using __DATA__
 
-my %hooks = map { $_, ucfirst $_ } qw(access authen authz type fixup log);
+my %hooks = map { $_, ucfirst $_ }
+  qw(trans access authen authz type fixup log);
 $hooks{Protocol} = 'ProcessConnection';
 $hooks{Filter}   = 'OutputFilter';
 
@@ -250,8 +252,17 @@ sub configure_pm_tests {
             }
 
             my $container = $container_config{$hook} || \&location_container;
+            my @handler_cfg = ($handler => $module);
+
+            if ($outside_container{$handler}) {
+                $self->postamble(@handler_cfg);
+            }
+            else {
+                push @args, @handler_cfg;
+            }
+
             $self->postamble($self->$container($module),
-                             { $handler => $module, @args });
+                             { @args }) if @args;
 
             $self->write_pm_test($module, lc $base, lc $sub);
         }, $dir);
