@@ -90,7 +90,7 @@ sub _bliblib {
 }
 
 sub ACTION_test {
-    my $self = shift
+    my $self = shift;
     $self->depends_on('code');
     $self->depends_on('run_tests');
     $self->depends_on('test_clean');
