@@ -96,14 +96,13 @@ sub prune {
     @new_tests;
 }
 
-sub run {
+sub get_tests {
     my $self = shift;
-    my $args = shift || {};
+    my $args = shift;
     my @tests = ();
 
     chdir_t();
 
-    $Test::Harness::verbose ||= $args->{verbose};
     my $ts = $args->{tests} || [];
 
     if (@$ts) {
@@ -145,11 +144,20 @@ sub run {
     #dir//foo output is annoying, fix that.
     s:/+:/:g for @tests;
 
-    if (my(@subtests) = @{ $args->{subtests} }) {
+    return @tests;
+}
+
+sub run {
+    my $self = shift;
+    my $args = shift || {};
+
+    $Test::Harness::verbose ||= $args->{verbose};
+
+    if (my(@subtests) = @{ $args->{subtests} || [] }) {
         $ENV{HTTPD_TEST_SUBTESTS} = "@subtests";
     }
 
-    Test::Harness::runtests(@tests);
+    Test::Harness::runtests($self->get_tests($args, @_));
 }
 
 1;
