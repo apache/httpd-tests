@@ -81,7 +81,7 @@ sub user_agent {
         };
     }
 
-    eval { $UA ||= __PACKAGE__->new(@_); };
+    eval { $UA ||= __PACKAGE__->new(%$args); };
 }
 
 sub user_agent_request_num {
