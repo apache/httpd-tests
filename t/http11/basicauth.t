@@ -9,7 +9,7 @@ use Apache::TestRequest;
 Apache::TestRequest::user_agent(keep_alive => 1);
 
 Apache::TestRequest::scheme('http')
-  unless have_module 'LWP::Protocol::https11';
+  unless have_module 'LWP::Protocol::https10'; #lwp 5.60
 
 plan tests => 3, have_module 'authany';
 

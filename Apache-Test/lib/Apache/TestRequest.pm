@@ -34,9 +34,10 @@ unless ($have_lwp) {
 sub install_http11 {
     eval {
         die "no LWP" unless $have_lwp;
-        LWP->VERSION(5.5396); #minimal version
-        require LWP::Protocol::http11;
-        LWP::Protocol::implementor('http', 'LWP::Protocol::http11');
+        LWP->VERSION(5.60); #minimal version
+        require LWP::Protocol::http;
+        #LWP::Protocol::http10 is used by default
+        LWP::Protocol::implementor('http', 'LWP::Protocol::http');
     };
 }
 
@@ -68,9 +69,10 @@ sub user_agent {
     $args->{keep_alive} ||= $ENV{APACHE_TEST_HTTP11};
 
     if ($args->{keep_alive}) {
+        install_http11();
         eval {
-            require LWP::Protocol::https11;
-            LWP::Protocol::implementor('https', 'LWP::Protocol::https11');
+            require LWP::Protocol::https; #https10 is the default
+            LWP::Protocol::implementor('https', 'LWP::Protocol::https');
         };
     }
 
