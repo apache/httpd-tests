@@ -14,7 +14,7 @@ my %urls = (
 
 my @filter = ('X-AddOutputFilter' => 'CaseFilter'); #mod_client_add_filter
 
-my %modules = map { $_, Apache::Test::have_module($_) } keys %urls;
+my %modules = map { $_, have_module($_) } keys %urls;
 
 my $tests = 1 + grep { $modules{$_} } keys %urls;
 

@@ -15,7 +15,7 @@ my $tests = 1 + @test_strings;
 my $vars = Apache::Test::vars();
 my @modules = qw(mod_echo);
 
-if (Apache::Test::have_ssl()) {
+if (have_ssl) {
     $tests *= 2;
     unshift @modules, 'mod_echo_ssl';
 }
