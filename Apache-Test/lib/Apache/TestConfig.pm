@@ -377,6 +377,7 @@ sub port {
 sub hostport {
     my $self = shift;
     my $vars = shift || $self->{vars};
+    my $module = shift || '';
 
     my $name = $vars->{servername};
     my $resolve = \$self->{resolved}->{$name};
@@ -391,7 +392,7 @@ sub hostport {
         }
     }
 
-    join ':', $$resolve, $self->port;
+    join ':', $$resolve, $self->port($module);
 }
 
 #look for mod_foo.so

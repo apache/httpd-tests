@@ -163,7 +163,7 @@ sub new_vhost {
     $vhost->{port}       = $port;
     $vhost->{servername} = $servername;
     $vhost->{name}       = join ':', $servername, $port;
-    $vhost->{hostport}   = $self->hostport($vhost);
+    $vhost->{hostport}   = $self->hostport($vhost, $module);
 
     $port;
 }
