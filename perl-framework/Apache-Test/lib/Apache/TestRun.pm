@@ -16,27 +16,30 @@ my @std_run      = qw(start-httpd run-tests stop-httpd);
 my @others       = qw(verbose configure clean help ping);
 my @flag_opts    = (@std_run, @others);
 my @string_opts  = qw(order);
+my @debug_opts   = qw(debug);
 my @num_opts     = qw(times);
-my @list_opts    = qw(preamble postamble);
+my @list_opts    = qw(preamble postamble breakpoint);
 my @hash_opts    = qw(header);
-my @exit_opts    = qw(clean help ping debug);
+my @help_opts    = qw(clean help ping);
+my @exit_opts    = (@help_opts,@debug_opts);
 my @request_opts = qw(get head post);
 
 my %usage = (
-   'start-httpd' => 'start the test server',
-   'run-tests'   => 'run the tests',
-   'times=N'     => 'repeat the tests N times',
-   'order=mode'  => 'run the tests in one of the modes: (repeat|rotate|random)',
-   'stop-httpd'  => 'stop the test server',
-   'verbose'     => 'verbose output',
-   'configure'   => 'force regeneration of httpd.conf',
-   'clean'       => 'remove all generated test files',
-   'help'        => 'display this message',
-   'preamble'    => 'config to add at the beginning of httpd.conf',
-   'postamble'   => 'config to add at the end of httpd.conf',
-   'ping'        => 'test if server is running or port in use',
-   'debug'       => 'start server under debugger (e.g. gdb)',
-   'header'      => "add headers to (".join('|', @request_opts).") request",
+   'start-httpd'     => 'start the test server',
+   'run-tests'       => 'run the tests',
+   'times=N'         => 'repeat the tests N times',
+   'order=mode'      => 'run the tests in one of the modes: (repeat|rotate|random)',
+   'stop-httpd'      => 'stop the test server',
+   'verbose'         => 'verbose output',
+   'configure'       => 'force regeneration of httpd.conf',
+   'clean'           => 'remove all generated test files',
+   'help'            => 'display this message',
+   'preamble'        => 'config to add at the beginning of httpd.conf',
+   'postamble'       => 'config to add at the end of httpd.conf',
+   'ping'            => 'test if server is running or port in use',
+   'debug[=name]'    => 'start server under debugger name (e.g. gdb, ddd, ...)',
+   'breakpoint=bp'   => 'set breakpoints (multiply bp can be set)',
+   'header'          => "add headers to (".join('|', @request_opts).") request",
    (map { $_, "\U$_\E url" } @request_opts),
 );
 
@@ -119,8 +122,9 @@ sub getopts {
     local *ARGV = $self->{args};
     my(%opts, %vopts, %conf_opts);
 
-    GetOptions(\%opts, @flag_opts, @exit_opts,
-               (map "$_=s", @request_opts,@string_opts),
+    GetOptions(\%opts, @flag_opts, @help_opts,
+               (map "$_:s", @debug_opts),
+               (map "$_=s", @request_opts, @string_opts),
                (map "$_=i", @num_opts),
                (map { ("$_=s", $vopts{$_} ||= []) } @list_opts),
                (map { ("$_=s", $vopts{$_} ||= {}) } @hash_opts));
@@ -134,6 +138,16 @@ sub getopts {
 
     while (my($key, $val) = splice @ARGV, 0, 2) {
        $conf_opts{lc $key} = $val;
+    }
+
+    if (exists $opts{debug}) {
+        $opts{debugger} = $opts{debug};
+        $opts{debug} = 1;
+    }
+
+    # breakpoint automatically turns the debug mode on
+    if (@{ $opts{breakpoint} }) {
+        $opts{debug} ||= 1;
     }
 
     if ($opts{configure}) {
@@ -374,8 +388,14 @@ sub opt_ping {
 sub opt_debug {
     my $self = shift;
     my $server = $self->{server};
+
+    my $debug_opts = {};
+    for (qw(debugger breakpoint)) {
+        $debug_opts->{$_} = $self->{opts}->{$_};
+    }
+
     $server->stop;
-    $server->start_debugger;
+    $server->start_debugger($debug_opts);
 }
 
 sub opt_help {

@@ -9,6 +9,14 @@ use File::Spec::Functions qw(catfile);
 use Apache::TestTrace;
 use Apache::TestConfig ();
 
+# some debuggers use the same syntax as others, so we reuse the same
+# code by using the following mapping
+my %debuggers =
+    (
+     gdb => 'gdb',
+     ddd => 'gdb',
+    );
+
 sub trace {
     shift->{config}->trace(@_);
 }
@@ -74,23 +82,60 @@ sub start_cmd {
 
 sub start_gdb {
     my $self = shift;
+    my $opts = shift;
 
-    my $config = $self->{config};
-    my $args = $self->args;
+    my $debugger    = $opts->{debugger};
+    my @breakpoints = @{ $opts->{breakpoint} || [] };
+    my $config      = $self->{config};
+    my $args        = $self->args;
     my $one_process = $self->version_of(\%one_process);
 
     my $file = catfile $config->{vars}->{serverroot}, '.gdb-test-start';
-    my $fh = $config->genfile($file, 1);
-    print $fh "run $one_process $args";
+    my $fh   = $config->genfile($file, 1);
+
+    if (@breakpoints) {
+        print $fh "b ap_run_pre_config\n";
+        print $fh "run $one_process $args\n";
+        print $fh "finish\n";
+        for (@breakpoints) {
+            print $fh "b $_\n"
+        }
+        print $fh "continue\n";
+    }
+    else {
+        print $fh "run $one_process $args\n";
+    }
     close $fh;
 
-    system "gdb $config->{vars}->{httpd} -command $file";
+    my $command;
+    if ($debugger eq 'ddd') {
+        $command = qq{ddd --gdb --debugger "gdb -command $file" $config->{vars}->{httpd}};
+    }
+    else {
+        $command = "gdb $config->{vars}->{httpd} -command $file";
+    }
+
+    debug  $command;
+    system $command;
 
     unlink $file;
 }
 
 sub start_debugger {
-    shift->start_gdb; #XXX support dbx and others
+    my $self = shift;
+    my $opts = shift;
+
+    $opts->{debugger} ||= $ENV{MP_DEBUGGER} || 'gdb';
+
+    unless ($debuggers{ $opts->{debugger} }) {
+        error "$opts->{debugger} is not a supported debugger",
+              "These are the supported debuggers: ".
+              join ", ", sort keys %debuggers;
+        die("\n");
+    }
+
+    my $method = "start_".$debuggers{ $opts->{debugger} };
+    $self->$method($opts);
 }
 
 sub pid {
