@@ -10,6 +10,7 @@ use Apache::TestConfig ();
 
 use constant TRY_TIMES => 50;
 use constant INTERP_KEY => 'X-PerlInterpreter';
+use constant UA_TIMEOUT => 60 * 10; #longer timeout for debugging
 
 my $have_lwp = eval {
     require LWP::UserAgent;
@@ -137,7 +138,7 @@ sub new {
         $self->proxy(http => "http://$proxy");
     }
 
-    $self->timeout(60 * 10); #longer timeout for debugging
+    $self->timeout(UA_TIMEOUT);
 
     $self;
 }
@@ -154,10 +155,22 @@ sub get_basic_credentials {
 }
 
 sub vhost_socket {
-    local $Apache::TestRequest::Module = shift;
+    my $module = shift;
+    local $Apache::TestRequest::Module = $module;
+
     my $hostport = hostport(Apache::Test::config());
-    require IO::Socket;
-    IO::Socket::INET->new($hostport);
+    my($host, $port) = split ':', $hostport;
+    my(%args) = (PeerAddr => $host, PeerPort => $port);
+
+    if ($module =~ /ssl/) {
+        require Net::SSL;
+        local $ENV{https_proxy} ||= ""; #else uninitialized value in Net/SSL.pm
+        return Net::SSL->new(%args, Timeout => UA_TIMEOUT);
+    }
+    else {
+        require IO::Socket;
+        return IO::Socket::INET->new(%args);
+    }
 }
 
 sub prepare {
