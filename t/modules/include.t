@@ -45,18 +45,22 @@ my %test = (
 "extra/inc-bogus.shtml" =>
     "[an error occurred while processing this directive] inc-bogus.shtml body",
 "abs-path.shtml"        =>
-    "inc-extra2.shtml body  inc-extra1.shtml body  abs-path.shtml body"
+    "inc-extra2.shtml body  inc-extra1.shtml body  abs-path.shtml body",
+"exec/off/cmd.shtml"    =>
+    "[an error occurred while processing this directive]",
+"exec/on/cmd.shtml"     =>    "pass"
 );
 
 #
-# in addition to %test, there are 1 GET test and 9 XBitHack tests
+# in addition to $tests, there is 1 GET test, 9 XBitHack tests,
+# and 2 exec cgi tests
 #
 my $tests = keys %test;
-plan tests => $tests + 10, have_module 'include';
+plan tests => $tests + 12, have_module 'include';
 
 foreach $doc (sort keys %test) {
     ok t_cmp($test{$doc},
-             &super_chomp(GET_BODY "$dir$doc"),
+             super_chomp(GET_BODY "$dir$doc"),
              "GET $dir$doc"
             );
 }
@@ -67,13 +71,35 @@ ok t_cmp("200",
          "GET $dir$doc"
         );
 
+
+### EXEC CGI TESTS
+# skipped if !have_cgi
+my %execcgitest = (
+"exec/off/cgi.shtml" =>
+    "[an error occurred while processing this directive]",
+"exec/on/cgi.shtml" =>
+    "perl cgi"
+);
+foreach $doc (sort keys %execcgitest) {
+    if (have_cgi()) {
+        ok t_cmp($execcgitest{$doc},
+                 super_chomp(GET_BODY "$dir$doc"),
+                 "GET $dir$doc"
+                );
+    }
+    else {
+        skip "Skipping 'exec cgi' test; no cgi module.", 1;
+    }
+}
+
+
 ### XBITHACK TESTS
 # test xbithack off
 $doc = "xbithack/off/test.html";
 foreach ("0444", "0544", "0554") {
     chmod oct($_), "htdocs/$dir$doc";
     ok t_cmp("<BODY> <!--#include virtual=\"../../inc-two.shtml\"--> </BODY>",
-             &super_chomp(GET_BODY "$dir$doc"),
+             super_chomp(GET_BODY "$dir$doc"),
              "XBitHack off [$_]"
             );
 }
@@ -82,14 +108,14 @@ foreach ("0444", "0544", "0554") {
 $doc = "xbithack/on/test.html";
 chmod 0444, "htdocs$dir$doc";
 ok t_cmp("<BODY> <!--#include virtual=\"../../inc-two.shtml\"--> </BODY>",
-         &super_chomp(GET_BODY "$dir$doc"),
+         super_chomp(GET_BODY "$dir$doc"),
          "XBitHack on [0444]"
         );
 
 foreach ("0544", "0554") {
     chmod oct($_), "htdocs/$dir$doc";
     ok t_cmp("No Last-modified date ; <BODY> inc-two.shtml body  </BODY>",
-             &check_xbithack(GET "$dir$doc"),
+             check_xbithack(GET "$dir$doc"),
              "XBitHack on [$_]"
             );
 }
@@ -98,17 +124,17 @@ foreach ("0544", "0554") {
 $doc = "xbithack/full/test.html";
 chmod 0444, "htdocs/$dir$doc";
 ok t_cmp("<BODY> <!--#include virtual=\"../../inc-two.shtml\"--> </BODY>",
-         &super_chomp(GET_BODY "$dir$doc"),
+         super_chomp(GET_BODY "$dir$doc"),
          "XBitHack full [0444]"
         );
 chmod 0544, "htdocs/$dir$doc";
 ok t_cmp("No Last-modified date ; <BODY> inc-two.shtml body  </BODY>",
-         &check_xbithack(GET "$dir$doc"),
+         check_xbithack(GET "$dir$doc"),
          "XBitHack full [0544]"
         );
 chmod 0554, "htdocs/$dir$doc";
 ok t_cmp("Has Last-modified date ; <BODY> inc-two.shtml body  </BODY>",
-         &check_xbithack(GET "$dir$doc"),
+         check_xbithack(GET "$dir$doc"),
          "XBitHack full [0554]"
         );
 
@@ -128,7 +154,7 @@ sub super_chomp {
 
 sub check_xbithack {
     my ($resp) = shift;
-    my ($body) = &super_chomp($resp->content);
+    my ($body) = super_chomp($resp->content);
     my ($lastmod) = ($resp->last_modified)
                       ? "Has Last-modified date" : "No Last-modified date";
     "$lastmod ; $body";

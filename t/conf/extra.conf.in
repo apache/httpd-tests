@@ -158,8 +158,8 @@
         XBitHack full
     </Directory>
 
-    <Directory @SERVERROOT@/htdocs/modules/include/exec>
-        Options +Includes
+    <Directory @SERVERROOT@/htdocs/modules/include/exec/on>
+        Options Includes
     </Directory>
 </IfModule>
 
