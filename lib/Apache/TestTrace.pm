@@ -170,7 +170,7 @@ C<$Apache::TestTrace::LogFH> with a new filehandler.
 
 =head1 AUTHOR
 
-Stas Bekman <stas@stason.org> and Doug MacEachern <dougm@covalent.com>.
+Stas Bekman with contributions from Doug MacEachern
 
 =cut
 
