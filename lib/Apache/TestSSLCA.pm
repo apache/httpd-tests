@@ -331,7 +331,8 @@ sub generate {
 sub clean {
     my $config = shift;
 
-    my $dir = $config->{vars}->{sslca};
+    #rel2abs adds same drive letter for win32 that clean_add_path added
+    my $dir = File::Spec->rel2abs($config->{vars}->{sslca});
 
     unless ($config->{clean}->{dirs}->{$dir}) {
         return; #we did not generate this ca
