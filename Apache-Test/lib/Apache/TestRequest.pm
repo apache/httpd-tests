@@ -11,6 +11,13 @@ use Apache::TestConfig ();
 my $have_lwp = eval {
     require LWP::UserAgent;
     require HTTP::Request::Common;
+
+    unless (defined &HTTP::Request::Common::OPTIONS) {
+        package HTTP::Request::Common;
+        no strict 'vars';
+        *OPTIONS = sub { _simple_req(OPTIONS => @_) };
+        push @EXPORT, 'OPTIONS';
+    }
 };
 
 sub has_lwp { $have_lwp }
@@ -18,7 +25,7 @@ sub has_lwp { $have_lwp }
 unless ($have_lwp) {
     #need to define the shortcuts even though the wont be used
     #so Perl can parse test scripts
-    @HTTP::Request::Common::EXPORT = qw(GET HEAD POST PUT);
+    @HTTP::Request::Common::EXPORT = qw(GET HEAD POST PUT OPTIONS);
 }
 
 sub install_http11 {
