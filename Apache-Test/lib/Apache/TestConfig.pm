@@ -1745,6 +1745,7 @@ sub as_string {
 
     # httpd opts
     my $test_config = Apache::TestConfig->new({thaw=>1});
+    # XXX: need to run httpd config to get the value of httpd
     if (my $httpd = $test_config->{vars}->{httpd}) {
         $httpd = shell_ready($httpd);
         $command = "$httpd -V";
