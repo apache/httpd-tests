@@ -119,7 +119,7 @@ sub user_agent {
             $RedirectOK = 1;
         } elsif ($redir) {
             $args->{requests_redirectable} = [ qw/GET HEAD POST/ ]
-              if $have_lwp;
+                if $have_lwp;
             $RedirectOK = 1;
         } else {
             $RedirectOK = 0;
