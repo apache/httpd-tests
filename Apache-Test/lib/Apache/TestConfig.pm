@@ -83,7 +83,7 @@ use vars qw(%Usage);
    sslcaorg        => 'SSL CA organization to use for tests (default is asf)',
    libmodperl      => 'path to mod_perl\'s .so (full or relative to LIBEXECDIR)',
    defines         => 'values to add as -D defines (for example, "VAR1 VAR2")',
-   (map { $_ . '_module_name', "$_ module name"} qw(cgi ssl thread access auth)),
+   (map { $_ . '_module_name', "$_ module name"} qw(cgi ssl thread access auth php)),
 );
 
 my %filepath_conf_opts = map { $_ => 1 }
@@ -306,6 +306,7 @@ sub new {
     $self->default_module(ssl    => [qw(mod_ssl)]);
     $self->default_module(access => [qw(mod_access mod_authz_host)]);
     $self->default_module(auth   => [qw(mod_auth mod_auth_basic)]);
+    $self->default_module(php   => [qw(mod_php4 mod_php5)]);
 
     $self->{hostport} = $self->hostport;
 

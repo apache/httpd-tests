@@ -8,6 +8,9 @@ Changes - Apache::Test change logfile
 
 =item 1.13-dev
 
+add @PHP_MODULE@ extra.conf.in substitution variable, which selects
+mod_php4 or mod_php5 as appropriate.  [Geoffrey Young]
+
 the have() function was removed entirely - use need() instead.
 [Geoffrey Young]
 
