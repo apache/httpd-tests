@@ -105,6 +105,7 @@ my @apache_logs = qw(
 error_log access_log httpd.pid
 apache_runtime_status rewrite_log
 ssl_engine_log ssl_request_log
+cgisock
 );
 
 sub clean {
