@@ -7,7 +7,7 @@ use Test qw(ok);
 use Exporter ();
 
 our @ISA = qw(Exporter);
-our @EXPORT = qw(ok plan);
+our @EXPORT = qw(ok plan have_lwp);
 our $VERSION = '0.01';
 
 #so Perl's Test.pm can be run inside mod_perl
@@ -36,9 +36,18 @@ sub plan {
     init_test_pm(shift) if ref $_[0];
 
     my $condition = pop @_ if ref $_[-1];
-    if ($condition and ! $condition->()) {
-        print "0..1\n";
-        exit; #XXX: Apache->exit
+    if ($condition) {
+        unless (defined &have_lwp) {
+            #XXX figure out a better set this up
+            #dont want to require Apache::TestRequest/lwp
+            #on the server side
+            require Apache::TestRequest;
+            *have_lwp = \&Apache::TestRequest::has_lwp;
+        }
+        unless ($condition->()) {
+            print "1..0\n";
+            exit; #XXX: Apache->exit
+        }
     }
 
     Test::plan(@_);

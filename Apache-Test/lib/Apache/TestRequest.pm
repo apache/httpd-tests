@@ -12,6 +12,12 @@ my $have_lwp = eval {
 
 sub has_lwp { $have_lwp }
 
+unless ($have_lwp) {
+    #need to define the shortcuts even though the wont be used
+    #so Perl can parse test scripts
+    @HTTP::Request::Common::EXPORT = qw(GET HEAD POST PUT);
+}
+
 require Exporter;
 *import = \&Exporter::import;
 our @EXPORT = @HTTP::Request::Common::EXPORT;
