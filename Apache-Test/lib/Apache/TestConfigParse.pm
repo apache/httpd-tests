@@ -439,9 +439,16 @@ sub get_httpd_defines {
         $self->{mpm} = '';
     }
 
-    if (($self->{httpd_info}->{VERSION}||'') =~ qr,Apache/2,) {
-        # PHP 4.x on httpd-2.x needs a special modname alias;
+    my $version = $self->{httpd_info}->{VERSION} || '';
+
+    if ($version =~ qr,Apache/2,) {
+        # PHP 4.x on httpd-2.x needs a special modname alias:
         $modname_alias{'mod_php4.c'} = 'sapi_apache2.c';
+    }
+
+    unless ($version =~ qr,Apache/(2.0|1.3),) {
+        # for 2.1 and later, mod_proxy_* are really called mod_proxy_*
+        delete @modname_alias{grep {/^mod_proxy_/} keys %modname_alias};
     }
 }
 
