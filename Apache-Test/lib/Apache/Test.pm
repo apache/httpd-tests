@@ -769,6 +769,27 @@ module, C<mod_cgid>, that we run under perl E<gt>= 5.7.3 on Win32.
 It's possible to put more than one requirement into a single hash
 reference, but be careful that the keys will be different.
 
+It's also important to mention to avoid using:
+
+  plan tests => 1, requirement1 && requirement2;
+
+technique. While test-wise that technique is equivalent to:
+
+  plan tests => 1, need requirement1, requirement2;
+
+since the test will be skipped, unless all the rules are satisfied,
+it's not equivalent for the end users. The second technique, deploying
+C<need()> and a list of requirements, always runs all the requirement
+checks and reports all the missing requirements. In the case of the
+first technique, if the first requirement fails, the second is not
+run, and the missing requirement is not reported. So let's say all the
+requirements are missing Apache modules, and a user wants to satisfy
+all of these and run the test suite again. If all the unsatisfied
+requirements are reported at once, she will need to rebuild Apache
+once. If only one requirement is reported at a time, she will have to
+rebuild Apache as many times as there are elements in the C<&&>
+statement.
+
 Also see plan().
 
 =item under_construction
