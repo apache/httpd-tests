@@ -549,6 +549,8 @@ sub run {
 
     $self->getopts(\@argv);
 
+    $self->pre_configure() if $self->can('pre_configure');
+
     $self->{test_config} = $self->new_test_config;
 
     $self->warn_core();

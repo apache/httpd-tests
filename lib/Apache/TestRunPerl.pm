@@ -11,12 +11,17 @@ use File::Spec::Functions qw(catfile);
 use vars qw(@ISA);
 @ISA = qw(Apache::TestRun);
 
+sub pre_configure {
+    my $self = shift;
+
+    Apache::TestConfig::config_parse_skip_module_add('mod_perl.c');
+
+}
+
 sub configure_modperl {
     my $self = shift;
 
     my $test_config = $self->{test_config};
-
-    $test_config->config_parse_skip_module_add('mod_perl.c');
 
     $test_config->preamble_register(qw(configure_libmodperl));
 
