@@ -927,10 +927,11 @@ sub servername_config {
 sub parse_vhost {
     my($self, $line) = @_;
 
-    my($indent, $module);
-    if ($line =~ /^(\s*)<VirtualHost\s+(?:_default_:)?(.*?)\s*>\s*$/) {
-        $indent = $1 || "";
-        $module = $2;
+    my($indent, $module, $namebased);
+    if ($line =~ /^(\s*)<VirtualHost\s+(?:_default_:|([^:]+):)?(.*?)\s*>\s*$/) {
+        $indent    = $1 || "";
+        $namebased = $2 || "";
+        $module    = $3;
     }
     else {
         return undef;
@@ -956,14 +957,23 @@ sub parse_vhost {
     }
 
     #allocate a port and configure this module into $self->{vhosts}
-    my $port = $self->new_vhost($module);
+    my $port = $self->new_vhost($module, $namebased);
 
     #extra config that should go *inside* the <VirtualHost ...>
-    my @in_config = $self->servername_config($vars->{servername},
+    my @in_config = $self->servername_config($namebased
+                                                 ? $namebased
+                                                 : $vars->{servername},
                                              $port);
 
-    #extra config that should go *outside* the <VirtualHost ...>
-    my @out_config = ([Listen => $port]);
+    my @out_config = ();
+    if ($self->{vhosts}->{$module}->{namebased} < 2) {
+        #extra config that should go *outside* the <VirtualHost ...>
+        @out_config = ([Listen => $port]);
+
+        if ($self->{vhosts}->{$module}->{namebased}) {
+            push @out_config => [NameVirtualHost => "*:$port"];
+        }
+    }
 
     #there are two ways of building a vhost
     #first is when we parse test .pm and .c files
@@ -989,7 +999,8 @@ sub parse_vhost {
         #used when parsing *.conf.in files
         in_string     => $form_string->($double_indent, @in_config),
         out_string    => $form_string->($indent, @out_config),
-        line          => "$indent<VirtualHost _default_:$port>",
+        line          => "$indent<VirtualHost " . ($namebased ? '*' : '_default_') .
+                         ":$port>",
     };
 }
 

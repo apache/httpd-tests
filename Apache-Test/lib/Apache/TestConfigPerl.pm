@@ -214,17 +214,31 @@ sub location_container {
 sub vhost_container {
     my($self, $module) = @_;
     my $port = $self->{vhosts}->{$module}->{port};
-    VirtualHost => "_default_:$port";
+    my $namebased = $self->{vhosts}->{$module}->{namebased};
+
+    VirtualHost => ($namebased ? '*' : '_default_') . ":$port";
 }
 
 sub new_vhost {
-    my($self, $module) = @_;
+    my($self, $module, $namebased) = @_;
+    my($port, $servername, $vhost);
 
-    my $port       = $self->server->select_port;
-    my $servername = $self->{vars}->{servername};
-    my $vhost      = $self->{vhosts}->{$module} = {};
+    unless ($namebased and exists $self->{vhosts}->{$module}) {
+        $port       = $self->server->select_port;
+        $vhost      = $self->{vhosts}->{$module} = {};
 
-    $vhost->{port}       = $port;
+        $vhost->{port}       = $port;
+        $vhost->{namebased}  = $namebased ? 1 : 0;
+    }
+    else {
+        $vhost      = $self->{vhosts}->{$module};
+        $port       = $vhost->{port};
+        # remember the already configured Listen/NameVirtualHost
+        $vhost->{namebased}++;
+    }
+
+    $servername = $self->{vars}->{servername};
+
     $vhost->{servername} = $servername;
     $vhost->{name}       = join ':', $servername, $port;
     $vhost->{hostport}   = $self->hostport($vhost, $module);
@@ -354,7 +368,7 @@ sub process_vhost_open_tag {
     if ($cfg) {
         my $port = $cfg->{port};
         $cfg->{out_postamble}->();
-        $self->postamble("$indent<VirtualHost _default_:$port>");
+        $self->postamble($cfg->{line});
         $cfg->{in_postamble}->();
     } else {
         $self->postamble("$indent$line");

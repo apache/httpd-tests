@@ -8,6 +8,10 @@ Changes - Apache::Test change logfile
 
 =item 1.04-dev - 
 
+Allow the creation of name based virtual hosts by supplying
+<VirtualHost servername:module> containers in .conf.in$ files.
+[André Malo]
+
 fix Apache::TestSSLCA to generate a separate index.txt file for each
 module, as on certain platforms openssl fails to re-use the same
 file. [Stas]
