@@ -351,6 +351,7 @@ typedef array_header apr_array_header_t;
 #ifndef APACHE_HTTPD_TEST_HOOK_ORDER
 #define APACHE_HTTPD_TEST_HOOK_ORDER APR_HOOK_MIDDLE
 #endif
+#include "ap_compat.h"
 #endif /* APACHE2 */
 
 #endif /* APACHE_HTTPD_TEST_H */
