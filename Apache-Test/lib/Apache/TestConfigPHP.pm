@@ -323,23 +323,4 @@ function test_end() {
     }
 }
 
-function html_ok( $str, $name = "" ) {
-    $fname = tempnam( getenv("TMP"), 'lint-' );
-    $fh = fopen( $fname, "w" );
-    fwrite( $fh, $str );
-    fclose( $fh );
-
-    $results = Array();
-    $results = shell_exec( "weblint $fname" );
-    unlink( $fname );
-
-    if ( $results ) {
-        $ok = fail( $name );
-        diag( $results );
-    } else {
-        $ok = pass( $name );
-    }
-    return $ok;
-}
-
 ?>
