@@ -31,7 +31,7 @@ WriteMakefile(
     NAME      => 'Apache::Test',
     VERSION   => $VERSION,
     dist      => {
-	COMPRESS => 'gzip -9f', SUFFIX=>'gz',
+        COMPRESS => 'gzip -9f', SUFFIX=>'gz',
     },
 );
 
@@ -41,11 +41,11 @@ sub set_version {
     my $fh = Symbol::gensym();
     open $fh, 'Changes' or die "Can't open Changes: $!";
     while (<$fh>) {
-	if(/^=item.*-dev/) {
-	    $VERSION .= '-dev';
-	    last;
-	}
-	last if /^=item/;
+        if(/^=item.*-dev/) {
+            $VERSION .= '-dev';
+            last;
+        }
+        last if /^=item/;
     }
     close $fh;
 
