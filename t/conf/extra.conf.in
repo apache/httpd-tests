@@ -207,10 +207,10 @@
 </IfModule>
 
 ##
-## mod_access test config
+## @ACCESS_MODULE@ test config
 ##
 
-<IfModule mod_access.c>
+<IfModule @ACCESS_MODULE@>
     <Directory @SERVERROOT@/htdocs/modules/access/htaccess>
         AllowOverride Limit
     </Directory>
