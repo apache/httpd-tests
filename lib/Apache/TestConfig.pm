@@ -43,6 +43,7 @@ our %Usage = (
    httpd_conf    => 'inherit config from this file (default is apxs derived)',
    maxclients    => 'maximum number of concurrent clients (default is 1)',
    perlpod       => 'location of perl pod documents (for testing downloads)',
+   (map { $_ . '_module_name', "$_ module name"} qw(cgi ssl thread)),
 );
 
 sub usage {
@@ -207,6 +208,7 @@ sub new {
 
     $self->default_module(cgi    => [qw(mod_cgi mod_cgid)]);
     $self->default_module(thread => [qw(worker threaded)]);
+    $self->default_module(ssl    => [qw(mod_ssl)]);
 
     $self->{hostport} = $self->hostport;
 
@@ -218,13 +220,18 @@ sub new {
 sub default_module {
     my($self, $name, $choices) = @_;
 
-    $name .= '_module';
+    my $mname = $name . '_module_name';
 
-    ($self->{vars}->{$name}) = grep {
-        $self->{modules}->{$_};
-    } map "$_.c", @$choices;
+    unless ($self->{vars}->{$mname}) {
+        ($self->{vars}->{$mname}) = grep {
+            $self->{modules}->{"mod_$_.c"};
+        } @$choices;
 
-    $self->{vars}->{$name} ||= "$choices->[0].c";
+        $self->{vars}->{$mname} ||= $choices->[0];
+    }
+
+    $self->{vars}->{$name . '_module'} =
+      $self->{vars}->{$mname} . '.c'
 }
 
 sub configure_apxs {
@@ -470,7 +477,7 @@ sub port {
     unless ($module) {
         my $vars = $self->{vars};
         return $vars->{port} unless $vars->{scheme} eq 'https';
-        $module = 'mod_ssl';
+        $module = $vars->{ssl_module_name};
     }
     return $self->{vhosts}->{$module}->{port};
 }
