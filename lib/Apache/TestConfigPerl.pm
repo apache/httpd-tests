@@ -353,7 +353,8 @@ sub run_apache_test_config {
                 warn $@ if $@;
             }
         }
-    } else {
+    }
+    else {
         error "cannot open $file: $!";
     }
 }
