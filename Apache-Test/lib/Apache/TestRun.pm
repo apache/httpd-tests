@@ -322,13 +322,11 @@ sub install_sighandlers {
 
 sub try_bug_report {
     my $self = shift;
-    if ($? && $self->{opts}->{bugreport}) {
+    if ($? && $self->{opts}->{bugreport} && 
+              $self->can('bug_report')) {
         $self->bug_report;
     }
 }
-
-# virtual method: does nothing
-sub bug_report {}
 
 #throw away cached config and start fresh
 sub refresh {
@@ -983,9 +981,18 @@ EOM
 # generate t/TEST script (or a different filename) which will drive
 # Apache::TestRun
 sub generate_script {
-    my ($class, $file) = @_;
+    my ($class, @opts) = @_;
 
-    $file ||= catfile 't', 'TEST';
+    my %opts = ();
+
+    # back-compat
+    if (@opts == 1) {
+        $opts{file} = $opts[0];
+    }
+    else {
+        %opts = @opts;
+        $opts{file} ||= catfile 't', 'TEST';
+    }
 
     my $body = "BEGIN { eval { require blib; } }\n";
 
@@ -998,9 +1005,16 @@ sub generate_script {
     my $header = Apache::TestConfig->perlscript_header;
 
     $body .= join "\n",
-        $header, "use $class ();", "$class->new->run(\@ARGV);";
+        $header, "use $class ();";
 
-    Apache::Test::config()->write_perlscript($file, $body);
+    if (my $report = $opts{bugreport}) {
+        $body .= "\n\npackage $class;\n" .
+                 "sub bug_report { print '$report' }\n\n";
+    }
+    
+    $body .= "$class->new->run(\@ARGV);";
+
+    Apache::Test::config()->write_perlscript($opts{file}, $body);
 }
 
 # in idiomatic perl functions return 1 on success 0 on
