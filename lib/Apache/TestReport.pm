@@ -21,6 +21,7 @@ sub generate_script {
     $file ||= catfile 't', 'REPORT';
 
     my $content = join "\n",
+        "use blib;",
         Apache::TestConfig->modperl_2_inc_fixup,
         Apache::TestConfig->perlscript_header,
         "use $class;",
