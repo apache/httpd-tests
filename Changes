@@ -8,6 +8,11 @@ Changes - Apache::Test change logfile
 
 =item 1.10-dev
 
+Added '-httpd_conf_extra <filename>' configuration option to
+allow a file of server config directives to be inherited
+in addition to the server's own httpd.conf file (or the one
+specified by -httpd_conf).  [Ken and Stas]
+
 Generated Listen directive now listen on 0.0.0.0 to force using
 IPv4 addresses on IPv6 systems until LWP supports IPv6. [Gozer]
 
