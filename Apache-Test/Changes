@@ -8,6 +8,11 @@ Changes - Apache::Test change logfile
 
 =item 1.04-dev - 
 
+Apache::TestSmoke provides a new mode: -bug_mode, which runs an
+equivalent of plain 't/TEST' but generates a lot of useful debug
+information, in addition to matching the core files to the tests that
+caused them. [Stas]
+
 Apache::TestSmoke now scans for core files, just like Apache::TestRun
 does [Stas]
 
