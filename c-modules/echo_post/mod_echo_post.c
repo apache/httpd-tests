@@ -17,7 +17,7 @@
 static int echo_post_handler(request_rec *r)
 {
     int rc;
-    long nrd;
+    long nrd, total = 0;
     char buff[BUFSIZ];
 
     if (strcmp(r->handler, "echo-post")) {
@@ -39,19 +39,23 @@ static int echo_post_handler(request_rec *r)
     }
 
     if (r->args) {
-        ap_rprintf(r, "%d:", (int)r->remaining);
+        ap_rprintf(r, "%ld:", r->remaining);
     }
 
-    fprintf(stderr, "[mod_echo_post] going to echo %d bytes\n", (int)r->remaining);
+    fprintf(stderr, "[mod_echo_post] going to echo %ld bytes\n",
+            r->remaining);
 
     while ((nrd = ap_get_client_block(r, buff, sizeof(buff))) > 0) {
-        fprintf(stderr, "[mod_echo_post] read %ld bytes (wanted %d, remaining=%d)\n",
-                nrd, sizeof(buff), (int)r->remaining);
+        fprintf(stderr,
+                "[mod_echo_post] read %ld bytes (wanted %d, remaining=%ld)\n",
+                nrd, sizeof(buff), r->remaining);
         ap_rwrite(buff, nrd, r);
+        total += nrd;
     }
 
-    fprintf(stderr, "[mod_echo_post] done reading, %d bytes remain\n",
-            (int)r->remaining);
+    fprintf(stderr,
+            "[mod_echo_post] done reading %ld bytes, %ld bytes remain\n",
+            total, r->remaining);
     
     return OK;
 }
