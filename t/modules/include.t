@@ -127,8 +127,7 @@ ok t_cmp("200",
 
 # Apache 1.3 has a different parser so you get different output (ie, none)
 my $expected = ($have_apache_2)
-                 ? "[an error occurred while processing this directive]".
-                   "[an error occurred while processing this directive]"
+                 ? "[an error occurred while processing this directive]"
                  : "";
 
 ok t_cmp("$expected",
