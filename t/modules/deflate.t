@@ -6,7 +6,9 @@ use Apache::TestUtil;
 use Apache::TestRequest;
 
 my @server_deflate_uris=("/modules/deflate/index.html",
-                         "/modules/deflate/apache_pb.gif");
+                         "/modules/deflate/apache_pb.gif",
+                         "/modules/deflate/asf_logo_wide.jpg",
+                        );
 my $server_inflate_uri="/modules/deflate/echo_post";
 
 my $tests = @server_deflate_uris;
