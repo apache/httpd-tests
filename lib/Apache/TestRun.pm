@@ -1178,6 +1178,11 @@ sub custom_config_add_conf_opts {
     my $vars_must_overriden = grep {
         $ENV{ $vars_to_env{$_} } || $args->{$_}
     } @data_vars_must;
+
+    # mod_perl 2.0 build always knows the right httpd location (and
+    # optionally apxs)
+    $vars_must_overriden++ if Apache::TestConfig::IS_MOD_PERL_2_BUILD();
+
     unless ($vars_must_overriden) {
         for (@data_vars_must) {
             next unless $Apache::TestConfigData::vars->{$_};
@@ -1736,6 +1741,10 @@ bundles Apache-Test).
           - run interactive prompt for C<httpd> and optionally for C<apxs>
           - save the custom config in lib/Apache/TestConfigData.pm
           - restart the currently run program
+
+  modperl-2.0 is a special case in (3). it always overrides 'httpd'
+  and 'apxs' settings. Other settings like 'port', can be used from
+  the saved config.
 
   4) make install
 
