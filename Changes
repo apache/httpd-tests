@@ -8,8 +8,19 @@ Changes - Apache::Test change logfile
 
 =item 1.13-dev
 
-add have_php() which will return true when either mod_php4 or mod_php5
-is available, providing functionality similar to have_cgi().
+the have() function was removed entirely - use need() instead.
+[Geoffrey Young]
+
+add need() and need_* variant functions (need_module(), need_apache(),
+etc) for use specifically with plan() to decide whether or not a test
+should run.  have_* variants (have_module(), have_apache(), etc) are
+now specifically for use outside of plan(), although they can continue
+to be used within plan() without fear of current tests breaking.
+[Geoffrey Young]
+
+add need_php() and have_php() which will return true when either
+mod_php4 or mod_php5 are available, providing functionality similar to 
+need_cgi() and have_cgi().
 [Geoffrey Young]
 
 Add APACHE_TEST_EXTRA_ARGS make variable to all invocations to t/TEST

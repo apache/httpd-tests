@@ -22,15 +22,19 @@ use Exporter ();
 use Config;
 use Apache::TestConfig ();
 
-use vars qw(@ISA @EXPORT %EXPORT_TAGS $VERSION %SubTests @SkipReasons);
+use vars qw(@ISA @EXPORT %EXPORT_TAGS $VERSION %SubTests @SkipReasons 
+            $AUTOLOAD);
+
+my @need = qw(need_lwp need_http11 need_cgi need_access need_auth
+              need_module need_apache need_min_apache_version
+              need_apache_version need_perl need_min_perl_version
+              need_min_module_version need_threads need_apache_mpm
+              need_php);
+
+my @have = map { (my $need = $_) =~ s/need/have/; $need } @need;
 
 @ISA = qw(Exporter);
-@EXPORT = qw(ok skip sok plan have have_lwp have_http11
-             have_cgi have_access have_auth have_module have_apache
-             have_min_apache_version have_apache_version have_perl 
-             have_min_perl_version have_min_module_version
-             have_threads under_construction skip_reason have_apache_mpm
-             have_php);
+@EXPORT = (qw(ok skip sok plan skip_reason under_construction need), @need, @have);
 
 # everything but ok(), skip(), and plan() - Test::More provides these
 my @test_more_exports = grep { ! /^(ok|skip|plan)$/ } @EXPORT;
@@ -104,7 +108,7 @@ sub init_test_pm {
     $r->content_type('text/plain');
 }
 
-sub have_http11 {
+sub need_http11 {
     require Apache::TestRequest;
     if (Apache::TestRequest::install_http11()) {
         return 1;
@@ -116,12 +120,12 @@ sub have_http11 {
     }
 }
 
-sub have_ssl {
+sub need_ssl {
     my $vars = vars();
-    have_module([$vars->{ssl_module_name}, 'Net::SSL']);
+    need_module([$vars->{ssl_module_name}, 'Net::SSL']);
 }
 
-sub have_lwp {
+sub need_lwp {
     require Apache::TestRequest;
     if (Apache::TestRequest::has_lwp()) {
         return 1;
@@ -150,7 +154,7 @@ sub plan {
             }
             elsif ($ref eq 'ARRAY') {
                 #plan tests $n, [qw(php4 rewrite)];
-                $meets_condition = have_module($condition);
+                $meets_condition = need_module($condition);
             }
             else {
                 die "don't know how to handle a condition of type $ref";
@@ -178,29 +182,29 @@ sub plan {
     print "# Using Apache/Test.pm version $VERSION\n";
 }
 
-sub have {
-    my $have_all = 1;
+sub need {
+    my $need_all = 1;
     for my $cond (@_) {
         if (ref $cond eq 'HASH') {
             while (my($reason, $value) = each %$cond) {
                 $value = $value->() if ref $value eq 'CODE';
                 next if $value;
                 push @SkipReasons, $reason;
-                $have_all = 0;
+                $need_all = 0;
             }
         }
         elsif ($cond =~ /^(0|1)$/) {
-            $have_all = 0 if $cond == 0;
+            $need_all = 0 if $cond == 0;
         }
         else {
-            $have_all = 0 unless have_module($cond);
+            $need_all = 0 unless need_module($cond);
         }
     }
-    return $have_all;
+    return $need_all;
 
 }
 
-sub have_module {
+sub need_module {
     my $cfg = config();
     my @modules = ref($_[0]) ? @{ $_[0] } : @_;
 
@@ -234,7 +238,7 @@ sub have_module {
     }
 }
 
-sub have_min_perl_version {
+sub need_min_perl_version {
     my $version = shift;
 
     return 1 if $] >= $version;
@@ -244,11 +248,11 @@ sub have_min_perl_version {
 }
 
 # currently supports only perl modules
-sub have_min_module_version {
+sub need_min_module_version {
     my($module, $version) = @_;
 
-    # have_module requires the perl module
-    return 0 unless have_module($module);
+    # need_module requires the perl module
+    return 0 unless need_module($module);
 
     return 1 if eval { $module->VERSION($version) };
 
@@ -256,23 +260,23 @@ sub have_min_module_version {
     return 0;
 }
 
-sub have_cgi {
-    have_module('cgi') || have_module('cgid');
+sub need_cgi {
+    need_module('cgi') || need_module('cgid');
 }
 
-sub have_php {
-    have_module('php4') || have_module('php5');
+sub need_php {
+    need_module('php4') || need_module('php5');
 }
 
-sub have_access {
-    have_module('access') || have_module('authz_host');
+sub need_access {
+    need_module('access') || need_module('authz_host');
 }
 
-sub have_auth {
-    have_module('auth') || have_module('auth_basic');
+sub need_auth {
+    need_module('auth') || need_module('auth_basic');
 }
 
-sub have_apache {
+sub need_apache {
     my $version = shift;
     my $cfg = Apache::Test::config();
     my $rev = $cfg->{server}->{rev};
@@ -287,7 +291,7 @@ sub have_apache {
     }
 }
 
-sub have_min_apache_version {
+sub need_min_apache_version {
     my $wanted = shift;
     my $cfg = Apache::Test::config();
     (my $current) = $cfg->{server}->{version} =~ m:^Apache/(\d\.\d+\.\d+):;
@@ -303,7 +307,7 @@ sub have_min_apache_version {
     }
 }
 
-sub have_apache_version {
+sub need_apache_version {
     my $wanted = shift;
     my $cfg = Apache::Test::config();
     (my $current) = $cfg->{server}->{version} =~ m:^Apache/(\d\.\d+\.\d+):;
@@ -319,7 +323,7 @@ sub have_apache_version {
     }
 }
 
-sub have_apache_mpm {
+sub need_apache_mpm {
     my $wanted = shift;
     my $cfg = Apache::Test::config();
     my $current = $cfg->{server}->{mpm};
@@ -340,7 +344,7 @@ sub config_enabled {
     defined $Config{$key} and $Config{$key} eq 'define';
 }
 
-sub have_perl_iolayers {
+sub need_perl_iolayers {
     if (my $ext = $Config{extensions}) {
         #XXX: better test?  might need to test patchlevel
         #if support depends bugs fixed in bleedperl
@@ -349,12 +353,12 @@ sub have_perl_iolayers {
     0;
 }
 
-sub have_perl {
+sub need_perl {
     my $thing = shift;
     #XXX: $thing could be a version
     my $config;
 
-    my $have = \&{"have_perl_$thing"};
+    my $have = \&{"need_perl_$thing"};
     if (defined &$have) {
         return 1 if $have->();
     }
@@ -374,7 +378,7 @@ sub have_perl {
     return 0;
 }
 
-sub have_threads {
+sub need_threads {
     my $status = 1;
 
     # check APR support
@@ -414,6 +418,23 @@ sub normalize_vstring {
     my @digits = shift =~ m/(\d+)\.?(\d*)\.?(\d*)/;
 
     return join '', map { sprintf("%03d", $_ || 0) } @digits;
+}
+
+sub AUTOLOAD {
+
+    (my $method) = $AUTOLOAD =~ m/.*::(.*)/;
+
+    return unless $method =~ m/^have_/;
+
+    $method =~ s/^have/need/;
+
+    if (my $cv = Apache::Test->can($method)) {
+        local @SkipReasons;
+        return $cv->(@_);
+    }
+    else {
+        die "could not find function $AUTOLOAD";
+    } 
 }
 
 package Apache::TestToString;
@@ -495,18 +516,18 @@ the test is skipped if the scalar has a false value. For example:
   plan tests => 5, 0;
 
 But this won't hint the reason for skipping therefore it's better to
-use have():
+use need():
 
   plan tests => 5,
-      have 'LWP', 
+      need 'LWP', 
            { "not Win32" => sub { $^O eq 'MSWin32'} };
 
-see C<have()> for more info.
+see C<need()> for more info.
 
 =item * an C<ARRAY> reference
 
-have_module() is called for each value in this array. The test is
-skipped if have_module() returns false (which happens when at least
+need_module() is called for each value in this array. The test is
+skipped if need_module() returns false (which happens when at least
 one C or Perl module from the list cannot be found).
 
 =item * a C<CODE> reference
@@ -514,7 +535,7 @@ one C or Perl module from the list cannot be found).
 the tests will be skipped if the function returns a false value. For
 example:
 
-    plan tests => 5, \&have_lwp;
+    plan tests => 5, \&need_lwp;
 
 the test will be skipped if LWP is not available
 
@@ -550,88 +571,96 @@ exported.
 
 =back
 
-Functions that can be used as a last argument to the extended plan():
+Functions that can be used as a last argument to the extended plan().
+Note that for each C<need_*> function there is a C<have_*> equivalent
+that performs the exact same function except that it is designed to
+be used outside of C<plan()>.  C<need_*> functions have the side effect
+of generating skip messages, if the test is skipped.  C<have_*> functions
+don't have this side effect.  In other words, use C<need_apache()>
+with C<plan()> to decide whether a test will run, but C<have_apache()>
+within test logic to adjust expectations based on older or newer
+server versions.
 
 =over 
 
-=item have_http11
+=item need_http11
 
-  plan tests => 5, &have_http11;
+  plan tests => 5, &need_http11;
 
 Require HTTP/1.1 support.
 
-=item have_ssl
+=item need_ssl
 
-  plan tests => 5, &have_ssl;
+  plan tests => 5, &need_ssl;
 
 Require SSL support.
 
 Not exported by default.
 
-=item have_lwp
+=item need_lwp
 
-  plan tests => 5, &have_lwp;
+  plan tests => 5, &need_lwp;
 
 Require LWP support.
 
-=item have_cgi
+=item need_cgi
 
-  plan tests => 5, &have_cgi;
+  plan tests => 5, &need_cgi;
 
 Requires mod_cgi or mod_cgid to be installed.
 
-=item have_php
+=item need_php
 
-  plan tests => 5, have_php;
+  plan tests => 5, need_php;
 
 Requires mod_php4 or mod_php5 to be installed.
 
-=item have_apache
+=item need_apache
 
-  plan tests => 5, have_apache 2;
+  plan tests => 5, need_apache 2;
 
 Requires Apache 2nd generation httpd-2.x.xx
 
-  plan tests => 5, have_apache 1;
+  plan tests => 5, need_apache 1;
 
 Requires Apache 1st generation (apache-1.3.xx)
 
-See also C<have_min_apache_version()>.
+See also C<need_min_apache_version()>.
 
-=item have_min_apache_version
+=item need_min_apache_version
 
 Used to require a minimum version of Apache.
 
 For example:
 
-  plan tests => 5, have_min_apache_version("2.0.40");
+  plan tests => 5, need_min_apache_version("2.0.40");
 
 requires Apache 2.0.40 or higher.
 
-=item have_apache_version
+=item need_apache_version
 
 Used to require a specific version of Apache.
 
 For example:
 
-  plan tests => 5, have_apache_version("2.0.40");
+  plan tests => 5, need_apache_version("2.0.40");
 
 requires Apache 2.0.40.
 
-=item have_apache_mpm
+=item need_apache_mpm
 
 Used to require a specific Apache Multi-Processing Module.
 
 For example:
 
-  plan tests => 5, have_apache_mpm('prefork');
+  plan tests => 5, need_apache_mpm('prefork');
 
 requires the prefork MPM.
 
-=item have_perl
+=item need_perl
 
-  plan tests => 5, have_perl 'iolayers';
-  plan tests => 5, have_perl 'ithreads';
+  plan tests => 5, need_perl 'iolayers';
+  plan tests => 5, need_perl 'ithreads';
 
 Requires a perl extension to be present, or perl compiled with certain
 capabilities.
@@ -641,21 +670,21 @@ whether:
 
   $Config{useithread} eq 'define';
 
-=item have_min_perl_version
+=item need_min_perl_version
 
 Used to require a minimum version of Perl.
 
 For example:
 
-  plan tests => 5, have_min_perl_version("5.008001");
+  plan tests => 5, need_min_perl_version("5.008001");
 
 requires Perl 5.8.1 or higher.
 
-=item have_module
+=item need_module
 
-  plan tests => 5, have_module 'CGI';
-  plan tests => 5, have_module qw(CGI Find::File);
-  plan tests => 5, have_module ['CGI', 'Find::File', 'cgid'];
+  plan tests => 5, need_module 'CGI';
+  plan tests => 5, need_module qw(CGI Find::File);
+  plan tests => 5, need_module ['CGI', 'Find::File', 'cgid'];
 
 Requires Apache C and Perl modules. The function accept a list of
 arguments or a reference to a list.
@@ -663,13 +692,13 @@ arguments or a reference to a list.
 In case of C modules, depending on how the module name was passed it
 may pass through the following completions:
 
-=item have_min_module_version
+=item need_min_module_version
 
 Used to require a minimum version of a module
 
 For example:
 
-  plan tests => 5, have_min_module_version(CGI => 2.81);
+  plan tests => 5, need_min_module_version(CGI => 2.81);
 
 requires C<CGI.pm> version 2.81 or higher.
 
@@ -677,27 +706,27 @@ Currently works only for perl modules.
 
 =over
 
-=item 1 have_module 'proxy_http.c'
+=item 1 need_module 'proxy_http.c'
 
 If there is the I<.c> extension, the module name will be looked up as
 is, i.e. I<'proxy_http.c'>.
 
-=item 2 have_module 'mod_cgi'
+=item 2 need_module 'mod_cgi'
 
 The I<.c> extension will be appended before the lookup, turning it into
 I<'mod_cgi.c'>.
 
-=item 3 have_module 'cgi'
+=item 3 need_module 'cgi'
 
 The I<.c> extension and I<mod_> prefix will be added before the
 lookup, turning it into I<'mod_cgi.c'>.
 
 =back
 
-=item have
+=item need
 
   plan tests => 5,
-      have 'LWP',
+      need 'LWP',
            { "perl >= 5.8.0 and w/ithreads is required" => 
              ($Config{useperlio} && $] >= 5.008) },
            { "not Win32"                 => sub { $^O eq 'MSWin32' },
@@ -705,23 +734,23 @@ lookup, turning it into I<'mod_cgi.c'>.
            },
            'cgid';
 
-have() is more generic function which can impose multiple requirements
+need() is more generic function which can impose multiple requirements
 at once. All requirements must be satisfied.
 
-have()'s argument is a list of things to test. The list can include
-scalars, which are passed to have_module(), and hash references. If
+need()'s argument is a list of things to test. The list can include
+scalars, which are passed to need_module(), and hash references. If
 hash references are used, the keys, are strings, containing a reason
 for a failure to satisfy this particular entry, the valuees are the
 condition, which are satisfaction if they return true. If the value is
 0 or 1, it used to decide whether the requirements very satisfied, so
-you can mix special C<have_*()> functions that return 0 or 1. For
+you can mix special C<need_*()> functions that return 0 or 1. For
 example:
 
-  plan tests => 1, have 'Compress::Zlib', 'deflate',
-      have_min_apache_version("2.0.49");
+  plan tests => 1, need 'Compress::Zlib', 'deflate',
+      need_min_apache_version("2.0.49");
 
 If the scalar value is a string, different from 0 or 1, it's passed to
-I<have_module()>.  If the value is a code reference, it gets executed
+I<need_module()>.  If the value is a code reference, it gets executed
 at the time of check and its return value is used to check the
 condition. If the condition check fails, the provided (in a key)
 reason is used to tell user why the test was skipped.
