@@ -14,9 +14,9 @@ preserved. Thanks to perl-5.8.1 for randomizing the hash seed, which
 has exposed the bug by breaking the test suite. [Stas]
 
 when the tests are run in the 'root' mode, check whether the
-DocumentRoot is rwx before the tests are run and suggest possible
-workarounds when the tests are doomed to fail, because of the
-permission issues. [Stas]
+DocumentRoot and its parent dirs are rwx before the tests are run and
+suggest possible workarounds when the tests are doomed to fail,
+because of the permission issues. [Stas]
 
 UPLOAD is now auto-exported, like the rest [David Wheeler
 <david@kineticode.com>]
