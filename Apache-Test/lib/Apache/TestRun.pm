@@ -216,10 +216,12 @@ sub install_sighandlers {
     #try to make sure we scan for core no matter what happens
     #must eval "" to "install" this END block, otherwise it will
     #always run, a subclass might not want that
-    eval "END { eval {
-                  Apache::TestRun->new(test_config =>
-                                       Apache::TestConfig->thaw)->scan;
-                };
+
+    eval "END {
+             eval {
+                Apache::TestRun->new(test_config =>
+                                     Apache::TestConfig->thaw)->scan;
+             };
          }";
 }
 
@@ -377,14 +379,22 @@ sub run {
     $self->stop;
 }
 
+my @oh = qw(jeez golly gosh darn shucks dangit rats nuts dangnabit crap);
+sub oh {
+    $oh[ rand scalar @oh ];
+}
+
 sub scan {
     my $self = shift;
     my $vars = $self->{test_config}->{vars};
+    my $times = 0;
 
     finddepth(sub {
         return unless /^core$/;
         my $core = "$File::Find::dir/$_";
-        error "uh,oh server dumped core";
+        my $oh = oh();
+        my $again = $times++ ? "again" : "";
+        error "oh $oh server dumped core $again";
         error "for stacktrace, run: gdb $vars->{httpd} -core $core";
     }, $vars->{top_dir});
 }
