@@ -197,6 +197,7 @@ sub add_module_config {
         last if /^\#endif/; #for .c modules
         next unless /\S+/;
         chomp;
+        s/^\s+//;
         $self->replace;
         my($directive, $rest) = split /\s+/, $_, 2;
         if ($outside_container{$directive}) {
@@ -213,6 +214,9 @@ sub add_module_config {
                 $self->postamble($_);
             }
         }
+        elsif ($directive =~ /IfModule/) {
+            $self->postamble($_);
+        }
         elsif ($directive =~ m/^<(\w+)/) {
             my $cfg;
             if ($directive eq '<VirtualHost') {
@@ -227,6 +231,7 @@ sub add_module_config {
             my $end = "</$1>";
             while (<$fh>) {
                 chomp;
+                s/^\s+//;
                 $self->replace;
                 $self->postamble($_);
                 last if m:^\Q$end:;
