@@ -14,7 +14,7 @@ use Getopt::Long qw(GetOptions);
 use Config;
 
 my @std_run      = qw(start-httpd run-tests stop-httpd);
-my @others       = qw(verbose configure clean help ping);
+my @others       = qw(verbose configure clean help ping ssl);
 my @flag_opts    = (@std_run, @others);
 my @string_opts  = qw(order);
 my @debug_opts   = qw(debug);
@@ -41,6 +41,7 @@ my %usage = (
    'debug[=name]'    => 'start server under debugger name (e.g. gdb, ddd, ...)',
    'breakpoint=bp'   => 'set breakpoints (multiply bp can be set)',
    'header'          => "add headers to (".join('|', @request_opts).") request",
+   'ssl'             => 'run tests through ssl',
    (map { $_, "\U$_\E url" } @request_opts),
 );
 
@@ -213,6 +214,10 @@ sub configure_opts {
     my $self = shift;
 
     my($test_config, $opts) = ($self->{test_config}, $self->{opts});
+
+    if ($opts->{ssl}) {
+        $test_config->{vars}->{scheme} = 'https';
+    }
 
     my $preamble  = sub { shift->preamble($opts->{preamble}) };
     my $postamble = sub { shift->postamble($opts->{postamble}) };
