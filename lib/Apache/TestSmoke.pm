@@ -3,9 +3,11 @@ package Apache::TestSmoke;
 use strict;
 use warnings FATAL => 'all';
 
+use Apache::Test ();
 use Apache::TestTrace;
 
 use Getopt::Long qw(GetOptions);
+use File::Spec::Functions qw(catfile);
 use Digest::MD5 ();
 use POSIX ();
 use FindBin;
@@ -410,6 +412,32 @@ EOM
     if 'tests' argument isn't provided all available tests will be run
 EOM
 }
+
+# generate t/SMOKE script (or a different filename) which will drive
+# Apache::TestSmoke
+sub generate_script {
+    my ($class, $file) = @_;
+
+    $file ||= catfile 't', 'SMOKE';
+
+    my $content = <<'EOM';
+use strict;
+use warnings FATAL => 'all';
+
+use FindBin;
+use lib "$FindBin::Bin/../Apache-Test/lib";
+use lib "$FindBin::Bin/../lib";
+
+use Apache::TestSmoke ();
+
+Apache::TestSmoke->new(@ARGV)->run;
+EOM
+
+    Apache::Test::config()->write_perlscript($file, $content);
+
+}
+
+
 
 1;
 __END__
