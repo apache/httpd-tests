@@ -204,7 +204,7 @@ PerlChildInitHandler PerlTransHandler PerlPostReadRequestHandler
 PerlSwitches PerlRequire PerlModule
 };
 
-my %special_directives = map { ("<$_>" => "</$_>") } qw(base noautoconfig);
+my %strip_tags = map { $_ => 1} qw(base noautoconfig);
 
 #test .pm's can have configuration after the __DATA__ token
 sub add_module_config {
@@ -233,42 +233,19 @@ sub add_module_config {
         $directives{$directive}++ unless $directive =~ /^</;
         $rest = '' unless defined $rest;
 
-        if (my $end_tag = $special_directives{lc $directive}) {
-            # special directives like <Base> and </Base> are removed
-            my $indent;
-            while (<$fh>) {
-                chomp;
-                last if m:^\Q$end_tag:i;
-                $indent = /^(\s+)/ ? $1 : '' unless defined $indent;
-                $self->replace;
-                s/^$indent//; # align for base
-                $self->postamble($_);
-            }
-        }
-        elsif ($outside_container{$directive}) {
+        if ($outside_container{$directive}) {
             $self->postamble($directive => $rest);
         }
         elsif ($directive =~ /IfModule/) {
             $self->postamble($_);
         }
         elsif ($directive =~ m/^<(\w+)/) {
-            my $cfg;
-            if ($directive eq '<VirtualHost') {
-                if ($cfg = $self->parse_vhost($_)) {
-                    my $port = $cfg->{port};
-                    $rest = "_default_:$port>";
-                    $cfg->{out_postamble}->();
-                }
-            }
-            $self->postamble($directive => $rest);
-            $cfg->{in_postamble}->() if $cfg;
-            my $end = "</$1>";
-            while (<$fh>) {
-                chomp;
-                $self->replace;
-                $self->postamble($_);
-                last if m:^\s*\Q$end:;
-            }
+            # strip special container directives like <Base> and </Base>
+            my $strip_container = exists $strip_tags{lc $1} ? 1 : 0;
+
+            my $indent = '';
+            $self->process_container($_, $fh, lc($1),
+                                     $strip_container, $indent);
         }
         else {
             push @$args, $directive, $rest;
@@ -276,6 +253,72 @@ sub add_module_config {
     }
 
     \%directives;
+}
+
+
+# recursively process the directives including nested containers,
+# re-indent 4 and ucfirst the closing tags letter
+sub process_container {
+    my($self, $first_line, $fh, $directive, $strip_container, $indent) = @_;
+
+    my $new_indent = $indent;
+
+    unless ($strip_container) {
+        $new_indent .= "    ";
+
+        local $_ = $first_line;
+        s/^\s*//;
+        $self->replace;
+
+        if (/<VirtualHost/) {
+            $self->process_vhost_open_tag($_, $indent);
+        }
+        else {
+            $self->postamble($indent . $_);
+        }
+    }
+
+    $self->process_container_remainder($fh, $directive, $new_indent);
+
+    unless ($strip_container) {
+        $self->postamble($indent . "</\u$directive>");
+    }
+
+}
+
+
+# processes the body of the container without the last line, including
+# the end tag
+sub process_container_remainder {
+    my($self, $fh, $directive, $indent) = @_;
+
+    my $end_tag = "</$directive>";
+
+    while (<$fh>) {
+        chomp;
+        last if m|^\s*\Q$end_tag|i;
+        s/^\s*//;
+        $self->replace;
+
+        if (m/^\s*<(\w+)/) {
+            $self->process_container($_, $fh, $1, 0, $indent);
+        }
+        else {
+            $self->postamble($indent . $_);
+        }
+    }
+}
+
+# does the necessary processing to create a vhost container header
+sub process_vhost_open_tag {
+    my($self, $line, $indent) = @_;
+
+    my $cfg = $self->parse_vhost($line);
+    my $port = $cfg->{port};
+    $cfg->{out_postamble}->();
+    $self->postamble("$indent<VirtualHost _default_:$port>");
+    $cfg->{in_postamble}->();
+
 }
 
 #the idea for each group:
