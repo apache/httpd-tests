@@ -4,3 +4,5 @@ blib
 blibdirs
 glue_pods
 .mypacklist
+META.yml
+
