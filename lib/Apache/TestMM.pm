@@ -82,7 +82,7 @@ EOF
     }
 
     return $preamble . <<'EOF' . $cover;
-TEST_VERBOSE ?= 0
+TEST_VERBOSE = 0
 TEST_FILES =
 
 test_clean :
