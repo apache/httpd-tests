@@ -8,6 +8,8 @@ Changes - Apache::Test change logfile
 
 =item 1.03-dev - 
 
+add the ASF LICENSE file to the distro [Stas]
+
 get rid of Apache::TestTrace's dependency on Apache::TestConfig as it
 creates too many circular use() problems. [Stas]
 
