@@ -389,6 +389,7 @@ sub run_request {
     while (my($key, $val) = each %{ $test_config->{vars} }) {
         next unless $wanted_args->{$key};
         push @args, $key, $val;
+        delete $test_config->{vars}->{$key}; #dont save these
     }
 
     for (@request_opts) {

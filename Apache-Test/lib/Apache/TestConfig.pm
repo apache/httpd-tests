@@ -127,7 +127,7 @@ sub new {
 
     if ($args->{thaw}) {
         #dont generate any new config
-        $thaw->{$_} = $args->{$_} for keys %$args;
+        $thaw->{vars}->{$_} = $args->{$_} for keys %$args;
         $thaw->{server} = $thaw->new_test_server;
         $thaw->add_inc;
         return $thaw;
