@@ -770,10 +770,13 @@ sub sync_vars {
 
     my $changed = 0;
     my $thaw = $self->thaw;
+    my $tvars = $thaw->{vars};
+    my $svars = $self->{vars};
 
     for my $key (@_) {
-        next if $thaw->{vars}->{$key} eq $self->{vars}->{$key};
-        $thaw->{vars}->{$key} = $self->{vars}->{$key};
+        next if $tvars->{$key} and $svars->{$key} and
+          $tvars->{$key} eq $svars->{$key};
+        $tvars->{$key} = $svars->{$key};
         $changed = 1;
     }
 
