@@ -8,6 +8,13 @@ Changes - Apache::Test change logfile
 
 =item 1.16-dev
 
+Documented that redirection does not with "POST" requests in
+Apache::TestRequest unless LWP is installed. Also modified
+the redirect_ok() method to ensure that such is the case.
+[David Wheeler]
+
+
+
 =item 1.15 - October 22, 2004
 
 add new test_config make target, equivalent to t/TEST -conf,
