@@ -390,7 +390,7 @@ sub start {
         print "server $self->{name} started (pid=$pid)\n";
 
         my $vh = $config->{vhosts};
-        my $by_port = sub { $vh->{$a}->{port} <=> $vh->{$a}->{port} };
+        my $by_port = sub { $vh->{$a}->{port} <=> $vh->{$b}->{port} };
 
         for my $module (sort $by_port keys %$vh) {
             print "server $vh->{$module}->{name} listening ($module)\n",
