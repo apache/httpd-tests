@@ -243,7 +243,10 @@ sub getopts {
     # only test files/dirs if any at all are left in argv
     $self->{argv} = \@argv;
 
-    # force regeneration of httpd.conf if commandline args want to modify it
+    # force regeneration of httpd.conf if commandline args want to
+    # modify it. configure_opts() has more checks to decide whether to
+    # reconfigure or not.
+    # XXX: $self->passenv() is already tested in need_reconfiguration()
     $self->{reconfigure} = $opts{configure} ||
       (grep { $opts{$_}->[0] } qw(preamble postamble)) ||
         (grep { $Apache::TestConfig::Usage{$_} } keys %conf_opts ) ||
@@ -276,6 +279,7 @@ sub getopts {
 
     if ($self->{reconfigure}) {
         $conf_opts{save} = 1;
+        delete $self->{reconfigure};
     }
     else {
         $conf_opts{thaw} = 1;
@@ -417,18 +421,6 @@ sub configure_opts {
     }
     else {
         $test_config->{vars}->{proxy} = 'off';
-    }
-
-    if (!$refreshed && $self->{reconfigure}) {
-        # XXX: there is a whole bunch of reasons, see above where
-        # $self->{reconfigure} is defined, could add reasons there or
-        # may be move the logic from there here?
-        warning "forcing re-configuration";
-        unless ($refreshed) {
-            $self->refresh;
-            $refreshed = 1;
-            $test_config = $self->{test_config};
-        }
     }
 
     return unless $$save;
