@@ -21,6 +21,7 @@ use subs qw(symlink);
 *import = \&Exporter::import;
 
 my $openssl = $ENV{APACHE_TEST_OPENSSL_CMD} || 'openssl';
+my $version = version();
 
 my $CA = 'asf';
 my $Config; #global Apache::TestConfig object
@@ -36,6 +37,9 @@ my $pass    = 'httpd';
 my $passin  = "-passin pass:$pass";
 my $passout = "-passout pass:$pass";
 
+# in 0.9.7 s/Email/emailAddress/ in DN
+my $email_field = $version lt "0.9.7" ? "Email" : "emailAddress";
+
 my $ca_dn = {
     asf => {
         C  => 'US',
@@ -44,7 +48,7 @@ my $ca_dn = {
         O  => 'ASF',
         OU => 'httpd-test',
         CN => '',
-        Email => 'test-dev@httpd.apache.org',
+        $email_field => 'test-dev@httpd.apache.org',
     },
 };
 
@@ -132,7 +136,7 @@ sub dn_oneline {
 
     my $string = "";
 
-    for my $k (qw(C ST L O OU CN Email)) {
+    for my $k ((qw(C ST L O OU CN), $email_field)) {
         next unless $dn->{$k};
         $string .= "/$k=$dn->{$k}";
     }
@@ -185,7 +189,7 @@ L                      = $dn->{L}
 O                      = $dn->{O}
 OU                     = $dn->{OU}
 CN                     = $dn->{CN}
-emailAddress           = $dn->{Email}
+emailAddress           = $dn->{$email_field}
 
 [ req_attributes ]
 challengePassword      = $pass
@@ -488,6 +492,12 @@ sub gendir {
 
     return if -d $dir;
     mkdir $dir, 0755;
+}
+
+sub version {
+    my $version = qx($openssl version);
+    return $1 if $version =~ /^OpenSSL (\S+) /;
+    return 0;
 }
 
 1;
