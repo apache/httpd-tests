@@ -17,6 +17,8 @@ configuration variables, available via
 Apache::Test::vars('serverroot'), Apache::Test::vars('documentroot'),
 etc. [Stas]
 
+Apache::Test::vars() can now query for config arguments [Stas]
+
 generate t/conf if it does not already exist, which
 it may not if the tests are entirely autoconfigured.
 [Geoffrey Young]
