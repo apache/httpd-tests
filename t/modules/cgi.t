@@ -6,6 +6,8 @@ use Apache::TestRequest;
 use Apache::TestUtil;
 use File::stat;
 
+my $have_apache_2 = have_apache 2;
+
 ## mod_cgi test
 ##
 ## extra.conf.in:
@@ -70,6 +72,8 @@ my %test = (
 #XXX: find something that'll on other platforms (/bin/sh aint it)
 if (Apache::TestConfig::WINFU()) {
     delete @test{qw(sh.sh bogus-sh.sh)};
+}
+if (Apache::TestConfig::WINFU() || !$have_apache_2) {
     delete @test{qw(acceptpathinfoon.sh acceptpathinfoon.sh/foo)};
     delete @test{qw(acceptpathinfooff.sh acceptpathinfooff.sh/foo)};
     delete @test{qw(acceptpathinfodefault.sh acceptpathinfodefault.sh/foo)};
