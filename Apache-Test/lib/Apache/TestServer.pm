@@ -480,7 +480,7 @@ sub start {
         sleep 1;
         if ($server_up->()) {
             print $preamble, "ok (waited $delta secs)\n";
-            last;
+            return 1;
         }
         elsif ($delta > $wait_secs) {
             print $preamble, "giving up after $delta secs\n";
