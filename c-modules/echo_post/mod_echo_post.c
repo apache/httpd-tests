@@ -37,6 +37,10 @@ static int echo_post_handler(request_rec *r)
         return OK;
     }
 
+#ifdef APACHE1
+    ap_send_http_header(r);
+#endif
+    
     if (r->args) {
         ap_rprintf(r, "%ld:", r->remaining);
     }

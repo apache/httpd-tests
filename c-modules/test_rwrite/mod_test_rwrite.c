@@ -26,6 +26,10 @@ static int test_rwrite_handler(request_rec *r)
         remaining = atol(r->args);
     }
 
+#ifdef APACHE1
+    ap_send_http_header(r);
+#endif
+
     fprintf(stderr, "[mod_test_rwrite] going to echo %ld bytes\n",
             remaining);
 
