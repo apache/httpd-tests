@@ -85,7 +85,7 @@ sub split_test_args {
     for (@$argv) {
         my $arg = $_;
         #need the t/ for stat-ing, but dont want to include it in test output
-        $arg =~ s:^t/::;
+        $arg =~ s@^(?:\./)?t/@@;
         my $t_dir = catfile qw(.. t);
         my $file = catfile $t_dir, $arg;
 
