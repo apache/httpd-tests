@@ -789,6 +789,15 @@ if no reason is given a default reason will be used.
 
 =head1 Additional Configuration Variables
 
+=item basic_config
+
+  my $basic_cfg = Apache::Test::basic_config();
+  $basic_cfg->write_perlscript($file, $content);
+
+C<basic_config()> is similar to C<config()>, but doesn't contain any
+httpd-specific information and should be used for operations that
+don't require any httpd-specific knowledge.
+
 =item config
 
   my $cfg = Apache::Test::config();
