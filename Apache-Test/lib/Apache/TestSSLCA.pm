@@ -1,0 +1,357 @@
+package Apache::TestSSLCA;
+
+use strict;
+use warnings FATAL => 'all';
+
+use Cwd ();
+use File::Path ();
+use File::Basename;
+use Apache::TestConfig ();
+use Apache::TestTrace;
+
+use vars qw(@EXPORT_OK &import);
+
+@EXPORT_OK = qw(dn dn_vars dn_oneline);
+*import = \&Exporter::import;
+
+my $openssl = $ENV{APACHE_TEST_OPENSSL_CMD} || 'openssl';
+
+my $CA = 'asf';
+my $Config; #global Apache::TestConfig object
+
+my $days     = '-days 365';
+my $cakey    = 'keys/cakey.pem';
+my $cacert   = 'certs/cacert.crt';
+my $capolicy = '-policy policy_anything';
+my $cacrl    = 'crl/ca-bundle.crl';
+
+#we use the same password for everything
+my $pass    = 'httpd';
+my $passin  = "-passin pass:$pass";
+my $passout = "-passout pass:$pass";
+
+my %ca_dn = (
+    asf => {
+        C  => 'US',
+        ST => 'California',
+        L  => 'San Francisco',
+        O  => 'ASF',
+        OU => 'httpd-test',
+        CN => '',
+        Email => 'test-dev@httpd.apache.org',
+    },
+);
+
+my %cert_dn = (
+    client_snakeoil => {
+        C  => 'AU',
+        ST => 'Queensland',
+        L  => 'Mackay',
+        O  => 'Snake Oil, Ltd.',
+        OU => 'Staff',
+    },
+    server => {
+        CN => 'localhost',
+    },
+    server_des3 => {
+        CN => 'localhost',
+        OU => 'httpd-test/perl-framework',
+    },
+);
+
+sub dn {
+    my $name = shift;
+
+    my %dn = %{ $ca_dn{$CA} }; #default values
+    $dn{CN} ||= $name; #try make sure each Common Name is different
+
+    my $cert_dn = $cert_dn{$name};
+
+    if ($cert_dn) {
+        while (my($key, $value) = each %$cert_dn) {
+            #override values
+            $dn{$key} = $value;
+        }
+    }
+
+    return wantarray ? %dn : \%dn;
+}
+
+sub dn_vars {
+    my($name, $type) = @_;
+
+    my $dn = dn($name);
+    my $prefix = join '_', 'SSL', $type, 'DN';
+
+    return { map { $prefix ."_$_", $dn->{$_} } keys %$dn };
+}
+
+sub dn_oneline {
+    my($dn) = @_;
+
+    unless (ref $dn) {
+        $dn = dn($dn);
+    }
+
+    my $string = "";
+
+    for my $k (qw(C ST L O OU CN Email)) {
+        next unless $dn->{$k};
+        $string .= "/$k=$dn->{$k}";
+    }
+
+    $string;
+}
+
+sub openssl {
+    return $openssl unless @_;
+
+    my $cmd = "$openssl @_";
+
+    warning $cmd;
+
+    unless (system($cmd) == 0) {
+        my $status = $? >> 8;
+        die "system @_ failed (exit status=$status)";
+    }
+}
+
+my @dirs = qw(keys newcerts certs crl export csr conf);
+
+sub init {
+    for my $dir (@dirs) {
+        gendir($dir);
+    }
+}
+
+sub config_file {
+    my $name = shift;
+
+    my $file = "conf/$name.cnf";
+    return $file if -e $file;
+
+    my $dn = dn($name);
+
+    writefile($file, <<EOF);
+[ req ]
+distinguished_name     = req_distinguished_name
+attributes             = req_attributes
+prompt                 = no
+default_bits           = 1024
+output_password        = $pass
+
+[ req_distinguished_name ]
+C                      = $dn->{C}
+ST                     = $dn->{ST}
+L                      = $dn->{L}
+O                      = $dn->{O}
+OU                     = $dn->{OU}
+CN                     = $dn->{CN}
+emailAddress           = $dn->{Email}
+
+[ req_attributes ]
+challengePassword      = $pass
+
+[ ca ]
+default_ca	       = CA_default
+
+[ CA_default ]
+certs            = certs        # Where the issued certs are kept
+new_certs_dir    = newcerts     # default place for new certs.
+crl_dir          = crl          # Where the issued crl are kept
+database         = index.txt    # database index file.
+serial           = serial       # The current serial number
+
+certificate      = $cacert      # The CA certificate
+crl              = $cacrl       # The current CRL
+private_key      = $cakey       # The private key
+
+default_days     = 365          # how long to certify for
+default_crl_days = 30           # how long before next CRL
+default_md       = md5          # which md to use.
+preserve         = no           # keep passed DN ordering
+
+[ policy_anything ]
+countryName		= optional
+stateOrProvinceName	= optional
+localityName		= optional
+organizationName	= optional
+organizationalUnitName	= optional
+commonName		= supplied
+emailAddress		= optional
+EOF
+
+    return $file;
+}
+
+sub config {
+    my $name = shift;
+
+    my $file = config_file($name);
+
+    my $config = "-config $file";
+
+    $config;
+}
+
+#http://www.modssl.org/docs/2.8/ssl_reference.html#ToC21
+my $basic_auth_password = 'xxj31ZMTZzkVA';
+my $digest_auth_hash    = '$1$OXLyS...$Owx8s2/m9/gfkcRVXzgoE/';
+
+sub new_ca {
+    writefile('index.txt', '', 1);
+    writefile('serial', "01\n", 1);
+
+    writefile('ssl.htpasswd',
+              join ':', dn_oneline('client_snakeoil'),
+              $basic_auth_password);
+
+    openssl req => "-new -x509 -keyout $cakey -out $cacert $days",
+                   config('cacert');
+}
+
+sub new_key {
+    my $name = shift;
+
+    my $encrypt = @_ ? "@_ $passout" : "";
+
+    openssl genrsa => "-out keys/$name.pem $encrypt 1024";
+}
+
+sub new_cert {
+    my $name = shift;
+
+    openssl req => "-new -key keys/$name.pem -out csr/$name.csr",
+                   $passin, $passout, config($name);
+
+    sign_cert($name);
+
+    export_cert($name);
+}
+
+sub sign_cert {
+    my $name = shift;
+
+    openssl ca => "$capolicy -in csr/$name.csr -out certs/$name.crt",
+                  $passin, config($name), '-batch';
+}
+
+#handy for importing into a browser such as netscape
+sub export_cert {
+    my $name = shift;
+
+    return if $name =~ /^server/; #no point in exporting server certs
+
+    openssl pkcs12 => "-export -in certs/$name.crt -inkey keys/$name.pem",
+                      "-out export/$name.p12", $passin, $passout;
+}
+
+sub revoke_cert {
+    my $name = shift;
+
+    my @args = (config('cacrl'), $passin);
+
+    #revokes in the index.txt database
+    openssl ca => "-revoke certs/$name.crt", @args;
+
+    #generates crl from the index.txt database
+    openssl ca => "-gencrl -out $cacrl", @args;
+}
+
+sub setup {
+    $CA = shift;
+
+    unless ($ca_dn{$CA}) {
+        die "unknown CA $CA";
+    }
+
+    gendir($CA);
+
+    chdir $CA;
+
+    init();
+    new_ca();
+
+    my @names = qw(server client_ok client_revoked client_snakeoil);
+
+    for my $name (@names) {
+        new_key($name);
+        new_cert($name);
+    }
+
+    @names = qw(server_des3);
+
+    for my $name (@names) {
+        new_key($name, '-des3');
+        new_cert($name);
+    }
+
+    revoke_cert('client_revoked');
+}
+
+sub generate {
+    $Config = shift;
+
+    my $root = $Config->{vars}->{sslca};
+
+    return if -d $root;
+
+    my $pwd  = Cwd::cwd();
+    my $base = dirname $root;
+    my $dir  = basename $root;
+
+    chdir $base;
+
+    #make a note that we created the tree
+    $Config->clean_add_path($root);
+
+    gendir($dir);
+
+    chdir $dir;
+
+    warning "generating SSL CA";
+
+    setup('asf');
+
+    chdir $pwd;
+}
+
+sub clean {
+    my $config = shift;
+
+    my $dir = $config->{vars}->{sslca};
+
+    unless ($config->{clean}->{dirs}->{$dir}) {
+        return; #we did not generate this ca
+    }
+
+    unless ($config->{clean_level} > 1) {
+        #skip t/TEST -conf
+        warning "skipping regeneration of SSL CA; run t/TEST -clean to force";
+        return;
+    }
+
+    File::Path::rmtree([$dir], 1, 1);
+}
+
+#not using Apache::TestConfig methods because the openssl commands
+#will generate heaps of files we cannot keep track of
+
+sub writefile {
+    my($file, $content) = @_;
+
+    my $fh = Symbol::gensym();
+    open $fh, ">$file" or die "open $file: $!";
+    print $fh $content;
+    close $fh;
+}
+
+sub gendir {
+    my($dir) = @_;
+
+    return if -d $dir;
+    mkdir $dir, 0755;
+}
+
+1;
+__END__
