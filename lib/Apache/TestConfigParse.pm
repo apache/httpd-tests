@@ -84,7 +84,14 @@ my %modname_alias = (
     'mod_modperl.c'       => 'mod_perl.c',
 );
 
-sub should_load_module { 1 }
+#XXX mod_jk requires JkWorkerFile or JkWorker to be configured
+#skip it for now, tomcat has its own test suite anyhow.
+my %skip_modules = map { $_, 1 } qw(mod_jk.c);
+
+sub should_load_module {
+    my($self, $name) = @_;
+    return $skip_modules{$name} ? 0 : 1;
+}
 
 #inherit LoadModule
 sub inherit_load_module {
