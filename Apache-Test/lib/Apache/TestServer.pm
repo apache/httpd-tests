@@ -219,7 +219,8 @@ sub start_debugger {
 sub pid {
     my $self = shift;
     my $file = $self->pid_file;
-    open my $fh, $file or do {
+    my $fh = Symbol::gensym();
+    open $fh, $file or do {
         return 0;
     };
     chomp(my $pid = <$fh>);

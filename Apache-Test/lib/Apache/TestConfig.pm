@@ -8,6 +8,7 @@ use constant CYGWIN  => $^O eq 'cygwin';
 use constant NETWARE => $^O eq 'NetWare';
 use constant WINFU   => WIN32 || CYGWIN || NETWARE;
 
+use Symbol ();
 use File::Copy ();
 use File::Find qw(finddepth);
 use File::Basename qw(dirname);
@@ -22,7 +23,9 @@ use Apache::TestTrace;
 use Apache::TestServer ();
 use Socket ();
 
-our %Usage = (
+use vars qw(%Usage);
+
+%Usage = (
    top_dir       => 'top-level directory (default is $PWD)',
    t_dir         => 'the t/ test directory (default is $top_dir/t)',
    t_conf        => 'the conf/ test directory (default is $t_dir/conf)',
@@ -593,7 +596,8 @@ sub genfile {
     my $name = abs2rel $file, $self->{vars}->{t_dir};
     $self->trace("generating $name");
 
-    open my $fh, '>', $file or die "open $file: $!";
+    my $fh = Symbol::gensym();
+    open $fh, ">$file" or die "open $file: $!";
 
     if (my $msg = $self->genwarning($file)) {
         print $fh $msg, "\n";
@@ -615,7 +619,8 @@ sub writefile {
     my $name = abs2rel $file, $self->{vars}->{t_dir};
     $self->trace("generating $name");
 
-    open my $fh, '>', $file or die "open $file: $!";
+    my $fh = Symbol::gensym();
+    open $fh, ">$file" or die "open $file: $!";
 
     if (my $msg = $self->genwarning($file)) {
         print $fh $msg, "\n";
@@ -669,7 +674,8 @@ sub open_cmd {
     # untaint some %ENV fields
     local @ENV{ qw(PATH IFS CDPATH ENV BASH_ENV) };
 
-    open my $handle, '-|', $cmd or die "$cmd failed: $!";
+    my $handle = Symbol::gensym();
+    open $handle, "$cmd|" or die "$cmd failed: $!";
 
     return $handle;
 }
@@ -786,7 +792,8 @@ sub generate_types_config {
 sub httpd_conf_template {
     my($self, $try) = @_;
 
-    if (open my $in, $try) {
+    my $in = Symbol::gensym();
+    if (open $in, $try) {
         return $in;
     }
     else {
@@ -812,7 +819,8 @@ sub generate_extra_conf {
 
         next if -e $generated;
 
-        open(my $in, $file) or next;
+        my $in = Symbol::gensym();
+        open($in, $file) or next;
 
         my $out = $self->genfile($generated);
         $self->replace_vars($in, $out);

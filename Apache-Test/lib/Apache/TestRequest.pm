@@ -37,11 +37,13 @@ sub install_http11 {
     };
 }
 
+use vars qw(@EXPORT @ISA $RedirectOK $DebugLWP);
+
 require Exporter;
 *import = \&Exporter::import;
-our @EXPORT = @HTTP::Request::Common::EXPORT;
+@EXPORT = @HTTP::Request::Common::EXPORT;
 
-our @ISA = qw(LWP::UserAgent);
+@ISA = qw(LWP::UserAgent);
 
 my $UA;
 
@@ -108,7 +110,7 @@ sub wanted_args {
     \%wanted_args;
 }
 
-our $RedirectOK = 1;
+$RedirectOK = 1;
 
 sub redirect_ok {
     my($self, $request) = @_;
@@ -256,7 +258,7 @@ sub lwp_as_string {
     $string;
 }
 
-our $DebugLWP; #1 == print METHOD URL and header response for all requests
+$DebugLWP = 0; #1 == print METHOD URL and header response for all requests
                #2 == #1 + response body
                #other == passed to LWP::Debug->import
 

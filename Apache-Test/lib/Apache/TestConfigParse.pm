@@ -140,7 +140,8 @@ sub inherit_config {
 
     $self->trace("inheriting config file: $file");
 
-    open(my $fh, $file) or return;
+    my $fh = Symbol::gensym();
+    open($fh, $file) or return;
 
     my $c = $self->{inherit_config};
 
