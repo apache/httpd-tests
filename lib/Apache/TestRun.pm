@@ -1352,7 +1352,7 @@ or via the environment variable APACHE. For example:
         }
         my $optional = 0;
         my $wanted = 'httpd';
-        $test_config->{vars}->{$wanted} = 
+        $vars->{$wanted} = 
             _custom_config_prompt_path($wanted, \%choices, $optional);
     }
 
@@ -1388,7 +1388,7 @@ or via the environment variable APACHE. For example:
         }
         my $optional = 1;
         my $wanted = 'apxs';
-        $test_config->{vars}->{$wanted} = 
+        $vars->{$wanted} = 
             _custom_config_prompt_path($wanted, \%choices, $optional);
     }
 
