@@ -159,6 +159,8 @@ sub default_run_opts {
             $opts->{$_} = 1 for @std_run;
         }
     }
+
+    $opts->{'run-tests'} ||= @$tests;
 }
 
 my $caught_sig_int = 0;
