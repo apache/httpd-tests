@@ -77,7 +77,7 @@ sub pid_file {
 
 sub dversion {
     my $self = shift;
-    "-DAPACHE$self->{rev}";
+    "-D APACHE$self->{rev}";
 }
 
 sub config_defines {
@@ -87,11 +87,11 @@ sub config_defines {
 
     for my $item (qw(useithreads)) {
         next unless $Config{$item} and $Config{$item} eq 'define';
-        push @defines, "-DPERL_\U$item";
+        push @defines, "-D PERL_\U$item";
     }
 
     if (my $defines = $self->{config}->{vars}->{defines}) {
-        push @defines, map { "-D$_" } split " ", $defines;
+        push @defines, map { "-D $_" } split " ", $defines;
     }
 
     "@defines";
@@ -106,11 +106,11 @@ sub args {
     "-d $vars->{serverroot} -f $vars->{t_conf_file} $dversion $defines";
 }
 
-my %one_process = (1 => '-X', 2 => '-DONE_PROCESS');
+my %one_process = (1 => '-X', 2 => '-D ONE_PROCESS');
 
 sub start_cmd {
     my $self = shift;
-    #XXX: threaded mpm does not respond to SIGTERM with -DONE_PROCESS
+    #XXX: threaded mpm does not respond to SIGTERM with -D ONE_PROCESS
     my $args = $self->args;
     return "$self->{config}->{vars}->{httpd} $args";
 }
