@@ -70,11 +70,11 @@ if (WINFU) {
 
 #
 # in addition to $tests, there are 1 GET test, 9 XBitHack tests,
-# 2 exec cgi tests, 2 malformed-ssi-directive tests, and 6 tests
+# 2 exec cgi tests, 2 malformed-ssi-directive tests, and 7 tests
 # that use mod_bucketeer to construct brigades for mod_include
 #
 my $tests = keys %test;
-plan tests => $tests + 20, have_module 'include';
+plan tests => $tests + 21, have_module 'include';
 
 foreach $doc (sort keys %test) {
     ok t_cmp($test{$doc},
@@ -246,9 +246,17 @@ if (have_module 'mod_bucketeer') {
              "GET $dir$doc"
             );
 
+
+    $expected= "pass [an error occurred while processing this directive] pass pass1";
+    $doc = "bucketeer/y5.shtml";
+    ok t_cmp($expected,
+             super_chomp(GET_BODY "$dir$doc"),
+             "GET $dir$doc"
+            );
+
 }
 else {
-    for (1..6) {
+    for (1..7) {
         skip "Skipping bucket boundary tests, no mod_bucketeer", 1;
     }
 }
