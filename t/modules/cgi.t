@@ -7,7 +7,7 @@ use Apache::TestUtil;
 use File::stat;
 
 my $have_apache_2 = have_apache 2;
-my $have_apache_21 = have_min_apache_version "2.1.0";
+my $have_apache_2050 = have_min_apache_version "2.0.50";
 
 ## mod_cgi test
 ##
@@ -100,9 +100,8 @@ if (Apache::TestConfig::WINFU() || !$have_apache_2) {
     delete @test{qw(acceptpathinfodefault.sh acceptpathinfodefault.sh/foo)};
 }
 
-# CGI stderr handling is broken in 2.0 on all platforms, and fixed
-# in 2.1 only on Unixes.
-if ($have_apache_2 && (!$have_apache_21 || Apache::TestConfig::WINFU())) {
+# CGI stderr handling works in 2.0.50 and later only on Unixes.
+if (!$have_apache_2050 || Apache::TestConfig::WINFU()) {
     delete @test{qw(stderr1.pl stderr2.pl stderr3.pl nph-stderr.pl)};
 }
 
