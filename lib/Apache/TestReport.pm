@@ -95,7 +95,7 @@ EOI
 1;
 __END__
 
-=head1 Name
+=head1 NAME
 
 Apache::TestReport - A parent class for generating bug/success reports
 
