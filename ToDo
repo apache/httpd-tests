@@ -1,3 +1,19 @@
+- on linux most symbols are resolved on demand, but this is not the
+  case with certain other platforms. so testing on linux may not
+  detect some problems, exposed on other platforms. env var
+  PERL_DL_NONLAZY=1 tries to resolve all symbols at load time. we
+  could always enforce that with this patch:
+
+--- Apache-Test/lib/Apache/TestRun.pm   16 Apr 2004 20:29:23 -0000      1.166
++++ Apache-Test/lib/Apache/TestRun.pm   6 May 2004 04:43:01 -0000
+@@ -643,7 +643,7 @@
+     }
+     close $sh;
+
+-    $original_command = "ulimit -c unlimited; $original_command";
++    $original_command = "ulimit -c unlimited; PERL_DL_NONLAZY=1 $original_comma
+nd";
+
 - general config: adjust Apache/TestConfig.pm not to write irrelevant
   httpd.conf sections (e.g. <IfModule prefork.c> for win32, and vice
   versa, A-T knows exactly what mpm it needs to write the config for).
