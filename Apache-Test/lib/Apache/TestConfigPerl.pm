@@ -16,7 +16,7 @@ sub configure_libmodperl {
     my $libname = $server->version_of(\%libmodperl);
 
     if ($server->{rev} >= 2) {
-        if (my $build_config = $self->build_config()) {
+        if (my $build_config = $self->modperl_build_config()) {
             $libname = $build_config->{MODPERL_LIB_SHARED}
         }
     }
