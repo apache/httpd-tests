@@ -48,6 +48,12 @@ sub server_file_rel2abs {
     my($self, $file, $base) = @_;
 
     $base ||= $self->{inherit_config}->{ServerRoot};
+
+    unless ($base) {
+        warning "unable to resolve $file (ServerRoot not defined yet?)";
+        return $file;
+    }
+
     rel2abs $file, $base;
 }
 
