@@ -601,13 +601,16 @@ sub oh {
     $oh[ rand scalar @oh ];
 }
 
+#e.g. t/core or t/core.12499
+my $core_pat = '^core(\.\d+)?' . "\$";
+
 sub scan_core {
     my $self = shift;
     my $vars = $self->{test_config}->{vars};
     my $times = 0;
 
     finddepth(sub {
-        return unless /^core$/;
+        return unless /$core_pat/o;
         my $core = "$File::Find::dir/$_";
         if (exists $core_files{$core} && $core_files{$core} == -M $core) {
             # we have seen this core file before the start of the test
@@ -631,7 +634,7 @@ sub warn_core {
     %core_files = (); # reset global
 
     finddepth(sub {
-        return unless /^core$/;
+        return unless /$core_pat/o;
         my $core = "$File::Find::dir/$_";
         info "consider removing an old $core file before running tests";
         # remember the timestamp of $core so we can check if it's the
