@@ -30,6 +30,7 @@ sub configure_libmodperl {
     my $cfg = '';
 
     if (-e $vars->{libmodperl}) {
+        $self->{modules}->{'mod_perl.c'} = 1;
         if (Apache::TestConfig::WIN32) {
             my $lib = "$Config{installbin}\\$Config{libperl}";
             $lib =~ s/lib$/dll/;

@@ -223,8 +223,6 @@ sub new {
 
     $self->configure_apxs;
     $self->configure_httpd;
-    $self->inherit_config; #see TestConfigParse.pm
-    $self->configure_httpd_eapi; #must come after inherit_config
 
     $self->default_module(cgi    => [qw(mod_cgi mod_cgid)]);
     $self->default_module(thread => [qw(worker threaded)]);
