@@ -316,11 +316,15 @@ sub process_vhost_open_tag {
     my($self, $line, $indent) = @_;
 
     my $cfg = $self->parse_vhost($line);
-    my $port = $cfg->{port};
-    $cfg->{out_postamble}->();
-    $self->postamble("$indent<VirtualHost _default_:$port>");
-    $cfg->{in_postamble}->();
 
+    if ($cfg) {
+        my $port = $cfg->{port};
+        $cfg->{out_postamble}->();
+        $self->postamble("$indent<VirtualHost _default_:$port>");
+        $cfg->{in_postamble}->();
+    } else {
+        $self->postamble("$indent$line");
+    }
 }
 
 #the idea for each group:
