@@ -984,8 +984,10 @@ sub check_vars {
     my $vars = $self->{vars};
 
     unless ($vars->{proxyssl_url}) {
-        $vars->{proxyssl_url} ||=
-          $self->{vhosts}->{ $vars->{ssl_module_name} }->{hostport};
+        my $ssl = $self->{vhosts}->{ $vars->{ssl_module_name} };
+        if ($ssl) {
+            $vars->{proxyssl_url} ||= $ssl->{hostport};
+        }
 
         if ($vars->{proxyssl_url}) {
             $vars->{maxclients}++;
