@@ -8,6 +8,11 @@ Changes - Apache::Test change logfile
 
 =item 1.05-dev
 
+when testing whether Apache started as root and running under 'nobody'
+or alike, will be able to -r/-w/-x in t/ use 'su' instead of 'sudo',
+the latter is not available on all unix platforms. [Vivek Khera
+<khera@kcilink.com>]
+
 in the Apache/test.pm nuke code s/PERLRUN/FULLPERL/ as older MakeMaker
 doesn't have the PERLRUN target [Stas]
 

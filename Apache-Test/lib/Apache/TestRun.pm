@@ -765,8 +765,8 @@ sub check_perms {
     my $vars = $self->{test_config}->{vars};
     my $dir  = $vars->{t_dir};
     my $perl = $vars->{perl};
-    my $check = qq[sudo -u '#$uid' $perl -e ] . 
-        qq['print -r "$dir" &&  -w _ && -x _ ? "OK" : "NOK"'];
+    my $check = qq[su -m $user -c '$perl -e ] .
+        qq["print -r q{$dir} &&  -w _ && -x _ ? q{OK} : q{NOK}"'];
     warning "$check\n";
     my $res   = qx[$check] || '';
     warning "result: $res";
