@@ -70,7 +70,7 @@ sub same_interp_fixup {
 
     unless ($interp) {
         # shouldn't be requesting this without an INTERP header
-        return Apache::SERVER_ERROR;
+        die "can't find the interpreter key";
     }
 
     my $id = $same_interp_id;

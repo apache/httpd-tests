@@ -523,7 +523,11 @@ sub same_interp_tie {
     my($url) = @_;
 
     my $res = GET($url, INTERP_KEY, 'tie');
-
+    unless ($res->code == 200) {
+        die sprintf "failed to init the same_handler data (url=%s). " .
+            "Failed with code=%s, response:\n%s",
+                $url, $res->code, $res->content;
+    }
     my $same_interp = $res->header(INTERP_KEY);
 
     return $same_interp;
@@ -535,7 +539,7 @@ sub same_interp_tie {
 sub same_interp_do {
     my($same_interp, $sub, $url, @args) = @_;
 
-    die "must pass an interpreter id to work with"
+    die "must pass an interpreter id, obtained via same_interp_tie()"
         unless defined $same_interp and $same_interp;
 
     push @args, (INTERP_KEY, $same_interp);
@@ -546,9 +550,17 @@ sub same_interp_do {
     do {
         #loop until we get a response from our interpreter instance
         $res = $sub->($url, @args);
-
-        if ($res and $res->code == 200) {
+        die "no result" unless $res;
+        my $code = $res->code;
+        if ($code == 200) {
             $found_same_interp = $res->header(INTERP_KEY) || '';
+        }
+        elsif ($code == 404) {
+            # try again
+        }
+        else {
+            die sprintf "failed to run the request (url=%s):\n" .
+                "code=%s, response:\n%s", $url, $code, $res->content;
         }
 
         unless ($found_same_interp eq $same_interp) {
