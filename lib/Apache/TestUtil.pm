@@ -6,6 +6,7 @@ use warnings FATAL => 'all';
 use File::Find ();
 use File::Path ();
 use Exporter ();
+use Carp ();
 
 use vars qw($VERSION @ISA @EXPORT %CLEAN);
 
@@ -20,8 +21,8 @@ use constant HAS_DUMPER => eval { require Data::Dumper; };
 use constant INDENT     => 4;
 
 sub t_cmp {
-    die join(":", (caller)[1..2]) . 
-        ' usage: $res = t_cmp($expected, $received, [$comment])'
+    Carp::carp(join(":", (caller)[1..2]) . 
+        ' usage: $res = t_cmp($expected, $received, [$comment])')
             if @_ < 2 || @_ > 3;
 
     t_debug("testing : " . pop) if @_ == 3;
