@@ -21,20 +21,20 @@ my %test = (
 "set.shtml"             =>    "set works",
 "include1.shtml"        =>    "inc-two.shtml body  include.shtml body",
 "include2.shtml"        =>    "inc-two.shtml body  include.shtml body",
-"include3.shtml"        =>
-    "inc-two.shtml body  inc-one.shtml body  include.shtml body",
-"include4.shtml"        =>
-    "inc-two.shtml body  inc-one.shtml body  include.shtml body",
-"include5.shtml"        =>
-    "inc-two.shtml body  inc-one.shtml body  inc-three.shtml body  include.shtml body",
-"include6.shtml"        =>
-    "inc-two.shtml body  inc-one.shtml body  inc-three.shtml body  include.shtml body",
-"foo.shtml"             =>
-    "[an error occurred while processing this directive] foo.shtml body",
-"foo1.shtml"            =>
-    "[an error occurred while processing this directive] foo.shtml body",
-"foo2.shtml"            =>
-    "[an error occurred while processing this directive] foo.shtml body",
+"include3.shtml"        =>    "inc-two.shtml body  inc-one.shtml body  ".
+                              "include.shtml body",
+"include4.shtml"        =>    "inc-two.shtml body  inc-one.shtml body  ".
+                              "include.shtml body",
+"include5.shtml"        =>    "inc-two.shtml body  inc-one.shtml body  ".
+                              "inc-three.shtml body  include.shtml body",
+"include6.shtml"        =>    "inc-two.shtml body  inc-one.shtml body  ".
+                              "inc-three.shtml body  include.shtml body",
+"foo.shtml"             =>    "[an error occurred while processing this ".
+                              "directive] foo.shtml body",
+"foo1.shtml"            =>    "[an error occurred while processing this ".
+                              "directive] foo.shtml body",
+"foo2.shtml"            =>    "[an error occurred while processing this ".
+                              "directive] foo.shtml body",
 "encode.shtml"          =>    "\# \%\^ \%23\%20\%25\%5e",
 "errmsg1.shtml"         =>    "errmsg",
 "errmsg2.shtml"         =>    "errmsg",
@@ -48,16 +48,16 @@ my %test = (
 "if5.shtml"             =>    "pass  pass  pass",
 "big.shtml"             =>    "hello   pass  pass   pass     hello",
 "newline.shtml"         =>    "inc-two.shtml body",
-"inc-rfile.shtml"       =>
-    "inc-extra2.shtml body  inc-extra1.shtml body  inc-rfile.shtml body",
-"inc-rvirtual.shtml"    =>
-    "inc-extra2.shtml body  inc-extra1.shtml body  inc-rvirtual.shtml body",
-"extra/inc-bogus.shtml" =>
-    "[an error occurred while processing this directive] inc-bogus.shtml body",
-"abs-path.shtml"        =>
-    "inc-extra2.shtml body  inc-extra1.shtml body  abs-path.shtml body",
-"exec/off/cmd.shtml"    =>
-    "[an error occurred while processing this directive]",
+"inc-rfile.shtml"       =>    "inc-extra2.shtml body  inc-extra1.shtml body  ".
+                              "inc-rfile.shtml body",
+"inc-rvirtual.shtml"    =>    "inc-extra2.shtml body  inc-extra1.shtml body  ".
+                              "inc-rvirtual.shtml body",
+"extra/inc-bogus.shtml" =>    "[an error occurred while processing this ".
+                              "directive] inc-bogus.shtml body",
+"abs-path.shtml"        =>    "inc-extra2.shtml body  inc-extra1.shtml body  ".
+                              "abs-path.shtml body",
+"exec/off/cmd.shtml"    =>    "[an error occurred while processing this ".
+                              "directive]",
 "exec/on/cmd.shtml"     =>    "pass",
 "notreal.shtml"         =>    "pass <!--",
 "parse1.shtml"          =>    "-->",
@@ -108,12 +108,13 @@ my @patterns = (
 );
 
 #
-# in addition to $tests, there are 0 fsize/flastmod test, 1 GET test,
+# in addition to $tests, there are 1 fsize/flastmod test, 1 GET test,
 # 11 XBitHack tests, 2 exec cgi tests, 2 malformed-ssi-directive tests,
 # and 14 tests that use mod_bucketeer to construct brigades for mod_include
 #
 my $tests = scalar(keys %test) + scalar(keys %t_test) + @patterns + 2;
-plan tests => $tests + 30, have_module 'include';
+plan tests => $tests + 31, todo => [scalar(keys %test) + 4],
+              have_module 'include';
 
 Apache::TestRequest::scheme('http'); #ssl not listening on this vhost
 Apache::TestRequest::module('mod_include'); #use this module's port
@@ -158,8 +159,7 @@ ok t_cmp("$expected",
         );
 
 ### FLASTMOD/FSIZE TESTS
-### disabled for now, until there's a better solution.
-my $todo = sub {
+### marked as TODO since it's broken.
 unless(eval{require POSIX}) {
     skip "POSIX module not found", 1;
 }
@@ -205,7 +205,6 @@ else {
              "GET ${dir}file.shtml"
             );
 }
-}; # /todo
 
 ### EXEC CGI TESTS
 # skipped if !have_cgi
