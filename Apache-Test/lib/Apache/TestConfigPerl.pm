@@ -83,8 +83,15 @@ sub write_pm_test {
     my $fh = $self->genfile($t);
 
     print $fh <<EOF;
-use Apache::TestRequest 'GET_BODY';
-print GET_BODY "/$pm";
+use Apache::TestRequest 'GET';
+my \$res = GET "/$pm";
+if (\$res->is_success) {
+    print \$res->content;
+}
+else {
+    die "server side has failed (response code: ", \$res->code, "),\\n",
+        "see t/logs/error_log for more details\\n";
+}
 EOF
 
     close $fh or die "close $t: $!";
