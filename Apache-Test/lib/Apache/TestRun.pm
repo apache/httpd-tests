@@ -460,13 +460,9 @@ sub configure {
     $test_config->generate_httpd_conf;
     $test_config->save;
 
-    # save if
+    # custom config save if
     # 1) requested to save
     # 2) no saved config yet
-    # 3) A-T build (since it'll override the global file)
-    # the only side-effect of (3) is that if config is changed during
-    # A-T build it'll change the global custom config if that exists,
-    # but it shouldn't affect normal users who won't do it more than once
     if ($self->{opts}->{save} or !custom_config_exists()) {
         $self->custom_config_save();
     }
