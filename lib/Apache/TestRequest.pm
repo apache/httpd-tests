@@ -292,7 +292,7 @@ sub lwp_call {
         my($url, @rest) = @_;
         $name = (split '::', $name)[-1]; #strip HTTP::Request::Common::
         $url = resolve_url($url);
-        print "$name $url @rest:\n";
+        print "$name $url @rest:\n", $r->request->headers->as_string, "\n";
         print lwp_as_string($r, $DebugLWP > 1);
     }
 
