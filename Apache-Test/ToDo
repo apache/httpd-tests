@@ -21,7 +21,7 @@
     of the tests, but to save each bt as "backtrace.$test_path".
     => this should be very useful in smoke testing
 
-  * later, it'd be nice to integrate this with util/bugreport.pl, so
+  * later, it'd be nice to integrate this with build/bugreport.pl, so
     the bug report with the backtrace and everything we want to know
     from user's machine, including their /etc/shadow (:-) will be
     automatically posted to the list.
