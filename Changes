@@ -8,6 +8,8 @@ Changes - Apache::Test change logfile
 
 =item 1.14-dev
 
+Added an apxs query cache for improved test performance [Gozer]
+
 run_tests make target no longer invokes t/TEST -clean, making it
 possible to save a few development cycles when a full cleanup is
 not required between runs.  [Geoffrey Young] 

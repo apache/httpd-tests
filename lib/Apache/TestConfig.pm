@@ -1620,20 +1620,27 @@ sub which {
 sub apxs {
     my($self, $q, $ok_fail) = @_;
     return unless $self->{APXS};
-    local @ENV{ qw(PATH IFS CDPATH ENV BASH_ENV) };
-    my $devnull = devnull();
-    my $apxs = shell_ready($self->{APXS});
-    my $val = qx($apxs -q $q 2>$devnull);
-    chomp $val if defined $val; # apxs post-2.0.40 adds a new line
-    unless ($val) {
-        if ($ok_fail) {
-            return "";
+    my $val;
+    unless (exists $self->{_apxs}{$q}) {
+        local @ENV{ qw(PATH IFS CDPATH ENV BASH_ENV) };
+        my $devnull = devnull();
+        my $apxs = shell_ready($self->{APXS});
+        $val = qx($apxs -q $q 2>$devnull);
+        chomp $val if defined $val; # apxs post-2.0.40 adds a new line
+        if ($val) {
+            $self->{_apxs}{$q} = $val;
         }
-        else {
-            warn "APXS ($self->{APXS}) query for $q failed\n";
+        unless ($val) {
+            if ($ok_fail) {
+                return "";
+            }
+            else {
+                warn "APXS ($self->{APXS}) query for $q failed\n";
+                return $val;
+            }
         }
     }
-    $val;
+    $self->{_apxs}{$q};
 }
 
 sub pop_dir {
