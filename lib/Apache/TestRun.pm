@@ -9,6 +9,7 @@ use Apache::TestHarness ();
 
 use File::Spec::Functions qw(catfile);
 use Getopt::Long qw(GetOptions);
+use Config;
 
 my @std_run      = qw(start-httpd run-tests stop-httpd);
 my @others       = qw(verbose configure clean help ping);
@@ -250,6 +251,11 @@ sub run_tests {
         verbose => $self->{opts}->{verbose},
         tests   => $self->{tests},
     };
+
+    #make sure we use an absolute path to perl
+    #else Test::Harness uses the perl in our PATH
+    #which might not be the one we want
+    $^X = $Config{perlpath} if $^X eq 'perl';
 
     if (grep { $self->{opts}->{$_} } @request_opts) {
         run_request($self->{test_config}, $self->{opts});
