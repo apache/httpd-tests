@@ -13,17 +13,21 @@ Apache::TestRequest::scheme('https');
 
 my $r;
 
-$r = GET $url, cert => undef;
+sok {
+    $r = GET $url, cert => undef;
+    print $r->as_string;
+    $r->code != 200;
+};
 
-ok $r->code != 200;
-print $r->as_string;
+sok {
+    $r = GET $url, cert => 'client_ok';
+    print $r->as_string;
+    $r->code == 200;
+};
 
-$r = GET $url, cert => 'client_ok';
+sok {
+    $r = GET $url, cert => 'client_revoked';
+    print $r->as_string;
+    $r->code != 200;
+};
 
-ok $r->code == 200;
-print $r->as_string;
-
-$r = GET $url, cert => 'client_revoked';
-
-ok $r->code != 200;
-print $r->as_string;
