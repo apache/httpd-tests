@@ -18,6 +18,16 @@ if (my $subtests = $ENV{HTTPD_TEST_SUBTESTS}) {
     %SubTests = map { $_, 1 } split /\s+/, $subtests;
 }
 
+my $Config;
+
+sub config {
+    $Config ||= Apache::TestConfig->thaw;
+}
+
+sub vars {
+    config()->{vars};
+}
+
 sub sok (&;$) {
     my $sub = shift;
     my $nok = shift || 1; #allow sok to have 'ok' within
@@ -89,7 +99,7 @@ sub plan {
 }
 
 sub have_module {
-    my $cfg = Apache::TestConfig->thaw;
+    my $cfg = config();
     my @modules = ref($_[0]) ? @{ $_[0] } : @_;
 
     for (@modules) {

@@ -8,6 +8,10 @@ BEGIN { $ENV{LWP_USE_HTTP1} = 1; } #default to http/1.0
 use Apache::Test ();
 use Apache::TestConfig ();
 
+#backward compat
+*test_config = \&Apache::Test::config;
+*vars = \&Apache::Test::vars;
+
 my $have_lwp = eval {
     require LWP::UserAgent;
     require HTTP::Request::Common;
@@ -44,7 +48,6 @@ our @EXPORT = @HTTP::Request::Common::EXPORT;
 our @ISA = qw(LWP::UserAgent);
 
 my $UA;
-my $Config;
 
 sub module {
     my $module = shift;
@@ -56,10 +59,6 @@ sub scheme {
     my $scheme = shift;
     $Apache::TestRequest::Scheme = $scheme if $scheme;
     $Apache::TestRequest::Scheme;
-}
-
-sub vars {
-    test_config()->{vars};
 }
 
 sub user_agent {
@@ -78,7 +77,7 @@ sub user_agent {
 }
 
 sub hostport {
-    my $config = shift || test_config();
+    my $config = shift || Apache::Test::config();
     local $config->{vars}->{scheme} =
       $Apache::TestRequest::Scheme || $config->{vars}->{scheme};
     my $hostport = $config->hostport;
@@ -96,7 +95,7 @@ sub resolve_url {
     return $url if $url =~ m,^(\w+):/,;
     $url = "/$url" unless $url =~ m,^/,;
 
-    my $vars = test_config()->{vars};
+    my $vars = Apache::Test::vars();
 
     local $vars->{scheme} =
       $Apache::TestRequest::Scheme || $vars->{scheme} || 'http';
@@ -129,7 +128,7 @@ sub new {
 
     lwp_debug(); #init from %ENV (set by Apache::TestRun)
 
-    my $config = test_config();
+    my $config = Apache::Test::config();
     if (my $proxy = $config->configure_proxy) {
         #t/TEST -proxy
         $self->proxy(http => "http://$proxy");
@@ -151,13 +150,9 @@ sub get_basic_credentials {
     return (undef,undef);
 }
 
-sub test_config {
-    $Config ||= Apache::TestConfig->thaw;
-}
-
 sub vhost_socket {
     local $Apache::TestRequest::Module = shift;
-    my $hostport = hostport(test_config());
+    my $hostport = hostport(Apache::Test::config());
     require IO::Socket;
     IO::Socket::INET->new($hostport);
 }
@@ -343,7 +338,7 @@ for my $name (qw(GET HEAD)) {
     next if defined &$name;
     no strict 'refs';
     *$name = sub {
-        return test_config()->http_raw_get(shift, $name);
+        return Apache::Test::config()->http_raw_get(shift, $name);
     };
 }
 
@@ -411,7 +406,7 @@ sub to_string {
 
 sub set_client_cert {
     my $name = shift;
-    my $config = test_config();
+    my $config = Apache::Test::config();
     my $dir = "$config->{vars}->{t_conf}/ssl";
 
     if ($name) {
