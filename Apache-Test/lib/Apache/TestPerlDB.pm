@@ -1,8 +1,7 @@
-package Apache::TestPerlDB;
-
+#no 'package Apache::TestPerlDB.pm' here, else we change perldb's package
 use strict;
 
-sub lwpd {
+sub Apache::TestPerlDB::lwpd {
     my $val = $_[0] || 1;
     if ($val =~ /^\d+$/) {
         $Apache::TestRequest::DebugLWP = $val;
@@ -20,7 +19,7 @@ my %help = (
 );
 
 my $setup_db_aliases = sub {
-    my $package = __PACKAGE__;
+    my $package = 'Apache::TestPerlDB';
     my @cmds;
     no strict 'refs';
 
