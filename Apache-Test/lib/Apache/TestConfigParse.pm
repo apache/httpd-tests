@@ -63,6 +63,14 @@ sub inherit_server_file {
                            $self->server_file($c->{$directive}));
 }
 
+#so we have the same names if these modules are linked static or shared
+my %modname_alias = (
+    'mod_pop.c'           => 'pop_core.c',
+    'mod_proxy_http.c'    => 'proxy_http.c',
+    'mod_proxy_ftp.c'     => 'proxy_ftp.c',
+    'mod_proxy_connect.c' => 'proxy_connect.c',
+);
+
 #inherit LoadModule
 sub inherit_load_module {
     my($self, $c, $directive) = @_;
@@ -75,6 +83,7 @@ sub inherit_load_module {
         $name =~ s/\.so$/.c/;  #mod_info.so => mod_info.c
         $name =~ s/^lib/mod_/; #libphp4.so => mod_php4.c
         $self->trace("LoadModule $modname $name");
+        $name = $modname_alias{$name} if $modname_alias{$name};
         $self->{modules}->{$name} = 1;
 
         $self->preamble($directive => "$modname $file");
