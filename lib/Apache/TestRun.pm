@@ -640,6 +640,9 @@ sub scan_core_incremental {
     my($self, $only_t_dir) = @_;
     my $vars = $self->{test_config}->{vars};
 
+    # no core files dropped on win32
+    return () if Apache::TestConfig::WIN32;
+
     if ($only_t_dir) {
         require IO::Dir;
         my @cores = ();
@@ -689,6 +692,9 @@ sub scan_core {
     my $vars = $self->{test_config}->{vars};
     my $times = 0;
 
+    # no core files dropped on win32
+    return if Apache::TestConfig::WIN32;
+
     finddepth({ no_chdir => 1,
                 wanted   => sub {
         return unless -f $_;
@@ -715,6 +721,9 @@ sub warn_core {
     my $self = shift;
     my $vars = $self->{test_config}->{vars};
     %core_files = (); # reset global
+
+    # no core files dropped on win32
+    return if Apache::TestConfig::WIN32;
 
     finddepth(sub {
         return unless -f $_;
