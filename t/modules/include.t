@@ -38,15 +38,12 @@ my %test = (
 "errmsg1.shtml"         =>    "errmsg",
 "errmsg2.shtml"         =>    "errmsg",
 "errmsg3.shtml"         =>    "errmsg",
-"errmsg4.shtml"         =>    "pass errmsg",
+"errmsg4.shtml"         =>    $have_apache_2 ? "pass errmsg" : "pass",
 "if1.shtml"             =>    "pass",
 "if2.shtml"             =>    "pass   pass",
 "if3.shtml"             =>    "pass   pass   pass",
 "if4.shtml"             =>    "pass   pass",
 "if5.shtml"             =>    "pass  pass  pass",
-"if8.shtml"             =>    "pass",
-"if9.shtml"             =>    "pass   pass",
-"if10.shtml"            =>    "pass",
 "big.shtml"             =>    "hello   pass  pass   pass     hello",
 "newline.shtml"         =>    "inc-two.shtml body",
 "inc-rfile.shtml"       =>
@@ -67,6 +64,18 @@ if (WINFU) {
     delete $test{'exec/on/cmd.shtml'};
 }
 
+# 1.3 gets slightly modified versions, since it cannot parse some files
+# written for 2.x (requires spaces before end_seq)
+if ($have_apache_2) {
+    $test{"if8.shtml"}  = "pass";
+    $test{"if9.shtml"}  = "pass   pass";
+    $test{"if10.shtml"} = "pass";
+}
+else {
+    $test{"if8a.shtml"}  = "pass";
+    $test{"if9a.shtml"}  = "pass   pass";
+    $test{"if10a.shtml"} = "pass";
+}
 
 #
 # in addition to $tests, there are 1 GET test, 9 XBitHack tests,
