@@ -726,6 +726,19 @@ sub writefile {
     close $fh;
 }
 
+sub perlscript_header {
+    return <<'EOF';
+
+use strict;
+use warnings FATAL => 'all';
+
+use FindBin;
+use lib map "$FindBin::Bin/$_",
+        qw(../Apache-Test/lib ../lib ../../lib);
+
+EOF
+}
+
 # gen + write executable perl script file
 sub write_perlscript {
     my($self, $file, $content) = @_;

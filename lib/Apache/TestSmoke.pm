@@ -460,25 +460,13 @@ sub generate_script {
 
     $file ||= catfile 't', 'SMOKE';
 
-    my $content = <<EOM;
-use strict;
-use warnings FATAL => 'all';
+    my $header = Apache::TestConfig->perlscript_header;
 
-use FindBin;
-use lib "\$FindBin::Bin/../Apache-Test/lib";
-use lib "\$FindBin::Bin/../lib";
-use lib 'lib';
-
-use $class ();
-
-$class->new(\@ARGV)->run;
-EOM
+    my $content = join "\n",
+      $header, "use $class ();", "$class->new(\@ARGV)->run;";
 
     Apache::Test::config()->write_perlscript($file, $content);
-
 }
-
-
 
 1;
 __END__
