@@ -460,10 +460,11 @@ sub generate_script {
 
     $file ||= catfile 't', 'SMOKE';
 
-    my $header = Apache::TestConfig->perlscript_header;
-
     my $content = join "\n",
-      $header, "use $class ();", "$class->new(\@ARGV)->run;";
+        Apache::TestConfig->modperl_2_inc_fixup,
+        Apache::TestConfig->perlscript_header,
+        "use $class;",
+        "$class->new(\@ARGV)->run;";
 
     Apache::Test::config()->write_perlscript($file, $content);
 }

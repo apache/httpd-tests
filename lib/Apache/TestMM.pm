@@ -72,7 +72,7 @@ sub generate_script {
 
     unlink $file if -e $file;
 
-    my $body = '';
+    my $body = Apache::TestConfig->modperl_2_inc_fixup;
 
     if (@Apache::TestMM::Argv) {
         $body .= "\%Apache::TestConfig::Argv = qw(@Apache::TestMM::Argv);\n";
