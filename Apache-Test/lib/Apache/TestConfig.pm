@@ -35,6 +35,7 @@ our %Usage = (
    apxs          => 'location of apxs (default is from Apache::BuildConfig)',
    httpd_conf    => 'inherit config from this file (default is apxs derived)',
    maxclients    => 'maximum number of concurrent clients (default is 1)',
+   perlpod       => 'location of perl pod documents (for testing downloads)',
 );
 
 sub usage {
@@ -176,6 +177,8 @@ sub new {
     $vars->{t_dir}        ||= catfile $vars->{top_dir}, 't';
     $vars->{serverroot}   ||= $vars->{t_dir};
     $vars->{documentroot} ||= catfile $vars->{serverroot}, 'htdocs';
+    $vars->{perlpod}      ||= $self->find_in_inc('pod');
+    $vars->{perl}         ||= $^X;
     $vars->{t_conf}       ||= catfile $vars->{serverroot}, 'conf';
     $vars->{t_logs}       ||= catfile $vars->{serverroot}, 'logs';
     $vars->{t_conf_file}  ||= catfile $vars->{t_conf},   'httpd.conf';
@@ -673,6 +676,15 @@ sub generate_ssl_conf {
     }
 }
 
+sub find_in_inc {
+    my($self, $dir) = @_;
+    for my $path (@INC) {
+        my $location = "$path/$dir";
+        return $location if -d $location;
+    }
+    return "";
+}
+
 sub generate_httpd_conf {
     my $self = shift;
     my $vars = $self->{vars};
@@ -909,3 +921,10 @@ HostnameLookups Off
 <Location /server-status>
     SetHandler server-status
 </Location>
+
+#so we can test downloading some files of various size
+Alias /perl-pod          @PerlPod@
+
+#and some big ones
+Alias /httpd-binary      @httpd@
+Alias /perl-binary       @perl@
