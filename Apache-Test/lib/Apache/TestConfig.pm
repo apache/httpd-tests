@@ -15,6 +15,7 @@ use Apache::TestConfigPerl ();
 use Apache::TestConfigParse ();
 use Apache::TestTrace;
 use Apache::TestServer ();
+use Socket ();
 
 our %Usage = (
    top_dir       => 'top-level directory (default is $PWD)',
@@ -424,8 +425,16 @@ sub default_httpd {
     $ENV{APACHE} || which($vars->{target});
 }
 
+my $localhost;
+
+sub default_localhost {
+    my $localhost_addr = pack('C4', 127, 0, 0, 1);
+    gethostbyaddr($localhost_addr, Socket::AF_INET()) || 'localhost';
+}
+
 sub default_servername {
-    'localhost';
+    my $self = shift;
+    $localhost ||= $self->default_localhost;
 }
 
 #XXX: could check if the port is in use and select another if so
