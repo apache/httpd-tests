@@ -39,6 +39,14 @@ Apache::TestMB now only prints the "Generating test running script"
 message if verbosity is enabled (e.g., by passing --verbose when
 executing Build.PL). [David]
 
+Fixed the "requests_redirectable" parameter to
+Apache::TestRequest::user_agent() so that it works as docmented when
+passed a negative value. [Boris Zentner]
+
+Documented support for passing an array reference to the
+"requests_redirectable" parameter to Apache::TestRequest::user_agent()
+to be passed to LWP::UserAgent if LWP ist installed. [David]
+
 
 =item 1.12 - June 28, 2004
 

@@ -117,6 +117,10 @@ sub user_agent {
         my $redir = $args->{requests_redirectable};
         if (ref $redir and (@$redir > 1 or $redir->[0] ne 'POST')) {
             $RedirectOK = 1;
+        } elsif ($redir) {
+            $args->{requests_redirectable} = [ qw/GET HEAD POST/ ]
+              if $have_lwp;
+            $RedirectOK = 1;
         } else {
             $RedirectOK = 0;
         }
@@ -727,16 +731,24 @@ connection is used to process multiple requests (and, according to the
 C<L<LWP::UserAgent|LWP::UserAgent>> documentation, has the effect of
 loading and enabling the new experimental HTTP/1.1 protocol module).
 
-And finally, the semantics of the C<requests_redirectable> parameter
-is different than for C<LWP::UserAgent>: It either follows
-redirects for a request, or it doesn't. Thus
-C<requests_redirectable> is a boolean value instead of the array
-reference that C<LWP::UserAgent> expects. To force
-C<Apache::TestRequest> not to follow redirects in any of its
-convenience functions, pass a false value to C<requests_redirectable>:
+And finally, the semantics of the C<requests_redirectable> parameter is
+different than for C<LWP::UserAgent> in that you can pass it a boolean
+value as well as an array for C<LWP::UserAgent>. To force
+C<Apache::TestRequest> not to follow redirects in any of its convenience
+functions, pass a false value to C<requests_redirectable>:
 
   Apache::TestRequest::user_agent(reset => 1,
                                   requests_redirectable => 0);
+
+If LWP is not installed, then you can still pass in an array reference
+as C<LWP::UserAgent> expects. C<Apache::TestRequest> will examine the
+array and allow redirects if the array contains more than one value or
+if there is only one value and that value is not "POST":
+
+  # Always allow redirection.
+  my $redir = have_lwp ? [qw(GET HEAD POST)] : 1;
+  Apache::TestRequest::user_agent(reset => 1,
+                                  requests_redirectable => $redir);
 
 =head1 FUNCTIONS
 
