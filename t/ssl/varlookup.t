@@ -23,11 +23,11 @@ my %lookup = (
 plan tests => scalar keys %lookup;
 
 for my $key (sort keys %lookup) {
-    verify($key);
+    sok { verify($key); };
 }
 
 sub verify {
     my $key = shift;
     my $str = GET_BODY("$url?$key", cert => 'client_ok');
-    ok $str eq $lookup{$key};
+    $str eq $lookup{$key};
 }
