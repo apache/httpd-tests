@@ -137,6 +137,17 @@ sub port_available {
     }
 }
 
+=head2 stop()
+
+attempt to stop the server.
+
+returns:
+
+  on success: $pid of the server
+  on failure: -1
+
+=cut
+
 sub stop {
     my $self = shift;
     my $aborted = shift;
@@ -148,7 +159,7 @@ sub stop {
     my $port = $self->{config}->{vars}->{port};
 
     warning("server $self->{name} is not running"),
-        return unless $self->ping;
+        return -1 unless $self->ping;
 
     while ($self->ping) {
         #my $state = $tried_kill ? "still" : "already";
