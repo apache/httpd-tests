@@ -36,7 +36,8 @@ for my $module (@modules) {
     for my $data ('LIST', 'GROUP dev.httpd.apache.org', 'ARTICLE 401') {
         $sock->print("$data\n");
 
-        chomp($response = Apache::TestRequest::getline($sock));
+        $response = Apache::TestRequest::getline($sock);
+        chomp($response) if (defined($response));
         ok t_cmp($data, $response, 'echo');
     }
 }
