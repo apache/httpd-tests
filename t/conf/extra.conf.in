@@ -243,3 +243,13 @@ DAVLockDB @SERVERROOT@/logs/davlock.db
 DAV On
 </Directory>
 </IfModule>
+
+##
+## mod_autoindex test config
+##
+<IfModule mod_autoindex.c>
+<Directory @SERVERROOT@/htdocs/modules/autoindex/htaccess>
+Options +Indexes
+AllowOverride Indexes
+</Directory>
+</IfModule>
