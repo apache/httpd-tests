@@ -37,7 +37,7 @@
             SSLProxyMachineCertificatePath @SSLCA@/asf/proxy
             SSLProxyCACertificateFile @SSLCA@/asf/certs/ca.crt
             SSLProxyVerify on
-            SSLProxyCARevocationFile @SSLCA@/asf/crl/ca-bundle.crl
+            SSLProxyCARevocationPath @SSLCA@/asf/crl
         </IfDefine>
 
 
