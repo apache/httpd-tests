@@ -147,8 +147,10 @@ sub new {
     $vars->{t_logs}       ||= catfile $vars->{serverroot}, 'logs';
     $vars->{t_conf_file}  ||= catfile $vars->{t_conf},   'httpd.conf';
 
-    $vars->{port}         ||= $self->default_port;
+    $vars->{scheme}       ||= 'http';
     $vars->{servername}   ||= $self->default_servername;
+    $vars->{port}         ||= $self->default_port;
+
     $vars->{user}         ||= $self->default_user;
     $vars->{group}        ||= $self->default_group;
     $vars->{serveradmin}  ||= join '@', $vars->{user}, $vars->{servername};
