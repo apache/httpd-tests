@@ -72,6 +72,7 @@ use vars qw(%Usage);
    apxs            => 'location of apxs (default is from Apache::BuildConfig)',
    startup_timeout => 'seconds to wait for the server to start (default is 60)',
    httpd_conf      => 'inherit config from this file (default is apxs derived)',
+   httpd_conf_extra=> 'inherit additional config from this file',
    maxclients      => 'maximum number of concurrent clients (default is 1)',
    perlpod         => 'location of perl pod documents (for testing downloads)',
    proxyssl_url    => 'url for testing ProxyPass / https (default is localhost)',
@@ -84,8 +85,8 @@ use vars qw(%Usage);
 
 my %filepath_conf_opts = map { $_ => 1 }
     qw(top_dir t_dir t_conf t_logs t_conf_file src_dir serverroot
-       documentroot bindir sbindir httpd apxs httpd_conf perlpod sslca
-       libmodperl);
+       documentroot bindir sbindir httpd apxs httpd_conf httpd_conf_extra
+       perlpod sslca libmodperl);
 
 sub conf_opt_is_a_filepath {
     my $opt = shift;

@@ -302,6 +302,7 @@ sub inherit_config {
       catfile $self->{httpd_basedir}, 'htdocs';
 
     my $file = $self->{vars}->{httpd_conf};
+    my $extra_file = $self->{vars}->{httpd_conf_extra};
 
     unless ($file and -e $file) {
         if (my $base = $self->{httpd_basedir}) {
@@ -313,7 +314,16 @@ sub inherit_config {
         }
     }
 
-    return unless $file;
+    unless ($extra_file and -e $extra_file) {
+        if ($extra_file and my $base = $self->{httpd_basedir}) {
+            my $default_conf = catfile qw(conf $extra_file);
+            $extra_file = catfile $base, $default_conf;
+            # SERVER_CONFIG_FILE might be an absolute path
+            $extra_file = $default_conf if !-e $extra_file and -e $default_conf;
+        }
+    }
+
+    return unless $file or $extra_file;
 
     my $c = $self->{inherit_config};
 
@@ -324,7 +334,8 @@ sub inherit_config {
         }
     }
 
-    $self->inherit_config_file_or_directory($file);
+    $self->inherit_config_file_or_directory($file) if $file;
+    $self->inherit_config_file_or_directory($extra_file) if $extra_file;
 
     #apply what we parsed
     while (my($spec, $wanted) = each %wanted_config) {
