@@ -433,6 +433,21 @@ will do:
 
   "abcd" =~ /^abc/;
 
+When comparing to a return value from a function, that may return an
+C<undef> value, there is a catch -- in the list context the C<undef>
+value disappears and you end up comparing with the next argument.
+Therefore you can either explicitly call the function prior to
+comparison:
+
+  my $received = foo();
+  t_cmp($expected, $received, "may return undef")
+
+or use a scalar context:
+
+  t_cmp($expected, scalar(foo()), "may return undef")
+
+the parentheses for the C<scalar()>'s expression are mandatory here.
+
 This function is exported by default.
 
 =item t_debug()
