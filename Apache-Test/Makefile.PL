@@ -64,7 +64,7 @@ WriteMakefile(
     VERSION   => $VERSION,
     PREREQ_PM => \%prereq,
     dist      => {
-        COMPRESS => 'gzip -9f', SUFFIX=>'gz',
+        COMPRESS => 'gzip -9f', SUFFIX => 'gz',
     },
     clean     => {
         FILES => "@clean_files",
