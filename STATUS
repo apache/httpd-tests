@@ -1,5 +1,5 @@
 httpd-test/perl-framework STATUS:				-*-text-*-
-Last modified at [$Date: 2002/02/06 18:57:59 $]
+Last modified at [$Date: 2002/03/09 05:22:48 $]
 
 Stuff to do:
     * finish the t/TEST exit code issue (ORed with 0x2C if
@@ -10,6 +10,11 @@ Stuff to do:
       Makefile.PL prepare appropriate subdirectory configs
       for them.  Why?  So t/TEST can be used to test a
       remote server.
+
+    * problems with -d perl mode, doesn't work as documented
+      Message-ID: <3BD10479.2020506@stason.org>
+      Date: Sat, 20 Oct 2001 12:58:33 +0800
+      Subject: Re: perldb
 
 Tests to be written:
 
