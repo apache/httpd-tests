@@ -235,7 +235,7 @@ sub default_module {
 
     unless ($self->{vars}->{$mname}) {
         ($self->{vars}->{$mname}) = grep {
-            $self->{modules}->{"mod_$_.c"};
+            $self->{modules}->{"$_.c"};
         } @$choices;
 
         $self->{vars}->{$mname} ||= $choices->[0];
