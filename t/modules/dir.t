@@ -14,6 +14,11 @@ my $htaccess = "htdocs/modules/dir/htaccess/.htaccess";
 my $url = "/modules/dir/htaccess/";
 my ($actual, $expected);
 
+#XXX: this is silly; need a better way to be portable
+sub my_chomp {
+    $actual =~ s/[\r\n]+$//s;
+}
+
 plan tests => @bad_index * @index * 5 + @bad_index + 5, have_module 'dir';
 
 foreach my $bad_index (@bad_index) {
@@ -54,9 +59,10 @@ foreach my $bad_index (@bad_index) {
 }
 
 print "DirectoryIndex /modules/alias/index.html\n";
-$expected = "alias index\n";
+$expected = "alias index";
 write_htaccess("/modules/alias/index.html");
 $actual = GET_BODY $url;
+my_chomp();
 ok ($actual eq $expected);
 
 print "expecting 403 for DirectoryIndex @bad_index\n";
@@ -79,8 +85,9 @@ ok ($actual eq $expected);
 
 unlink $htaccess;
 print "removed .htaccess (no DirectoryIndex), expecting default (index.html)\n";
-$expected = "dir index\n";
+$expected = "dir index";
 $actual = GET_BODY $url;
+my_chomp();
 ok ($actual eq $expected);
 
 sub write_htaccess {

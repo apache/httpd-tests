@@ -44,19 +44,25 @@ plan tests => (@language * 3) + (@language * @language * 5) + 6,
     have_module 'negotiation';
 
 my $actual;
+
+#XXX: this is silly; need a better way to be portable
+sub my_chomp {
+    $actual =~ s/[\r\n]+$//s;
+}
+
 foreach (@language) {
 
     ## verify that the correct default language content is returned
     $actual = GET_BODY "/modules/negotiation/$_/";
-    chomp $actual;
+    my_chomp();
     ok ($actual eq "index.html.$_");
 
     $actual = GET_BODY "/modules/negotiation/$_/compressed/";
-    chomp $actual;
+    my_chomp();
     ok ($actual eq "index.html.$_.gz");
 
     $actual = GET_BODY "/modules/negotiation/$_/two/index";
-    chomp $actual;
+    my_chomp();
     ok ($actual eq "index.$_.html");
 
     foreach my $ext (@language) {
@@ -69,17 +75,17 @@ foreach (@language) {
         ## the Accept-Language header is obeyed when present.
         $actual = GET_BODY "/modules/negotiation/$_/",
             'Accept-Language' => $ext;
-        chomp $actual;
+        my_chomp();
         ok ($actual eq "index.html.$ext");
 
         $actual = GET_BODY "/modules/negotiation/$_/compressed/",
             'Accept-Language' => $ext;
-        chomp $actual;
+        my_chomp();
         ok ($actual eq "index.html.$ext.gz");
 
         $actual = GET_BODY "/modules/negotiation/$_/two/index",
             'Accept-Language' => $ext;
-        chomp $actual;
+        my_chomp();
         ok ($actual eq "index.$ext.html");
 
     }
@@ -91,32 +97,32 @@ foreach (@language) {
 ## we expect Apache to return the 'fu' content.
 $actual = GET_BODY "/modules/negotiation/$en/",
     'Accept-Language' => "$en; q=0.1, $fr; q=0.4, $fu; q=0.9, $de; q=0.2";
-chomp $actual;
+my_chomp();
 ok ($actual eq "index.html.$fu");
 
 $actual = GET_BODY "/modules/negotiation/$en/two/index",
     'Accept-Language' => "$en; q=0.1, $fr; q=0.4, $fu; q=0.9, $de; q=0.2";
-chomp $actual;
+my_chomp();
 ok ($actual eq "index.$fu.html");
 
 $actual = GET_BODY "/modules/negotiation/$en/compressed/",
     'Accept-Language' => "$en; q=0.1, $fr; q=0.4, $fu; q=0.9, $de; q=0.2";
-chomp $actual;
+my_chomp();
 ok ($actual eq "index.html.$fu.gz");
 
 ## 'bu' has the highest quality rating, but is non-existant,
 ## so we expect the next highest rated 'fr' content to be returned.
 $actual = GET_BODY "/modules/negotiation/$en/",
     'Accept-Language' => "$en; q=0.1, $fr; q=0.4, $bu; q=1.0";
-chomp $actual;
+my_chomp();
 ok ($actual eq "index.html.$fr");
 
 $actual = GET_BODY "/modules/negotiation/$en/two/index",
     'Accept-Language' => "$en; q=0.1, $fr; q=0.4, $bu; q=1.0";
-chomp $actual;
+my_chomp();
 ok ($actual eq "index.$fr.html");
 
 $actual = GET_BODY "/modules/negotiation/$en/compressed/",
     'Accept-Language' => "$en; q=0.1, $fr; q=0.4, $bu; q=1.0";
-chomp $actual;
+my_chomp();
 ok ($actual eq "index.html.$fr.gz");
