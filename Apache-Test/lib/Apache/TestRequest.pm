@@ -815,6 +815,9 @@ before issuing the requests.
 C<Apache::TestRequest> exports a number of functions that will likely
 prove convenient for use in the majority of your request tests.
 
+
+
+
 =head2 Optional Parameters
 
 Each function also takes a number of optional arguments.
@@ -1087,6 +1090,70 @@ C<GET>, C<HEAD> and C<POST>. This function thus can be useful for
 testing what options the Apache server supports. Consult the HTTPD 1.1
 specification, section 9.2, at
 I<http://www.faqs.org/rfcs/rfc2616.html> for more information.
+
+
+
+
+
+=head2 URL Manipulation Functions
+
+C<Apache::TestRequest> also includes a few helper functions to aid in
+the creation of urls used in the functions above.
+
+
+
+=head3 C<module2path>
+
+  $path = module2path($module_name);
+
+Convert a module name to a path, safe for use in the various request
+methods above. e.g. C<::> can't be used in URLs on win32. For example:
+
+  $path = module2path('Foo::Bar');
+
+returns:
+
+  /Foo__Bar
+
+
+
+
+=head3 C<module2url>
+
+  $url = Apache::TestRequest::module2url($module);
+  $url = Apache::TestRequest::module2url($module, %options);
+
+Convert a module name to a full URL including the current
+configurations C<hostname:port> and sets C<module> accordingly.
+
+  $url = Apache::TestRequest::module2url('Foo::Bar');
+
+returns:
+
+  http://$hostname:$port/Foo__Bar
+
+The default scheme used is C<http>. You can override this by passing
+your preferred scheme into an optional second param. For example:
+
+  $module = 'MyTestModule::TestHandler';
+  $url = Apache::TestRequest::module2uri($module, {scheme => 'https'});
+
+returns:
+
+  https://$hostname:$port/MyTestModule__TestHandler
+
+You may also override the default path with a path of your own:
+
+  $module = 'MyTestModule::TestHandler';
+  $url = Apache::TestRequest::module2uri($module, {path => '/foo'});
+
+returns:
+
+  http://$hostname:$port/foo
+
+
+
+
 
 =head1 ENVIRONMENT VARIABLES
 
