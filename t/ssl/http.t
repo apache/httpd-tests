@@ -20,14 +20,10 @@ if (Apache::TestConfig::WIN32) {
 plan tests => 1, @todo;
 
 my $config = Apache::Test::config();
-my $vars = Apache::Test::vars();
-local $vars->{port} = $config->port('mod_ssl');
-local $vars->{scheme} = 'http';
+my $hostport = $config->{vhosts}->{mod_ssl}->{hostport};
+my $rurl = "http://$hostport$url";
 
-my $rurl = Apache::TestRequest::resolve_url($url);
-print "GET $rurl\n";
-
-my $res = GET($url);
+my $res = GET($rurl);
 ok t_cmp(400,
          $res->code,
          "Expected bad request from 'GET $rurl'");
