@@ -13,7 +13,8 @@ use vars qw(@ISA @EXPORT $VERSION %SubTests @SkipReasons);
 @ISA = qw(Exporter);
 @EXPORT = qw(ok skip sok plan have have_lwp have_http11
              have_cgi have_access have_auth have_module have_apache
-             have_perl have_threads under_construction);
+             have_min_apache_version have_perl have_threads 
+             under_construction);
 $VERSION = '1.0';
 
 %SubTests = ();
@@ -221,6 +222,22 @@ sub have_apache {
         push @SkipReasons,
           "apache version $version required, this is version $rev";
         return 0;
+    }
+}
+
+sub have_min_apache_version {
+    my $wanted = shift;
+    my $cfg = Apache::Test::config();
+    (my $current) = $cfg->{server}->{version} =~ m:^Apache/(\d\.\d+\.\d+):;
+
+    if ($current lt $wanted) {
+        push @SkipReasons,
+          "apache version $wanted or higher is required," .
+          " this is version $current";
+        return 0;
+    }
+    else {
+        return 1;
     }
 }
 
@@ -455,11 +472,21 @@ Requires mod_cgi or mod_cgid to be installed.
 
   plan tests => 5, have_apache 2;
 
-Requires httpd-2.x (apache-2.x).
+Requires Apache 2nd generation httpd-2.x.xx
 
   plan tests => 5, have_apache 1;
 
-Requires apache-1.3.x.
+Requires Apache 1st generation (apache-1.3.xx)
+
+See also C<have_min_apache_version()>.
+
+=item have_min_apache_version
+
+Used to require a minimum version of Apache.
+
+  plan tests => 5, have_min_apache_version("2.0.40");
+
+Requires Apache 2.0.40 or higher.
 
 =item have_perl
 
