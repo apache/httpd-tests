@@ -9,7 +9,7 @@ use File::Find qw(finddepth);
 use Apache::TestTrace;
 use Config;
 
-my %libmodperl  = (1 => 'libperl.so', 2 => 'libmodperl.so');
+my %libmodperl  = (1 => 'libperl.so', 2 => 'mod_perl.so');
 
 sub configure_libmodperl {
     my $self = shift;
