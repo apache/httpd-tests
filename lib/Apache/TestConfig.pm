@@ -20,6 +20,7 @@ use warnings FATAL => 'all';
 use constant WIN32   => $^O eq 'MSWin32';
 use constant CYGWIN  => $^O eq 'cygwin';
 use constant NETWARE => $^O eq 'NetWare';
+use constant SOLARIS => $^O eq 'solaris';
 use constant WINFU   => WIN32 || CYGWIN || NETWARE;
 use constant COLOR   => ($ENV{APACHE_TEST_COLOR} && -t STDOUT) ? 1 : 0;
 
