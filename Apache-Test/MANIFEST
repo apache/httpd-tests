@@ -9,6 +9,7 @@ lib/Apache/TestRunPerl.pm
 lib/Apache/TestServer.pm
 lib/Apache/TestHandler.pm
 lib/Apache/TestMM.pm
+lib/Apache/TestTrace.pm
 t/TEST
 t/ping.t
 t/request.t
