@@ -425,6 +425,7 @@ sub start {
         $SIG{CHLD} = sub {
             while ((my $child = waitpid(-1, POSIX::WNOHANG())) > 0) {
                 my $status  = $? >> 8;
+                #error "got child exit $status";
                 if ($status) {
                     $self->failed_msg("\nserver has died with status $status");
                     kill SIGTERM => $$;
