@@ -65,7 +65,7 @@ if (have_module('mod_proxy')) {
     skip "Skipping rewrite to proxy; no proxy module.";
 }
 
-if (have_module('mod_proxy') && have_module('mod_cgi')) {
+if (have_module('mod_proxy') && have_cgi) {
     # regression in 1.3.32, see PR 14518
     $r = GET_BODY("/modules/rewrite/proxy2/env.pl?fish=fowl");
     chomp $r;
