@@ -520,7 +520,10 @@ sub wait_till_is_up {
 
     my $server_up = sub {
         local $SIG{__WARN__} = sub {}; #avoid "cannot connect ..." warnings
-        Apache::TestRequest::GET_OK('/index.html');
+        if (my $r = Apache::TestRequest::GET('/index.html')) {
+            return $r->code;
+        }
+        0;
     };
 
     if ($server_up->()) {
