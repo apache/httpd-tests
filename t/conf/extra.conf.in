@@ -390,3 +390,19 @@ LimitRequestFields    32
         </VirtualHost>
     </IfModule>
 </IfModule>
+
+##
+## mod_deflate test config
+## 
+<IfDefine APACHE2>
+    <IfModule mod_deflate.c>
+        <Directory @SERVERROOT@/htdocs/modules/deflate>
+            SetOutputFilter DEFLATE
+        </Directory> 
+
+        <Location /modules/deflate/echo_post>
+            SetInputFilter DEFLATE
+            SetHandler echo_post
+        </Location>
+    </IfModule>
+</IfDefine>
