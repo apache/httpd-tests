@@ -116,6 +116,8 @@ sub resolve_url {
     local $vars->{scheme} =
       $Apache::TestRequest::Scheme || $vars->{scheme} || 'http';
 
+    scheme_fixup($vars->{scheme});
+
     my $hostport = hostport();
 
     return "$vars->{scheme}://$hostport$url";
@@ -571,14 +573,26 @@ sub install_net_socket_new {
     };
 }
 
-eval {
-    install_net_socket_new('Net::NNTP' => sub {
-        my $args = shift;
-        my($host, $port) = split ':',
-          Apache::TestRequest::hostport();
-        $args->{PeerPort} = $port;
-        $args->{PeerAddr} = $host;
-    });
-};
+my %scheme_fixups = (
+    'news' => sub {
+        return if $INC{'Net/NNTP.pm'};
+        eval {
+            install_net_socket_new('Net::NNTP' => sub {
+                my $args = shift;
+                my($host, $port) = split ':',
+                  Apache::TestRequest::hostport();
+                $args->{PeerPort} = $port;
+                $args->{PeerAddr} = $host;
+            });
+        };
+    },
+);
+
+sub scheme_fixup {
+    my $scheme = shift;
+    my $fixup = $scheme_fixups{$scheme};
+    return unless defined &$fixup;
+    $fixup->();
+}
 
 1;
