@@ -9,8 +9,8 @@ Apache::TestRequest::user_agent(keep_alive => 1);
 Apache::TestRequest::scheme('http')
   unless have_module 'LWP::Protocol::https10'; #lwp 5.60
 
-#chunked encoding is optional and will only be used if
-#response is > 4*AP_MIN_BYTES_TO_WRITE (see server/protocol.c)
+#In httpd-2.0, chunked encoding is optional and will only be used
+#if response is > 4*AP_MIN_BYTES_TO_WRITE (see server/protocol.c)
 
 my @small_sizes = (100, 5000);
 my @chunk_sizes = (25432, 75962, 100_000, 300_000);
@@ -22,7 +22,8 @@ plan tests => $tests, have_module 'random_chunk';
 my $location = '/random_chunk';
 my $requests = 0;
 
-for my $size (@chunk_sizes) {
+sub expect_chunked {
+    my $size = shift;
     sok sub {
         my $res = GET "/random_chunk?0,$size";
         my $body = $res->content;
@@ -47,7 +48,8 @@ for my $size (@chunk_sizes) {
     }, 5;
 }
 
-for my $size (@small_sizes) {
+sub expect_not_chunked {
+    my $size = shift;
     sok sub {
         my $res = GET "/random_chunk?0,$size";
         my $body = $res->content;
@@ -75,3 +77,15 @@ for my $size (@small_sizes) {
     }, 5;
 }
 
+for my $size (@chunk_sizes) {
+    expect_chunked $size;
+}
+
+for my $size (@small_sizes) {
+    if (have_apache 1) {
+        expect_chunked $size;
+    }
+    else {
+        expect_not_chunked $size;
+    }
+}

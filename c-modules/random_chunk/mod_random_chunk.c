@@ -1,5 +1,3 @@
-#define HTTPD_TEST_REQUIRE_APACHE 2
-
 #if CONFIG_FOR_HTTPD_TEST
 
 <Location /random_chunk>
@@ -126,6 +124,9 @@ static int random_chunk_handler(request_rec *r)
 
     r->content_type = "text/html";              
 
+#ifdef APACHE1
+    ap_send_http_header(r);
+#endif
     if (r->header_only) {
         return OK;
     }
