@@ -8,7 +8,8 @@ Changes - Apache::Test change logfile
 
 =item 1.03-dev - 
 
-Apache::TestClient now handles correctly responses with no body [Stas]
+Apache::TestClient now handles correctly responses with no body and
+its response header() method is no longer case-sensitive [Stas]
 
 add skip helper shortcuts: have_min_perl_version,
 have_min_module_version [Stas]
