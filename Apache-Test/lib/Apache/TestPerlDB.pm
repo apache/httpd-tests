@@ -5,7 +5,7 @@ use strict;
 sub lwpd {
     my $val = $_[0] || 1;
     if ($val =~ /^\d+$/) {
-        $Apache::TestRequest::DebugLWP;
+        $Apache::TestRequest::DebugLWP = $val;
         print "\$Apache::TestRequest::DebugLWP = $val\n";
     }
     else {
