@@ -109,11 +109,11 @@ my @patterns = (
 
 #
 # in addition to $tests, there are 1 fsize/flastmod test, 1 GET test,
-# 11 XBitHack tests, 2 exec cgi tests, 2 malformed-ssi-directive tests,
+# 13 XBitHack tests, 2 exec cgi tests, 2 malformed-ssi-directive tests,
 # and 14 tests that use mod_bucketeer to construct brigades for mod_include
 #
 my $tests = scalar(keys %test) + scalar(keys %t_test) + @patterns + 2;
-plan tests => $tests + 31, todo => [scalar(keys %test) + 4],
+plan tests => $tests + 33, todo => [scalar(keys %test) + 4],
               have_module 'include';
 
 Apache::TestRequest::scheme('http'); #ssl not listening on this vhost
@@ -227,7 +227,7 @@ foreach $doc (sort keys %execcgitest) {
 }
 
 if (WINFU) {
-    for (1..11) {
+    for (1..13) {
         skip "Skipping XBitHack tests on this platform", 1;
     }
 }
@@ -280,6 +280,11 @@ else {
              "XBitHack full [0554]"
             );
 
+    ok t_cmp("No ETag ; ",
+             check_xbithack_etag(GET("$dir$doc", 'If-Modified-Since' => $lm)),
+             "XBitHack full [0554] / ETag"
+            );
+
     ok t_cmp(304, GET("$dir$doc", 'If-Modified-Since' => $lm)->code,
              "XBitHack full [0554] / If-Modified-Since"
             );
@@ -287,6 +292,11 @@ else {
     chmod 0544, "htdocs/$dir$doc";
     ok t_cmp(200, GET("$dir$doc", 'If-Modified-Since' => $lm)->code,
              "XBitHack full [0544] / If-Modified-Since"
+            );
+
+    ok t_cmp("No ETag ; <BODY> inc-two.shtml body  </BODY>",
+             check_xbithack_etag(GET("$dir$doc", 'If-Modified-Since' => $lm)),
+             "XBitHack full [0544] / ETag"
             );
 }
 
@@ -459,4 +469,16 @@ sub check_xbithack {
     $$data = $resp->header('Last-Modified') if $data;
 
     "$lastmod ; $body";
+}
+
+sub check_xbithack_etag {
+    my ($resp) = shift;
+    my ($body) = super_chomp($resp->content);
+    my ($etag) = ($resp->header('ETag'))
+                   ? "Has ETag" : "No ETag";
+
+    my $data = shift;
+    $$data = $etag if $data;
+
+    "$etag ; $body";
 }
