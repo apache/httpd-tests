@@ -14,5 +14,7 @@ sub build_config_as_string {
     ModPerl::Config::as_string();
 }
 
+sub report_to { 'modperl-dev@perl.apache.org' }
+
 1;
 __END__
