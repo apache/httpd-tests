@@ -78,13 +78,13 @@ else {
 sub c_trace {
     my $level = shift;
     print $LogFH 
-        map { "$colors{$level}$_$colors{reset}\n"} expand(@_);
+        map { "$colors{$level}$_$colors{reset}\n"} grep $_, expand(@_);
 }
 
 sub nc_trace {
     my $level = shift;
     print $LogFH 
-        map { sprintf "%-3s %s\n", $colors{$level}, $_ } expand(@_);
+        map { sprintf "%-3s %s\n", $colors{$level}, $_ } grep $_, expand(@_);
 }
 
 {
