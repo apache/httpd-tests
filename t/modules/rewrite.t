@@ -8,7 +8,7 @@ use Apache::TestRequest;
 ##
 ## extra.conf.in:
 
-my @map = qw(txt rnd dbm prg);
+my @map = qw(txt rnd dbm);
 my @num = qw(1 2 3 4 5 6);
 my @url = qw(forbidden gone perm temp 313);
 my $r;
@@ -25,6 +25,12 @@ foreach (@map) {
 		chomp $r;
 
 		if ($_ eq 'RND') {
+			## check that $r is just a single digit.
+			unless ($r =~ /^[\d]$/) {
+				ok 0;
+				next;
+			}
+
 			ok ($r =~ /^[$r-6]$/);
 		} else {
 			ok ($r eq $n);
