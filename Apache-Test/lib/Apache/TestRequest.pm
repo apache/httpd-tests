@@ -114,6 +114,9 @@ sub prepare {
         if ($content eq '-') {
             $content = join '', <STDIN>;
         }
+        elsif ($content =~ /^x(\d+)$/) {
+            $content = 'a' x $1;
+        }
         push @$pass, content => $content;
     }
     if (exists $keep->{redirect_ok}) {
