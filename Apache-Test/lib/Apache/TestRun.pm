@@ -6,6 +6,7 @@ use warnings FATAL => 'all';
 use Apache::TestConfig ();
 use Apache::TestRequest ();
 use Apache::TestHarness ();
+use Apache::TestTrace;
 
 use File::Spec::Functions qw(catfile);
 use Getopt::Long qw(GetOptions);
@@ -179,10 +180,10 @@ sub install_sighandlers {
 
     $SIG{INT} = sub {
         if ($caught_sig_int++) {
-            print "\ncaught SIGINT\n";
+            warning "\ncaught SIGINT\n";
             exit;
         }
-        print "\nhalting tests\n";
+        notice "\nhalting tests\n";
         $server->stop if $opts->{'start-httpd'};
         exit;
     };
@@ -232,10 +233,10 @@ sub start {
     my $test_config = $self->{test_config};
 
     unless ($test_config->{vars}->{httpd}) {
-        print "no test server configured, please specify an httpd or ";
-        print $test_config->{MP_APXS} ?
-          "an apxs other than $test_config->{MP_APXS}" : "apxs";
-        print "\nor put either in your PATH\n";
+        error "no test server configured, please specify an httpd or ",
+              ($test_config->{MP_APXS} ?
+               "an apxs other than $test_config->{MP_APXS}" : "apxs"),
+               "or put either in your PATH";
         exit 1;
     }
 
@@ -243,7 +244,7 @@ sub start {
         exit 1 unless $self->{server}->start;
     } elsif ($self->{opts}->{'run-tests'} and !$self->{server}->ping) {
         # make sure that the server is up when -run-tests is used
-        print "the test server wasn't not running: starting it...\n";
+        warning "the test server wasn't not running: starting it...";
         exit 1 unless $self->{server}->start;
     }
 }
@@ -345,17 +346,17 @@ sub opt_ping {
 
     if ($pid) {
         if ($pid == -1) {
-            print "port $test_config->{vars}->{port} is in use, ",
-                  "but cannot determine server pid\n";
+            error "port $test_config->{vars}->{port} is in use, ".
+                  "but cannot determine server pid";
         }
         else {
             my $version = $server->{version};
-            print "server $name running (pid=$pid, version=$version)\n";
+            notice "server $name running (pid=$pid, version=$version)\n";
         }
         return;
     }
 
-    print "no server is running on $name\n";
+    warning "no server is running on $name\n";
 }
 
 sub opt_debug {
