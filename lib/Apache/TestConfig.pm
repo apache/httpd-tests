@@ -198,15 +198,31 @@ sub new {
     $self->inherit_config; #see TestConfigParse.pm
     $self->configure_httpd_eapi; #must come after inherit_config
 
-    ($self->{vars}->{mod_cgi}) = grep {
-        $self->{modules}->{$_};
-    } qw(mod_cgi.c mod_cgid.c);
+    $self->default_module(cgi    => [qw(mod_cgi mod_cgid)]);
+    $self->default_module(thread => [qw(worker threaded)]);
+
+    if ($self->{vars}->{thread_module} eq 'worker.c') {
+        #XXX: not sure why
+        $vars->{maxclients}++;
+    }
 
     $self->{hostport} = $self->hostport;
 
     $self->{server} = $self->new_test_server;
 
     $self;
+}
+
+sub default_module {
+    my($self, $name, $choices) = @_;
+
+    $name .= '_module';
+
+    ($self->{vars}->{$name}) = grep {
+        $self->{modules}->{$_};
+    } map "$_.c", @$choices;
+
+    $self->{vars}->{$name} ||= 0;
 }
 
 sub configure_apxs {
@@ -894,7 +910,7 @@ HostnameLookups Off
     AllowOverride None
 </Directory>
 
-<IfModule threaded.c>
+<IfModule @THREAD_MODULE@>
     StartServers         1
     MaxClients           @MaxClients@
     MinSpareThreads      @MaxClients@
