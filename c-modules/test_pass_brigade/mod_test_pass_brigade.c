@@ -14,15 +14,17 @@
 
 #include "apr_buckets.h"
 
+#define WANT_HTTPD_TEST_SPLIT_QS_NUMBERS
+#include "httpd_test_util.c"
+
 /*
  * mainly for testing / researching core_output_filter buffering
  */
 
 static int test_pass_brigade_handler(request_rec *r)
 {
-    const char *args = r->args;
     long total=0, remaining=1;
-    char *buff, *endptr;
+    char *buff;
     int buff_size = 8192;
 
     if (strcmp(r->handler, "test_pass_brigade")) {
@@ -32,14 +34,7 @@ static int test_pass_brigade_handler(request_rec *r)
         return DECLINED;
     }
 
-    if (args) {
-        buff_size = strtol(args, &endptr, 0);
-
-        if (endptr && *endptr == ',') {
-            ++endptr;
-            remaining = strtol(endptr, &endptr, 0);
-        }
-    }
+    httpd_test_split_qs_numbers(r, &buff_size, &remaining, NULL);
 
     fprintf(stderr, "[mod_test_pass_brigade] "
             "going to echo %ld bytes with buffer size=%d\n",
