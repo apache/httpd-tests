@@ -380,8 +380,43 @@ sub new_test_config {
     Apache::TestConfig->new($self->{conf_opts});
 }
 
+sub set_ulimit_via_sh {
+    return if $ENV{APACHE_TEST_ULIMIT_SET};
+    my $binsh = '/bin/sh';
+    return unless -e $binsh;
+    $ENV{APACHE_TEST_ULIMIT_SET} = 1;
+
+    open my $sh, "echo ulimit -a | $binsh|" or die;
+    local $_;
+    while (<$sh>) {
+        if (/^core file size.*unlimited$/) {
+            #already set to unlimited
+            $ENV{APACHE_TEST_ULIMIT_SET} = 1;
+            return;
+        }
+    }
+    close $sh;
+
+    open $sh, "|$binsh" or die;
+    my @cmd = ("ulimit -c unlimited\n",
+               "exec $0 @ARGV");
+    warning "setting ulimit to allow core files\n@cmd";
+    print $sh @cmd;
+    close $sh;
+    exit; #exec above will take over
+}
+
+sub set_ulimit {
+    my $self = shift;
+    #return if $self->set_ulimit_via_bsd_resource;
+    eval { $self->set_ulimit_via_sh };
+}
+
 sub run {
     my $self = shift;
+
+    $self->set_ulimit;
+
     my(@argv) = @_;
 
     Apache::TestHarness->chdir_t;
