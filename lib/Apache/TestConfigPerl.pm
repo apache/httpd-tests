@@ -75,8 +75,6 @@ EOF
 }
 
 
-my %startup_pl = (1 => 'PerlRequire', 2 => 'PerlSwitches');
-
 sub startup_pl_code {
     my $self = shift;
     my $serverroot = $self->{vars}->{serverroot};
@@ -120,8 +118,7 @@ sub configure_startup_pl {
         close $fh;
     }
 
-    my $directive = $self->server->version_of(\%startup_pl);
-    $self->postamble($directive => $startup_pl);
+    $self->postamble(PerlRequire => $startup_pl);
 }
 
 my %sethandler_modperl = (1 => 'perl-script', 2 => 'modperl');
