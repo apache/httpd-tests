@@ -800,10 +800,19 @@ sub check_perms {
     my $vars = $self->{test_config}->{vars};
     my $dir  = $vars->{t_dir};
     my $perl = $vars->{perl};
-    my $check = qq[su -m $user -c '$perl -e ] .
-        qq["print -r q{$dir} &&  -w _ && -x _ ? q{OK} : q{NOK}"'];
+
+    my $check = <<"EOC";
+$perl -e '
+    require POSIX;
+    POSIX::setuid($uid);
+    POSIX::setgid($gid);
+    print -r q{$dir} &&  -w _ && -x _ ? q{OK} : q{NOK};
+'
+EOC
+    $check =~ s/\n/ /g;
     warning "$check\n";
-    my $res   = qx[$check] || '';
+
+    my $res = qx[$check] || '';
     warning "result: $res";
     unless ($res eq 'OK') {
         #$self->restore_t_perms;
@@ -811,16 +820,19 @@ sub check_perms {
 You are running the test suite under user 'root'.
 Apache cannot spawn child processes as 'root', therefore
 we attempt to run the test suite with user '$user' ($uid:$gid).
-The problem is that the path:
+The problem is that the path (including all parent directories):
   $dir
 must be 'rwx' by user '$user', so Apache can read and write under that
 path.
 
-There several ways to resolve this issue. For example move 
-'$dir' to '/tmp/' and repeat the 'make test' phase. 
+There are several ways to resolve this issue. One is to move '$dir' to
+'/tmp/' and repeat the 'make test' phase. The other is not to run
+'make test' as root.
 
-You can test whether the location is good by running the following test:
+You can test whether some directory is suitable for 'make test' under
+'root', by running the following test:
   % $check
+from that directory.
 EOI
     }
 }

@@ -8,6 +8,11 @@ Changes - Apache::Test change logfile
 
 =item 1.06-dev
 
+sudo and su -u aren't portable, therefore use a simple setuid/setguid
+perl program instead, to check whether the root directory of the test
+suite is rwx by the user/group apache is going to run under (when
+running 'make test' as root). [Stas]
+
 =item 1.05 - October 23, 2003
 
 core scanning changes [Stas]
