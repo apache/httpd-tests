@@ -48,7 +48,19 @@ WriteMakefile(
     dist      => {
         COMPRESS => 'gzip -9f', SUFFIX=>'gz',
     },
+    clean     => {
+        FILES => "@{ clean_files() }",
+    },
 );
+
+sub clean_files {
+    return [
+            qw(lib/Apache/TestConfigData.pm
+               .mypacklist
+               t/TEST
+              ),
+           ];
+}
 
 sub set_version {
     $VERSION = $Apache::Test::VERSION;
