@@ -105,15 +105,8 @@ sub write_pm_test {
     my $path = Apache::TestRequest::module2path($module);
 
     print $fh <<EOF;
-use Apache::TestRequest 'GET';
-my \$res = GET "/$path";
-if (\$res->is_success) {
-    print \$res->content;
-}
-else {
-    die "server side has failed (response code: ", \$res->code, "),\\n",
-        "see t/logs/error_log for more details\\n";
-}
+use Apache::TestRequest 'GET_BODY_ASSERT';
+print GET_BODY_ASSERT "/$path";
 EOF
 
     close $fh or die "close $t: $!";
