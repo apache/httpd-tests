@@ -137,7 +137,8 @@ sub getopts {
     #force regeneration of httpd.conf if commandline args want to modify it
     $self->{reconfigure} = $opts{configure} ||
       (grep { $opts{$_}->[0] } qw(preamble postamble)) ||
-        @ARGV || $self->passenv() || (! -e 'conf/httpd.conf');
+        (grep { $Apache::TestConfig::Usage{$_} } @ARGV) ||
+          $self->passenv() || (! -e 'conf/httpd.conf');
 
     while (my($key, $val) = splice @ARGV, 0, 2) {
        $conf_opts{lc $key} = $val;
