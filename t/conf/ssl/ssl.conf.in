@@ -38,7 +38,7 @@
 
     #SSLCertificateChainFile @SSLCA@/asf/certs/cachain.crt
 
-    SSLCACertificateFile @SSLCA@/asf/certs/cacert.crt
+    SSLCACertificateFile @SSLCA@/asf/certs/ca.crt
 
     SSLCARevocationFile @SSLCA@/asf/crl/ca-bundle.crl
 

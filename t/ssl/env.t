@@ -8,7 +8,7 @@ use Apache::TestSSLCA ();
 my $cert = 'client_snakeoil';
 
 my $server_expect =
-  Apache::TestSSLCA::dn_vars('cacert', 'SERVER_I');
+  Apache::TestSSLCA::dn_vars('ca', 'SERVER_I');
 
 my $client_expect =
   Apache::TestSSLCA::dn_vars($cert, 'CLIENT_S');

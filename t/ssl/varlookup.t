@@ -26,7 +26,7 @@ my %client_dn = dn('client_ok');
 
 my $client_dn = dn_oneline(\%client_dn);
 
-my %client_i_dn = dn('cacert');
+my %client_i_dn = dn('ca');
 
 my $client_i_dn = dn_oneline(\%client_i_dn);
 
