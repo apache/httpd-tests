@@ -47,7 +47,7 @@ Instructions for Apache-Test Release Manager
 5. Announce the package
 
   a. post ... to the modperl, announce lists
-  Subject: [ANNOUNCE] Apache-Test 1.21
+  Subject: [ANNOUNCE] Apache-Test 1.20
      include 
   - MD5 sig (as it comes from CPAN upload announce).
   - the latest Changes
@@ -65,7 +65,7 @@ Instructions for Apache-Test Release Manager
      next release.
 
    perl -pi -e 's/\.21/.22/g' RELEASE
-   perl -pi -e 's/\.21/.21/g' RELEASE
+   perl -pi -e 's/\.20/.21/g' RELEASE
 
      now reload this file and bump up the last number of the first
      command.
