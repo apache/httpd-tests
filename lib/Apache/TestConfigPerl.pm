@@ -148,15 +148,21 @@ sub set_handler {
         $self->server->version_of(\%sethandler_modperl);
 }
 
+sub set_connection_handler {
+    my($self, $module, $args) = @_;
+    my $port = $self->new_vhost($module);
+    $self->postamble(Listen => $port);
+}
+
 my %add_hook_config = (
-    Response => \&set_handler,
-    ProcessConnection => sub { my($self, $module, $args) = @_;
-                               my $port = $self->new_vhost($module);
-                               $self->postamble(Listen => $port); },
+    Response          => \&set_handler,
+    ProcessConnection => \&set_connection_handler,
+    PreConnection     => \&set_connection_handler,
 );
 
 my %container_config = (
     ProcessConnection => \&vhost_container,
+    PreConnection     => \&vhost_container,
 );
 
 sub location_container {
@@ -279,7 +285,7 @@ my %hooks = map { $_, ucfirst $_ }
 $hooks{Protocol} = 'ProcessConnection';
 $hooks{Filter}   = 'OutputFilter';
 
-my @extra_subdirs = qw(Response Protocol Hooks Filter);
+my @extra_subdirs = qw(Response Protocol PreConnection Hooks Filter);
 
 # add the subdirs to @INC early, in case mod_perl is started earlier
 sub configure_pm_tests_inc {
