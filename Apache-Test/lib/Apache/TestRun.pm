@@ -614,7 +614,7 @@ sub scan_core {
     finddepth(sub {
         return unless -f $_;
         return unless /$core_pat/o;
-        my $core = "$File::Find::dir/$_";
+        my $core = $File::Find::name;
         if (exists $core_files{$core} && $core_files{$core} == -M $core) {
             # we have seen this core file before the start of the test
             info "an old core file has been found: $core";
