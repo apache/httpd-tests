@@ -433,6 +433,7 @@ sub start {
                     if ($status) {
                         my $msg = "server has died with status $status";
                         $self->failed_msg("\n$msg");
+                        Apache::TestRun->new(test_config => $config)->scan_core;
                         kill SIGTERM => $$;
                     }
                 }
