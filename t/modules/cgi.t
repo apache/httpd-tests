@@ -198,6 +198,7 @@ if (-e $cgi_log) {
     ok 0;
 }
 
+print "checking that HEAD $path/perl.pl returns 200.\n";
 ok HEAD_RC("$path/perl.pl") == 200;
 
 ## clean up
