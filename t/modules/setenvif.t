@@ -4,6 +4,8 @@ use warnings FATAL => 'all';
 use Apache::Test;
 use Apache::TestRequest;
 
+my $vars = Apache::Test::vars();
+
 ##
 ## mod_setenvif tests
 ##
@@ -13,12 +15,12 @@ my %var_att =
     (
         'Remote_Host' =>
             {
-                'pass' => '127.0.0.1',
+                'pass' => $vars->{remote_addr},
                 'fail' => 'some.where.else.com'
             },
         'Remote_Addr' =>
             {
-                'pass' => '127.0.0.1',
+                'pass' => $vars->{remote_addr},
                 'fail' => '63.125.18.195'
             },
         'Request_Method' =>
