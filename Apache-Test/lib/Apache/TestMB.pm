@@ -182,7 +182,8 @@ Here's how to use C<Apache::TestMB> in a F<Build.PL> script:
 
   my $build = $build_pkg->new(
       module_name => 'My::Module',
-  )->create_build_script;
+  );
+  $build->create_build_script;
 
 This is identical to how C<Module::Build> is used. Not all target
 systems may have C<Apache::Test> (and therefore C<Apache::TestMB>
