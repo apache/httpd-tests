@@ -148,7 +148,7 @@ unless ($have_apache_20) {
     # $test{"errmsg5.shtml"} = delete $todo{"errmsg5.shtml"};
 }
 
-if ($have_apache_20) {
+unless (have_min_apache_version "2.0.53") {
     # this test doesn't work in 2.0 yet but should work in 1.3 and 2.1
     delete $test{"ranged-virtual.shtml"};
 }
