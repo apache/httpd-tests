@@ -11,6 +11,4 @@ package MyTest;
 
 our @ISA = qw(Apache::TestRun);
 
-sub configure_modperl {} #dont configure mod_perl for these tests
-
 MyTest->new->run(@ARGV);
