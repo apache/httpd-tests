@@ -63,6 +63,10 @@ s/die/CORE::die/ after exec() to avoid warnings (and therefore
 failures) when someone overrides CORE::die when using Apache-Test
 [William McKee, Stas]
 
+Overrode Module::Build's "testcover" action in Apache::TestMB to
+prevent the Apache::Test sticky preference files from being included
+in the coverage rport. [David]
+
 
 
 
