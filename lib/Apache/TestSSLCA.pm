@@ -108,7 +108,7 @@ sub openssl {
 
     my $cmd = "$openssl @_";
 
-    warning $cmd;
+    info $cmd;
 
     unless (system($cmd) == 0) {
         my $status = $? >> 8;

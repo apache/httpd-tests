@@ -940,7 +940,7 @@ sub generate_extra_conf {
         (my $generated = $file) =~ s/\.in$//;
         push @extra_conf, $generated;
 
-        notice "Including $generated config file";
+        debug "Including $generated config file";
 
         next if -e $generated
             && -M $generated < -M $file;
