@@ -112,6 +112,7 @@ sub prune {
     local $_;
 
     for (@tests) {
+        next if /\.#/; # skip temp emacs files
         my $dir = dirname $_;
         if (m:\Wall\.t$:) {
             unless ($self->run_t($_)) {
