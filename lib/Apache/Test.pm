@@ -8,7 +8,7 @@ use Exporter ();
 use Apache::TestConfig ();
 
 our @ISA = qw(Exporter);
-our @EXPORT = qw(ok skip plan have_lwp have_cgi test_module);
+our @EXPORT = qw(ok skip plan have_lwp have_http11 have_cgi test_module);
 our $VERSION = '0.01';
 
 #so Perl's Test.pm can be run inside mod_perl
@@ -44,6 +44,7 @@ sub plan {
             #on the server side
             require Apache::TestRequest;
             *have_lwp = \&Apache::TestRequest::has_lwp;
+            *have_http11 = \&Apache::TestRequest::install_http11;
         }
 
         my $meets_condition = 0;
