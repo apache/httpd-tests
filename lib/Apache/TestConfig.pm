@@ -814,14 +814,24 @@ sub httpd_conf_template {
 sub generate_extra_conf {
     my $self = shift;
 
-    my(@extra_conf, @conf_in);
+    my(@extra_conf, @conf_in, @conf_files);
 
     finddepth(sub {
         return unless /\.conf\.in$/;
         push @conf_in, catdir $File::Find::dir, $_;
     }, $self->{vars}->{t_conf});
 
+    #make ssl port always be 8530 when available
     for my $file (@conf_in) {
+        if (basename($file) =~ /^ssl/) {
+            unshift @conf_files, $file;
+        }
+        else {
+            push @conf_files, $file;
+        }
+    }
+
+    for my $file (@conf_files) {
         (my $generated = $file) =~ s/\.in$//;
         push @extra_conf, $generated;
 
