@@ -29,7 +29,8 @@ use vars qw(@ISA @EXPORT %EXPORT_TAGS $VERSION %SubTests @SkipReasons);
              have_cgi have_access have_auth have_module have_apache
              have_min_apache_version have_apache_version have_perl 
              have_min_perl_version have_min_module_version
-             have_threads under_construction skip_reason have_apache_mpm);
+             have_threads under_construction skip_reason have_apache_mpm
+             have_php);
 
 # everything but ok(), skip(), and plan() - Test::More provides these
 my @test_more_exports = grep { ! /^(ok|skip|plan)$/ } @EXPORT;
@@ -257,6 +258,10 @@ sub have_min_module_version {
 
 sub have_cgi {
     have_module('cgi') || have_module('cgid');
+}
+
+sub have_php {
+    have_module('php4') || have_module('php5');
 }
 
 sub have_access {
@@ -574,6 +579,12 @@ Require LWP support.
   plan tests => 5, &have_cgi;
 
 Requires mod_cgi or mod_cgid to be installed.
+
+=item have_php
+
+  plan tests => 5, have_php;
+
+Requires mod_php4 or mod_php5 to be installed.
 
 =item have_apache
 

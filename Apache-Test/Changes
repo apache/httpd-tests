@@ -8,6 +8,10 @@ Changes - Apache::Test change logfile
 
 =item 1.13-dev
 
+add have_php() which will return true when either mod_php4 or mod_php5
+is available, providing functionality similar to have_cgi().
+[Geoffrey Young]
+
 Add APACHE_TEST_EXTRA_ARGS make variable to all invocations to t/TEST
 to allow passing extra arguments from the command line. [Gozer]
 
