@@ -313,13 +313,6 @@ sub new {
     $vars->{proxyssl_url} ||= '';
     $vars->{defines}      ||= '';
 
-    $self->default_module(cgi    => [qw(mod_cgi mod_cgid)]);
-    $self->default_module(thread => [qw(worker threaded)]);
-    $self->default_module(ssl    => [qw(mod_ssl)]);
-    $self->default_module(access => [qw(mod_access mod_authz_host)]);
-    $self->default_module(auth   => [qw(mod_auth mod_auth_basic)]);
-    $self->default_module(php    => [qw(mod_php4 mod_php5)]);
-
     $self->{hostport} = $self->hostport;
     $self->{server} = $self->new_test_server;
 
@@ -360,6 +353,13 @@ sub httpd_config {
 
     $self->inherit_config; #see TestConfigParse.pm
     $self->configure_httpd_eapi; #must come after inherit_config
+
+    $self->default_module(cgi    => [qw(mod_cgi mod_cgid)]);
+    $self->default_module(thread => [qw(worker threaded)]);
+    $self->default_module(ssl    => [qw(mod_ssl)]);
+    $self->default_module(access => [qw(mod_access mod_authz_host)]);
+    $self->default_module(auth   => [qw(mod_auth mod_auth_basic)]);
+    $self->default_module(php    => [qw(mod_php4 mod_php5)]);
 
     $self->{server}->post_config;
 
