@@ -68,6 +68,16 @@ use vars qw(%Usage);
    (map { $_ . '_module_name', "$_ module name"} qw(cgi ssl thread access auth)),
 );
 
+my %filepath_conf_opts = map { $_ => 1 }
+    qw(top_dir t_dir t_conf t_logs t_conf_file src_dir serverroot
+       documentroot bindir sbindir httpd apxs httpd_conf perlpod sslca
+       libmodperl);
+
+sub conf_opt_is_a_filepath {
+    my $opt = shift;
+    $opt && exists $filepath_conf_opts{$opt};
+}
+
 sub usage {
     for my $hash (\%Usage) {
         for (sort keys %$hash){
