@@ -36,7 +36,7 @@ my @test_more_exports = grep { ! /^(ok|skip|plan)$/ } @EXPORT;
 
 %EXPORT_TAGS = (withtestmore => \@test_more_exports);
 
-$VERSION = '1.10';
+$VERSION = '1.11';
 
 %SubTests = ();
 @SkipReasons = ();
