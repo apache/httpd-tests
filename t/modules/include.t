@@ -8,7 +8,7 @@ use Apache::TestUtil;
 use constant WINFU => Apache::TestConfig::WINFU;
 
 ## mod_include tests
-my ($doc);
+my($res, $str, $doc);
 my $dir = "/modules/include/";
 my $have_apache_2 = have_apache 2;
 my $vars = Apache::Test::vars();
@@ -57,7 +57,8 @@ my %test = (
     "inc-extra2.shtml body  inc-extra1.shtml body  abs-path.shtml body",
 "exec/off/cmd.shtml"    =>
     "[an error occurred while processing this directive]",
-"exec/on/cmd.shtml"     =>    "pass"
+"exec/on/cmd.shtml"     =>    "pass",
+"notreal.shtml"         =>    "pass <!--",
 );
 
 #this test does not work on win32 (<!--#exec cmd="echo pass"-->)
@@ -78,13 +79,32 @@ else {
     $test{"if10a.shtml"} = "pass";
 }
 
+my %t_test = ();
+if ($have_apache_2) {
+    %t_test =
+    (
+        "echo.shtml"      => ['<!--#echo var="DOCUMENT_NAME" -->', "retagged1"], 
+        "retagged1.shtml" => ["retagged1.shtml",                   "retagged1"],
+        "retagged2.shtml" => ["----retagged2.shtml",               "retagged1"],
+    );
+}
+
+my @patterns = (
+    'mod_include test',
+    'Hello World',
+    'footer',
+);
+
 #
 # in addition to $tests, there are 1 GET test, 9 XBitHack tests,
-# 2 exec cgi tests, 2 malformed-ssi-directive tests, and 11 tests
+# 2 exec cgi tests, 2 malformed-ssi-directive tests, and 14 tests
 # that use mod_bucketeer to construct brigades for mod_include
 #
-my $tests = keys %test;
-plan tests => $tests + 25, have_module 'include';
+my $tests = scalar(keys %test) + scalar(keys %t_test) + @patterns + 2;
+plan tests => $tests + 28, have_module 'include';
+
+Apache::TestRequest::scheme('http'); #ssl not listening on this vhost
+Apache::TestRequest::module('mod_include'); #use this module's port
 
 foreach $doc (sort keys %test) {
     ok t_cmp($test{$doc},
@@ -199,6 +219,28 @@ ok t_cmp("Has Last-modified date ; <BODY> inc-two.shtml body  </BODY>",
          "XBitHack full [0554]"
         );
 
+### test include + query string
+$res = GET "${dir}virtual.shtml";
+
+ok $res->is_success;
+
+$str = $res->content;
+
+ok $str;
+
+for my $pat (@patterns) {
+    ok t_cmp(qr{$pat}, $str, "/$pat/");
+}
+
+### Simple tests for SSI(Start|End)Tags that differ from default
+if ($have_apache_2) {
+    for (sort keys %t_test) {
+        ok t_cmp($t_test{$_}[0],
+                 super_chomp(GET_BODY "$dir$_", Host => $t_test{$_}[1]),
+                 "GET $dir$_"
+                );
+    }
+}
 
 ### MOD_BUCKETEER+MOD_INCLUDE TESTS
 # we can use mod_bucketeer to create edge conditions for mod_include, since
@@ -293,9 +335,32 @@ if (have_module 'mod_bucketeer') {
              super_chomp(GET_BODY "$dir$doc"),
              "GET $dir$doc"
             );
+
+    $expected= "\"pass\"";
+    $doc = "bucketeer/y10.shtml";
+    ok t_cmp($expected,
+             super_chomp(GET_BODY "$dir$doc"),
+             "GET $dir$doc"
+            );
+
+    ### exotic SSI(Start|End)Tags
+
+    $expected= "----retagged3.shtml";
+    $doc = "bucketeer/retagged3.shtml";
+    ok t_cmp($expected,
+             super_chomp(GET_BODY "$dir$doc", Host => 'retagged1'),
+             "GET $dir$doc"
+            );
+
+    $expected= "---pass";
+    $doc = "bucketeer/retagged4.shtml";
+    ok t_cmp($expected,
+             super_chomp(GET_BODY "$dir$doc", Host => 'retagged2'),
+             "GET $dir$doc"
+            );
 }
 else {
-    for (1..11) {
+    for (1..14) {
         skip "Skipping bucket boundary tests, no mod_bucketeer", 1;
     }
 }
