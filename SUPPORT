@@ -44,3 +44,14 @@ satisfied. It has nothing to do with Apache-Test itself, and needed
 for CPANPLUS to flush the STDERR and STDOUT streams at the right time,
 allowing you to skip the test suite if the conditions aren't suitable
 for its execution.
+
+*** Apache C modules bug reports ***
+
+It's now possible to easily create tarballs with self-contained bug
+reports for Apache modules in C. Geoff developed and maintains the 
+skeleton:
+
+   http://perl.apache.org/~geoff/bug-reporting-skeleton-apache.tar.gz
+
+So next time you want to send a reproducable bug report for some C module,
+grab that tarball, put your code in and submit it to the relevant list.
