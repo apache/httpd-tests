@@ -574,10 +574,10 @@ sub http_raw_get {
 sub error_log {
     my($self, $rel) = @_;
     my $file = catfile $self->{vars}->{t_logs}, 'error_log';
-    return $file unless $rel;
-    return abs2rel $file, $self->{vars}->{top_dir};
+    my $rfile = abs2rel $file, $self->{vars}->{top_dir};
+    return wantarray ? ($file, $rfile) :
+      $rel ? $rfile : $file;
 }
-
 
 #utils
 
