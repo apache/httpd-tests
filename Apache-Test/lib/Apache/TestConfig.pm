@@ -1614,7 +1614,10 @@ DocumentRoot "@DocumentRoot@"
 PidFile     @t_logs@/httpd.pid
 ErrorLog    @t_logs@/error_log
 LogLevel    debug
-TransferLog @t_logs@/access_log
+
+<IfModule mod_log_config.c>
+    TransferLog @t_logs@/access_log
+</IfModule>
 
 ServerAdmin @ServerAdmin@
 
