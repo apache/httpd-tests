@@ -157,6 +157,9 @@ sub have {
                 $have_all = 0;
             }
         }
+        elsif ($cond =~ /^(0|1)$/) {
+            $have_all = 0 if $cond == 0;
+        }
         else {
             $have_all = 0 unless have_module($cond);
         }
@@ -651,9 +654,17 @@ scalars, which are passed to have_module(), and hash references. If
 hash references are used, the keys, are strings, containing a reason
 for a failure to satisfy this particular entry, the valuees are the
 condition, which are satisfaction if they return true. If the value is
-a scalar it's used as is. If the value is a code reference, it gets
-executed at the time of check and its return value is used to check
-the condition. If the condition check fails, the provided (in a key)
+0 or 1, it used to decide whether the requirements very satisfied, so
+you can mix special C<have_*()> functions that return 0 or 1. For
+example:
+
+  plan tests => 1, have 'Compress::Zlib', 'deflate',
+      have_min_apache_version("2.0.49");
+
+If the scalar value is a string, different from 0 or 1, it's passed to
+I<have_module()>.  If the value is a code reference, it gets executed
+at the time of check and its return value is used to check the
+condition. If the condition check fails, the provided (in a key)
 reason is used to tell user why the test was skipped.
 
 In the presented example, we require the presense of the C<LWP> Perl
