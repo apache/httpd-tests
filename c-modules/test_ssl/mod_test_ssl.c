@@ -2,7 +2,7 @@
 
 #if CONFIG_FOR_HTTPD_TEST
 
-<IfModule mod_ssl.c>
+<IfModule @ssl_module@>
     <Location /test_ssl_var_lookup>
         SetHandler test-ssl-var-lookup
         SSLVerifyClient require
