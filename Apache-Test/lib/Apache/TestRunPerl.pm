@@ -21,6 +21,9 @@ use Apache::TestRun ();
 use Apache::TestConfigParse ();
 use Apache::TestTrace;
 
+use vars qw($VERSION);
+$VERSION = '1.00'; # make CPAN.pm's r() version scanner happy
+
 use File::Spec::Functions qw(catfile);
 
 #subclass of Apache::TestRun that configures mod_perlish things
