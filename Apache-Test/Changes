@@ -6,6 +6,8 @@ Changes - Apache::Test change logfile
 
 =over 3
 
+=item 1.07-dev
+
 =item 1.06 - November 10, 2003
 
 added -startup_timeout and $ENV{APACHE_TEST_STARTUP_TIMEOUT} as places
