@@ -117,6 +117,7 @@
 ##
 
 <IfModule mod_rewrite.c>
+    RewriteEngine On
     RewriteLog @SERVERROOT@/logs/rewrite_log
     RewriteLogLevel 9
     RewriteLock @SERVERROOT@/logs/rewrite_lock
@@ -124,6 +125,7 @@
     RewriteMap numbers-rnd rnd:@SERVERROOT@/htdocs/modules/rewrite/numbers.rnd
     #RewriteMap numbers-dbm dbm:@SERVERROOT@/htdocs/modules/rewrite/numbers.dbm
     RewriteMap numbers-prg prg:@SERVERROOT@/htdocs/modules/rewrite/numbers.pl
+    RewriteMap appendfoo "prg:@SERVERROOT@/htdocs/modules/rewrite/append.pl foo"
     RewriteMap lower int:tolower
 
     <Directory @SERVERROOT@/htdocs/modules/rewrite>
@@ -158,6 +160,9 @@
         RewriteRule ^([1-6])$ ${numbers-dbm:$1}.html [S=1]
         RewriteCond %{ENV:MAPTYPE} =prg
         RewriteRule ^([1-6])$ ${numbers-prg:$1}.html [L]
+
+        RewriteRule ^(bar).html$ ${appendfoo:$1}.html [L]
+
     </Directory>
 </IfModule>
 

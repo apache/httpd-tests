@@ -3,6 +3,7 @@ use warnings FATAL => 'all';
 
 use Apache::Test;
 use Apache::TestRequest;
+use Apache::TestUtil;
 
 ## mod_rewrite tests
 ##
@@ -13,7 +14,7 @@ my @num = qw(1 2 3 4 5 6);
 my @url = qw(forbidden gone perm temp 313);
 my $r;
 
-plan tests => @map * @num + 3, have_module 'rewrite';
+plan tests => @map * @num + 4, have_module 'rewrite';
 
 foreach (@map) {
     foreach my $n (@num) {
@@ -51,3 +52,9 @@ $r = GET_BODY("/modules/rewrite/", 'Accept' => 'lucky13');
 chomp $r;
 $r =~ s/\r//g;
 ok ($r eq "JACKPOT");
+
+chomp ($r = GET_BODY("/modules/rewrite/bar.html"));
+ok t_cmp("pass",
+         $r,
+         "prg: map with arguments"
+        );
