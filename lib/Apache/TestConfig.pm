@@ -46,6 +46,8 @@ use vars qw(%Usage);
    httpd_conf    => 'inherit config from this file (default is apxs derived)',
    maxclients    => 'maximum number of concurrent clients (default is 1)',
    perlpod       => 'location of perl pod documents (for testing downloads)',
+   sslca         => 'location of SSL CA (default is $t_conf/ssl/ca)',
+   sslcaorg      => 'SSL CA organization to use for tests (default is asf)',
    (map { $_ . '_module_name', "$_ module name"} qw(cgi ssl thread)),
 );
 
@@ -192,6 +194,8 @@ sub new {
     $vars->{perlpod}      ||= $self->find_in_inc('pod');
     $vars->{perl}         ||= $^X;
     $vars->{t_conf}       ||= catfile $vars->{serverroot}, 'conf';
+    $vars->{sslca}        ||= catfile $vars->{t_conf}, 'ssl', 'ca';
+    $vars->{sslcaorg}     ||= 'asf';
     $vars->{t_logs}       ||= catfile $vars->{serverroot}, 'logs';
     $vars->{t_conf_file}  ||= catfile $vars->{t_conf},   'httpd.conf';
 
@@ -721,6 +725,7 @@ sub clean {
 
     $self->new_test_server->clean;
     $self->cmodules_clean;
+    $self->sslca_clean;
 
     for (keys %{ $self->{clean}->{files} }) {
         if (-e $_) {
@@ -954,6 +959,44 @@ sub generate_extra_conf {
     #but we want extra.conf Included first so vhosts inherit base config
     #such as LimitRequest*
     return [ sort @extra_conf ];
+}
+
+sub sslca_can {
+    my($self, $check) = @_;
+
+    return 0 unless $self->{modules}->{ $self->{vars}->{ssl_module} };
+    require Apache::TestSSLCA;
+
+    my $ca = $self->{vars}->{sslca};
+    return 0 unless $ca and -d dirname($ca); #t/conf/ssl
+
+    if ($check) {
+        my $openssl = Apache::TestSSLCA::openssl();
+        if (which($openssl)) {
+            return 1;
+        }
+
+        error "cannot locate '$openssl' program required to generate SSL CA";
+        exit(1);
+    }
+
+    return 1;
+}
+
+sub sslca_generate {
+    my $self = shift;
+
+    return unless $self->sslca_can(1);
+
+    Apache::TestSSLCA::generate($self);
+}
+
+sub sslca_clean {
+    my $self = shift;
+
+    return unless $self->sslca_can;
+
+    Apache::TestSSLCA::clean($self);
 }
 
 #XXX: just a quick hack to support t/TEST -ssl
