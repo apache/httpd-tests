@@ -1,5 +1,0 @@
-Makefile
-.libs
-mod_input_body_filter.lo
-mod_input_body_filter.slo
-mod_input_body_filter.la
