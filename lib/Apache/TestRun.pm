@@ -412,10 +412,18 @@ sub set_ulimit {
     eval { $self->set_ulimit_via_sh };
 }
 
+sub set_env {
+    #export some environment variables for t/modules/env.t
+    #(the values are unimportant)
+    $ENV{TESTHOSTNAME} = 'test.host.name';
+    $ENV{TESTHOSTTYPE} = 'z80';
+}
+
 sub run {
     my $self = shift;
 
     $self->set_ulimit;
+    $self->set_env; #make sure these are always set
 
     my(@argv) = @_;
 
@@ -445,11 +453,6 @@ sub run {
     $self->try_exit_opts;
 
     $self->default_run_opts;
-
-    #export some environment variables for t/modules/env.t
-    #(the values are unimportant)
-    $ENV{TESTHOSTNAME} = 'test.host.name';
-    $ENV{TESTHOSTTYPE} = 'z80';
 
     $self->start;
 
