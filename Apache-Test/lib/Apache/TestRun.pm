@@ -82,11 +82,12 @@ sub new {
 #so we dont slurp arguments that are not tests, example:
 # httpd $HOME/apache-2.0/bin/httpd
 
-sub split_args {
-    my($self, $argv) = @_;
+sub split_test_args {
+    my($self) = @_;
 
-    my(@tests, @args);
+    my(@tests);
 
+    my $argv = $self->{argv};
     for (@$argv) {
         my $arg = $_;
         #need the t/ for stat-ing, but dont want to include it in test output
@@ -116,12 +117,9 @@ sub split_args {
                 next;
             }
         }
-
-        push @args, $_;
     }
 
     $self->{tests} = \@tests;
-    $self->{args}  = \@args;
 }
 
 sub passenv {
@@ -135,12 +133,14 @@ sub passenv {
 sub getopts {
     my($self, $argv) = @_;
 
-    $self->split_args($argv);
-
-    #dont count test files/dirs as @ARGV arguments
-    local *ARGV = $self->{args};
+    local *ARGV = $argv;
     my(%opts, %vopts, %conf_opts);
 
+    # permute      : optional values can come before the options
+    # pass_through : all unknown things are to be left in @ARGV
+    Getopt::Long::Configure(qw(pass_through permute));
+
+    # grab from @ARGV only the options that we expect
     GetOptions(\%opts, @flag_opts, @help_opts,
                (map "$_:s", @debug_opts, @request_opts, @ostring_opts),
                (map "$_=s", @string_opts),
@@ -150,15 +150,37 @@ sub getopts {
 
     $opts{$_} = $vopts{$_} for keys %vopts;
 
-    #force regeneration of httpd.conf if commandline args want to modify it
+    # separate configuration options and test files/dirs
+    my $req_wanted_args = Apache::TestRequest::wanted_args();
+    my @argv = ();
+    my %req_args = ();
+    while (@ARGV) {
+        my $val = shift @ARGV;
+        if ($val =~ /^--?(.+)/) { # must have a leading - or --
+            my $key = lc $1;
+            # a known config option?
+            if (exists $Apache::TestConfig::Usage{$key}) {
+                $conf_opts{$key} = shift @ARGV;
+            } # a TestRequest config option?
+            elsif (exists $req_wanted_args->{$key}) {
+                $req_args{$key} = shift @ARGV;
+            }
+        }
+        else {
+            push @argv, $val;
+        }
+    }
+
+    $opts{req_args} = \%req_args;
+
+    # only test files/dirs if any at all are left in argv
+    $self->{argv} = \@argv;
+
+    # force regeneration of httpd.conf if commandline args want to modify it
     $self->{reconfigure} = $opts{configure} ||
       (grep { $opts{$_}->[0] } qw(preamble postamble)) ||
-        (grep { $Apache::TestConfig::Usage{$_} } @ARGV) ||
+        (grep { $Apache::TestConfig::Usage{$_} } keys %conf_opts ) ||
           $self->passenv() || (! -e 'conf/httpd.conf');
-
-    while (my($key, $val) = splice @ARGV, 0, 2) {
-       $conf_opts{lc $key} = $val;
-    }
 
     if (exists $opts{debug}) {
         $opts{debugger} = $opts{debug};
@@ -494,6 +516,8 @@ sub run {
 
     $self->default_run_opts;
 
+    $self->split_test_args;
+
     $self->start;
 
     $self->run_tests;
@@ -538,14 +562,7 @@ sub warn_core {
 sub run_request {
     my($test_config, $opts) = @_;
 
-    my @args = %{ $opts->{header} };
-    my $wanted_args = Apache::TestRequest::wanted_args();
-
-    while (my($key, $val) = each %{ $test_config->{vars} }) {
-        next unless $wanted_args->{$key};
-        push @args, $key, $val;
-        delete $test_config->{vars}->{$key}; #dont save these
-    }
+    my @args = (%{ $opts->{header} }, %{ $opts->{req_args} });
 
     my($request, $url) = ("", "");
 
