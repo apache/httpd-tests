@@ -160,7 +160,7 @@ sub prepare {
     my($pass, $keep) = Apache::TestConfig::filter_args(\@_, \%wanted_args);
 
     %credentials = ();
-    if ($keep->{username}) {
+    if (defined $keep->{username}) {
         $credentials{$keep->{realm} || '__ALL__'} =
           [$keep->{username}, $keep->{password}];
     }
