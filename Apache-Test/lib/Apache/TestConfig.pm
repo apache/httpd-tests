@@ -1643,7 +1643,13 @@ sub which {
 
     return undef unless $program;
 
-    for my $base (map { catfile($_, $program) } File::Spec->path()) {
+    my @dirs = File::Spec->path();
+
+    require Config;
+    my $perl_bin = $Config::Config{bin} || '';
+    push @dirs, $perl_bin if $perl_bin and -d $perl_bin;
+
+    for my $base (map { catfile $_, $program } @dirs) {
         if ($ENV{HOME} and not WIN32) {
             # only works on Unix, but that's normal:
             # on Win32 the shell doesn't have special treatment of '~'
