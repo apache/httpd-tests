@@ -1,7 +1,7 @@
 ##
 ## FileETag test config
 ##
-<Directory @SERVERROOT@/htdocs/etags>
+<Directory @SERVERROOT@/htdocs/apache/etags>
     AllowOverride All
     Order Deny,Allow
 #    Satisfy Any
@@ -343,7 +343,7 @@ Alias /manual @inherit_documentroot@/manual
 LimitRequestLine      128
 LimitRequestFieldSize 1024
 LimitRequestFields    32
-<Directory @SERVERROOT@/htdocs/limits>
+<Directory @SERVERROOT@/htdocs/apache/limits>
     LimitRequestBody  65536
 </Directory>
 

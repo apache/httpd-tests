@@ -9,7 +9,7 @@ use Apache::TestRequest;
 use Apache::TestUtil;
 
 t_debug "Checking for existence of FileETag directive\n";
-my $resp = GET('/etags/test.txt');
+my $resp = GET('/apache/etags/test.txt');
 my $rc = $resp->code;
 t_debug "Returned $rc:";
 if ($rc == 500) {
@@ -25,7 +25,7 @@ if ($rc == 500) {
 #
 # The tests verify the inclusion of the different fields, and
 # inheritance, according to the directories involved.  All are
-# subdirectories under /etags/.  The key is the path, the value
+# subdirectories under /apache/etags/.  The key is the path, the value
 # is the pattern the ETag response header field needs to match,
 # and the comment is the keywords on the FileETag directive in
 # the directory's .htaccess file.  A pattern of "" means the header
@@ -139,7 +139,7 @@ my $testcount = scalar(keys(%tests));
 plan tests => $testcount;
 
 for my $key (keys(%tests)) {
-    my $uri = "/etags" . $key . "test.txt";
+    my $uri = "/apache/etags" . $key . "test.txt";
     my $pattern = $tests{$key};
     t_debug "---", "HEAD $uri",
         "Expecting " . $expect{$pattern};

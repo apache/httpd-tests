@@ -15,15 +15,15 @@ use Apache::TestUtil;
 # LimitRequestLine      128
 # LimitRequestFieldSize 1024
 # LimitRequestFields    32
-# <Directory @SERVERROOT@/htdocs/limits>
+# <Directory @SERVERROOT@/htdocs/apache/limits>
 #     LimitRequestBody  65536
 # </Directory>
 #
 
 my @conditions = qw(requestline fieldsize fieldcount bodysize);
 
-my %params = ('requestline-succeed' => "/limits/",
-              'requestline-fail'    => ("/limits/" . ('a' x 256)),
+my %params = ('requestline-succeed' => "/apache/limits/",
+              'requestline-fail'    => ("/apache/limits/" . ('a' x 256)),
               'fieldsize-succeed'   => 'short value',
               'fieldsize-fail'      => ('a' x 2048),
               'fieldcount-succeed'  => 1,
@@ -71,7 +71,7 @@ foreach my $cond (@conditions) {
                 $fields{"X-Field-$i"} = "Testing field $i";
             }
             print "# Testing LimitRequestFields; should $goodbad\n";
-            $resp = GET('/limits/', %fields, 'X-Subtest' => $testnum);
+            $resp = GET('/apache/limits/', %fields, 'X-Subtest' => $testnum);
             ok t_cmp($expected_rc,
                      $resp->code,
                      "Test #$testnum");
@@ -103,7 +103,7 @@ foreach my $cond (@conditions) {
                     }
                     else {
                         my ($req, $resp, $url);
-                        $url = Apache::TestRequest::resolve_url('/limits/');
+                        $url = Apache::TestRequest::resolve_url('/apache/limits/');
                         $req = HTTP::Request->new(GET => $url);
                         $req->content_type('text/plain');
                         $req->header('X-Subtest' => $testnum);
@@ -118,7 +118,7 @@ foreach my $cond (@conditions) {
                     }
                 }
                 else {
-                    $resp = GET('/limits/', content_type => 'text/plain',
+                    $resp = GET('/apache/limits/', content_type => 'text/plain',
                                 content => $param, 'X-Subtest' => $testnum);
                     ok t_cmp($expected_rc,
                              $resp->code,
@@ -132,7 +132,7 @@ foreach my $cond (@conditions) {
         }
         elsif ($cond eq 'fieldsize') {
             print "# Testing LimitRequestFieldSize; should $goodbad\n";
-            $resp = GET('/limits/', 'X-Subtest' => $testnum,
+            $resp = GET('/apache/limits/', 'X-Subtest' => $testnum,
                         'X-overflow-field' => $param);
             ok t_cmp($expected_rc,
                      $resp->code,
