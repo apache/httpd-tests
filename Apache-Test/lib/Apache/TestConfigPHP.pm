@@ -184,8 +184,8 @@ sub configure_php_tests {
 __DATA__
 <?php
 
-// more.php based on work from Andy Lester.  see
-// http://use.perl.org/~petdance/journal/14227
+# more.php based on work from Andy Lester.  see
+# http://use.perl.org/~petdance/journal/14227
 
 $_test_ntests = 0;
 $_nfailures = 0;
@@ -277,8 +277,6 @@ function like( $string, $regex, $name='' ) {
     return ok( preg_match( $regex, $string ), $name );
 }
 
-// We diag() to stderr instead of stdout like Perl does.  It shouldn't
-// make any difference to the harness.
 function diag( $lines ) {
     if ( is_string( $lines ) ) {
         $lines = split( "\n", $lines );
@@ -305,7 +303,7 @@ function test_end() {
         print "1..$_test_ntests\n";
     }
 
-    // reset for next run
+    # reset for next run
     global $_test_ntests;
     global $_no_plan;
     global $_nfailures;
