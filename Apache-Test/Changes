@@ -10,6 +10,9 @@ Changes - Apache::Test change logfile
 
 =item 1.11 - May 21, 2004
 
+Tweak Apache::TestRun to support test filenames starting with
+/(.\\)?t\\/ prefixes, windows style (needed for t/SMOKE) [Steve Hay]
+
 if we fail to match the Apache revision (which is OK at the early
 stages, like 'perl Makefile.PL', default to a non-existing revision
 0. But provide no more misleading defaults (used to default to
