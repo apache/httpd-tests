@@ -21,7 +21,7 @@ sub init_test_pm {
     my $r = shift;
 
     if (defined &Apache::RequestRec::TIEHANDLE) {
-        tie *STDOUT, $r;
+        tie *STDOUT, $r unless tied *STDOUT; #SetHandler perl-script will tie
     }
     else {
         $r->send_http_header; #1.xx
