@@ -16,12 +16,6 @@ my %test = (
     'nothere' => '(none)'
 );
 
-unless (have_apache 2) {
-    #bug exists in apache 1.3, probably will not get fixed
-    delete $test{type};
-    delete $test{nothere};
-}
-
 plan tests => (keys %test) * 1, have_module('env', 'include');
 
 my ($actual, $expected);
