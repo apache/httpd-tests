@@ -11,7 +11,7 @@ use Apache::TestUtil;
 
 my @map = qw(txt rnd); #dbm XXX: howto determine dbm support is available?
 my @num = qw(1 2 3 4 5 6);
-my @url = qw(forbidden gone perm temp 313);
+my @url = qw(forbidden gone perm temp);
 my $r;
 
 plan tests => @map * @num + 3, have_module 'rewrite';

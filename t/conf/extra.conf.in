@@ -135,7 +135,6 @@
         RewriteRule ^gone$ - [G]
         RewriteRule ^perm$ - [R=permanent]
         RewriteRule ^temp$ - [R]
-        RewriteRule ^313$ - [R=313]
         RewriteRule ^test\.blah$ - [T=text/html]
 
         ## config for testing >=< conditions
