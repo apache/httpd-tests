@@ -26,22 +26,22 @@ static int require_any_user(request_rec *r)
     int x;
 
     if (!requires) {
-	return DECLINED;
+        return DECLINED;
     }
 
     rq = (require_line *) requires->elts;
 
     for (x = 0; x < requires->nelts; x++) {
-	const char *line, *requirement;
+        const char *line, *requirement;
 
-	line = rq[x].requirement;
-	requirement = ap_getword(r->pool, &line, ' ');
+        line = rq[x].requirement;
+        requirement = ap_getword(r->pool, &line, ' ');
 
-	if ((strcmp(requirement, "user") == 0) &&
+        if ((strcmp(requirement, "user") == 0) &&
             (strcmp(line, "any-user") == 0))
         {
-	    return OK;
-	}
+            return OK;
+        }
     }
 
     return DECLINED;
@@ -64,10 +64,10 @@ static int authany_handler(request_rec *r)
      }
 
      if (!(strtrue(r->user) && strtrue(sent_pw))) {
-	 ap_note_basic_auth_failure(r);  
+         ap_note_basic_auth_failure(r);  
          ap_log_rerror(APLOG_MARK, APLOG_NOERRNO|APLOG_ERR, 0, r,
                        "Both a username and password must be provided");
-	 return HTTP_UNAUTHORIZED;
+         return HTTP_UNAUTHORIZED;
      }
 
      return OK;

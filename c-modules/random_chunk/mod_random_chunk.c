@@ -97,8 +97,8 @@
 #include "http_config.h"
 #include "http_main.h"
 
-#define MAX_SEGMENT	32
-#define ONE_WEIGHT	(256-32)
+#define MAX_SEGMENT     32
+#define ONE_WEIGHT      (256-32)
 
 static int random_chunk_handler(request_rec *r)
 {
@@ -122,26 +122,26 @@ static int random_chunk_handler(request_rec *r)
     r->allowed |= (AP_METHOD_BIT << M_GET);
 
     if (r->method_number != M_GET) {
-	return DECLINED;
+        return DECLINED;
     }
 
-    r->content_type = "text/html";		
+    r->content_type = "text/html";              
 
     if (r->header_only) {
-	return OK;
+        return OK;
     }
 
     args = r->args;
     if (!args) {
 error:
-	ap_rputs("Must include args! ... "
+        ap_rputs("Must include args! ... "
                  "of the form <code>?seed,count</code>", r);
-	return 0;
+        return 0;
     }
 
     seed = strtol(args, &endptr, 0);
     if (!endptr || *endptr != ',') {
-	goto error;
+        goto error;
     }
     ++endptr;
     count = strtol(endptr, &endptr, 0);
@@ -149,24 +149,24 @@ error:
     srandom(seed); /* XXX: apr-ize */
 
     for (i = 0; i < count; ++i) {
-	len = random() % (MAX_SEGMENT + ONE_WEIGHT);
+        len = random() % (MAX_SEGMENT + ONE_WEIGHT);
 
-	if (len >= MAX_SEGMENT) {
-	    ap_rputc((i & 1) ? '0' : '1', r);
+        if (len >= MAX_SEGMENT) {
+            ap_rputc((i & 1) ? '0' : '1', r);
             total += 1;
-	}
-	else if (len == 0) {
+        }
+        else if (len == 0) {
             /* 1.x version used to do this; but chunk_filter does now */
 #if 0
-	    ap_bsetflag(r->connection->client, B_CHUNK, 0);
-	    ap_bsetflag(r->connection->client, B_CHUNK, 1);
+            ap_bsetflag(r->connection->client, B_CHUNK, 0);
+            ap_bsetflag(r->connection->client, B_CHUNK, 1);
 #endif
-	}
-	else {
-	    memset(buf, '2' + len, len);
-	    buf[len] = 0;
-	    total += ap_rputs(buf, r);
-	}
+        }
+        else {
+            memset(buf, '2' + len, len);
+            buf[len] = 0;
+            total += ap_rputs(buf, r);
+        }
     }
 
     ap_rprintf(r, "__END__:%d", total);
