@@ -36,7 +36,7 @@ CONTENT
 unlink "htdocs$uri" if -e "htdocs$uri";
 mkdir "htdocs/$dir", oct('755') unless -e "htdocs/$dir";
 
-Apache::TestUtil::chown("htdocs/$dir");
+Apache::TestUtil::t_chown("htdocs/$dir");
 
 ## set up resource and lock it ##
 my $resource = $dav->new_resource( -uri => "http://$server$uri");
