@@ -13,7 +13,10 @@ sub import {
             die "unknown Apache::TestMM section: $section";
         }
         no strict 'refs';
-        *{"MM::$section"} = \&{$section};
+        my $sub = "MY::$section";
+        #e.g. modperl-2.0/Makefile.PL pulls in Apache-Test/Makefile.PL
+        next if defined &$sub;
+        *$sub = \&{$section};
     }
 }
 
