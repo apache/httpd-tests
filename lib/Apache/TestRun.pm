@@ -15,16 +15,16 @@ use Getopt::Long qw(GetOptions);
 use Config;
 
 my @std_run      = qw(start-httpd run-tests stop-httpd);
-my @others       = qw(verbose configure clean help ping ssl http11);
+my @others       = qw(verbose configure clean help ssl http11);
 my @flag_opts    = (@std_run, @others);
 my @string_opts  = qw(order);
-my @ostring_opts = qw(proxy);
+my @ostring_opts = qw(proxy ping);
 my @debug_opts   = qw(debug);
 my @num_opts     = qw(times);
 my @list_opts    = qw(preamble postamble breakpoint);
 my @hash_opts    = qw(header);
 my @help_opts    = qw(clean help ping);
-my @exit_opts    = (@help_opts,@debug_opts);
+my @exit_opts    = (@help_opts, @debug_opts);
 my @request_opts = qw(get post head);
 
 my %usage = (
@@ -39,7 +39,7 @@ my %usage = (
    'help'            => 'display this message',
    'preamble'        => 'config to add at the beginning of httpd.conf',
    'postamble'       => 'config to add at the end of httpd.conf',
-   'ping'            => 'test if server is running or port in use',
+   'ping[=block]'    => 'test if server is running or port in use',
    'debug[=name]'    => 'start server under debugger name (e.g. gdb, ddd, ...)',
    'breakpoint=bp'   => 'set breakpoints (multiply bp can be set)',
    'header'          => "add headers to (".join('|', @request_opts).") request",
@@ -367,7 +367,7 @@ sub try_exit_opts {
     my $self = shift;
 
     for (@exit_opts) {
-        next unless $self->{opts}->{$_};
+        next unless exists $self->{opts}->{$_};
         my $method = "opt_$_";
         exit if $self->$method();
     }
@@ -634,7 +634,29 @@ sub opt_ping {
         return 1;
     }
 
-    warning "no server is running on $name";
+    my $opt = $self->{opts}->{ping} || '';
+    if ($opt eq 'block') {
+        my $wait_secs = 300; # should be enough for extreme debug cases
+        my $start_time = time;
+        my $preamble = "\rwaiting for server $name to come up: ";
+        while (1) {
+            my $delta = time - $start_time;
+            print $preamble, sprintf "%02d:%02d", (gmtime $delta)[1,0];
+            sleep 1;
+            if ($server->ping) {
+                print $preamble, "\rserver $name is now up (waited $delta secs)    \n";
+                last;
+            }
+            elsif ($delta > $wait_secs) {
+                print $preamble, "giving up after $delta secs\n";
+                last;
+            }
+        }
+    }
+    else {
+        warning "no server is running on $name";
+    }
+
     return 1; #means call exit()
 }
 
