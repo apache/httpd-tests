@@ -4,4 +4,5 @@ httpd.conf
 apache_test_config.pm
 modperl_inc.pl
 modperl_startup.pl
+modperl_extra.pl
 
