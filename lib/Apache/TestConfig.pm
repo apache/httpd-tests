@@ -1017,9 +1017,9 @@ sub open_cmd {
 
     # Temporarly untaint PATH
     (local $ENV{PATH}) = ( $ENV{PATH} =~ /(.*)/ );
-    # -T doesn't like . in the PATH
-    $ENV{PATH} =~ s#(^|:)\.[/\\]?(:|$)##; 
-    
+    # -T disallows relative directories in the PATH
+    $ENV{PATH} = join ':', grep !/^\./, split /:/, $ENV{PATH};
+
     my $handle = Symbol::gensym();
     open $handle, "$cmd|" or die "$cmd failed: $!";
 
