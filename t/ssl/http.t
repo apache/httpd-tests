@@ -8,7 +8,15 @@ use Apache::TestRequest;
 
 my $url = '/index.html';
 
-plan tests => 1;
+my @todo;
+
+if (Apache::TestConfig::WIN32) {
+    print "\n#ap_core_translate() chokes on ':' here\n",
+          "#where r->uri = /mod_ssl:error:HTTP-request\n";
+    @todo = (todo => [1]);
+}
+
+plan tests => 1, @todo;
 
 my $config = Apache::Test::config();
 my $vars = Apache::Test::vars();
