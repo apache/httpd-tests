@@ -200,6 +200,11 @@ sub add_module_config {
         chomp;
         s/^\s+//;
         $self->replace;
+        if (/^#/) {
+            # preserve comments
+            $self->postamble($_);
+            next;
+        }
         my($directive, $rest) = split /\s+/, $_, 2;
         if ($outside_container{$directive}) {
             $self->postamble($directive => $rest);
