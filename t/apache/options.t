@@ -2,6 +2,7 @@ use strict;
 use warnings FATAL => 'all';
 
 use Apache::Test;
+use Apache::TestUtil;
 use Apache::TestRequest;
 
 my @urls = qw(/);
@@ -10,7 +11,7 @@ plan tests => @urls * 2, \&need_lwp;
 
 for my $url (@urls) {
     my $res = OPTIONS $url;
-    ok $res->code == 200;
+    ok t_cmp 200, $res->code, "code";
     my $allow = $res->header('Allow') || '';
-    ok $allow =~ /OPTIONS/;
+    ok t_cmp $allow, qr/OPTIONS/, "OPTIONS";
 }
