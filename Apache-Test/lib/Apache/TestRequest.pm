@@ -478,7 +478,7 @@ for my $method (@export_std) {
     push @EXPORT, map { join '_', $method, $_ } keys %shortcuts;
 }
 
-push @EXPORT, qw(UPLOAD_BODY UPLOAD_BODY_ASSERT);
+push @EXPORT, qw(UPLOAD UPLOAD_BODY UPLOAD_BODY_ASSERT);
 
 sub to_string {
     my $obj = shift;
