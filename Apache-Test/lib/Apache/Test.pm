@@ -97,16 +97,14 @@ Apache::Test -- Run tests with mod_perl-enabled Apache server
 
     # if condition() returns false, the tests are skipped. 
     # e.g.: skip tests if lwp is not available
-    plan tests => 3, \&have_lwp;
+    plan tests => 4, \&have_lwp;
 
-    # if the test passed print 'ok 1' as Test.pm expects
-    ok 1 if 'mod_perl rules';
-    ok 2 if 42;
+    # ok is exported from Test.pm (see Test.pm manpage)
+    ok 'mod_perl rules'; # test 1 passed (the string is true)
+    ok 42;               # test 2 passed (42 is always true)
     my @a = qw(a b);
-    ok 3 if ++$a[0] eq $a[1];
-
-    # if a particular test fails, don't print anything and just move
-    # on to a next test
+    ok $a[0] eq $a[1];   # test 3 failed ('a' ne 'b')
+    ok ++$a[0] eq $a[1]; # test 4 passed ('b' eq 'b')
 
 =cut
 
