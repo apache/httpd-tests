@@ -1,10 +1,14 @@
-Alias /covalent @TOP_DIR@/apache1.3/htdocs
-
+##
+## mod_php4 test config
+##
 <IfModule mod_php4.c>
 AddType application/x-httpd-php .php
 AddType application/x-httpd-php-source .phps
 </IfModule>
 
+##
+## mod_expires test config
+##
 <IfModule mod_expires.c>
 <Directory @SERVERROOT@/htdocs/modules/expires>
 ExpiresActive On
@@ -15,6 +19,9 @@ ExpiresByType image/jpeg A86400
 </Directory>
 </IfModule>
 
+##
+## mod_negotiation test config
+##
 <IfModule mod_mime.c>
 AddLanguage en .en
 AddLanguage fr .fr
@@ -43,6 +50,9 @@ LanguagePriority fu fr en de
 </IfModule>
 </IfModule>
 
+##
+## mod_rewrite test config
+##
 <IfModule mod_rewrite.c>
 RewriteLog @SERVERROOT@/logs/rewrite_log
 RewriteLogLevel 9
@@ -87,3 +97,21 @@ RewriteCond %{ENV:MAPTYPE} =prg
 </Directory>
 </IfModule>
 
+##
+## mod_include test config
+##
+<IfModule mod_include.c>
+AddType text/html .shtml
+AddHandler server-parsed .shtml
+
+<Directory @SERVERROOT@/htdocs/modules/include>
+Options +Includes IncludesNOEXEC
+</Directory>
+<Directory @SERVERROOT@/htdocs/modules/include/xbithack>
+Options +Includes IncludesNOEXEC
+XBitHack on
+</Directory>
+<Directory @SERVERROOT@/htdocs/modules/include/exec>
+Options +Includes
+</Directory>
+</IfModule>
