@@ -80,6 +80,12 @@ sub user_agent {
     eval { $UA ||= __PACKAGE__->new(@_); };
 }
 
+sub do_request {
+    my($ua, $method, $url, $callback) = @_;
+    my $r = HTTP::Request->new($method, resolve_url($url));
+    $ua->request($r, $callback);
+}
+
 sub hostport {
     my $config = shift || Apache::Test::config();
     local $config->{vars}->{scheme} =
