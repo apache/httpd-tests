@@ -283,9 +283,15 @@ sub stop {
 
     if (Apache::TestConfig::WIN32) {
         if ($self->{config}->{win32obj}) {
-            $self->{config}->{win32obj}->Kill(-1);
+            $self->{config}->{win32obj}->Kill(0);
             return 1;
         }
+        else {
+            require Win32::Process;
+            my $pid = $self->pid;
+            Win32::Process::KillProcess($pid, 0);
+            return 1;
+	}
     }
 
     my $pid = 0;
@@ -393,7 +399,7 @@ sub start {
     print "$cmd\n";
 
     if (Apache::TestConfig::WIN32) {
-        #make sure only 1 process is used for win32
+        #make sure only 1 process is started for win32
         #else Kill will only shutdown the parent
         my $one_process = $self->version_of(\%one_process);
         require Win32::Process;
