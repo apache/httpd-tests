@@ -220,8 +220,8 @@ sub socket_trace {
 
     #like having some -v info
     my $cert = $sock->get_peer_certificate;
-    print "Cipher:  ", $sock->get_cipher, "\n";
-    print "Peer DN: ", $cert->subject_name, "\n";
+    print "#Cipher:  ", $sock->get_cipher, "\n";
+    print "#Peer DN: ", $cert->subject_name, "\n";
 }
 
 sub prepare {
@@ -315,21 +315,12 @@ sub lwp_as_string {
 
     unless ($r->header('Content-Length') or $r->header('Transfer-Encoding')) {
         $r->header('Content-Length' => length $content);
-        $r->header('X-Content-length-note' => 'added by Apache::TestReqest');
+        $r->header('X-Content-length-note' => 'added by Apache::TestRequest');
     }
 
-    if ($want_body) {
-        if (defined $content) {
-            #prevent double "ok $x" output
-            (my $copy = $content) =~ s/^/\#/mg;
-            $r->content($copy);
-        }
-    }
-    else {
-        $r->content(undef);
-    }
+    $r->content(undef) unless $want_body;
 
-    my $string = $r->as_string;
+    (my $string = $r->as_string) =~ s/^/\#/mg;
     $r->content($content); #reset
     $string;
 }
@@ -380,8 +371,9 @@ sub lwp_call {
         my($url, @rest) = @_;
         $name = (split '::', $name)[-1]; #strip HTTP::Request::Common::
         $url = resolve_url($url);
-        print "$name $url:\n", $r->request->headers_as_string, "\n";
-        print lwp_as_string($r, $DebugLWP > 1);
+        print "#lwp request:\n", "#$name $url:\n#",
+              $r->request->headers_as_string, "\n";
+        print "#server response:\n", lwp_as_string($r, $DebugLWP > 1);
     }
 
     die $error if $error;
