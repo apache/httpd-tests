@@ -923,8 +923,8 @@ HostnameLookups Off
 </Location>
 
 #so we can test downloading some files of various size
-Alias /perl-pod          @PerlPod@
+Alias /getfiles-perl-pod          @PerlPod@
 
 #and some big ones
-Alias /httpd-binary      @httpd@
-Alias /perl-binary       @perl@
+Alias /getfiles-binary-httpd      @httpd@
+Alias /getfiles-binary-perl       @perl@

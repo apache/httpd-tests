@@ -17,12 +17,12 @@ else {
 }
 
 my %other_files = map {
-    ("/$_-binary", $vars->{$_})
+    ("/getfiles-binary-$_", $vars->{$_})
 } qw(httpd perl);
 
 plan tests => @pods + keys(%other_files), sub { $perlpod };
 
-my $location = "/perl-pod";
+my $location = "/getfiles-perl-pod";
 
 for my $file (@pods) {
     verify(\GET_BODY("$location/$file"), "$perlpod/$file");
