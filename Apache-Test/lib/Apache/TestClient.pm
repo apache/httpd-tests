@@ -46,8 +46,10 @@ sub request {
       "$method $url HTTP/1.0",
       (map { "$_: $headers->{$_}" } keys %$headers), $CRLF;
 
-    print $s $request;
-    print $s $content if $content;
+    # using send() avoids the need to use SIGPIPE if the server aborts
+    # the connection
+    $s->send($request);
+    $s->send($content) if $content;
 
     $request =~ s/\015//g; #for as_string
 
