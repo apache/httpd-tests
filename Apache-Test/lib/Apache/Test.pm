@@ -149,27 +149,31 @@ sub have_module {
 
     my @reasons = ();
     for (@modules) {
-        my $reason;
         if (/^[a-z0-9_]+$/) {
             my $mod = $_;
             $mod = 'mod_' . $mod unless $mod =~ /^mod_/;
             $mod .= '.c' unless $mod =~ /\.c$/;
             next if $cfg->{modules}->{$mod};
             if (exists $cfg->{cmodules_disabled}->{$mod}) {
-                push @SkipReasons, $cfg->{cmodules_disabled}->{$mod};
-                return 0;
+                push @reasons, $cfg->{cmodules_disabled}->{$mod};
+                next;
             }
         }
         die "bogus module name $_" unless /^[\w:.]+$/;
         eval "require $_";
         #print $@ if $@;
         if ($@) {
-            push @SkipReasons, "cannot find $_";
-            return 0;
+            push @reasons, "cannot find $_";
+            next;
         }
     }
-
-    return 1;
+    if (@reasons) {
+        push @SkipReasons, @reasons;
+        return 0;
+    }
+    else {
+        return 1;
+    }
 }
 
 sub have_cgi {
