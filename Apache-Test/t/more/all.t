@@ -6,8 +6,8 @@ use warnings FATAL => 'all';
 
 use Apache::Test;
 
-plan tests => 1, (need_min_module_version(qw(Test::More 0.48_01)) &&
-                  need_module('mod_perl.c'));
+plan tests => 1, need need_min_module_version(qw(Test::More 0.48_01)),
+    need_module('mod_perl.c');
 
 ok 1;
 
