@@ -3,6 +3,8 @@ package Apache::TestCommon;
 use strict;
 use warnings FATAL => 'all';
 
+use File::Basename;
+
 use Apache::Test;
 use Apache::TestRequest;
 use Apache::TestUtil;
@@ -37,6 +39,53 @@ sub run_write_test {
 
             ok t_cmp($length, $received, 'bytes in body');
         }
+    }
+}
+
+sub run_files_test {
+    my($verify, $skip_other) = @_;
+
+    my $vars = Apache::Test::vars();
+    my $perlpod = $vars->{perlpod};
+
+    my %pod = (
+        files => [],
+        num   => 0,
+        url   => '/getfiles-perl-pod',
+        dir   => "",
+    );
+
+    if (-d $perlpod) {
+        my @files = map { basename $_ } <$perlpod/*.pod>;
+        $pod{files} = \@files;
+        $pod{num} = scalar @files;
+        $pod{dir} = $perlpod;
+    }
+    else {
+        push @Apache::Test::SkipReasons,
+          "dir $vars->{perlpod} does not exist";
+    }
+
+    my %other_files = ();
+
+    unless ($skip_other) { #allow to skip the large binary files
+        %other_files = map {
+            ("/getfiles-binary-$_", $vars->{$_})
+        } qw(httpd perl);
+    }
+
+    my $tests = $pod{num} + keys(%other_files);
+
+    plan tests => $tests, sub { $pod{num} and have_lwp() };
+
+    my $ua = Apache::TestRequest::user_agent();
+
+    for my $file (@{ $pod{files} }) {
+        $verify->($ua, "$pod{url}/$file", "$pod{dir}/$file");
+    }
+
+    for my $url (sort keys %other_files) {
+        $verify->($ua, $url, $other_files{$url});
     }
 }
 
