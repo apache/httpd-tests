@@ -40,8 +40,8 @@ problems (e.g. when files need to be written), it'll chown all the
 files under t/ to the user chosen to run the server with, before
 running the tests and will restore the permissions at the end. [Stas]
 
-Don't inherit loading of the mod_perl object from the system-wide
-config, since we already add it [Stas]
+for mod_perl 2.0 'make test', don't inherit loading of the mod_perl
+object from the system-wide config, since we already add it [Stas]
 
 Support two new shortcuts for skip functionality:
  - have_threads: checks whether both Apache and Perl support threads
