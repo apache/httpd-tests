@@ -395,11 +395,12 @@ skip_unless() can be called before plan(), to decide whether to skip the
 whole test or not. plan() won't be reached if skip_unless decides to skip
 the test.
 
-skip_unless's argument is a list of things to test. The list can include
-scalars, which are passed to have_module(), and hash references. The
-hash references have condition code ref as a key and the reason for
-failure as a value. The condition code is run and if it fails the
-reason is used to explain the failure.
+skip_unless()'s argument is a list of things to test. The list can
+include scalars, which are passed to have_module(), and hash
+references. The hash references have a condition code reference as a
+key and a reason for failure as a value. The condition code is run and
+if it fails the provided reason is used to tell user why the test was
+skipped.
 
 Also see plan().
 
