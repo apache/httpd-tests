@@ -1,7 +1,8 @@
 use strict;
-use warnings FATAL => 'all';
 
 use lib qw(lib ../lib);
+
+use warnings FATAL => 'all';
 
 use Apache::TestRun ();
 

@@ -1,6 +1,7 @@
 use 5.005;
 
 use ExtUtils::MakeMaker;
+use Symbol;
 
 use lib qw(lib);
 
@@ -31,8 +32,9 @@ WriteMakefile(
 sub set_version {
     $VERSION = $Apache::Test::VERSION;
 
-    open my $fh, 'Changes';
-    while(<$fh>) {
+    my $fh = Symbol::gensym();
+    open $fh, 'Changes' or die "Can't open Changes: $!";
+    while (<$fh>) {
 	if(/^=item.*-dev/) {
 	    $VERSION .= '-dev';
 	    last;
