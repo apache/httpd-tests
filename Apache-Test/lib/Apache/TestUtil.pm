@@ -154,7 +154,6 @@ sub t_is_equal {
             }
         }
         elsif ($ref_a eq 'Regexp') {
-            #t_cmp(qr{^Apache}, $server_version)
             return $b =~ $a;
         }
         else {
@@ -323,8 +322,13 @@ This function is automatically exported.
 
 t_is_equal() compares any two datastructures and returns 1 if they are
 exactly the same, otherwise 0. The datastructures can be nested
-hashes, arrays, scalars, undefs or a combination of any of these. See
-t_cmp() for more examples.
+hashes, arrays, scalars, undefs or a combination of any of these.  See
+t_cmp() for an example.
+
+If C<$a> is a regex reference, the regex comparison C<$b =~ $a> is
+performed. For example:
+
+  t_is_equal(qr{^Apache}, $server_version);
 
 If comparing non-scalars make sure to pass the references to the
 datastructures.
