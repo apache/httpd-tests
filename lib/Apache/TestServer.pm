@@ -69,10 +69,15 @@ sub pid_file {
     catfile $self->{config}->{vars}->{t_logs}, 'httpd.pid';
 }
 
+sub dversion {
+    my $self = shift;
+    "-DAPACHE$self->{rev}";
+}
+
 sub args {
     my $self = shift;
     my $vars = $self->{config}->{vars};
-    my $dversion = "-DAPACHE$self->{rev}"; #for .conf version conditionals
+    my $dversion = $self->dversion; #for .conf version conditionals
 
     "-d $vars->{serverroot} -f $vars->{t_conf_file} $dversion";
 }
