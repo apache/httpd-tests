@@ -314,7 +314,7 @@ sub report_start {
     my $sep = "-" x 74;
 
         print $fh <<EOM;
-=== Special Tests Sequence Failure Finder Report ===
+-=== Special Tests Sequence Failure Finder Report ===-
 $sep
 First iteration used:
 $self->{start_command}
@@ -370,7 +370,7 @@ sub report_finish {
 
         print $fh <<EOM;
 
-================================== Summary ===============================
+-================================= Summary ==============================-
 Completion              : $completion
 Status                  : $status
 Tests run               : $self->{total_tests_run}
