@@ -407,7 +407,7 @@ LimitRequestFields    32
             AuthName realm1
             # 2.0
             <IfModule mod_auth.c>
-                AuthDigestFile realm1
+                AuthDigestFile @ServerRoot@/realm1
             </IfModule>
             # 2.1
             <IfModule mod_authn_file.c>
