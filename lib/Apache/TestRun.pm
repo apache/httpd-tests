@@ -427,6 +427,10 @@ sub try_exit_opts {
         }
         else {
             warning "server $self->{server}->{name} is not running";
+            # cleanup a stale httpd.pid file if found
+            my $t_logs  = $self->{test_config}->{vars}->{t_logs};
+            my $pid_file = catfile $t_logs, "httpd.pid";
+            unlink $pid_file if -e $pid_file;
         }
         exit_perl $ok;
     }

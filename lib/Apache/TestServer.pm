@@ -12,6 +12,7 @@ use Apache::TestConfig ();
 use Apache::TestRequest ();
 
 use constant COLOR => Apache::TestConfig::COLOR;
+use constant WIN32 => Apache::TestConfig::WIN32;
 
 my $CTRL_M = COLOR ? "\r" : "\n";
 
@@ -313,19 +314,18 @@ sub stop {
     my $self = shift;
     my $aborted = shift;
 
-    if (Apache::TestConfig::WIN32) {
-        if ($self->{config}->{win32obj}) {
-            $self->{config}->{win32obj}->Kill(0);
-            warning "server $self->{name} shutdown";
-            return 1;
+    if (WIN32) {
+        require Win32::Process;
+        my $obj = $self->{config}->{win32obj};
+        my $pid = -1;
+        if ($pid = $obj ? $obj->GetProcessID : $self->pid) {
+            if (kill(0, $pid)) {
+                Win32::Process::KillProcess($pid, 0);
+                warning "server $self->{name} shutdown";
+            }
         }
-        else {
-            require Win32::Process;
-            my $pid = $self->pid;
-            Win32::Process::KillProcess($pid, 0);
-            warning "server $self->{name} shutdown";
-            return 1;
-	}
+        unlink $self->pid_file if -e $self->pid_file;
+        return $pid;
     }
 
     my $pid = 0;
@@ -345,7 +345,10 @@ sub stop {
 
                 for (1..6) {
                     if (! $self->ping) {
-                        return $pid if $_ == 1;
+                        if ($_ == 1) {
+                            unlink $self->pid_file if -e $self->pid_file;
+                            return $pid;
+                        }
                         last;
                     }
                     if ($_ == 1) {
@@ -380,10 +383,12 @@ sub stop {
         if (--$tries <= 0) {
             error "cannot shutdown server on Port $port, ".
                   "please shutdown manually";
+            unlink $self->pid_file if -e $self->pid_file;
             return -1;
         }
     }
 
+    unlink $self->pid_file if -e $self->pid_file;
     return $pid;
 }
 
@@ -415,7 +420,24 @@ use constant USE_SIGCHLD => $^O eq 'linux';
 
 sub start {
     my $self = shift;
-    my $old_pid = $self->stop;
+
+    my $old_pid = -1;
+    if (WIN32) {
+        # Stale PID files (e.g. left behind from a previous test run
+        # that crashed) cannot be trusted on Windows because PID's are
+        # re-used too frequently, so just remove it. If there is an old
+        # server still running then the attempt to start a new one below
+        # will simply fail because the port will be unavailable.
+        if (-f $self->pid_file) {
+            error "Removing old PID file -- " .
+                "Unclean shutdown of previous test run?\n";
+            unlink $self->pid_file;
+        }
+        $old_pid = 0;
+    }
+    else {
+        $old_pid = $self->stop;
+    }
     my $cmd = $self->start_cmd;
     my $config = $self->{config};
     my $vars = $config->{vars};
@@ -436,7 +458,7 @@ sub start {
     print "$cmd\n";
     my $old_sig;
 
-    if (Apache::TestConfig::WIN32) {
+    if (WIN32) {
         #make sure only 1 process is started for win32
         #else Kill will only shutdown the parent
         my $one_process = $self->version_of(\%one_process);
@@ -450,7 +472,11 @@ sub start {
                                "$cmd $one_process",
                                1,
                                Win32::Process::NORMAL_PRIORITY_CLASS(),
-                               '.') || die Win32::Process::ErrorReport();
+                               '.');
+        unless ($obj) {
+            die "Could not start the server: " .
+                Win32::FormatMessage(Win32::GetLastError());
+        }
         $config->{win32obj} = $obj;
     }
     else {
