@@ -1881,7 +1881,7 @@ sub custom_config_nuke {
         my $mode = (stat _)[2];
         my $mode_new = $mode | 0200;
         chmod $mode_new, $path;
-        error "emptying $path";
+        debug  "emptying $path";
         Apache::TestConfig::custom_config_write($path, '');
         chmod $mode, $path;
     }
