@@ -1,0 +1,31 @@
+Apache httpd-test STATUS:					-*-text-*-
+Last modified at [$Date: 2001/07/11 05:59:01 $]
+
+This project exists to create a set of test harnesses, tools, and assorted
+software and documentation useful for testing Apache httpd.
+
+Release:
+
+RELEASE SHOWSTOPPERS:
+
+    * Somebody needs to commit the initial code
+
+Other bugs that need fixing:
+
+Other features that need writing:
+
+Documentation that needs writing:
+
+    * Documentation?  What documentation?
+
+Available Patches:
+
+Open issues:
+
+    * We need a list of testing stuff that people already have available
+      that can be committed to the repository
+
+      - eBuilt's "flood" program (in development) for generating complex
+        test loads (e.g., scenarios played out by virtual users spawned
+        on multiple machines).
+
