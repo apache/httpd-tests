@@ -9,7 +9,7 @@ use Apache::TestConfig ();
 
 our @ISA = qw(Exporter);
 our @EXPORT = qw(ok skip plan have_lwp have_http11 have_cgi
-                 test_module have_module);
+                 test_module have_module have_apache);
 our $VERSION = '0.01';
 
 #so Perl's Test.pm can be run inside mod_perl
@@ -95,6 +95,12 @@ sub have_cgi {
 #sugar: plan tests => 1, test_module 'php4'
 sub test_module {
     [have_module(@_)]
+}
+
+sub have_apache {
+    my $version = shift;
+    my $cfg = Apache::TestRequest::test_config();
+    $cfg->{server}->{rev} == $version;
 }
 
 package Apache::TestToString;
