@@ -8,6 +8,13 @@ Changes - Apache::Test change logfile
 
 =item 1.04-dev - 
 
+if the server stops reading from the client before it has sent all its
+data, Apache::TestClient (which is used when LWP is not available)
+would just die without any error message (5.8.1) because no SIGPIPE
+handler was setup and the Broken Pipe error was missed. Replacing
+'print $s' with $s->send() solves this problem: Apache::TestClient
+will just move on without bailing out. [Stas]
+
 if env var APACHE_TEST_PRETEND_NO_LWP is true, Apache::Test will
 pretend that LWP is not available. useful for testing whether the test
 suite will survive on a system which doesn't have libwww-perl
