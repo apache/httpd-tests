@@ -24,7 +24,7 @@ sub sok (&;$) {
 
     if (%SubTests and not $SubTests{ $Test::ntest }) {
         for my $n (1..$nok) {
-            skip "skipping this subtest";
+            skip "skipping this subtest", 0;
         }
         return;
     }
