@@ -12,15 +12,15 @@ plan tests => scalar @sizes, [qw(test_rwrite LWP)];
 my $location = "/test_rwrite";
 
 for my $size (@sizes) {
-    my $value = 'a' x ($size * 1024);
-    my $length = length $value;
+    my $length = $size * 1024;
 
     print "getting $length bytes of data\n";
 
     my $str = GET_BODY "$location?$length";
 
-    ok $str eq $value;
-
     printf "read %d bytes of data\n", length $str;
+
+    my $chunk = 'a' x 1024;
+    ok $str =~ /^($chunk){$size}$/;
 }
 
