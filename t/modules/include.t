@@ -96,12 +96,12 @@ my @patterns = (
 );
 
 #
-# in addition to $tests, there are 1 GET test, 11 XBitHack tests,
-# 2 exec cgi tests, 2 malformed-ssi-directive tests, and 14 tests
-# that use mod_bucketeer to construct brigades for mod_include
+# in addition to $tests, there are 1 fsize/flastmod test, 1 GET test,
+# 11 XBitHack tests, 2 exec cgi tests, 2 malformed-ssi-directive tests,
+# and 14 tests that use mod_bucketeer to construct brigades for mod_include
 #
 my $tests = scalar(keys %test) + scalar(keys %t_test) + @patterns + 2;
-plan tests => $tests + 30, have_module 'include';
+plan tests => $tests + 31, have_module 'include';
 
 Apache::TestRequest::scheme('http'); #ssl not listening on this vhost
 Apache::TestRequest::module('mod_include'); #use this module's port
@@ -145,6 +145,52 @@ ok t_cmp("$expected",
          "GET ${dir}if7.shtml"
         );
 
+### FLASTMOD/FSIZE TESTS
+unless(eval{require POSIX}) {
+    skip "POSIX module not found", 1;
+}
+else {
+    my ($size, $mtime) = (stat "$docroot${dir}file.shtml")[7, 9];
+    my @time = localtime($mtime);
+    
+    my $strftime = sub($) {
+        my $fmt = shift;
+
+        POSIX::strftime($fmt, $time[0], $time[1], $time[2], $time[3], $time[4],
+                        $time[5], -1, -1, -1);
+    };
+
+    # XXX: not sure about the locale thing, but it seems to work at least on my
+    # machine :)
+    POSIX->import('locale_h');
+    my $oldloc = setlocale(&LC_TIME);
+    POSIX::setlocale(&LC_TIME, "C");
+
+    $expected = join ' ' =>
+        $strftime->("%A, %d-%b-%Y %H:%M:%S %Z"),
+        $strftime->("%A, %d-%b-%Y %H:%M:%S %Z"),
+        $strftime->("%A, %B %e, %G"),
+        $strftime->("%A, %B %e, %G"),
+        $strftime->("%T"),
+        $strftime->("%T");
+
+    # XXX: works, because file.shtml is very small.
+    $expected .= " $size $size $size $size";
+
+    POSIX::setlocale(&LC_TIME, $oldloc);
+
+    $expected =~ s/\s+/ /g;
+    $expected =~ s/ $//; $expected =~ s/^ //;
+
+    my $result = super_chomp(GET_BODY "${dir}file.shtml");
+    $result =~ s/\s+/ /g;
+    $result =~ s/ $//; $result =~ s/^ //;
+
+    ok t_cmp("$expected",
+             "$result",
+             "GET ${dir}file.shtml"
+            );
+}
 
 ### EXEC CGI TESTS
 # skipped if !have_cgi
