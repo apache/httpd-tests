@@ -5,8 +5,8 @@
         <IfDefine APACHE2>
             SSLProxyEngine On
             SSLProxyMachineCertificateFile @SSLCA@/asf/proxy/client_ok.pem
-            #SSLProxyCACertificateFile @SSLCA@/asf/certs/ca.crt
-            #SSLProxyVerify on
+            SSLProxyCACertificateFile @SSLCA@/asf/certs/ca.crt
+            SSLProxyVerify on
         </IfDefine>
 
 
