@@ -10,19 +10,18 @@ use Apache::TestMM qw(test clean);
 
 use File::Find qw(finddepth);
 
-my @scripts;
+my @scripts = qw(t/TEST t/SMOKE);
 
 finddepth(sub {
     return unless /(.*?\.pl)\.PL$/;
     push @scripts, "$File::Find::dir/$1";
 }, '.');
 
+Apache::TestMM::filter_args();
+
 for my $script (@scripts) {
     Apache::TestMM::generate_script($script);
 }
-
-Apache::TestMM::filter_args();
-Apache::TestMM::generate_script('t/TEST');
 
 WriteMakefile(
     NAME => 'httpd-test',
