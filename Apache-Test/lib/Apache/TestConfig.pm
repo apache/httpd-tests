@@ -704,6 +704,7 @@ ServerRoot   "@ServerRoot@"
 DocumentRoot "@DocumentRoot@"
 
 Listen     @Port@
+Port       @Port@
 Group      @Group@
 User       @User@
 ServerName @ServerName@
