@@ -28,7 +28,7 @@ for (@scripts) {
 
 set_version();
 
-# if built with mod_perl 2.0, it top-level Makefile.PL already
+# if built with mod_perl 2.0, its top-level Makefile.PL already
 # installs the uninstall code
 if (TOP_LEVEL) {
     require "./install-pl";
