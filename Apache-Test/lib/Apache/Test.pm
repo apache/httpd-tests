@@ -9,7 +9,7 @@ use Apache::TestConfig ();
 
 our @ISA = qw(Exporter);
 our @EXPORT = qw(ok skip sok plan have_lwp have_http11 have_cgi
-                 test_module have_module have_apache);
+                 have_module have_apache);
 our $VERSION = '0.01';
 
 our %SubTests;
@@ -71,22 +71,26 @@ sub init_test_pm {
 sub plan {
     init_test_pm(shift) if ref $_[0];
 
-    my $condition = pop @_ if ref $_[-1];
-    if ($condition) {
+    # extending Test::plan's functionality, by using the optional
+    # single value in @_ coming after a ballanced %hash which
+    # Test::plan expects
+    if (@_ % 2) {
+        my $condition = pop @_;
+        my $ref = ref $condition;
         my $meets_condition = 0;
-        if (ref($condition) eq 'CODE') {
-            #plan tests $n, \&has_lwp
-            $meets_condition = $condition->();
-        }
-        elsif (ref($condition) eq 'ARRAY') {
-            if (@$condition == 1 and $condition->[0] =~ /^([01])$/) {
-                #plan tests $n, test_module 'php4'
-                $meets_condition = $1
+        if ($ref) {
+            if ($ref eq 'CODE') {
+                #plan tests $n, \&has_lwp
+                $meets_condition = $condition->();
             }
-            else {
+            elsif ($ref eq 'ARRAY') {
                 #plan tests $n, [qw(php4 rewrite)];
                 $meets_condition = have_module($condition);
             }
+        }
+        else {
+            # we have the verdict already: true/false
+            $meets_condition = $condition ? 1 : 0;
         }
 
         unless ($meets_condition) {
@@ -120,11 +124,6 @@ sub have_module {
 
 sub have_cgi {
     [have_module('cgi') || have_module('cgid')];
-}
-
-#sugar: plan tests => 1, test_module 'php4'
-sub test_module {
-    [have_module(@_)]
 }
 
 sub have_apache {
