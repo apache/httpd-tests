@@ -166,6 +166,9 @@ sub inherit_config {
         }
     }
 
+    $self->{vars}->{inherit_documentroot} ||=
+      catfile $self->{httpd_basedir}, 'htdocs';
+
     close $fh;
 }
 
