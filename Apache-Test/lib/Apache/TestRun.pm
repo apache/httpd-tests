@@ -17,6 +17,7 @@ use Getopt::Long qw(GetOptions);
 use Config;
 
 use constant STARTUP_TIMEOUT => 300; # secs (good for extreme debug cases)
+use subs qw(exit_shell exit_perl);
 
 my %core_files  = ();
 
@@ -137,7 +138,7 @@ sub die_on_invalid_args {
     my @invalid_argv = @{ $self->{argv} };
     if (@invalid_argv) {
         error "unknown opts or test names: @invalid_argv";
-        exit;
+        exit_perl 0;
     }
 
 }
@@ -258,16 +259,17 @@ sub install_sighandlers {
         return unless $_[0] =~ /^Failed/i; #dont catch Test::ok failures
         $server->stop(1) if $opts->{'start-httpd'};
         $server->failed_msg("error running tests");
+        exit_perl 0;
     };
 
     $SIG{INT} = sub {
         if ($caught_sig_int++) {
             warning "\ncaught SIGINT";
-            exit;
+            exit_perl 0;
         }
         warning "\nhalting tests";
         $server->stop if $opts->{'start-httpd'};
-        exit;
+        exit_perl 0;
     };
 
     #try to make sure we scan for core no matter what happens
@@ -383,17 +385,19 @@ sub try_exit_opts {
     for (@exit_opts) {
         next unless exists $self->{opts}->{$_};
         my $method = "opt_$_";
-        exit if $self->$method();
+        exit_perl $self->$method();
     }
 
     if ($self->{opts}->{'stop-httpd'}) {
+        my $ok = 1;
         if ($self->{server}->ping) {
-            $self->{server}->stop;
+            $ok = $self->{server}->stop;
+            $ok = $ok < 0 ? 0 : 1; # adjust to 0/1 logic
         }
         else {
             warning "server $self->{server}->{name} is not running";
         }
-        exit;
+        exit_perl $ok ;
     }
 }
 
@@ -407,7 +411,7 @@ sub start {
               ($test_config->{APXS} ?
                "an apxs other than $test_config->{APXS}" : "apxs").
                " or put either in your PATH";
-        exit 1;
+        exit_perl 0;
     }
 
     my $opts = $self->{opts};
@@ -427,7 +431,7 @@ sub start {
     }
 
     if ($opts->{'start-httpd'}) {
-        exit 1 unless $server->start;
+        exit_perl 0 unless $server->start;
     }
     elsif ($opts->{'run-tests'}) {
         my $is_up = $server->ping
@@ -436,7 +440,7 @@ sub start {
                 && $server->wait_till_is_up(STARTUP_TIMEOUT));
         unless ($is_up) {
             error "server is not ready yet, try again.";
-            exit;
+            exit_perl 0;
         }
     }
 }
@@ -464,7 +468,7 @@ sub run_tests {
 sub stop {
     my $self = shift;
 
-    $self->{server}->stop if $self->{opts}->{'stop-httpd'};
+    return $self->{server}->stop if $self->{opts}->{'stop-httpd'};
 }
 
 sub new_test_config {
@@ -491,13 +495,10 @@ sub set_ulimit_via_sh {
     }
     close $sh;
 
-    open $sh, "|$binsh" or die;
-    my @cmd = ("ulimit -c unlimited\n",
-               "exec $0 @ARGV");
-    warning "setting ulimit to allow core files\n@cmd";
-    print $sh @cmd;
-    close $sh;
-    exit; #exec above will take over
+    my $command = "ulimit -c unlimited; $0 @ARGV";
+    warning "setting ulimit to allow core files\n$command";
+    exec $command;
+    die "exec $command has failed"; # shouldn't be reached
 }
 
 sub set_ulimit {
@@ -548,13 +549,13 @@ sub run {
             warning "forcing Apache::TestConfig object save";
             $self->{test_config}->save;
             warning "run 't/TEST -clean' to clean up before continuing";
-            exit 1;
+            exit_perl 0;
         }
     }
 
     if ($self->{opts}->{configure}) {
         warning "reconfiguration done";
-        exit;
+        exit_perl 1;
     }
 
     $self->try_exit_opts;
@@ -770,5 +771,18 @@ EOM
 
 }
 
+# in idiomatic perl functions return 1 on success 0 on
+# failure. Shell expects the opposite behavior. So this function
+# reverses the status.
+sub exit_perl {
+    exit_shell $_[0] ? 0 : 1;
+}
+
+# expects shell's exit status values (0==success)
+sub exit_shell {
+#    require Carp;
+#    Carp::cluck('exiting');
+    CORE::exit $_[0];
+}
 
 1;
