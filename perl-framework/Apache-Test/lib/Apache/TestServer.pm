@@ -57,7 +57,8 @@ sub pid_file {
 
 sub args {
     my $self = shift;
-    "-f $self->{config}->{vars}->{t_conf_file}";
+    my $vars = $self->{config}->{vars};
+    "-d $vars->{serverroot} -f $vars->{t_conf_file}";
 }
 
 my %one_process = (1 => '-X', 2 => '-DONE_PROCESS');
