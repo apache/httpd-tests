@@ -1,0 +1,5 @@
+Makefile
+.libs
+mod_echo_post.lo
+mod_echo_post.slo
+mod_echo_post.la
