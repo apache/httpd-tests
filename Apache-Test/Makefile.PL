@@ -8,6 +8,8 @@ use Apache::Test5005compat;
 
 use Apache::TestMM qw(test); #enable 'make test'
 
+Apache::TestMM::filter_args();
+
 my @scripts = qw(t/TEST);
 
 for (@scripts) {
