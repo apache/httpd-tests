@@ -8,6 +8,11 @@ Changes - Apache::Test change logfile
 
 =item 1.01-dev
 
+If the /pod subdir can't be found in @INC, try the slower search for
+.pod files in order to set the 'perlpod' variable [Stas]
+
+Autoconfigure Alias /getfiles-* only if the corresponding targets
+exist [Stas]
 
 =item 1.00
 

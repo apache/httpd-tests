@@ -214,7 +214,7 @@ sub new {
     $vars->{t_dir}        ||= catfile $vars->{top_dir}, 't';
     $vars->{serverroot}   ||= $vars->{t_dir};
     $vars->{documentroot} ||= catfile $vars->{serverroot}, 'htdocs';
-    $vars->{perlpod}      ||= $self->find_in_inc('pod');
+    $vars->{perlpod}      ||= $self->find_perlpod();
     $vars->{perl}         ||= $^X;
     $vars->{t_conf}       ||= catfile $vars->{serverroot}, 'conf';
     $vars->{sslca}        ||= catfile $vars->{t_conf}, 'ssl', 'ca';
@@ -1179,6 +1179,24 @@ sub find_in_inc {
         return $location if -d $location;
     }
     return "";
+}
+
+sub find_perlpod {
+    my($self) = @_;
+
+    my $perlpod = $self->find_in_inc('pod') || $self->find_in_inc('Pod');
+    return $perlpod if $perlpod;
+
+    # if the /pod sub-dir wasn't found, try the slow search for .pod files
+    my %pod_dir = ();
+    for my $path (@INC) {
+        next unless -d $path;
+        finddepth(sub { $pod_dir{$File::Find::dir}++ if /\.pod$/i; }, $path);
+        my @most = sort {$pod_dir{$b} <=> $pod_dir{$a} } keys %pod_dir;
+        return $most[0] if @most;
+    }
+
+    return '';
 }
 
 sub prepare_t_conf {
