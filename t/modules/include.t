@@ -44,6 +44,7 @@ my %test = (
 "if4.shtml"             =>    "pass   pass",
 "if5.shtml"             =>    "pass  pass  pass",
 "if8.shtml"             =>    "pass",
+"if9.shtml"             =>    "pass   pass",
 "big.shtml"             =>    "hello   pass  pass   pass     hello",
 "newline.shtml"         =>    "inc-two.shtml body",
 "inc-rfile.shtml"       =>
