@@ -328,11 +328,11 @@ sub start {
     if ($self->{opts}->{'start-httpd'}) {
         exit 1 unless $self->{server}->start;
     }
-    elsif ($self->{opts}->{'run-tests'} and !$self->{server}->ping) {
-        # make sure that the server is up when -run-tests is used
-        warning "server isn't running, attempting to start it...";
-        $self->{opts}->{'stop-httpd'} = 1;
-        exit 1 unless $self->{server}->start;
+    elsif ($self->{opts}->{'run-tests'}) {
+        if (!$self->{server}->ping) {
+            error "server is not ready yet, try again.";
+            exit;
+        }
     }
 }
 

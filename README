@@ -35,7 +35,7 @@ run just this test (if server is running, will not be re-started)
 run just the apr tests
 % t/TEST t/apr
 
-run all tests without start/stop of server
+run all tests without start/stop of server (e.g. server was started with -d)
 % t/TEST -run
 
 stop the server
