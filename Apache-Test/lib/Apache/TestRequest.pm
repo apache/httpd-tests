@@ -186,6 +186,9 @@ sub vhost_socket {
     local $Apache::TestRequest::Module = $module if $module;
 
     my $hostport = hostport(Apache::Test::config());
+    die "can't find hostport for '$module',\n",
+        "make sure that vhost_socket() was passed a valid module name"
+            unless defined $hostport;
     my($host, $port) = split ':', $hostport;
     my(%args) = (PeerAddr => $host, PeerPort => $port);
 
