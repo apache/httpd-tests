@@ -59,11 +59,13 @@ if ($no_chunking) {
 my $subtests = (@conditions * 2) + 2;
 plan tests => $subtests, \&have_lwp;
 
+use vars qw($expected_rc);
+
 my $testnum = 1;
 foreach my $cond (@conditions) {
     foreach my $goodbad (qw(succeed fail)) {
         my $param = $params{"$cond-$goodbad"};
-        my $expected_rc = $xrcs{"$cond-$goodbad"};
+        $expected_rc = $xrcs{"$cond-$goodbad"};
         my $resp;
         if ($cond eq 'fieldcount') {
             my %fields;
@@ -109,6 +111,14 @@ foreach my $cond (@conditions) {
                         $req->header('X-Subtest' => $testnum);
                         $req->content(chunk_it($param));
                         $resp = Apache::TestRequest::user_agent->request($req);
+
+                        # limit errors with chunked request bodies get
+                        # 400 with 1.3, not 413 - see special chunked
+                        # request handling in ap_get_client_block in 1.3
+
+                        local $expected_rc = 400 if $goodbad eq 'fail' &&
+                                                    have_apache(1); 
+
                         ok t_cmp($expected_rc,
                                  $resp->code,
                                  "Test #$testnum");
