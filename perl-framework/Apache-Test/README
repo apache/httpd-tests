@@ -1,0 +1,78 @@
+this is the test kit for mod_perl-2.0
+
+it is designed to be usable to for testing an Apache server with any
+configuration (including mod_perl-1.xx), with or without mod_perl.
+
+see Makefile.PL for howto enable 'make test'
+
+see t/TEST as an example test harness
+
+see t/*.t for example tests
+
+if the file t/conf/httpd.conf.in exists, it will be used instead of
+the default template (in Apache/TestConfig.pm);
+
+if the file t/conf/extra.conf.in exists, it will be used to generate
+t/conf/extra.conf with @variable@ substitutions
+
+if the file t/conf/extra.conf exists, it will be included by
+httpd.conf
+
+if the file t/conf/modperl_extra.pl exists, it will be included by
+httpd.conf as a mod_perl file (PerlRequire)
+
+------------------------------------------------------------------------
+
+some examples of what i find handy:
+see TEST -help for more options
+
+start the server
+% t/TEST -start
+
+run just this test (if server is running, will not be re-started)
+% t/TEST t/apr/netlib.t
+
+run just the apr tests
+% t/TEST t/apr
+
+run all tests without start/stop of server
+% t/TEST -run
+
+stop the server
+% t/TEST -stop
+
+run as user nobody:
+% t/TEST User nobody
+
+run on a different port:
+% t/TEST Port 8799
+
+configure an httpd other than the default (that apxs figures out)
+% t/TEST httpd ~/ap/httpd-2.0/httpd
+
+switch to another apxs
+% t/TEST apxs ~/ap/httpd-2.0-prefork/bin/apxs
+
+turn on tracing
+% t/TEST -preamble "PerlTrace all"
+
+GET url
+% t/TEST -get /server-info
+
+HEAD url
+% t/TEST -head /server-info
+
+HEAD (no url defaults to /)
+% t/TEST -head
+
+GET url with authentication credentials
+% t/TEST -get /server-info username dougm password foo
+
+POST url (read content from string)
+% t/TEST -post /TestApache::post -content 'name=dougm&team=wildcats'
+
+POST url (read content from stdin)
+% t/TEST -post /TestApache::post -content - < foo.txt
+
+start server under gdb
+% t/TEST -debug
