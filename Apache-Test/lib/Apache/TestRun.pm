@@ -1239,8 +1239,11 @@ sub custom_config_path {
 }
 
 sub custom_config_exists {
-    # custom config gets loaded via custom_config_load when this
-    # package is loaded. it's enough to check whether we have a custom
+    # try to load custom config if it wasn't loaded yet (there are
+    # many entry points to this API)
+    custom_config_load();
+
+    # it's enough to check whether we have a custom
     # config for 'httpd' or 'apxs'.
     my $httpd = $Apache::TestConfigData::vars->{httpd} || '';
     return 1 if $httpd && -e $httpd && -x _;
@@ -1430,11 +1433,15 @@ EOC
     close $fh;
 }
 
+my $custom_config_loaded = 0;
 sub custom_config_load {
     debug "trying to load custom config data";
 
+    return if $custom_config_loaded;
+
     if (my $custom_config_path = custom_config_path()) {
         debug "loading custom config path '$custom_config_path'";
+        $custom_config_loaded++;
         require $custom_config_path;
     }
 }
