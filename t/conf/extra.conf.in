@@ -70,6 +70,11 @@
     <Directory @SERVERROOT@/htdocs/php/safemode/error>
         php_admin_value display_errors 1
     </Directory>
+
+    <Directory @SERVERROOT@/htdocs/php/multiviews>
+        Options MultiViews
+    </Directory>
+
 </IfModule>
 
 ##
