@@ -5,6 +5,6 @@ use Apache::TestRequest;
 use Apache::Test;
 
 #skip all tests in this directory unless we have client http/1.1 support
-plan tests => 1, \&have_http11;
+plan tests => 1, \&need_http11;
 
 ok 1;

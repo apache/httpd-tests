@@ -106,7 +106,7 @@ if (!$have_apache_2050 || Apache::TestConfig::WINFU()) {
 }
 
 my $tests = ((keys %test) * 2) + (@post_content * 3) + 4;
-plan tests => $tests, \&have_cgi;
+plan tests => $tests, \&need_cgi;
 
 my ($expected, $actual);
 my $path = "/modules/cgi";

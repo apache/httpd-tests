@@ -7,7 +7,7 @@ use Apache::TestUtil;
 
 Apache::TestRequest::module('error_document');
 
-plan tests => 14, have_lwp;
+plan tests => 14, need_lwp;
 
 # basic ErrorDocument tests
 

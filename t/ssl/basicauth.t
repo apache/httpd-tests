@@ -13,7 +13,7 @@ Apache::TestRequest::user_agent_keepalive(0);
 
 my $url = '/ssl-fakebasicauth/index.html';
 
-plan tests => 3, \&have_auth;
+plan tests => 3, \&need_auth;
 
 Apache::TestRequest::scheme('https');
 

@@ -8,7 +8,7 @@ use Apache::TestRequest;
 ## mod_info quick test
 ##
 
-plan tests => 1, have_module 'info';
+plan tests => 1, need_module 'info';
 
 my $uri = '/server-info';
 my $info = GET_BODY $uri;

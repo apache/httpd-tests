@@ -57,7 +57,7 @@ if ($no_chunking) {
 }
 
 my $subtests = (@conditions * 2) + 2;
-plan tests => $subtests, \&have_lwp;
+plan tests => $subtests, \&need_lwp;
 
 use vars qw($expected_rc);
 

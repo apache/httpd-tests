@@ -18,7 +18,7 @@ my %modules = map { $_, Apache::Test::have_module($_) } keys %urls;
 
 my $tests = 1 + grep { $modules{$_} } keys %urls;
 
-plan tests => $tests, have_module 'case_filter';
+plan tests => $tests, need_module 'case_filter';
 
 verify(GET '/', @filter);
 

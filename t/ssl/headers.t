@@ -7,7 +7,7 @@ use Apache::TestUtil;
 
 my $tests = 3;
 
-plan tests => $tests, have_module('headers', 'ssl');
+plan tests => $tests, need_module('headers', 'ssl');
 
 Apache::TestRequest::scheme('https');
 

@@ -6,7 +6,7 @@ use Apache::TestRequest;
 
 my @urls = qw(/);
 
-plan tests => @urls * 2, \&have_lwp;
+plan tests => @urls * 2, \&need_lwp;
 
 for my $url (@urls) {
     my $res = OPTIONS $url;

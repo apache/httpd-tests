@@ -20,7 +20,7 @@ sub my_chomp {
     $actual =~ s/[\r\n]+$//s;
 }
 
-plan tests => @bad_index * @index * 5 + @bad_index + 5, have_module 'dir';
+plan tests => @bad_index * @index * 5 + @bad_index + 5, need_module 'dir';
 
 foreach my $bad_index (@bad_index) {
 

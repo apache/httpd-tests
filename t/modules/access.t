@@ -30,7 +30,7 @@ my @order = ('deny,allow', 'allow,deny', 'mutual-failure');
 my @allow = @localhost;
 my @deny = @localhost;
 
-plan tests => (@order * @allow * @deny * 2) + (@order * @allow), \&have_access;
+plan tests => (@order * @allow * @deny * 2) + (@order * @allow), \&need_access;
 
 my $dir = $vars->{t_dir};
 $dir .=  "/htdocs/modules/access/htaccess";

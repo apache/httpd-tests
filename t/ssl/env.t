@@ -20,7 +20,7 @@ my $client_expect =
 my $url = '/ssl-cgi/env.pl';
 
 my $tests = (keys(%$server_expect) + keys(%$client_expect)) * 2;
-plan tests => $tests, \&have_cgi;
+plan tests => $tests, \&need_cgi;
 
 Apache::TestRequest::scheme('https');
 

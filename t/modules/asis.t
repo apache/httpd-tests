@@ -9,7 +9,7 @@ use Apache::TestUtil;
 ## mod_asis tests
 ##
 
-plan tests => 3, have_module 'asis';
+plan tests => 3, need_module 'asis';
 
 my $body = GET_BODY "/modules/asis/foo.asis";
 ok t_cmp("This is asis content.\n", $body, "asis content OK");

@@ -5,7 +5,7 @@ use Apache::Test;
 use Apache::TestUtil;
 use Apache::TestRequest;
 
-plan tests => 1, have_min_apache_version('2.1.0');
+plan tests => 1, need_min_apache_version('2.1.0');
 
 my $resp;
 

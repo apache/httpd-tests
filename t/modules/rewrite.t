@@ -14,7 +14,7 @@ my @num = qw(1 2 3 4 5 6);
 my @url = qw(forbidden gone perm temp);
 my $r;
 
-plan tests => @map * @num + 3, have_module 'rewrite';
+plan tests => @map * @num + 3, need_module 'rewrite';
 
 foreach (@map) {
     foreach my $n (@num) {
