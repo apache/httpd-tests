@@ -266,7 +266,7 @@ EOF
 my @cmodule_hooks = map {
     my $hook = cmodule_define_name($_);
     <<EOF;
-    if ($hook)
+    if ($hook != NULL)
         ap_hook_$_($hook,
                    NULL, NULL,
                    APACHE_HTTPD_TEST_HOOK_ORDER);
