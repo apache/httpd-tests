@@ -38,6 +38,7 @@ my %test = (
 "errmsg1.shtml"         =>    "errmsg",
 "errmsg2.shtml"         =>    "errmsg",
 "errmsg3.shtml"         =>    "errmsg",
+"errmsg4.shtml"         =>    "pass errmsg",
 "if1.shtml"             =>    "pass",
 "if2.shtml"             =>    "pass   pass",
 "if3.shtml"             =>    "pass   pass   pass",
