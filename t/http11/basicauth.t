@@ -8,7 +8,8 @@ use Apache::TestRequest;
 
 Apache::TestRequest::user_agent(keep_alive => 1);
 
-Apache::TestRequest::scheme('http'); #XXX: lwp does not properly support this
+Apache::TestRequest::scheme('http')
+  unless have_module 'LWP::Protocol::https11';
 
 plan tests => 3, test_module 'authany';
 
