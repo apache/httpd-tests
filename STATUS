@@ -1,0 +1,8 @@
+httpd-test/perl-framework STATUS:				-*-text-*-
+Last modified at [$Date: 2002/01/10 00:15:19 $]
+
+Tests to be written:
+
+    * t/ssl
+      - SSLPassPhraseDialog exec:
+      - SSLRandomSeed exec:
