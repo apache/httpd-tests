@@ -5,6 +5,7 @@ lib/Apache/TestHarness.pm
 lib/Apache/Test.pm
 lib/Apache/TestRequest.pm
 lib/Apache/TestRun.pm
+lib/Apache/TestRunPerl.pm
 lib/Apache/TestServer.pm
 lib/Apache/TestHandler.pm
 lib/Apache/TestMM.pm
