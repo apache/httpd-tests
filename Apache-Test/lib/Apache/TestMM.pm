@@ -67,7 +67,7 @@ EOF
 
 testcover :
 	-\@cover -delete
-	-\@HARNESS_PERL_SWITCHES=-MDevel::Cover=+inc,$atdir \
+	-HARNESS_PERL_SWITCHES=-MDevel::Cover=+inc,$atdir \\
 	APACHE_TEST_EXTRA_ARGS=-one-process \$(MAKE) test
 	-\@cover
 EOF
