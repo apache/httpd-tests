@@ -246,12 +246,14 @@ sub start {
         sleep 1;
     }
 
-    my $tries = 4;
+    my $tries = 6;
 
     for (1..$tries) {
         my $pid = $self->pid;
-        if ($pid and $_ > 1) {
-            print "ok\n";
+        if ($pid) {
+            if($_ > 1) {
+                print "ok\n";
+            }
         }
         else {
             if ($_ == 1) {
