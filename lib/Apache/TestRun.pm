@@ -16,6 +16,8 @@ use Config;
 
 use constant STARTUP_TIMEOUT => 300; # secs (good for extreme debug cases)
 
+my %core_files  = ();
+
 my @std_run      = qw(start-httpd run-tests stop-httpd);
 my @others       = qw(verbose configure clean help ssl http11);
 my @flag_opts    = (@std_run, @others);
@@ -274,7 +276,7 @@ sub install_sighandlers {
              local $?; # preserve the exit status
              eval {
                 Apache::TestRun->new(test_config =>
-                                     Apache::TestConfig->thaw)->scan;
+                                     Apache::TestConfig->thaw)->scan_core;
              };
          }';
 }
@@ -573,7 +575,7 @@ sub oh {
     $oh[ rand scalar @oh ];
 }
 
-sub scan {
+sub scan_core {
     my $self = shift;
     my $vars = $self->{test_config}->{vars};
     my $times = 0;
@@ -581,10 +583,16 @@ sub scan {
     finddepth(sub {
         return unless /^core$/;
         my $core = "$File::Find::dir/$_";
-        my $oh = oh();
-        my $again = $times++ ? "again" : "";
-        error "oh $oh, server dumped core $again";
-        error "for stacktrace, run: gdb $vars->{httpd} -core $core";
+        if (exists $core_files{$core} && $core_files{$core} == -M $core) {
+            # we have seen this core file before the start of the test
+            info "an old core file has been found: $core";
+        }
+        else {
+            my $oh = oh();
+            my $again = $times++ ? "again" : "";
+            error "oh $oh, server dumped core $again";
+            error "for stacktrace, run: gdb $vars->{httpd} -core $core";
+        }
     }, $vars->{top_dir});
 }
 
@@ -594,11 +602,15 @@ sub scan {
 sub warn_core {
     my $self = shift;
     my $vars = $self->{test_config}->{vars};
+    %core_files = (); # reset global
 
     finddepth(sub {
         return unless /^core$/;
         my $core = "$File::Find::dir/$_";
         error "consider removing an old $core file before running tests";
+        # remember the timestamp of $core so we can check if it's the
+        # old core file at the end of the run and not complain then
+        $core_files{$core} = -M $core;
     }, $vars->{top_dir});
 }
 
