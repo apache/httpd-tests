@@ -345,7 +345,7 @@ sub run_apache_test_config {
     my $content = <$fh>;
     close $fh;
     if ($content =~ /APACHE_TEST_CONFIGURE/m) {
-        require $file;
+        eval { require $file };
         # double check that it's a real sub
         if ($module->can('APACHE_TEST_CONFIGURE')) {
             eval { $module->APACHE_TEST_CONFIGURE($self); };
