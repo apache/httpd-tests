@@ -23,8 +23,7 @@ my %core_files  = ();
 my %original_t_perms = ();
 
 my @std_run      = qw(start-httpd run-tests stop-httpd);
-my @others       = qw(configure clean help ssl http11);
-my @verbose_opts = qw(verbose);
+my @others       = qw(verbose configure clean help ssl http11);
 my @flag_opts    = (@std_run, @others);
 my @string_opts  = qw(order trace);
 my @ostring_opts = qw(proxy ping);
@@ -160,6 +159,12 @@ sub getopts {
     local *ARGV = $argv;
     my(%opts, %vopts, %conf_opts);
 
+    # a workaround to support -verbose and -verbose=0|1
+    # $Getopt::Long::VERSION > 2.26 can use the "verbose:1" rule
+    # but we have to support older versions as well
+    @ARGV = grep defined, 
+        map {/-verbose=(\d)/ ? ($1 ? '-verbose' : undef) : $_ } @ARGV;
+
     # permute      : optional values can come before the options
     # pass_through : all unknown things are to be left in @ARGV
     Getopt::Long::Configure(qw(pass_through permute));
@@ -167,7 +172,6 @@ sub getopts {
     # grab from @ARGV only the options that we expect
     GetOptions(\%opts, @flag_opts, @help_opts,
                (map "$_:s", @debug_opts, @request_opts, @ostring_opts),
-               (map "$_:1", @verbose_opts),
                (map "$_=s", @string_opts),
                (map "$_=i", @num_opts),
                (map { ("$_=s", $vopts{$_} ||= []) } @list_opts),
