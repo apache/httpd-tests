@@ -170,7 +170,7 @@ sub init {
 sub config_file {
     my $name = shift;
 
-    my $file = "t/conf/$name.cnf";
+    my $file = "conf/$name.cnf";
     return $file if -e $file;
 
     my $dn = dn($name);
