@@ -459,7 +459,7 @@ sub set_ulimit_via_sh {
     open $sh, "echo ulimit -a | $binsh|" or die;
     local $_;
     while (<$sh>) {
-        if (/^core file size.*unlimited$/) {
+        if (/^core.*unlimited$/) {
             #already set to unlimited
             $ENV{APACHE_TEST_ULIMIT_SET} = 1;
             return;
