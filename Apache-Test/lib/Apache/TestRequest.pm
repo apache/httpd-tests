@@ -88,14 +88,13 @@ sub user_agent {
         $UA = undef;
     }
 
-    if (my $redir = $args->{requests_redirectable}) {
+    if (exists $args->{requests_redirectable}) {
+        my $redir = $args->{requests_redirectable};
         if (ref $redir and (@$redir > 1 or $redir->[0] ne 'POST')) {
             $RedirectOK = 1;
         } else {
             $RedirectOK = 0;
         }
-    } else {
-        $RedirectOK = $redir;
     }
 
     $args->{keep_alive} ||= $ENV{APACHE_TEST_HTTP11};
@@ -298,9 +297,10 @@ sub prepare {
 sub UPLOAD {
     my($url, $pass, $keep) = prepare(@_);
 
-    if (exists $keep->{redirect_ok}) {
-        local $RedirectOK = $keep->{redirect_ok};
-    }
+    local $RedirectOK = exists $keep->{redirect_ok} 
+        ? $keep->{redirect_ok}
+        : $RedirectOK;
+
     if ($keep->{filename}) {
         return upload_file($url, $keep->{filename}, $pass);
     }
@@ -461,9 +461,9 @@ for my $name (@EXPORT) {
 
     *$name = sub {
         my($url, $pass, $keep) = prepare(@_);
-        if (exists $keep->{redirect_ok}) {
-            local $RedirectOK = $keep->{redirect_ok};
-        }
+        local $RedirectOK = exists $keep->{redirect_ok}
+            ? $keep->{redirect_ok}
+            : $RedirectOK;
         return lwp_call($method, undef, $url, @$pass);
     };
 
