@@ -282,6 +282,13 @@ $hooks{Filter}   = 'OutputFilter';
 sub configure_pm_tests {
     my $self = shift;
 
+    # since server wasn't started yet, the modules in blib under
+    # Apache2 can't be seen. So we must load Apache2.pm, without which
+    # run_apache_test_config might fail to require modules
+    if ($mod_perl::VERSION > 1.99) {
+        require Apache2;
+    }
+
     for my $subdir (qw(Response Protocol Hooks Filter)) {
         my $dir = catfile $self->{vars}->{t_dir}, lc $subdir;
         next unless -d $dir;
