@@ -90,6 +90,16 @@ modes:
 - repeat the same test N times in sequence
 - rotate the whole tests suite N times
 
+If you want this process to be automated, run:
+
+    t/SMOKE
+
+for configuration options and default settings run:
+
+    t/SMOKE -help
+
+For more information refer to the Apache::TestSmoke manpage.
+
 
 Test Environment Configuration
 ------------------------------
