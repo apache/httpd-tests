@@ -121,8 +121,9 @@ sub plan {
 
         # tryint to emulate a dual variable (ala errno)
         unless ($meets_condition) {
-            push @SkipReasons, "no reason given" unless @SkipReasons;
-            print "1..0 # skipped: " . join(', ', @SkipReasons) . "\n";
+            my $reason = join ', ',
+              @SkipReasons ? @SkipReasons : "no reason given";
+            print "1..0 # skipped: $reason\n";
             exit; #XXX: Apache->exit
         }
     }
