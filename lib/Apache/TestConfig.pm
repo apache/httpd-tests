@@ -1352,13 +1352,17 @@ sub need_reconfiguration {
     my @reasons = ();
     my $vars = $self->{vars};
 
+    # if '-port select' we need to check from scratch which ports are
+    # available
     if (my $port = $conf_opts->{port} || $Apache::TestConfig::Argv{port}) {
-        push @reasons, "'-port $port' requires reconfiguration";
+        if ($port eq 'select') {
+            push @reasons, "'-port $port' requires reconfiguration";
+        }
     }
 
     my $exe = $vars->{apxs} || $vars->{httpd};
     # if httpd.conf is older than executable
-    push @reasons, 
+    push @reasons,
         "$exe is newer than $vars->{t_conf_file}"
             if -e $exe && 
                -e $vars->{t_conf_file} &&
