@@ -1371,25 +1371,21 @@ sub generate_extra_conf {
         push @extra_conf, $generated;
     }
 
-    # if at least one .in file was modified or the derivative is
-    # missing, regenerate them all (so information like assigned port
-    # numbers will be correct)
-    if ($self->extra_conf_files_needing_update) {
-        for my $file (@conf_files) {
-            local $Apache::TestConfig::File = $file;
+    # regenerate .conf files
+    for my $file (@conf_files) {
+        local $Apache::TestConfig::File = $file;
 
-            my $in = Symbol::gensym();
-            open($in, $file) or next;
+        my $in = Symbol::gensym();
+        open($in, $file) or next;
 
-            (my $generated = $file) =~ s/\.in$//;
-            my $out = $self->genfile($generated, $file);
-            $self->replace_vars($in, $out);
+        (my $generated = $file) =~ s/\.in$//;
+        my $out = $self->genfile($generated, $file);
+        $self->replace_vars($in, $out);
 
-            close $in;
-            close $out;
+        close $in;
+        close $out;
 
-            $self->check_vars;
-        }
+        $self->check_vars;
     }
 
     #we changed order to give ssl the first port after DEFAULT_PORT
