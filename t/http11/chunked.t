@@ -3,6 +3,7 @@ use warnings FATAL => 'all';
 
 use Apache::Test;
 use Apache::TestRequest;
+use Apache::TestUtil;
 
 Apache::TestRequest::user_agent(keep_alive => 1);
 
@@ -36,21 +37,39 @@ sub expect_chunked {
             $length = $1;
         }
 
-        ok $res->protocol eq 'HTTP/1.1';
+        ok t_cmp("HTTP/1.1",
+                 $res->protocol,
+                 "response protocol"
+                );
 
         my $enc = $res->header('Transfer-Encoding') || 
                   $res->header('Client-Transfer-Encoding') || #lwp 5.61+
                   '';
-        ok $enc eq 'chunked';
-        ok ! $res->header('Content-Length');
+        my $ct  = $res->header('Content-Length') || 0;
 
-        ok length($body) == $length;
+        ok t_cmp("chunked",
+                 $enc,
+                 "response Transfer-Encoding"
+                );
+
+        ok t_cmp(0,
+                 $ct,
+                 "no Content-Length"
+                );
+
+        ok t_cmp($length,
+                 length($body),
+                 "body length"
+                );
 
         $requests++;
         my $request_num =
           Apache::TestRequest::user_agent_request_num($res);
 
-        return $request_num == $requests;
+        return t_cmp($requests,
+                     $request_num,
+                     "number of requests"
+                    );
     }, 5;
 }
 
@@ -66,21 +85,37 @@ sub expect_not_chunked {
             $length = $1;
         }
 
-        ok $res->protocol eq 'HTTP/1.1';
+        ok t_cmp("HTTP/1.1",
+                 $res->protocol,
+                 "response protocol"
+                );
 
         my $enc = $res->header('Transfer-Encoding') || '';
         my $ct  = $res->header('Content-Length') || 0;
 
-        ok $enc ne 'chunked';
-        ok $ct == $content_length;
+        ok !t_cmp("chunked",
+                  $enc,
+                  "no Transfer-Encoding (test result inverted)"
+                 );
 
-        ok length($body) == $length;
+        ok t_cmp($content_length,
+                 $ct,
+                 "content length"
+                );
+
+        ok t_cmp($length,
+                 length($body),
+                 "body length"
+                );
 
         $requests++;
         my $request_num =
           Apache::TestRequest::user_agent_request_num($res);
 
-        return $request_num == $requests;
+        return t_cmp($requests,
+                     $request_num,
+                     "number of requests"
+                    );
     }, 5;
 }
 
