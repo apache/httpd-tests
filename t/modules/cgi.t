@@ -113,40 +113,50 @@ foreach my $length (@post_content) {
     ## should get rc 500
     ok ($actual eq $expected);
 
-    ## cgi log should be bigger.
-    ## as long as it's under ScriptLogLength (8192)
-    $stat = stat($cgi_log);
-    if ($log_size < 8192) {
-        print "checking that log size ($$stat[7]) is greater than $log_size\n";
-        ok ($$stat[7] > $log_size);
-    } else {
-        ## should not fall in here at this point,
-        ## but just in case...
-        print "verifying log did not increase in size...\n";
-        ok ($$stat[7] eq $log_size);
-    }
-    $log_size = $$stat[7];
-
-    ## there should be less than ScriptLogBuffer (256)
-    ## characters logged from the post content
-    open (LOG, $cgi_log);
-    my $multiplier = 256;
-    while (<LOG>) {
-        if (/^$content+$/) {
-            chomp;
-            $multiplier = $length unless $length > $multiplier;
-            print "verifying that logged content is $multiplier characters\n";
-            ok ($_ eq "$content"x$multiplier);
-            last;
+    if (-e $cgi_log) {
+        ## cgi log should be bigger.
+        ## as long as it's under ScriptLogLength (8192)
+        $stat = stat($cgi_log);
+        if ($log_size < 8192) {
+            print "checking that log size ($$stat[7]) is greater than $log_size\n";
+            ok ($$stat[7] > $log_size);
+        } else {
+            ## should not fall in here at this point,
+            ## but just in case...
+            print "verifying log did not increase in size...\n";
+            ok ($$stat[7] eq $log_size);
         }
+        $log_size = $$stat[7];
+    
+        ## there should be less than ScriptLogBuffer (256)
+        ## characters logged from the post content
+        open (LOG, $cgi_log) or die "died opening cgi log: $!";
+        my $multiplier = 256;
+        while (<LOG>) {
+            if (/^$content+$/) {
+                chomp;
+                $multiplier = $length unless $length > $multiplier;
+                print "verifying that logged content is $multiplier characters\n";
+                ok ($_ eq "$content"x$multiplier);
+                last;
+            }
+        }
+        close (LOG);
+
+    } else {
+        ## log does not exist ##
+        print "cgi log does not exist, test fails.\n";
+        ok 0;
     }
-    close (LOG);
 }
 
 ## make sure cgi log does not 
 ## keep logging after it is bigger
 ## than ScriptLogLength (8192)
 for (my $i=1 ; $i<=20 ; $i++) {
+
+    ## get out if log does not exist ##
+    last unless -e $cgi_log;
 
     ## request the 1k bad cgi 8 times
     ## (1k of data logged per request)
@@ -164,14 +174,24 @@ ok ($log_size >= 8192);
 
 ## make sure it does not grow now.
 GET_RC "$path/bogus1k.pl";
-$stat = stat($cgi_log);
 print "verifying log did not grow after making bogus request.\n";
-ok ($log_size eq $$stat[7]);
+if (-e $cgi_log) {
+    $stat = stat($cgi_log);
+    ok ($log_size eq $$stat[7]);
+} else {
+    print "log does not exist!\n";
+    ok 0;
+}
 
 GET_RC "$path/bogus-perl.pl";
-$stat = stat($cgi_log);
 print "verifying log did not grow after making another bogus request.\n";
-ok ($log_size eq $$stat[7]);
+if (-e $cgi_log) {
+    $stat = stat($cgi_log);
+    ok ($log_size eq $$stat[7]);
+} else {
+    print "log does not exist!\n";
+    ok 0;
+}
 
 ok HEAD_RC("$path/perl.pl") == 200;
 
