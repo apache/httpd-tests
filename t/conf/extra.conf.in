@@ -115,3 +115,12 @@ XBitHack on
 Options +Includes
 </Directory>
 </IfModule>
+
+##
+## mod_access test config
+##
+<IfModule mod_access.c>
+<Directory @SERVERROOT@/htdocs/modules/access/htaccess>
+AllowOverride Limit
+</Directory>
+</IfModule>
