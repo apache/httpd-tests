@@ -15,7 +15,7 @@ my $r = GET("/reverse/");
 ok t_cmp($r->code, 200, "reverse proxy to index.html");
 ok t_cmp($r->content, qr/^welcome to /, "reverse proxied body");
 
-if (have_module('cgi')) {
+if (have_cgi) {
     $r = GET("/reverse/modules/cgi/env.pl");
     ok t_cmp($r->code, 200, "reverse proxy to env.pl");
     ok t_cmp($r->content, qr/^APACHE_TEST_HOSTNAME = /, "reverse proxied env.pl response");
@@ -24,11 +24,15 @@ if (have_module('cgi')) {
     ok t_cmp($r->code, 200, "reverse proxy with query string");
     ok t_cmp($r->content, qr/QUERY_STRING = reverse-proxy\n/s, "reverse proxied query string OK");
 
-    $r = GET("/reverse/modules/cgi/nph-102.pl");
-    ok t_cmp($r->code, 200, "reverse proxy to nph-102");
-    ok t_cmp($r->content, "this is nph-stdout", "reverse proxy 102 response");
+    if (have_min_apache_version('2.1.0')) {
+        $r = GET("/reverse/modules/cgi/nph-102.pl");
+        ok t_cmp($r->code, 200, "reverse proxy to nph-102");
+        ok t_cmp($r->content, "this is nph-stdout", "reverse proxy 102 response");
+    } else {
+        skip "skipping tests with httpd <2.1.0" foreach (1..2);
+    }
 } else {
-    skip "skipping tests without mod_cgi" foreach (1..6);
+    skip "skipping tests without CGI module" foreach (1..6);
 }
 
 if (have_module('alias')) {
