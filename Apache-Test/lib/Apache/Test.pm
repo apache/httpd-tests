@@ -81,5 +81,32 @@ sub finish {
 }
 
 1;
+__END__
 
+
+=head1 NAME
+
+Apache::Test -- Run tests with mod_perl-enabled Apache server
+
+=head1 SYNOPSIS
+
+    use Apache::Test;
+
+    # plan 3 tests
+    plan tests => 3, \&condition;
+
+    # if condition() returns false, the tests are skipped. 
+    # e.g.: skip tests if lwp is not available
+    plan tests => 3, \&have_lwp;
+
+    # if the test passed print 'ok 1' as Test.pm expects
+    ok 1 if 'mod_perl rules';
+    ok 2 if 42;
+    my @a = qw(a b);
+    ok 3 if ++$a[0] eq $a[1];
+
+    # if a particular test fails, don't print anything and just move
+    # on to a next test
+
+=cut
 
