@@ -709,11 +709,10 @@ C<L<LWP::UserAgent|LWP::UserAgent>> documentation, has the effect of
 loading and enabling the new experimental HTTP/1.1 protocol module).
 
 And finally, the semantics of the C<requests_redirectable> parameter
-is different than for C<LWP::UserAgent>. C<Apache::TestRequest> never
-follows redirects for POST requests. However, it either follows
-redirects for all other kinds of requests, or it doesn't. Thus
+is different than for C<LWP::UserAgent>: It either follows
+redirects for a request, or it doesn't. Thus
 C<requests_redirectable> is a boolean value instead of the array
-reference that C<LWP::UserAgent> expects. Thus, to force
+reference that C<LWP::UserAgent> expects. To force
 C<Apache::TestRequest> not to follow redirects in any of its
 convenience functions, pass a false value to C<requests_redirectable>:
 
@@ -733,7 +732,7 @@ Each function also takes a number of optional arguments.
 
 =item redirect_ok
 
-By default they will follow redirects retrieved from the server. To
+By default a request will follow redirects retrieved from the server. To
 prevent this behavior, pass a false value to a C<redirect_ok>
 parameter:
 
