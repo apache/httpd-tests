@@ -121,7 +121,7 @@ sub inherit_load_module {
 
         $name = $modname_alias{$name} if $modname_alias{$name};
 
-        unless ($self->should_skip_module($name)) {
+        if ($self->should_skip_module($name)) {
             debug "Skipping LoadModule of $name";
             next;
         }
