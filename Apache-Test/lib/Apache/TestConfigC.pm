@@ -117,6 +117,7 @@ sub cmodules_write_makefiles {
 sub cmodules_write_makefile {
     my($self, $mod) = @_;
 
+    my $dversion = $self->server->dversion;
     my $name = $mod->{name};
     my $makefile = "$mod->{dir}/Makefile";
     notice "writing $makefile";
@@ -130,7 +131,7 @@ APXS=$self->{APXS}
 all: $lib
 
 $lib: $name.c
-	\$(APXS) -c $name.c
+	\$(APXS) $dversion -c $name.c
 
 clean:
 	-rm -rf $name.o $name.lo $name.slo $name.la .libs
