@@ -6,8 +6,10 @@ use Apache::TestRequest;
 
 #test output of some other modules
 my %urls = (
-    mod_php4 => '/php/hello.php',
-    mod_cgi  => '/modules/cgi/perl.pl',
+    mod_php4        => '/php/hello.php',
+    mod_cgi         => '/modules/cgi/perl.pl',
+    mod_test_rwrite => '/test_rwrite',
+    mod_alias       => '/getfiles-perl-pod/perlsub.pod',
 );
 
 my @filter = ('X-AddOutputFilter' => 'CaseFilter'); #mod_client_add_filter
