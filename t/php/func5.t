@@ -18,6 +18,8 @@ EXPECT
 
 my $result = GET_BODY "/php/func5.php";
 ok $result eq $expected;
+
+sleep 1;
 ok -e $file;
 
 # Clean up
