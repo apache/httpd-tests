@@ -126,7 +126,7 @@ sub configure_php_functions {
     my $self = shift;
 
     my $dir  = catfile $self->{vars}->{serverroot}, 'conf';
-    my $file = catfile $dir, 'more.php';
+    my $file = catfile $dir, 'test_more.inc';
 
     $self->gendir($dir);
     my $fh = $self->genfile($file, undef, 1);
@@ -183,8 +183,14 @@ sub configure_php_tests {
 
 __DATA__
 <?php
-# based on initial work from Andy Lester
+# emulation of Perl's Test::More for PHP
 #
+# see
+#   http://search.cpan.org/dist/Test-Simple/lib/Test/More.pm
+# for Perl's documentation - these functions should behave
+# in the same way
+#
+# based on initial work from Andy Lester
 # extensive rework by Chris Shiflett
 
 $_no_plan = false;
@@ -292,7 +298,7 @@ function ok($condition, $name = '')
         return true;
     }
 
-    if (basename($caller['0']['file']) == 'more.php')
+    if (basename($caller['0']['file']) == 'test_more.inc')
     {
         $file = $caller['1']['file'];
         $line = $caller['1']['line'];
