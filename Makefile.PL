@@ -54,10 +54,15 @@ my @clean_files =
        Makefile.old
       );
 
+my %prereq = (
+    'File::Spec' => '0.8',
+    'Cwd'        => '2.06',
+);
+
 WriteMakefile(
     NAME      => 'Apache::Test',
     VERSION   => $VERSION,
-    PREREQ_PM => { 'File::Spec' => '0.8' },
+    PREREQ_PM => \%prereq,
     dist      => {
         COMPRESS => 'gzip -9f', SUFFIX=>'gz',
     },
@@ -65,6 +70,45 @@ WriteMakefile(
         FILES => "@clean_files",
     },
 );
+
+# after CPAN/CPANPLUS had a chance to satisfy the requirements,
+# enforce those (for those who run things manually)
+check_prereqs();
+
+sub check_prereqs {
+    my %fail = ();
+    for (keys %prereq) {
+        unless (chk_version($_, $prereq{$_})) {
+            $fail{$_} = $prereq{$_};
+        }
+    }
+    if (%fail) {
+        error "\nThe following Apache-Test dependencies aren't satisfied:",
+            map { "\t$_: $fail{$_}" } keys %fail;
+        error "Install those from http://search.cpan.org and try again";
+        exit 0;
+    }
+}
+
+sub chk_version {
+    my($pkg, $wanted) = @_;
+
+    no strict 'refs';
+    local $| = 1;
+
+    print "Checking for $pkg...";
+    (my $p = $pkg . ".pm") =~ s#::#/#g;
+    eval { require $p;};
+    print("not ok\n$@"), return if $@;
+
+    my $vstr = ${"${pkg}::VERSION"} ? "found v" . ${"${pkg}::VERSION"}
+        : "not found";
+    my $vnum = ${"${pkg}::VERSION"} || 0;
+
+    print $vnum >= $wanted ? "ok\n" : " " . $vstr . "\n";
+
+    $vnum >= $wanted;
+}
 
 sub set_version {
     $VERSION = $Apache::Test::VERSION;
