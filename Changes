@@ -65,7 +65,7 @@ failures) when someone overrides CORE::die when using Apache-Test
 
 Overrode Module::Build's "testcover" action in Apache::TestMB to
 prevent the Apache::Test sticky preference files from being included
-in the coverage rport. [David]
+in the coverage report. [David]
 
 
 
