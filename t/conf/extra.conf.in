@@ -234,6 +234,16 @@ Alias /manual @inherit_documentroot@/manual
 </Location>
 
 ##
+## mod_asis test config
+##
+
+<IfModule mod_asis.c>
+    <Directory @SERVERROOT@/htdocs/modules/asis>
+       AddHandler send-as-is asis
+    </Directory>
+</IfModule>
+
+##
 ## mod_headers test config
 ##
 
