@@ -61,6 +61,15 @@ MAKE = $Config{make}
 EOF
 }
 
+my %lib_dir = (1 => "", 2 => ".libs/");
+
+sub cmodules_build_so {
+    my($self, $name) = @_;
+    $name = "mod_$name" unless $name =~ /^mod_/;
+    my $libdir = $self->server->version_of(\%lib_dir);
+    my $lib = "$libdir$name.so";
+}
+
 sub cmodules_write_makefiles {
     my $self = shift;
 
@@ -77,22 +86,28 @@ sub cmodules_write_makefiles {
 
     my @dirs = map { $_->{subdir} } @$modules;
 
-    my @targets = qw(all clean);
+    my @targets = qw(clean);
+    my @libs;
 
     for my $dir (@dirs) {
         for my $targ (@targets) {
             print $fh "$dir-$targ:\n\t-cd $dir && \$(MAKE) $targ\n\n";
         }
+
+        my $lib = $self->cmodules_build_so($dir);
+        my $cfile = "$dir/mod_$dir.c";
+        push @libs, "$dir/$lib";
+        print $fh "$libs[-1]: $cfile\n\t-cd $dir && \$(MAKE) $lib\n\n";
     }
 
     for my $targ (@targets) {
         print $fh "$targ: ", (map { "$_-$targ " } @dirs), "\n\n";
     }
 
+    print $fh "all: @libs\n\n";
+
     close $fh or die "close $file: $!";
 }
-
-my %lib_dir = (1 => "", 2 => ".libs/");
 
 sub cmodules_write_makefile {
     my($self, $mod) = @_;
@@ -101,8 +116,7 @@ sub cmodules_write_makefile {
     my $makefile = "$mod->{dir}/Makefile";
     notice "writing $makefile";
 
-    my $libdir = $self->server->version_of(\%lib_dir);
-    my $lib = "$libdir$name.so";
+    my $lib = $self->cmodules_build_so($name);
 
     open my $fh, '>', $makefile or die "open $makefile: $!";
 
@@ -160,6 +174,12 @@ sub cmodules_clean {
     my $self = shift;
 
     return unless $self->{cmodules_dir};
+
+    unless ($self->{clean_level} > 1) {
+        #skip t/TEST -conf
+        warning "skipping rebuild of c-modules; run t/TEST -clean to force";
+        return;
+    }
 
     $self->cmodules_make('clean');
 

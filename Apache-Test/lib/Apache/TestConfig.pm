@@ -531,6 +531,7 @@ sub gendir {
 
 sub clean {
     my $self = shift;
+    $self->{clean_level} = shift || 2; #2 == really clean, 1 == reconfigure
 
     $self->new_test_server->clean;
     $self->cmodules_clean;

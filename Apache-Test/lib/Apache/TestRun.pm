@@ -230,7 +230,7 @@ sub install_sighandlers {
 #throw away cached config and start fresh
 sub refresh {
     my $self = shift;
-    $self->opt_clean;
+    $self->opt_clean(1);
     $self->{conf_opts}->{save} = delete $self->{conf_opts}->{thaw} || 1;
     $self->{test_config} = $self->new_test_config($self->{conf_opts});
     $self->{server} = $self->{test_config}->server;
@@ -383,7 +383,7 @@ sub run {
 
     if ($self->{opts}->{configure}) {
         warning "cleaning out current configuration";
-        $self->opt_clean;
+        $self->opt_clean(1);
     }
 
     $self->configure;
@@ -452,10 +452,10 @@ sub run_request {
 }
 
 sub opt_clean {
-    my($self) = @_;
+    my($self, $level) = @_;
     my $test_config = $self->{test_config};
     $test_config->server->stop;
-    $test_config->clean;
+    $test_config->clean($level);
     1;
 }
 
