@@ -380,7 +380,7 @@ sub httpd_config {
     $self->default_module(ssl    => [qw(mod_ssl)]);
     $self->default_module(access => [qw(mod_access mod_authz_host)]);
     $self->default_module(auth   => [qw(mod_auth mod_auth_basic)]);
-    $self->default_module(php    => [qw(mod_php4 mod_php5)]);
+    $self->default_module(php    => [qw(sapi_apache2 mod_php4 mod_php5)]);
 
     $self->{server}->post_config;
 

@@ -429,6 +429,11 @@ sub get_httpd_defines {
         # Apache 1.3 - no mpm to speak of
         $self->{mpm} = '';
     }
+
+    if ($self->{httpd_info}->{VERSION} =~ qr,Apache/2,) {
+        # PHP 4.x on httpd-2.x needs a special modname alias;
+        $modname_alias{'mod_php4.c'} = 'sapi_apache2.c';
+    }
 }
 
 sub httpd_version {
