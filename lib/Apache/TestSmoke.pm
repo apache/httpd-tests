@@ -94,9 +94,6 @@ sub new {
         $self->{trace}    = 'debug';
     }
 
-    # server is run from under t/
-    Apache::TestHarness->chdir_t;
-
     # specific tests end up in $self->{tests} and $self->{subtests};
     # and get removed from $self->{argv}
     $self->Apache::TestRun::split_test_args();
