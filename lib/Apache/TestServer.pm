@@ -417,7 +417,7 @@ sub start {
     }
 
     while ($old_pid and $old_pid == $self->pid) {
-        warning "old pid file ($old_pid) still exists\n";
+        warning "old pid file ($old_pid) still exists";
         sleep 1;
     }
 
@@ -426,34 +426,26 @@ sub start {
     $mpm = "($mpm MPM)" if $mpm;
     print "using $version $mpm\n";
 
-    my $tries = 6;
+    my $wait_secs = 60; # XXX: make a constant?
 
-    for (1..$tries) {
-        my $pid = $self->pid;
-        if ($pid) {
-            if($_ > 1) {
-                print "ok\n";
-            }
+    my $start_time = time;
+    my $preamble = "\rwaiting for server to start: ";
+    while (1) {
+        my $delta = time - $start_time;
+        print $preamble, sprintf "%02d:%02d", (gmtime $delta)[1,0];
+        sleep 1;
+        if ($self->pid) {
+            print $preamble, "ok (waited $delta secs)\n";
+            last;
         }
-        else {
-            if ($_ == 1) {
-                print "waiting for server to warm up...";
-            }
-            elsif ($_ > $tries) {
-                print "giving up\n";
-                last;
-            }
-            else {
-                print "...";
-            }
-            sleep $_;
-            next;
+        elsif ($delta > $wait_secs) {
+            print $preamble, "giving up after $delta secs\n";
+            last;
         }
-        last;
     }
 
     if (my $pid = $self->pid) {
-        print "\nserver $self->{name} started\n";
+        print "server $self->{name} started\n";
 
         my $vh = $config->{vhosts};
         my $by_port = sub { $vh->{$a}->{port} <=> $vh->{$b}->{port} };
@@ -479,26 +471,24 @@ sub start {
     if ($server_up->()) {
         return 1;
     }
-    else {
-        warning "still waiting for server to warm up...";
+
+    $start_time = time;
+    $preamble = "\rstill waiting for server to warm up: ";
+    while (1) {
+        my $delta = time - $start_time;
+        print $preamble, sprintf "%02d:%02d", (gmtime $delta)[1,0];
         sleep 1;
-    }
-
-    for my $try (1..$tries) {
         if ($server_up->()) {
-            print "ok\n";
-            return 1;
+            print $preamble, "ok (waited $delta secs)\n";
+            last;
         }
-        elsif ($try >= $tries) {
-            print "giving up\n";
-        }
-        else {
-            print "...";
-            sleep $try;
+        elsif ($delta > $wait_secs) {
+            print $preamble, "giving up after $delta secs\n";
+            last;
         }
     }
 
-    $self->failed_msg("\nfailed to start server!");
+    $self->failed_msg("failed to start server!");
     return 0;
 }
 
