@@ -64,7 +64,7 @@ foreach my $cond (@conditions) {
             }
             print "# Testing LimitRequestFields; should $goodbad\n";
             ok t_cmp(($goodbad eq 'fail' ? 400 : 200),
-                     GET_RC("/", %fields),
+                     GET_RC("/", %fields, 'X-Subtest' => $testnum),
                      "Test #$testnum");
             $testnum++;
         }
@@ -94,6 +94,7 @@ foreach my $cond (@conditions) {
                     $url = Apache::TestRequest::resolve_url('/');
                     $req = HTTP::Request->new(GET => $url);
                     $req->content_type('text/plain');
+                    $req->header('X-Subtest' => $testnum);
                     $req->content(chunk_it($param));
                     $resp = Apache::TestRequest::user_agent->request($req);
                     ok t_cmp(($goodbad eq 'succeed' ? 200 : 413),
@@ -108,7 +109,8 @@ foreach my $cond (@conditions) {
                 else {
                     ok t_cmp(($goodbad eq 'succeed' ? 200 : 413),
                              GET_RC('/', content_type => 'text/plain',
-                                    content => $param),
+                                    content => $param,
+                                    'X-Subtest' => $testnum),
                              "Test #$testnum");
                 }
                 $testnum++;
@@ -117,14 +119,15 @@ foreach my $cond (@conditions) {
         elsif ($cond eq 'fieldsize') {
             print "# Testing LimitRequestFieldSize; should $goodbad\n";
             ok t_cmp(($goodbad eq 'fail' ? 400 : 200),
-                     GET_RC("/", "X-overflow-field" => $param),
+                     GET_RC("/", 'X-Subtest' => $testnum,
+                            'X-overflow-field' => $param),
                      "Test #$testnum");
             $testnum++;
         }
         elsif ($cond eq 'requestline') {
             print "# Testing LimitRequestLine; should $goodbad\n";
             ok t_cmp(($goodbad eq 'fail' ? 414 : 200),
-                     GET_RC($param),
+                     GET_RC($param, 'X-Subtest' => $testnum),
                      "Test #$testnum");
             $testnum++;
         }
