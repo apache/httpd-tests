@@ -368,7 +368,7 @@ sub refresh {
     my $self = shift;
     $self->opt_clean(1);
     $self->{conf_opts}->{save} = delete $self->{conf_opts}->{thaw} || 1;
-    $self->{test_config} = $self->new_test_config($self->{conf_opts});
+    $self->{test_config} = $self->new_test_config();
     $self->{server} = $self->{test_config}->server;
 }
 
