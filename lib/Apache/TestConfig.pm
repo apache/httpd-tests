@@ -92,7 +92,7 @@ sub server { shift->{server} }
 
 sub modperl_build_config {
     eval {
-        require Apache::BuildConfig;
+        require Apache::Build;
     } or return undef;
     return Apache::Build->build_config;
 }
