@@ -138,6 +138,10 @@ sub inherit_config {
     $self->get_httpd_static_modules;
     $self->get_httpd_defines;
 
+    #may change after parsing httpd.conf
+    $self->{vars}->{inherit_documentroot} =
+      catfile $self->{httpd_basedir}, 'htdocs';
+
     my $file = $self->{vars}->{httpd_conf};
 
     unless ($file and -e $file) {
@@ -187,9 +191,6 @@ sub inherit_config {
             $cv->($self, $c, $directive);
         }
     }
-
-    $self->{vars}->{inherit_documentroot} ||=
-      catfile $self->{httpd_basedir}, 'htdocs';
 
     close $fh;
 }
