@@ -313,7 +313,10 @@ sub lwp_as_string {
     my($r, $want_body) = @_;
     my $content = $r->content;
 
-    unless ($r->header('Content-Length') or $r->header('Transfer-Encoding')) {
+    unless ($r->isa('HTTP::Request') or
+            $r->header('Content-Length') or
+            $r->header('Transfer-Encoding'))
+    {
         $r->header('Content-Length' => length $content);
         $r->header('X-Content-length-note' => 'added by Apache::TestRequest');
     }
@@ -369,11 +372,21 @@ sub lwp_call {
 
     if ($DebugLWP and not $shortcut) {
         my($url, @rest) = @_;
-        $name = (split '::', $name)[-1]; #strip HTTP::Request::Common::
-        $url = resolve_url($url);
-        print "#lwp request:\n", "#$name $url:\n#",
-              $r->request->headers_as_string, "\n";
-        print "#server response:\n", lwp_as_string($r, $DebugLWP > 1);
+
+        unless ($r->request->protocol) {
+            #lwp always sends a request, but never sets
+            #$r->request->protocol, happens deeper in the
+            #LWP::Protocol::http* modules
+            my $proto = user_agent_request_num($r) ? "1.1" : "1.0";
+            $r->request->protocol("HTTP/$proto");
+        }
+
+        my $want_body = $DebugLWP > 1;
+        print "#lwp request:\n",
+              lwp_as_string($r->request, $want_body);
+
+        print "#server response:\n",
+              lwp_as_string($r, $want_body);
     }
 
     die $error if $error;
