@@ -140,10 +140,18 @@ static int random_chunk_handler(request_rec *r)
         return 0;
     }
 
+#ifdef WIN32
+    srand(seed); /* XXX: apr-ize */
+#else
     srandom(seed); /* XXX: apr-ize */
+#endif
 
     for (i = 0; i < count; ++i) {
+#ifdef WIN32
+        len = rand() % (MAX_SEGMENT + ONE_WEIGHT);
+#else
         len = random() % (MAX_SEGMENT + ONE_WEIGHT);
+#endif
 
         if (len >= MAX_SEGMENT) {
             ap_rputc((i & 1) ? '0' : '1', r);
