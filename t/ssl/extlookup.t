@@ -5,7 +5,7 @@ use Apache::Test;
 use Apache::TestRequest;
 use Apache::TestUtil;
 
-plan tests => 2, need_module 'test_ssl', need_min_apache_version(2.1);
+plan tests => 2, need 'test_ssl', need_min_apache_version(2.1);
 
 Apache::TestRequest::scheme("https");
 
