@@ -207,7 +207,7 @@ SSL_SERVER_I_DN_Email
 SSL_CLIENT_A_SIG             'md5WithRSAEncryption'
 SSL_SERVER_A_SIG             'md5WithRSAEncryption'
 SSL_CLIENT_A_KEY             'rsaEncryption'
-SSL_SERVER_A_KEY             'rsaEncryption'
+SSL_SERVER_A_KEY             qr(^[rd]saEncryption$)
 SSL_CLIENT_CERT              qr(^-----BEGIN CERTIFICATE-----)
 SSL_SERVER_CERT              qr(^-----BEGIN CERTIFICATE-----)
 #SSL_CLIENT_CERT_CHAINn
