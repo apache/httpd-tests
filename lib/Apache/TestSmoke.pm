@@ -12,9 +12,6 @@ use Digest::MD5 ();
 use POSIX ();
 use FindBin;
 
-use Carp;
-$SIG{USR1} = \&Carp::confess;
-
 #use constant DEBUG => 1;
 
 # how many times to run all tests at the first iteration
