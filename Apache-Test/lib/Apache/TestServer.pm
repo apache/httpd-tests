@@ -22,6 +22,7 @@ use Socket ();
 use File::Spec::Functions qw(catfile);
 
 use Apache::TestTrace;
+use Apache::TestRun;
 use Apache::TestConfig ();
 use Apache::TestRequest ();
 
@@ -54,12 +55,24 @@ sub new {
 
     $self->{version} = $self->{config}->httpd_version || '';
     $self->{mpm}     = $self->{config}->httpd_mpm     || '';
-    ($self->{rev})   = $self->{version} =~ m:^Apache/(\d)\.:;
-    ($self->{rev})   = $self->{version} =~ m:^Apache.*?/(\d)\.:
-        unless ($self->{rev});
-    ($self->{rev})   = $self->{version} =~ m:^.*?Apache.*?/(\d)\.:
-        unless ($self->{rev});
-    $self->{rev}   ||= 2;
+
+    # try to get the revision number from the standard Apache version
+    # string and various variations made by distributions which mangle
+    # that string
+    ($self->{rev})   = $self->{version} =~ m|^Apache/(\d)\.|;
+    ($self->{rev}) ||= $self->{version} =~ m|^Apache.*?/(\d)\.|;
+    ($self->{rev}) ||= $self->{version} =~ m|^.*?Apache.*?/(\d)\.|;
+
+    if ($self->{rev}) {
+        debug "Matched Apache revision $self->{rev}";
+    }
+    else {
+        # guessing is not good as it'll only mislead users
+        # honestly admit that we have failed to match one
+        error "can't figure out Apache revision, from string: " .
+            "'$self->{version}'";
+        Apache::TestRun::exit_perl(0);
+    }
 
     $self;
 }

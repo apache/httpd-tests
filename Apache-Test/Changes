@@ -8,7 +8,10 @@ Changes - Apache::Test change logfile
 
 =item 1.11-dev
 
-Improve the regex to match the Apache version out of 'httpd -v'
+Die if we fail to match the Apache revision. No more misleading
+defaults. [Stas]
+
+Improve the regex to match the Apache revision out of 'httpd -v'
 [Michael A Nachbaur <mike@nachbaur.com>]
 
 -minclients is now what -maxclients used to be, -maxclients is now
