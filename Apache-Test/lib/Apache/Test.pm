@@ -14,6 +14,7 @@ use vars qw(@ISA @EXPORT $VERSION %SubTests @SkipReasons);
 @EXPORT = qw(ok skip sok plan have have_lwp have_http11
              have_cgi have_access have_auth have_module have_apache
              have_min_apache_version have_apache_version have_perl 
+             have_min_perl_version have_min_module_version
              have_threads under_construction);
 $VERSION = '1.03';
 
@@ -196,6 +197,29 @@ sub have_module {
     else {
         return 1;
     }
+}
+
+sub have_min_perl_version {
+    my $version = shift;
+
+    return 1 if $] >= $version;
+
+    push @SkipReasons, "perl >= $version is required";
+    return 0;
+}
+
+# currently supports only perl modules
+sub have_min_module_version {
+    my($module, $version) = @_;
+
+    # have_module requires the perl module
+    return 0 unless have_module($module);
+
+    my $has_version = $module->VERSION || 0;
+    return 1 if $has_version >= $version;
+
+    push @SkipReasons, "$module version $version or higher is required";
+    return 0;
 }
 
 sub have_cgi {
@@ -529,6 +553,16 @@ whether:
 
   $Config{useithread} eq 'define';
 
+=item have_min_perl_version
+
+Used to require a minimum version of Perl.
+
+For example:
+
+  plan tests => 5, have_min_perl_version("5.00801");
+
+requires Perl 5.8.1 or higher.
+
 =item have_module
 
   plan tests => 5, have_module 'CGI';
@@ -540,6 +574,18 @@ arguments or a reference to a list.
 
 In case of C modules, depending on how the module name was passed it
 may pass through the following completions:
+
+=item have_min_module_version
+
+Used to require a minimum version of a module
+
+For example:
+
+  plan tests => 5, have_min_module_version(CGI => 2.81);
+
+requires C<CGI.pm> version 2.81 or higher.
+
+Currently works only for perl modules.
 
 =over
 
@@ -564,7 +610,8 @@ lookup, turning it into I<'mod_cgi.c'>.
 
   plan tests => 5,
       have 'LWP',
-           { "perl >= 5.8.0 is required" => ($] >= 5.008)          },
+           { "perl >= 5.8.0 and w/ithreads is required" => 
+             ($Config{useperlio} && $] >= 5.008) },
            { "not Win32"                 => sub { $^O eq 'MSWin32' },
              "foo is disabled"           => \&is_foo_enabled,
            },
