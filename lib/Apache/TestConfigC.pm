@@ -10,24 +10,33 @@ use Apache::TestTrace;
 use File::Find qw(finddepth);
 
 sub cmodule_find {
-    return unless /^mod_(\w+)\.c$/;
+    my($self, $mod) = @_;
+
+    return unless $mod =~ /^mod_(\w+)\.c$/;
     my $sym = $1;
 
     my $dir = $File::Find::dir;
-    my $file = catfile $dir, $_;
+    my $file = catfile $dir, $mod;
+
+    unless ($self->{APXS}) {
+        $self->{cmodules_disabled}->{$mod} = "no apxs configured";
+        return;
+    }
 
     my $fh = Symbol::gensym();
     open $fh, $file or die "open $file: $!";
     my $v = <$fh>;
     if ($v =~ /^\#define\s+HTTPD_TEST_REQUIRE_APACHE\s+(\d+)/) {
-        unless ($Apache::TestConfigC::apache_rev == $1) {
-            notice "$_ requires Apache version $1, skipping.";
+        unless ($self->{server}->{rev} == $1) {
+            my $reason = "requires Apache version $1";
+            $self->{cmodules_disabled}->{$mod} = $reason;
+            notice "$mod $reason, skipping.";
             return;
         }
     }
     close $fh;
 
-    push @Apache::TestConfigC::modules, {
+    push @{ $self->{cmodules} }, {
         name => "mod_$sym",
         sym => "${sym}_module",
         dir  => $dir,
@@ -38,9 +47,10 @@ sub cmodule_find {
 sub cmodules_configure {
     my($self, $dir) = @_;
 
+    $self->{cmodules_disabled} = {}; #for have_module to check
+
     unless ($self->{APXS}) {
         warning "cannot build c-modules without apxs";
-        return;
     }
 
     $dir ||= catfile $self->{vars}->{top_dir}, 'c-modules';
@@ -51,10 +61,11 @@ sub cmodules_configure {
 
     $self->{cmodules_dir} = $dir;
 
-    local *Apache::TestConfigC::modules = $self->{cmodules} = [];
-    local $Apache::TestConfigC::apache_rev = $self->{server}->{rev};
+    finddepth(sub { cmodule_find($self, $_) }, $dir);
 
-    finddepth(\&cmodule_find, $dir);
+    unless ($self->{APXS}) {
+        return;
+    }
 
     $self->cmodules_generate_include;
     $self->cmodules_write_makefiles;
@@ -184,7 +195,8 @@ sub cmodules_httpd_conf {
 sub cmodules_clean {
     my $self = shift;
 
-    return unless $self->{cmodules_dir};
+    my $dir = $self->{cmodules_dir};
+    return unless $dir and -e "$dir/Makefile";
 
     unless ($self->{clean_level} > 1) {
         #skip t/TEST -conf
@@ -200,7 +212,7 @@ sub cmodules_clean {
         unlink $makefile;
     }
 
-    unlink "$self->{cmodules_dir}/Makefile";
+    unlink "$dir/Makefile";
 }
 
 #try making it easier for test modules to compile with both 1.x and 2.x
