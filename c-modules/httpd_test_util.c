@@ -40,5 +40,5 @@ static int httpd_test_split_qs_numbers(request_rec *r, ...)
     return 1;
 }
 
-#endif WANT_HTTPD_TEST_SPLIT_QS_NUMBERS
+#endif /* WANT_HTTPD_TEST_SPLIT_QS_NUMBERS */
 
