@@ -71,11 +71,12 @@ foreach (sort keys %test) {
     my $url = "$dir$doc";
     $actual = GET_BODY $url;
 
-    ## super chomp - all leading and trailing \n
-    $actual =~ s/^\n*//;
-    $actual =~ s/\n*$//;
+    ## super chomp - all leading and trailing \n (and \r for win32)
+    $actual =~ s/^[\n\r]*//;
+    $actual =~ s/[\n\r]*$//;
     ## and all the rest change to spaces
     $actual =~ s/\n/ /g;
+    $actual =~ s/\r//g; #rip out all remaining \r's
 
     my $ok = $actual eq $expected;
 
