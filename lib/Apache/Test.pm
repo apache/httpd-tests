@@ -168,10 +168,12 @@ sub have_module {
 
     my @reasons = ();
     for (@modules) {
-        if (/^[a-z0-9_]+$/) {
+        if (/^[a-z0-9_.]+$/) {
             my $mod = $_;
-            $mod = 'mod_' . $mod unless $mod =~ /^mod_/;
-            $mod .= '.c' unless $mod =~ /\.c$/;
+            unless ($mod =~ /\.c$/) {
+                $mod = 'mod_' . $mod unless $mod =~ /^mod_/;
+                $mod .= '.c'
+            }
             next if $cfg->{modules}->{$mod};
             if (exists $cfg->{cmodules_disabled}->{$mod}) {
                 push @reasons, $cfg->{cmodules_disabled}->{$mod};
