@@ -65,8 +65,6 @@ sub init_test_pm {
     }
 
     $r->content_type('text/plain');
-
-    test_pm_refresh();
 }
 
 sub have_http11 {
@@ -99,6 +97,7 @@ sub have_lwp {
 
 sub plan {
     init_test_pm(shift) if ref $_[0];
+    test_pm_refresh();
 
     # extending Test::plan's functionality, by using the optional
     # single value in @_ coming after a ballanced %hash which
