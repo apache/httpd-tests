@@ -656,4 +656,12 @@ into a string.  Example:
     # $tests will contain the Test.pm output: 1..4\nok 1\n...
     my $tests = Apache::TestToString->finish;
 
+=head1 AUTHOR
+
+Doug MacEachern with contributions from Geoffrey Young, Philippe
+M. Chiasson, Stas Bekman and others.
+
+Questions can be asked at the test-dev <at> httpd.apache.org list
+For more information see: http://httpd.apache.org/test/.
+
 =cut
