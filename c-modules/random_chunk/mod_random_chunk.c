@@ -119,8 +119,6 @@ static int random_chunk_handler(request_rec *r)
         return DECLINED;
     }
 
-    r->chunked = 1; /* XXX: working around bug in 2.0 */
-
     r->allowed |= (AP_METHOD_BIT << M_GET);
 
     if (r->method_number != M_GET) {
@@ -129,9 +127,13 @@ static int random_chunk_handler(request_rec *r)
 
     r->content_type = "text/html";		
 
-    if(r->header_only) {
+    if (r->header_only) {
 	return OK;
     }
+
+    /* trigger ap_set_keepalive to test if r->chunked gets set*/
+    ap_rputs("", r);
+    ap_rflush(r);
 
     if (!r->chunked) {
 	ap_rputs("Not chunked!", r);
