@@ -7,9 +7,11 @@ If you don't care how it works and just want to run the tests, here's how you go
 
 1. You need an installation of Apache. (Either 1.3 or 2.0)
 2. Any DSOs you wish to use should be configured in that Apache's httpd.conf (the test harness will pick this configuration up)
-3. Run the tests:
-	t/TEST httpd /path/to/apache/bin/httpd -run
-4. Evaluate test output.
+3. Setup:
+   perl Makefile.PL
+4. Run the tests:
+	t/TEST httpd /path/to/apache/bin/httpd
+5. Evaluate test output.
 
 
 Getting a little deeper
