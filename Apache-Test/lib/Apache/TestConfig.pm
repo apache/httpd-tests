@@ -18,6 +18,7 @@ use strict;
 use warnings FATAL => 'all';
 
 use constant WIN32   => $^O eq 'MSWin32';
+use constant OSX     => $^O eq 'darwin';
 use constant CYGWIN  => $^O eq 'cygwin';
 use constant NETWARE => $^O eq 'NetWare';
 use constant SOLARIS => $^O eq 'solaris';
