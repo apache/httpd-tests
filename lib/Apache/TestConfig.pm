@@ -589,7 +589,13 @@ sub generate_index_html {
 }
 
 sub types_config_template {
-    "text/html html htm\n";
+    return <<EOF;
+text/html  html htm
+image/gif  gif
+image/jpeg jpeg jpg jpe
+image/png  png
+text/plain asc txt
+EOF
 }
 
 sub generate_types_config {
