@@ -552,6 +552,13 @@ sub start {
     my $test_config = $self->{test_config};
 
     unless ($test_config->{vars}->{httpd} or $test_config->{vars}->{apxs}) {
+        if ($ENV{APACHE_TEST_NO_STICKY_PREFERENCES}) {
+            error "You specified APACHE_TEST_NO_STICKY_PREFERENCES=1 " .
+                "in which case you must explicitly specify -httpd" .
+                "and/or -apxs options";
+            exit_perl 0;
+        }
+
         $self->opt_clean(1);
         # this method restarts the whole program via exec
         # so it never returns
