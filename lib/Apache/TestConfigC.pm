@@ -167,7 +167,7 @@ sub cmodules_write_makefile_default {
 
     my $dversion = $self->server->dversion;
     my $name = $mod->{name};
-    my $makefile = "$mod->{dir}/Makefile";
+    my $makefile = catfile $mod->{dir}, 'Makefile';
     debug "writing $makefile";
 
     my $lib = $self->cmodules_build_so($name);
@@ -181,6 +181,48 @@ all: $lib
 
 $lib: $name.c
 	\$(APXS) $dversion -I$self->{cmodules_dir} -c $name.c
+
+clean:
+	-rm -rf $name.o $name.lo $name.slo $name.la .libs
+EOF
+
+    close $fh or die "close $makefile: $!";
+}
+
+sub cmodules_write_makefile_aix {
+    my($self, $mod) = @_;
+
+    my $dversion = $self->server->dversion;
+    my $name = $mod->{name};
+    my $makefile = catfile $mod->{dir}, 'Makefile';
+    my $apxsflags = '';
+
+    if ($dversion eq '-DAPACHE1') {
+        $apxsflags = "-Wl,-bE:$name.exp";
+        my $expfile = catfile $mod->{dir}, "$name.exp";
+        if (! -f $expfile) {
+            my $fh = Symbol::gensym();
+            $name =~ /^mod_(\w+)(?:\.c)?$/;
+            my $sym = $1 . '_module';
+            open $fh, ">$expfile" or die "open $expfile: $!";
+            print $fh "$sym\n";
+            close $fh;
+        }
+    }
+    debug "writing $makefile";
+
+    my $lib = $self->cmodules_build_so($name);
+
+    my $fh = Symbol::gensym();
+    open $fh, ">$makefile" or die "open $makefile: $!";
+
+    print $fh <<EOF;
+APXS=$self->{APXS}
+APXSFLAGS=$apxsflags
+all: $lib
+
+$lib: $name.c
+	\$(APXS) $dversion -I$self->{cmodules_dir} \$(APXSFLAGS) -c $name.c
 
 clean:
 	-rm -rf $name.o $name.lo $name.slo $name.la .libs
