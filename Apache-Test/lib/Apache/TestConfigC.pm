@@ -134,7 +134,7 @@ sub cmodules_write_makefile {
     my $dversion = $self->server->dversion;
     my $name = $mod->{name};
     my $makefile = "$mod->{dir}/Makefile";
-    notice "writing $makefile";
+    debug "writing $makefile";
 
     my $lib = $self->cmodules_build_so($name);
 
@@ -160,7 +160,7 @@ sub cmodules_make {
     my $targ = shift || 'all';
 
     my $cmd = "cd $self->{cmodules_dir} && $Config{make} $targ";
-    notice $cmd;
+    debug $cmd;
     system $cmd;
 }
 
@@ -208,7 +208,7 @@ sub cmodules_clean {
 
     for my $mod (@{ $self->{cmodules} }) {
         my $makefile = "$mod->{dir}/Makefile";
-        notice "unlink $makefile";
+        debug "unlink $makefile";
         unlink $makefile;
     }
 
