@@ -1,8 +1,28 @@
- - print STDERR is buffered in test handlers, whereas warn() works
-   normally. select() helps, but STDERR should be unbuffered in first
-   place.
+- print STDERR is buffered in test handlers, whereas warn() works
+  normally. select() helps, but STDERR should be unbuffered in first
+  place.
 
- - Apache::TestServer::start_debugger will choose between start_gdb,
-   start_dbx, ddd etc., counting on people who want to use other
-   debuggers to submit patches.
+- If something goes wrong during the ./t/TEST's phase when all the
+  configuration files gets generated, httpd.conf, etc. are generated,
+  but if something dies, t/conf/apache_test_config.pm is never
+  written.  next time through, httpd.conf, etc. are not overwritten.
+  i think the solution would be to have a $SIG{__DIE__} handler that
+  either makes sure apache_test_config.pm is written or runs clean()
+  before bailing out.
+
+- segfaults should be trapped and:
+  * the test routine should be aborted, since it's possible that some
+    other test will segfault too and overwrite the core file
+
+  * it'd be cool to automatically generate the backtrace with help of
+    Devel::CoreStack and save it in the file
+
+  * once we add the backtrace feature, we don't have to abort the rest
+    of the tests, but to save each bt as "backtrace.$test_path".
+    => this should be very useful in smoke testing
+
+  * later, it'd be nice to integrate this with util/bugreport.pl, so
+    the bug report with the backtrace and everything we want to know
+    from user's machine, including their /etc/shadow (:-) will be
+    automatically posted to the list.
 
