@@ -56,9 +56,11 @@ my @debug_opts   = qw(debug);
 my @num_opts     = qw(times);
 my @list_opts    = qw(preamble postamble breakpoint);
 my @hash_opts    = qw(header);
-my @help_opts    = qw(clean help ping);
-my @exit_opts    = (@help_opts, @debug_opts);
+my @help_opts    = qw(clean help);
 my @request_opts = qw(get post head);
+
+my @exit_opts_no_need_httpd = (@help_opts);
+my @exit_opts_need_httpd    = (@debug_opts, qw(ping));
 
 my %usage = (
    'start-httpd'     => 'start the test server',
@@ -508,8 +510,9 @@ sub configure {
 
 sub try_exit_opts {
     my $self = shift;
+    my @opts = @_;
 
-    for (@exit_opts) {
+    for (@opts) {
         next unless exists $self->{opts}->{$_};
         my $method = "opt_$_";
         my $rc = $self->$method();
@@ -693,10 +696,12 @@ sub run {
     local($SIG{__DIE__}, $SIG{INT});
     $self->install_sighandlers;
 
-    $self->try_exit_opts;
+    $self->try_exit_opts(@exit_opts_no_need_httpd);
 
     # httpd is found here (unless it was already configured before)
     $self->{test_config}->httpd_config();
+
+    $self->try_exit_opts(@exit_opts_need_httpd);
 
     if ($self->{opts}->{configure}) {
         warning "cleaning out current configuration";
