@@ -831,17 +831,18 @@ sub generate_script {
 
     $file ||= catfile 't', 'TEST';
 
-    my $content = '';
+    my $body = '';
+
     if (@Apache::TestMM::Argv) {
-        $content = "\%Apache::TestConfig::Argv = qw(@Apache::TestMM::Argv);\n";
+        $body .= "\%Apache::TestConfig::Argv = qw(@Apache::TestMM::Argv);\n";
     }
 
     my $header = Apache::TestConfig->perlscript_header;
 
-    $content .= join "\n",
-      $header, "use $class ();", "$class->new->run(\@ARGV);";
+    $body .= join "\n",
+        $header, "use $class ();", "$class->new->run(\@ARGV);";
 
-    Apache::Test::config()->write_perlscript($file, $content);
+    Apache::Test::config()->write_perlscript($file, $body);
 }
 
 # in idiomatic perl functions return 1 on success 0 on
