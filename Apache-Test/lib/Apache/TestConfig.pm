@@ -593,7 +593,7 @@ sub calls_trace {
     while (1) {
         my($package, $filename, $line) = caller($frame);
         last unless $filename;
-        $trace .= "$frame. $filename:$line\n";
+        $trace .= sprintf "%02d: %s:%d\n", $frame, $filename, $line;
         $frame++;
     }
 
