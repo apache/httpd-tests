@@ -1045,11 +1045,7 @@ sub open_cmd {
     my($self, $cmd) = @_;
     # untaint some %ENV fields
     local @ENV{ qw(IFS CDPATH ENV BASH_ENV) };
-
-    # Temporarily untaint PATH
-    (local $ENV{PATH}) = ( $ENV{PATH} =~ /(.*)/ );
-    # -T disallows relative directories in the PATH
-    $ENV{PATH} = join ':', grep !/^\./, split /:/, $ENV{PATH};
+    local $ENV{PATH} = untaint_path($ENV{PATH});
 
     # launder for -T
     $cmd = $1 if $cmd =~ /(.*)/;
@@ -1663,7 +1659,8 @@ sub apxs {
     return unless $self->{APXS};
     my $val;
     unless (exists $self->{_apxs}{$q}) {
-        local @ENV{ qw(PATH IFS CDPATH ENV BASH_ENV) };
+        local @ENV{ qw(IFS CDPATH ENV BASH_ENV) };
+        local $ENV{PATH} = untaint_path($ENV{PATH});
         my $devnull = devnull();
         my $apxs = shell_ready($self->{APXS});
         $val = qx($apxs -q $q 2>$devnull);
@@ -1682,6 +1679,17 @@ sub apxs {
         }
     }
     $self->{_apxs}{$q};
+}
+
+# Temporarily untaint PATH
+sub untaint_path {
+    my $path = shift;
+    ($path) = ( $path =~ /(.*)/ );
+    # win32 uses ';' for a path separator, assume others use ':'
+    my $sep = WIN32 ? ';' : ':';
+    # -T disallows relative directories in the PATH
+    $path = join $sep, grep !/^\./, split /$sep/, $path;
+    return $path;
 }
 
 sub pop_dir {
