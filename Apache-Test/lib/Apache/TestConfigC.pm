@@ -37,7 +37,13 @@ sub cmodule_find {
 sub cmodules_configure {
     my($self, $dir) = @_;
 
-    $self->{cmodules_dir} = $dir ||= catfile $self->{vars}->{top_dir}, 'c-modules';
+    $dir ||= catfile $self->{vars}->{top_dir}, 'c-modules';
+
+    unless (-d $dir) {
+        return;
+    }
+
+    $self->{cmodules_dir} = $dir;
 
     local *Apache::TestConfigC::modules = $self->{cmodules} = [];
     local $Apache::TestConfigC::apache_rev = $self->{server}->{rev};
