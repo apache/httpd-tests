@@ -321,7 +321,14 @@ sub add_config {
         $args = "<$directive $arg>\n";
         if (ref($hash)) {
             while (my($k,$v) = each %$hash) {
-                $args .= "   $k $v\n";
+                if (ref($v) eq 'ARRAY') {
+                    for (@$v) {
+                        $args .= "   $k $_\n";
+                    }
+                }
+                else {
+                    $args .= "   $k $v\n";
+                }
             }
         }
         else {
