@@ -8,7 +8,8 @@ use Exporter ();
 use Apache::TestConfig ();
 
 our @ISA = qw(Exporter);
-our @EXPORT = qw(ok skip plan have_lwp have_http11 have_cgi test_module);
+our @EXPORT = qw(ok skip plan have_lwp have_http11 have_cgi
+                 test_module have_module);
 our $VERSION = '0.01';
 
 #so Perl's Test.pm can be run inside mod_perl
