@@ -176,14 +176,15 @@ sub getopts {
             # a known config option?
             if (exists $Apache::TestConfig::Usage{$key}) {
                 $conf_opts{$key} = shift @ARGV;
+                next;
             } # a TestRequest config option?
             elsif (exists $req_wanted_args->{$key}) {
                 $req_args{$key} = shift @ARGV;
+                next;
             }
         }
-        else {
-            push @argv, $val;
-        }
+        # to be processed later
+        push @argv, $val;
     }
 
     $opts{req_args} = \%req_args;
