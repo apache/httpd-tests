@@ -188,6 +188,13 @@ ScriptAlias /cgi @SERVERROOT@/htdocs/modules/alias
 ScriptAliasMatch /aliascgi-(.*) @SERVERROOT@/htdocs/modules/alias/$1
 </IfModule>
 
+Alias /manual @inherit_documentroot@/manual
+<Location /manual>
+    Order deny,allow
+    Deny from all
+    Allow from @servername@
+</Location>
+
 ##
 ## mod_headers test config
 ##
@@ -195,6 +202,13 @@ ScriptAliasMatch /aliascgi-(.*) @SERVERROOT@/htdocs/modules/alias/$1
 <Directory @SERVERROOT@/htdocs/modules/headers/htaccess>
 AllowOverride All
 </Directory>
+
+<VirtualHost _default_:mod_headers>
+    <Location /manual>
+        Header add mod_headers_foo bar
+    </Location>
+</VirtualHost>
+
 </IfModule>
 
 ##
