@@ -8,6 +8,9 @@ Changes - Apache::Test change logfile
 
 =item 1.07-dev
 
+added bugreport and file argument options to 
+Apache::TestRun::generate_script() [Geoffrey Young]
+
 =item 1.06 - November 10, 2003
 
 added -startup_timeout and $ENV{APACHE_TEST_STARTUP_TIMEOUT} as places
