@@ -1282,6 +1282,7 @@ sub generate_httpd_conf {
     $self->generate_index_html;
 
     $self->gendir($vars->{t_logs});
+    $self->gendir($vars->{t_conf});
 
     my @very_last_postamble = ();
     if (my $extra_conf = $self->generate_extra_conf) {
