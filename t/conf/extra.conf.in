@@ -299,12 +299,12 @@ Alias /manual @inherit_documentroot@/manual
 </IfModule>
 
 ##
-## apache/limits.t:
-## LimitRequest* directive testing.  Note that LimitRequestBody has
-## to be larger than apache/post.t's largest request (currently 10MB),
-## or else that test will fail falsely.
+## LimitRequest* directive testing
 ##
+
 LimitRequestLine      128
 LimitRequestFieldSize 1024
 LimitRequestFields    32
-LimitRequestBody      10250000
+<Directory @SERVERROOT@/htdocs/limits>
+    LimitRequestBody  65536
+</Directory>

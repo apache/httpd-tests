@@ -16,14 +16,16 @@ use LWP;
 # LimitRequestLine      128
 # LimitRequestFieldSize 1024
 # LimitRequestFields    32
-# LimitRequestBody      10250000
+# <Directory @SERVERROOT@/htdocs/limits>
+#     LimitRequestBody  65536
+# </Directory>
 #
 
 my @conditions = qw(requestline fieldsize fieldcount bodysize);
 
 my %fail_inputs =    ('requestline' => ("/" . ('a' x 256)),
                       'fieldsize'   => ('a' x 2048),
-                      'bodysize'    => ('a' x 10260000),
+                      'bodysize'    => ('a' x 131072),
                       'fieldcount'  => 64
                       );
 my %succeed_inputs = ('requestline' => '/',
@@ -91,7 +93,7 @@ foreach my $cond (@conditions) {
                 #
                 if ($chunked) {
                     my ($req, $resp, $url);
-                    $url = Apache::TestRequest::resolve_url('/');
+                    $url = Apache::TestRequest::resolve_url('/limits/');
                     $req = HTTP::Request->new(GET => $url);
                     $req->content_type('text/plain');
                     $req->header('X-Subtest' => $testnum);
@@ -108,7 +110,7 @@ foreach my $cond (@conditions) {
                 }
                 else {
                     ok t_cmp(($goodbad eq 'succeed' ? 200 : 413),
-                             GET_RC('/', content_type => 'text/plain',
+                             GET_RC('/limits/', content_type => 'text/plain',
                                     content => $param,
                                     'X-Subtest' => $testnum),
                              "Test #$testnum");
