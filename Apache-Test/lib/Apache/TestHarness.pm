@@ -81,7 +81,7 @@ sub prune {
 
     for (@tests) {
         my $dir = dirname $_;
-        if (m:/all\.t$:) {
+        if (m:\Wall\.t$:) {
             unless ($self->run_t($_)) {
                 $skip_dirs{$dir} = 1;
                 @new_tests = grep { not $skip_dirs{dirname $_} } @new_tests;
