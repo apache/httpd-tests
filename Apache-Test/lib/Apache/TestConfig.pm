@@ -700,7 +700,8 @@ sub clean {
     # hence ensure that sub-dirs are always treated before a parent dir
     for (reverse sort keys %{ $self->{clean}->{dirs} }) {
         if (-d $_) {
-            opendir(my $dh, $_);
+            my $dh = Symbol::gensym();
+            opendir($dh, $_);
             my $notempty = grep { ! /^\.{1,2}$/ } readdir $dh;
             closedir $dh;
             next if $notempty;
