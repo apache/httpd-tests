@@ -14,6 +14,10 @@ Devel::GDB is installed [Gozer]
 add 'testcover' make target for running tests with Devel::Cover
 [Geoffrey Young]
 
+add -withtestmore import action, which allows Test::More >= 0.49
+to replace Test.pm as the engine for server-side tests for
+[Geoffrey Young]
+
 
 
 

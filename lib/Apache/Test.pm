@@ -17,7 +17,6 @@ package Apache::Test;
 use strict;
 use warnings FATAL => 'all';
 
-use Test qw(ok skip);
 use Exporter ();
 use Config;
 use Apache::TestConfig ();
@@ -51,6 +50,48 @@ if (my $subtests = $ENV{HTTPD_TEST_SUBTESTS}) {
 }
 
 my $Config;
+my $real_plan;
+my @testmore;
+
+sub import {
+    my $class = shift;
+
+    # once Test::More always Test::More until plan() is called
+    if (($_[0] and $_[0] =~ m/^-withtestmore/) || @testmore) {
+        # special hoops for Test::More support
+
+        $real_plan = eval { 
+
+            require Test::More; 
+
+            no warnings qw(numeric);
+            Test::Builder->VERSION('0.18_01');
+
+            # required for Test::More::import() and Apache::Test::plan()
+            # if we don't do this, Test::More exports plan() anyway
+            # and we get collisions.  go figure.
+            @testmore = (import => [qw(!plan)]);
+
+            Test::More->import(@testmore);
+
+            \&Test::More::plan;
+        } or die "-withtestmore error: $@";
+
+        # clean up arguments to export_to_level
+        shift;
+        @EXPORT = (@test_more_exports, @Test::More::EXPORT);
+    }
+    else {
+        # the default - Test.pm support
+
+        require Test;
+        Test->import(qw(ok skip));
+        @testmore = ();               # reset, just in case.
+        $real_plan = \&Test::plan;
+    }
+
+    $class->export_to_level(1, undef, @_ ? @_ : @EXPORT);
+}
 
 sub config {
     $Config ||= Apache::TestConfig->thaw->httpd_config;
@@ -73,7 +114,7 @@ sub sok (&;$) {
 
     if (%SubTests and not $SubTests{ $Test::ntest }) {
         for my $n (1..$nok) {
-            skip "skipping this subtest", 0;
+            skip("skipping this subtest", 0);
         }
         return;
     }
@@ -90,10 +131,26 @@ EOE
 
 #so Perl's Test.pm can be run inside mod_perl
 sub test_pm_refresh {
-    $Test::TESTOUT = \*STDOUT;
-    $Test::planned = 0;
-    $Test::ntest = 1;
-    %Test::todo = ();
+    if (@testmore) {
+        
+        Test::Builder->reset;
+
+        Test::Builder->output(\*STDOUT);
+        Test::Builder->todo_output(\*STDOUT);
+
+        # this is STDOUT because Test::More seems to put 
+        # most of the stuff we want on STDERR, so it ends
+        # up in the error_log instead of where the user can
+        # see it.   consider leaving it alone based on
+        # later user reports.
+        Test::Builder->failure_output(\*STDOUT);
+    }
+    else {
+        $Test::TESTOUT = \*STDOUT;
+        $Test::planned = 0;
+        $Test::ntest = 1;
+        %Test::todo = ();
+    }
 }
 
 sub init_test_pm {
@@ -183,7 +240,7 @@ sub plan {
     }
     @SkipReasons = (); # reset
 
-    Test::plan(@_);
+    $real_plan->(@_, @testmore);
 
     # add to Test.pm verbose output
     print "# Using Apache/Test.pm version $VERSION\n";
@@ -862,6 +919,42 @@ with I<Test::More>.
     plan tests => 1;           # Test::More::plan()
 
     ok ('yes', 'testing ok');  # Test::More::ok()
+
+Now, while this works fine for standard client-side tests 
+(such as C<t/basic.t>), the more advanced features of I<Apache::Test>
+require using I<Test::More> as the sole driver behind the scenes.
+
+Should you choose to use I<Test::More> as the backend for
+server-based tests (such as C<t/response/TestMe/basic.pm>) you will
+need to use the C<-withtestmore> action tag:
+
+    use Apache::Test qw(-withtestmore);
+
+    sub handler {
+
+        my $r = shift;
+
+        plan $r, tests => 1;           # Test::More::plan() with
+                                       # Apache::Test features
+
+        ok ('yes', 'testing ok');      # Test::More::ok()
+    }
+
+C<-withtestmore> tells I<Apache::Test> to use I<Test::More>
+instead of I<Test.pm> behind the scenes.  Note that you are not
+required to C<use Test::More> yourself with the C<-withtestmore>
+option and that the C<use Test::More tests =E<gt> 1> syntax
+may have unexpected results.  
+
+Note that I<Test::More> version 0.49, available within the
+I<Test::Simple> 0.49 distribution on CPAN, or greater is required
+to use this feature.
+
+Because I<Apache:Test> was initially developed using I<Test> as
+the framework driver, complete I<Test::More> integration is
+considered experimental at this time - it is supported as best as
+possible but is not guaranteed to be as stable as the default I<Test>
+interface at this time.
 
 =head1 Apache::TestToString Class
 
