@@ -129,7 +129,7 @@ sub test_module {
 
 sub have_apache {
     my $version = shift;
-    my $cfg = Apache::TestRequest::test_config();
+    my $cfg = Apache::Test::config();
     $cfg->{server}->{rev} == $version;
 }
 
