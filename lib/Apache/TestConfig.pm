@@ -11,6 +11,10 @@ use constant COLOR   => ($ENV{APACHE_TEST_COLOR} && -t STDOUT) ? 1 : 0;
 
 use constant DEFAULT_PORT => 8529;
 
+use constant IS_MOD_PERL_2_BUILD =>
+    eval { require mod_perl } && $mod_perl::VERSION >= 1.99 &&
+    eval { require Apache::Build } && Apache::Build::IS_MOD_PERL_BUILD();
+
 use Symbol ();
 use File::Copy ();
 use File::Find qw(finddepth);
@@ -113,11 +117,7 @@ sub passenv_makestr {
 sub server { shift->{server} }
 
 sub modperl_2_inc_fixup {
-
-    (eval { require mod_perl } && $mod_perl::VERSION >= 1.99 &&
-     eval { require Apache::Build } && !Apache::Build::IS_MOD_PERL_BUILD())
-        ? "use Apache2;\n" 
-        : '';
+    IS_MOD_PERL_2_BUILD ? '' : "use Apache2;\n";
 }
 
 sub modperl_build_config {
