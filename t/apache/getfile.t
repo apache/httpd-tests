@@ -2,7 +2,8 @@ use strict;
 use warnings FATAL => 'all';
 
 use Apache::Test;
-use Apache::TestRequest;
+use Apache::TestRequest ();
+use Apache::TestUtil;
 use File::Basename;
 
 my $vars = Apache::Test::vars();
@@ -14,16 +15,19 @@ if (-d $perlpod) {
 }
 else {
     $perlpod = undef;
+    #XXX: howto plan ..., skip_unless(...) + have_module(...) ?
+    push @Apache::Test::SkipReasons,
+      "dir $vars->{perlpod} doesn't exist"
 }
 
 my %other_files = map {
     ("/getfiles-binary-$_", $vars->{$_})
 } qw(httpd perl);
 
-plan tests => @pods + keys(%other_files),
-    skip_unless(sub { $vars->{perlpod} }, "dir $vars->{perlpod} doesn't exist");
+plan tests => @pods + keys(%other_files), 'LWP';
 
 my $location = "/getfiles-perl-pod";
+my $ua = Apache::TestRequest::user_agent();
 
 for my $file (@pods) {
     verify("$location/$file", "$perlpod/$file");
@@ -37,13 +41,14 @@ for my $url (sort keys %other_files) {
 sub verify {
     my($url, $file) = @_;
 
-    my $res = GET $url;
-    my $str = $res->content_ref; #avoid an extra copy
-
-    my $slen = length $$str;
     my $flen = -s $file;
+    my $received = 0;
 
-    print "downloaded $slen bytes, file is $flen bytes\n";
+    $ua->do_request(GET => $url,
+                    sub {
+                        my($chunk, $res) = @_;
+                        $received += length $chunk;
+                    });
 
-    ok $slen == $flen;
+    ok t_cmp($flen, $received, "download of $url");
 }
