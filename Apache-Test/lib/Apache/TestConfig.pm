@@ -595,9 +595,8 @@ sub gendir {
 
 sub open_cmd {
     my($self, $cmd) = @_;
-    # untaint %ENV
-    local %ENV;
-    delete @ENV{ qw(PATH IFS CDPATH ENV BASH_ENV) };
+    # untaint some %ENV fields
+    local @ENV{ qw(PATH IFS CDPATH ENV BASH_ENV) };
 
     open my $handle, '-|', $cmd or die "$cmd failed: $!";
 
