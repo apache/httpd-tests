@@ -452,7 +452,7 @@ EOM
     }
     print <<EOM;
 
-    if 'tests' argument isn't provided all available tests will be run
+    if 'tests' argument is not provided all available tests will be run
 EOM
 }
 
@@ -463,17 +463,18 @@ sub generate_script {
 
     $file ||= catfile 't', 'SMOKE';
 
-    my $content = <<'EOM';
+    my $content = <<EOM;
 use strict;
 use warnings FATAL => 'all';
 
 use FindBin;
-use lib "$FindBin::Bin/../Apache-Test/lib";
-use lib "$FindBin::Bin/../lib";
+use lib "\$FindBin::Bin/../Apache-Test/lib";
+use lib "\$FindBin::Bin/../lib";
+use lib 'lib';
 
-use Apache::TestSmoke ();
+use $class ();
 
-Apache::TestSmoke->new(@ARGV)->run;
+$class->new(\@ARGV)->run;
 EOM
 
     Apache::Test::config()->write_perlscript($file, $content);
