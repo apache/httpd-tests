@@ -607,7 +607,7 @@ sub warn_core {
     finddepth(sub {
         return unless /^core$/;
         my $core = "$File::Find::dir/$_";
-        error "consider removing an old $core file before running tests";
+        info "consider removing an old $core file before running tests";
         # remember the timestamp of $core so we can check if it's the
         # old core file at the end of the run and not complain then
         $core_files{$core} = -M $core;
