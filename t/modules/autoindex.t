@@ -117,7 +117,7 @@ foreach my $fancy (0,1) {
     }
 }
 
-sub ai_test ($$,$$,$$,$$) {
+sub ai_test ($$$$) {
     my ($htconf,$c,$o,$t_uri) = @_;
 
     my $html_head = <<HEAD;
