@@ -494,6 +494,14 @@ sub set_perl5lib {
     $ENV{PERL5LIB} = join $Config{path_sep}, shift->test_inc();
 }
 
+sub set_perldb_opts {
+    my $config = shift->{test_config};
+    my $file = catfile $config->{vars}->{t_logs}, 'perldb.out';
+    $config->genfile($file); #mark for -clean
+    $ENV{PERLDB_OPTS} = "NonStop frame=4 AutoTrace LineInfo=$file";
+    warning "perldb log is t/logs/perldb.out";
+}
+
 sub opt_debug {
     my $self = shift;
     my $server = $self->{server};
@@ -505,17 +513,18 @@ sub opt_debug {
         $debug_opts->{$_} = $opts->{$_};
     }
 
-    if ($opts->{debugger}) {
-        if ($opts->{debugger} eq 'perl') {
+    if (my $db = $opts->{debugger}) {
+        if ($db =~ s/^perl=?//) {
             $opts->{'run-tests'} = 1;
             $self->start; #if not already running
             $self->set_perl5lib;
+            $self->set_perldb_opts if $db eq 'nostop';
             system $^X, '-MApache::TestPerlDB', '-d', @{ $self->{tests} };
             $self->stop;
             return 1;
         }
-        elsif ($opts->{debugger} =~ s/^lwp[=:]?//) {
-            $ENV{APACHE_TEST_DEBUG_LWP} = $opts->{debugger} || 1;
+        elsif ($db =~ s/^lwp[=:]?//) {
+            $ENV{APACHE_TEST_DEBUG_LWP} = $db || 1;
             $opts->{verbose} = 1;
             return 0;
         }

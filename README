@@ -95,6 +95,9 @@ start server under strace (outputs to t/logs/strace.log)
 run .t test under the perl debugger
 % t/TEST -d perl t/modules/access.t
 
+run .t test under the perl debugger (nonstop mode, output to t/logs/perldb.out)
+% t/TEST -d perl=nostop t/modules/access.t
+
 turn on -v and LWP trace (1 is the default) mode in Apache::TestRequest
 % t/TEST -d lwp t/modules/access.t
 
