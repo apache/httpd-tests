@@ -5,6 +5,7 @@ use warnings FATAL => 'all';
 
 use Config;
 use Apache::TestConfig ();
+use Apache::TestTrace;
 
 sub import {
     my $class = shift;
@@ -71,7 +72,7 @@ sub generate_script {
     open $in, "$file.PL" or die "Couldn't open $file.PL: $!";
     open $out, ">$file" or die "Couldn't open $file: $!";
 
-    print "generating script...$file\n";
+    info "generating script $file";
 
     print $out "#!$Config{perlpath}\n",
                "# WARNING: this file is generated, edit $file.PL instead\n";
