@@ -8,6 +8,10 @@ Changes - Apache::Test change logfile
 
 =item 1.07-dev
 
+allow conditional C module compilation on a more granular level.
+#define HTTPD_TEST_REQUIRE_APACHE 2.0.49 is now recognized.
+[Geoffrey Young]
+
 Another attempt at providing a test function that verifies whether
 Apache when switching from 'root' to 'nobody' or another user will be
 able to access and create files under the t/ directory. This time

@@ -26,9 +26,22 @@ sub cmodule_find {
     my $fh = Symbol::gensym();
     open $fh, $file or die "open $file: $!";
     my $v = <$fh>;
-    if ($v =~ /^\#define\s+HTTPD_TEST_REQUIRE_APACHE\s+(\d+)/) {
+    if ($v =~ /^\#define\s+HTTPD_TEST_REQUIRE_APACHE\s+(\d+)\s*$/) {
+        #define HTTPD_TEST_REQUIRE_APACHE 1
         unless ($self->{server}->{rev} == $1) {
             my $reason = "requires Apache version $1";
+            $self->{cmodules_disabled}->{$mod} = $reason;
+            notice "$mod $reason, skipping.";
+            return;
+        }
+    }
+    elsif ($v =~ /^\#define\s+HTTPD_TEST_REQUIRE_APACHE\s+(\d\.\d+(\.\d+)?)/) {
+        #define HTTPD_TEST_REQUIRE_APACHE 2.1
+        my $wanted = $1;
+        (my $current) = $self->{server}->{version} =~ m:^Apache/(\d\.\d+\.\d+):;
+
+        if ($current lt $wanted) {
+            my $reason = "requires Apache version $wanted";
             $self->{cmodules_disabled}->{$mod} = $reason;
             notice "$mod $reason, skipping.";
             return;
