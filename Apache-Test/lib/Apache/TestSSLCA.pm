@@ -4,6 +4,7 @@ use strict;
 use warnings FATAL => 'all';
 
 use Cwd ();
+use DirHandle ();
 use File::Path ();
 use File::Copy 'cp';
 use File::Basename;
@@ -13,6 +14,8 @@ use Apache::TestTrace;
 use constant SSLCA_DB => 'index.txt';
 
 use vars qw(@EXPORT_OK &import);
+
+use subs qw(symlink);
 
 @EXPORT_OK = qw(dn dn_vars dn_oneline);
 *import = \&Exporter::import;
@@ -319,6 +322,44 @@ sub revoke_cert {
     openssl ca => "-gencrl -out $cacrl", @args;
 }
 
+sub symlink {
+    my($file, $symlink) = @_;
+
+    my $what = 'linked';
+
+    if (Apache::TestConfig::WINFU) {
+        cp $file, $symlink;
+        $what = 'copied';
+    }
+    else {
+        CORE::symlink($file, $symlink);
+    }
+
+    info "$what $file to $symlink";
+}
+
+sub hash_certs {
+    my($type, $dir) = @_;
+
+    chdir $dir;
+
+    my $dh = DirHandle->new('.') or die "opendir $dir: $!";
+    my $n = 0;
+
+    for my $file ($dh->read) {
+        next unless $file =~ /\.cr[tl]$/;
+        chomp(my $hash = `openssl $type -noout -hash < $file`);
+        next unless $hash;
+        my $symlink = "$hash.r$n";
+        $n++;
+        symlink $file, $symlink;
+    }
+
+    close $dh;
+
+    chdir $CA;
+}
+
 sub make_proxy_cert {
     my $name = shift;
 
@@ -378,6 +419,8 @@ sub setup {
             make_proxy_cert($name);
         }
     }
+
+    hash_certs(crl => 'crl');
 }
 
 sub generate {
