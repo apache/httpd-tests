@@ -386,6 +386,9 @@ sub lwp_call {
 
     unless ($shortcut) {
         #GET, HEAD, POST
+        if ($r->method eq "POST" && !defined($r->header("Content-Length"))) {
+            $r->header('Content-Length' => length($r->content));
+        }
         $r = $UA ? $UA->request($r) : $r;
         my $proto = $r->protocol;
         if (defined($proto)) {
