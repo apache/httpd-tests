@@ -7,7 +7,6 @@
     httpd_gen     => '2.0',
     httpd_version => 'Apache/2.0.53-dev',
     timeout       => 900, # make test may take a long time
-    makepl_arg    => '-libmodperl mod_perl-5.8.5-ithread.so',
     test_verbose  => 0,
 );
 
