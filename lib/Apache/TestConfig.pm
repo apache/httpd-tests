@@ -991,6 +991,10 @@ sub replace {
 #need to configure the vhost port for redirects and $ENV{SERVER_PORT}
 #to have the correct values
 my %servername_config = (
+    0 => sub {
+        my($name, $port) = @_;
+        [ServerName => ''], [Port => 0];
+    },
     1 => sub {
         my($name, $port) = @_;
         [ServerName => $name], [Port => $port];
