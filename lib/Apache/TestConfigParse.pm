@@ -272,6 +272,15 @@ sub inherit_config_file_or_directory {
     while (<$fh>) {
         s/^\s*//; s/\s*$//; s/^\#.*//;
         next if /^$/;
+
+        # support continuous config lines (which use \ to break the line)
+        while (s/\\$//) {
+            my $cont = <$fh>;
+            $cont =~ s/^\s*//;
+            $cont =~ s/\s*$//;
+            $_ .= $cont;
+        }
+
         (my $directive, $_) = split /\s+/, $_, 2;
 
         if ($directive eq "Include") {
