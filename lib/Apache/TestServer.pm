@@ -426,7 +426,7 @@ sub start {
     $mpm = "($mpm MPM)" if $mpm;
     print "using $version $mpm\n";
 
-    my $tries = 5;
+    my $tries = 6;
 
     for (1..$tries) {
         my $pid = $self->pid;
@@ -439,8 +439,9 @@ sub start {
             if ($_ == 1) {
                 print "waiting for server to warm up...";
             }
-            elsif ($_ >= $tries) {
+            elsif ($_ > $tries) {
                 print "giving up\n";
+                last;
             }
             else {
                 print "...";
@@ -452,7 +453,7 @@ sub start {
     }
 
     if (my $pid = $self->pid) {
-        print "server $self->{name} started\n";
+        print "\nserver $self->{name} started\n";
 
         my $vh = $config->{vhosts};
         my $by_port = sub { $vh->{$a}->{port} <=> $vh->{$b}->{port} };
