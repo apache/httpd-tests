@@ -1,3 +1,9 @@
+- sometimes the server aborts completely after the test suite has run
+  some of the tests (e.g. win32's server has crashed and no
+  replacement is available), but the client part continues to run
+  tests unaware of that problem. what would be nice to be able to
+  detect that the server is gone and somehow abort the test suite
+
 - Custom sticky config: invalidate invalid bits of the saved config,
   e.g. if apxs is saved but can't be found on the filesystem. So if
   someone installs Apache in one location, runs A-T which saves that
