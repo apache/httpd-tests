@@ -130,11 +130,13 @@ sub start_gdb {
     close $fh;
 
     my $command;
+    my $httpd = $config->{vars}->{httpd};
+
     if ($debugger eq 'ddd') {
-        $command = qq{ddd --gdb --debugger "gdb -command $file" $config->{vars}->{httpd}};
+        $command = qq{ddd --gdb --debugger "gdb -command $file" $httpd};
     }
     else {
-        $command = "gdb $config->{vars}->{httpd} -command $file";
+        $command = "gdb $httpd -command $file";
     }
 
     debug  $command;
