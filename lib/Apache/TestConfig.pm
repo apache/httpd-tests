@@ -730,6 +730,26 @@ sub freeze {
     $data;
 }
 
+sub sync_vars {
+    my $self = shift;
+
+    return if $self->{save}; #this is not a cached config
+
+    my $changed = 0;
+    my $thaw = $self->thaw;
+
+    for my $key (@_) {
+        next if $thaw->{vars}->{$key} eq $self->{vars}->{$key};
+        $thaw->{vars}->{$key} = $self->{vars}->{$key};
+        $changed = 1;
+    }
+
+    return unless $changed;
+
+    $thaw->{save} = 1;
+    $thaw->save;
+}
+
 sub save {
     my($self) = @_;
 
