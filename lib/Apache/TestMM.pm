@@ -65,12 +65,12 @@ test_clean :
 	$(FULLPERL) -I$(INST_ARCHLIB) -I$(INST_LIB) \
 	t/TEST $(APACHE_TEST_EXTRA_ARGS) -clean
 
-run_tests : test_clean
+run_tests :
 	$(PASSENV) \
 	$(FULLPERL) -I$(INST_ARCHLIB) -I$(INST_LIB) \
 	t/TEST $(APACHE_TEST_EXTRA_ARGS) -bugreport -verbose=$(TEST_VERBOSE) $(TEST_FILES)
 
-test :: pure_all run_tests test_clean
+test :: pure_all test_clean run_tests
 
 cmodules:
 	cd c-modules && $(MAKE) all
