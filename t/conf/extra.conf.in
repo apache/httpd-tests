@@ -25,6 +25,9 @@ ExpiresByType text/plain M60
 ExpiresByType image/gif A120
 ExpiresByType image/jpeg A86400
 </Directory>
+<Directory @SERVERROOT@/htdocs/modules/expires/htaccess>
+AllowOverride All
+</Directory>
 </IfModule>
 
 ##
@@ -119,13 +122,13 @@ RewriteRule ^([1-6])$ ${numbers-prg:$1}.html [L]
 AddType text/html .shtml
 AddHandler server-parsed .shtml
 </IfDefine>
-<Directory @SERVERROOT@/htdocs/modules/include>
-Options +Includes IncludesNOEXEC
 <IfDefine APACHE2>
 <Files ~ *.shtml>
 SetOutputFilter INCLUDES
 </Files>
 </IfDefine>
+<Directory @SERVERROOT@/htdocs/modules/include>
+Options +Includes IncludesNOEXEC
 </Directory>
 <Directory @SERVERROOT@/htdocs/modules/include/xbithack>
 Options +Includes IncludesNOEXEC

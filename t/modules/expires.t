@@ -19,23 +19,15 @@ use Time::Local;
 ##
 
 ## calculate "modification plus 10 years 6 months 2 weeks 3 days 12 hours 30 minutes 19 seconds"
-my $exp_years =     10 * 60 * 60 * 24 * 365;
-my $exp_months =    6 * 60 * 60 * 24 * 30;
-my $exp_weeks =     2 * 60 * 60 * 24 * 7;
-my $exp_days =      3 * 60 * 60 * 24;
-my $exp_hours =     12 * 60 * 60;
-my $exp_minutes =   30 * 60;
-my $expires_default = $exp_years + $exp_months + $exp_weeks +
-                    $exp_days + $exp_hours + $exp_minutes + 19;
+my $expires_default = calculate_seconds(10,6,2,3,12,30,19);
 
+my $htaccess = "htdocs/modules/expires/htaccess/.htaccess";
 my @page = qw(index.html text.txt image.gif foo.jpg);
-my %exp  = 
-    (	
-     'default'    => "M$expires_default",
-     'text/plain' => 'M60',
-     'image/gif'  => 'A120',
-     'image/jpeg' => 'A86400'
-    );
+my @types = qw(text/plain image/gif image/jpeg);
+my @directive = qw(ExpiresDefault ExpiresByType);
+
+## first the settings in extra.conf.in (server level)
+my %exp  = default_exp();
 
 my %names =
     (
@@ -47,24 +39,169 @@ my %names =
 
 my %month = ();
 my @months = qw(Jan Feb Mar Apr May Jun Jul Aug Sep Oct Nov Dec);
-#@month{@months} = 1..@months;
 @month{@months} = 0..@months-1;
 
-plan tests => @page * 2, test_module 'expires';
+plan tests => (@page * 2) + ((((@page * 3) * @types) + @page) * 2) + @page,
+    test_module 'expires';
 
 foreach my $page (@page) {
     my $head = HEAD_STR "/modules/expires/$page";
     $head = '' unless defined $head;
     print "debug: $page\n$head\n";
     ok ($head =~ /^HTTP\/1\.[1|0] 200 OK/);
+    ok expires_test(1,$head);
+}
 
+unlink $htaccess if -e $htaccess;
+## with no .htaccess file, everything should be inherited here ##
+foreach my $page (@page) {
+    my $head = HEAD_STR "/modules/expires/htaccess/$page";
+    ok expires_test(1,$head);
+}
+
+## testing with .htaccess ##
+foreach my $on_off qw(On Off) {
+
+    my $ExpiresActive = "ExpiresActive $on_off\n";
+    write_htaccess($ExpiresActive);
+    %exp = default_exp();
+
+    ## if ExpiresActive is 'On', everything else will be inherited ##
+    foreach my $page (@page) {
+        my $head = HEAD_STR "/modules/expires/htaccess/$page";
+        print "---\n$ExpiresActive";
+        ok expires_test(($on_off eq 'On'),$head);
+    }
+
+    foreach my $t (@types) {
+
+        my ($head, $directive_string, $gmsec, $a_m,
+            $ExpiresDefault, $ExpiresByType);
+
+        ## testing with just ExpiresDefault directive ##
+        $a_m = qw(A M)[int(rand(2))];
+        ($gmsec, $ExpiresDefault) = get_rand_time_str($a_m);
+        %exp = default_exp();
+        set_exp('default', "$a_m$gmsec");
+        $directive_string = $ExpiresActive .
+                            "ExpiresDefault $ExpiresDefault\n";
+        write_htaccess($directive_string);
+        foreach my $page (@page) {
+            $head = HEAD_STR "/modules/expires/htaccess/$page";
+            print "---\n$directive_string";
+            ok expires_test(($on_off eq 'On'), $head);
+        }
+
+        ## just ExpiresByType directive ##
+        $a_m = qw(A M)[int(rand(2))];
+        ($gmsec, $ExpiresByType) = get_rand_time_str($a_m);
+        %exp = default_exp();
+        set_exp($t, "$a_m$gmsec");
+        $directive_string = $ExpiresActive .
+                            "ExpiresByType $t $ExpiresByType\n";
+        write_htaccess($directive_string);
+        foreach my $page (@page) {
+            $head = HEAD_STR "/modules/expires/htaccess/$page";
+            print "---\n$directive_string";
+            ok expires_test(($on_off eq 'On'), $head);
+        }
+
+        ## both ##
+        $a_m = qw(A M)[int(rand(2))];
+        ($gmsec, $ExpiresDefault) = get_rand_time_str($a_m);
+        %exp = default_exp();
+        set_exp('default', "$a_m$gmsec");
+        $a_m = qw(A M)[int(rand(2))];
+        ($gmsec, $ExpiresByType) = get_rand_time_str($a_m);
+        set_exp($t, "$a_m$gmsec");
+        $directive_string = $ExpiresActive .
+                            "ExpiresDefault $ExpiresDefault\n" .
+                            "ExpiresByType $t $ExpiresByType\n";
+        write_htaccess($directive_string);
+        foreach my $page (@page) {
+            $head = HEAD_STR "/modules/expires/htaccess/$page";
+            print "---\n$directive_string";
+            ok expires_test(($on_off eq 'On'), $head);
+        }
+    }
+}
+
+## clean up ##
+unlink $htaccess if -e $htaccess;
+
+sub set_exp {
+    my $key = shift;
+    my $exp = shift;
+
+    if ($key eq 'all') {
+        foreach (keys %exp) {
+            $exp{$_} = $exp;
+        }
+    } else {
+        $exp{$key} = $exp;
+    }
+}
+
+sub get_rand_time_str {
+    my $a_m = shift;
+    my ($y, $m, $w, $d, $h, $mi, $s, $rand_time_str);
+    $y = int(rand(2));
+    $m = int(rand(4));
+    $w = int(rand(3));
+    $d = int(rand(20));
+    $h = int(rand(9));
+    $mi = int(rand(50));
+    $s = int(rand(50));
+    my $gmsec = calculate_seconds($y,$m,$w,$d,$h,$mi,$s);
+
+    ## whether to write it out or not ##
+    if (int(rand(2))) {
+        ## write it out ##
+
+        ## access or modification ##
+        if ($a_m eq 'A') {
+            $rand_time_str = "\"access plus";
+        } else {
+            $rand_time_str = "\"modification plus";
+        }
+
+        $rand_time_str .= " $y years"    if $y;
+        $rand_time_str .= " $m months"   if $m;
+        $rand_time_str .= " $w weeks"    if $w;
+        $rand_time_str .= " $d days"     if $d;
+        $rand_time_str .= " $h hours"    if $h;
+        $rand_time_str .= " $mi minutes" if $mi;
+        $rand_time_str .= " $s seconds"  if $s;
+        $rand_time_str .= "\"";
+        
+    } else {
+        ## easy format ##
+        $rand_time_str = "$a_m$gmsec";
+    }
+
+    return ($gmsec, $rand_time_str);
+}
+
+sub write_htaccess {
+    open (HT, ">$htaccess") or die "cant open $htaccess: $!";
+    print HT shift;
+    close(HT);
+}
+
+sub expires_test {
+    my $expires_active = shift;
+    my $head_str = shift;
     my %headers = ();
-    foreach my $header (split /\n/, $head) {
+
+    foreach my $header (split /\n/, $head_str) {
         if ($header =~ /^([\-\w]+): (.*)$/) {
             print "debug: [$1] [$2]\n";
             $headers{$names{$1}} = $2 if exists $names{$1};
         }
     }
+
+    ## expires header should not exist if ExpiresActive is Off ##
+    return !$headers{expires} unless ($expires_active);
 
     for my $h (grep !/^type$/, values %names) {
         print "debug: $h @{[$headers{$h}||'']}\n";
@@ -83,6 +220,11 @@ foreach my $page (@page) {
         $exp_conf = $exp{'default'};
     }
 
+    ## if expect is set to '0', Expire header should not exist. ##
+    if ($exp_conf eq '0') {
+        return !$headers{expires};
+    } 
+
     my $expected = '';
     my $exp_type = '';
     if ($exp_conf =~ /^([A|M])(\d+)$/) {
@@ -90,8 +232,7 @@ foreach my $page (@page) {
         $expected = $2;
     } else {
         print STDERR "\n\ndoom: $exp_conf\n\n";
-        ok 0;
-        last;
+        return 0;
     }
 
     my $actual = 0;
@@ -103,11 +244,9 @@ foreach my $page (@page) {
 
     print "debug: expected: $expected\n";
     print "debug: actual  : $actual\n";
-    ok ($actual == $expected);
+    return ($actual == $expected);
 
 }
-
-
 
 sub convert_to_time {
     my $timestr = shift;
@@ -133,4 +272,28 @@ sub convert_to_time {
             defined $year;
 
     return Time::Local::timegm($sec, $min, $hours, $mday, $mon, $year);
+}
+
+sub calculate_seconds {
+    ## takes arguments:
+    ## years, months, weeks, days, hours, minutes, seconds
+    my $exp_years =     shift() * 60 * 60 * 24 * 365;
+    my $exp_months =    shift() * 60 * 60 * 24 * 30;
+    my $exp_weeks =     shift() * 60 * 60 * 24 * 7;
+    my $exp_days =      shift() * 60 * 60 * 24;
+    my $exp_hours =     shift() * 60 * 60;
+    my $exp_minutes =   shift() * 60;
+    return $exp_years + $exp_months + $exp_weeks +
+        $exp_days + $exp_hours + $exp_minutes + shift;
+}
+
+sub default_exp {
+    ## set the exp hash to the defaults as defined in the conf file.
+    return
+    (	
+     'default'    => "M$expires_default",
+     'text/plain' => 'M60',
+     'image/gif'  => 'A120',
+     'image/jpeg' => 'A86400'
+    );
 }
