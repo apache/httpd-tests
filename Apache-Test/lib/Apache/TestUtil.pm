@@ -24,9 +24,9 @@ sub t_cmp {
         ' usage: $res = t_cmp($expected, $received, [$comment])'
             if @_ < 2 || @_ > 3;
 
-    print "testing : ", pop, "\n" if @_ == 3;
-    print "expected: ", struct_as_string(0, $_[0]), "\n";
-    print "received: ", struct_as_string(0, $_[1]), "\n";
+    print "# testing : ", pop, "\n" if @_ == 3;
+    print "# expected: ", struct_as_string(0, $_[0]), "\n";
+    print "# received: ", struct_as_string(0, $_[1]), "\n";
     return t_is_equal(@_);
 }
 
@@ -35,7 +35,7 @@ sub t_write_file {
     die "must pass a filename" unless defined $file;
     my $fh = Symbol::gensym();
     open $fh, ">$file" or die "can't open $file: $!";
-    print "writing file: $file\n";
+    print "# writing file: $file\n";
     print $fh join '', @_ if @_;
     close $fh;
     $CLEAN{files}{$file}++;
@@ -46,7 +46,7 @@ sub t_open_file {
     die "must pass a filename" unless defined $file;
     my $fh = Symbol::gensym();
     open $fh, ">$file" or die "can't open $file: $!";
-    print "writing file: $file\n";
+    print "# writing file: $file\n";
     $CLEAN{files}{$file}++;
     return $fh;
 }
@@ -76,7 +76,7 @@ sub t_mkdir {
     my $dir = shift;
     die "must pass a dirname" unless defined $dir;
     mkdir $dir, 0755 unless -d $dir;
-    print "creating dir: $dir\n";
+    print "# creating dir: $dir\n";
     $CLEAN{dirs}{$dir}++;
 }
 
@@ -169,13 +169,13 @@ END{
 
     # remove files that were created via this package
     for (grep {-e $_ && -f _ } keys %{ $CLEAN{files} } ) {
-        print "removing file: $_\n";
+        print "# removing file: $_\n";
         unlink $_;
     }
 
     # remove dirs that were created via this package
     for (grep {-e $_ && -d _ } keys %{ $CLEAN{dirs} } ) {
-        print "removing dir tree: $_\n";
+        print "# removing dir tree: $_\n";
         t_rmtree($_);
     }
 }
