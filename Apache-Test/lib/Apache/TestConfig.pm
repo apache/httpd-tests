@@ -231,7 +231,7 @@ sub configure_apxs {
 
     my $vars = $self->{vars};
 
-    $vars->{bindir}   ||= $self->apxs('BINDIR');
+    $vars->{bindir}   ||= $self->apxs('BINDIR', 1);
     $vars->{sbindir}  ||= $self->apxs('SBINDIR');
     $vars->{target}   ||= $self->apxs('TARGET');
     $vars->{conf_dir} ||= $self->apxs('SYSCONFDIR');
@@ -815,10 +815,17 @@ sub which {
 }
 
 sub apxs {
-    my($self, $q) = @_;
+    my($self, $q, $ok_fail) = @_;
     return unless $self->{APXS};
     my $val = qx($self->{APXS} -q $q 2>/dev/null);
-    warn "APXS ($self->{APXS}) query for $q failed\n" unless $val;
+    unless ($val) {
+        if ($ok_fail) {
+            return "";
+        }
+        else {
+            warn "APXS ($self->{APXS}) query for $q failed\n";
+        }
+    }
     $val;
 }
 
