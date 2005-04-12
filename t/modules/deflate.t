@@ -66,5 +66,5 @@ if (have_module('cgi') && have_min_apache_version('2.1.0')) {
     my $ret = $sock->read($response, 1024);
     ok t_cmp($ret, 0, "expect EOF after 304 header");
 } else {
-    skip "skipping 304/deflate tests without mod_cgi" foreach (1..$cgi_tests);
+    skip "skipping 304/deflate tests without mod_cgi and httpd >= 2.1.0" foreach (1..$cgi_tests);
 }
