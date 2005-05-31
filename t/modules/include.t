@@ -92,6 +92,7 @@ my %test = (
 "exec/on/cgi.shtml"     =>    "perl cgi",
 "ranged-virtual.shtml"  =>    "x"x32768,
 "var128.shtml"          =>    "x"x126 . "yz",  # PR#32985
+"virtualq.shtml?foo=bar" =>   "foo=bar  pass    inc-two.shtml body  foo=bar", # PR#12655
 );
 
 # now, assuming 2.1 has the proper behavior across the board,
