@@ -35,7 +35,7 @@ if (have_cgi) {
     skip "skipping tests without CGI module" foreach (1..6);
 }
 
-if (have_min_apache_version('2.1.0')) {
+if (have_min_apache_version('2.0.55')) {
     # trigger the "proxy decodes abs_path issue": with the bug present, the
     # proxy URI-decodes on the way through, so the origin server receives
     # an abs_path of "/reverse/nonesuch/file%", which it fails to parse and
