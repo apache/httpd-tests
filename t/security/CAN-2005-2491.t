@@ -5,7 +5,7 @@ use Apache::Test;
 use Apache::TestUtil;
 use Apache::TestRequest;
 
-plan tests => 2 * 2;
+plan tests => 2 * 2, need 'rewrite';
 
 foreach my $dir ("one/", "two/") {
     my $r = GET("/security/CAN-2005-2491/" . $dir);
