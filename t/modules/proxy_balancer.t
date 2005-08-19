@@ -6,7 +6,7 @@ use Apache::TestRequest;
 use Apache::TestUtil;
 use Apache::TestConfig ();
 
-plan tests => 1, need_module 'proxy';
+plan tests => 1, need 'proxy_balancer', 'proxy_http';
 
 Apache::TestRequest::module("proxy_http_balancer");
 Apache::TestRequest::user_agent(requests_redirectable => 0);
