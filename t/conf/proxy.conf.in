@@ -7,3 +7,20 @@
     </VirtualHost>
 
 </IfModule>
+
+<IfModule mod_proxy_balancer.c>
+
+   <VirtualHost proxy_http_balancer>
+     <Proxy balancer://foo>
+       BalancerMember http://@SERVERNAME@:@PROXY_HTTP_BAL1_PORT@  loadfactor=1
+       BalancerMember http://@SERVERNAME@:@PROXY_HTTP_BAL2_PORT@  loadfactor=1
+     </Proxy>
+
+     ProxySet balancer://foo lbmethod=bytraffic
+
+     <Location /baltest>
+       ProxyPass balancer://foo/
+     </Location>
+
+   </VirtualHost>
+</IfModule>

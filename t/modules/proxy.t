@@ -59,3 +59,4 @@ if (have_module('alias')) {
 } else {
     skip "skipping tests without mod_alias" foreach (1..2);
 }
+
