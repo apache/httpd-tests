@@ -215,16 +215,6 @@
       ProxyPassReverse /reverse/ http://@SERVERNAME@:@PORT@/
    </VirtualHost>
 </IfModule>
-
-<IfModule mod_proxy_balancer.c>
-   <VirtualHost proxy_http_bal1>
-      DocumentRoot @SERVERROOT@/htdocs
-   </VirtualHost>
-
-   <VirtualHost proxy_http_bal2>
-      DocumentRoot @SERVERROOT@/htdocs
-   </VirtualHost>
-</IfModule>
   
 ##
 ## @ACCESS_MODULE@ test config
