@@ -1,0 +1,21 @@
+use strict;
+use warnings FATAL => 'all';
+
+use Apache::Test;
+use Apache::TestUtil;
+use Apache::TestRequest;
+
+plan tests => 2 * 2;
+
+foreach my $dir ("one/", "two/") {
+    my $r = GET("/security/CAN-2005-2491/" . $dir);
+
+    # LWP will generate the annoying fake-500 response if the server
+    # segfaults before generating its own 500 response; check
+    # the response message explicitly to rule that out.
+
+    ok t_cmp($r->message, 'Internal Server Error',
+             'check that server did not segfault');
+
+    ok t_cmp($r->code, 500, "check for 500 response error");
+}
