@@ -1,4 +1,4 @@
-#test config derived from httpd-2.0/docs/conf/ssl-std.conf
+#test config derived from httpd-2.0/docs/conf/ssl-std.conf -*- text -*-
 
 <IfModule @ssl_module@>
     #base config that can be used by any SSL enabled VirtualHosts
@@ -138,4 +138,22 @@
         </IfModule>
 
     </VirtualHost>
+
+    # An SSL vhost which does optional ccert checks at vhost level, to
+    # check for CVE CAN-2005-2700.
+      
+    <VirtualHost ssl_optional_cc>
+        SSLEngine on
+        
+        SSLVerifyClient optional
+
+        Alias /require/any        @DocumentRoot@
+        Alias /require/none       @DocumentRoot@
+
+        <Location /require/any>
+            SSLVerifyClient require
+            SSLVerifyDepth  10
+        </Location>
+    </VirtualHost>
+
 </IfModule>
