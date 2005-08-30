@@ -319,6 +319,7 @@ else {
 
     # trim output
     $result = single_space($result);
+    $expected = single_space($expected);
 
     ok t_cmp("$result",
              "$expected",
