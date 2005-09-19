@@ -29,7 +29,10 @@
 
 #include "mod_ssl.h"
 
-#if AP_MODULE_MAGIC_AT_LEAST(20050127, 0) /* approx. when ssl_ext_lookup was added */
+#if AP_MODULE_MAGIC_AT_LEAST(20050919, 0) /* ssl_ext_list() implementation added */
+#define HAVE_SSL_EXT_LIST
+static APR_OPTIONAL_FN_TYPE(ssl_ext_list) *ext_list;
+#elif AP_MODULE_MAGIC_AT_LEAST(20050127, 0) /* approx. when ssl_ext_lookup was added */
 #define HAVE_SSL_EXT_LOOKUP
 static APR_OPTIONAL_FN_TYPE(ssl_ext_lookup) *ext_lookup;
 #endif
@@ -52,9 +55,12 @@ static void import_ssl_var_lookup(void)
 #ifdef HAVE_SSL_EXT_LOOKUP
     ext_lookup = APR_RETRIEVE_OPTIONAL_FN(ssl_ext_lookup);
 #endif
+#ifdef HAVE_SSL_EXT_LIST
+    ext_list = APR_RETRIEVE_OPTIONAL_FN(ssl_ext_list);
+#endif
 }
 
-#ifdef HAVE_SSL_EXT_LOOKUP
+#if defined(HAVE_SSL_EXT_LOOKUP) || defined(HAVE_SSL_EXT_LIST)
 static int test_ssl_ext_lookup(request_rec *r)
 {
     const char *value;
@@ -69,12 +75,31 @@ static int test_ssl_ext_lookup(request_rec *r)
         return OK;
     }
 
+#ifdef HAVE_SSL_EXT_LOOKUP
     if (!ext_lookup) {
         ap_rputs("ssl_ext_lookup not available", r);
         return OK;
     }
 
     value = ext_lookup(r->pool, r->connection, 1, r->args);
+#else
+    if (!ext_list) {
+        ap_rputs("ssl_ext_list not available", r);
+        return OK;
+    }
+    
+    {
+        apr_array_header_t *vals = ext_list(r->pool, r->connection, 1,
+                                            r->args);
+        
+        if (vals) {
+            value = *(const char **)apr_array_pop(vals);
+        }
+        else {
+            value = NULL;
+        }
+    }
+#endif
 
     if (!value) value = "NULL";
     
@@ -125,7 +150,7 @@ static int test_ssl_var_lookup(request_rec *r)
 static void test_ssl_register_hooks(apr_pool_t *p)
 {
     ap_hook_handler(test_ssl_var_lookup, NULL, NULL, APR_HOOK_MIDDLE);
-#ifdef HAVE_SSL_EXT_LOOKUP
+#if defined(HAVE_SSL_EXT_LOOKUP) || defined(HAVE_SSL_EXT_LIST)
     ap_hook_handler(test_ssl_ext_lookup, NULL, NULL, APR_HOOK_MIDDLE);
 #endif
     ap_hook_optional_fn_retrieve(import_ssl_var_lookup,
