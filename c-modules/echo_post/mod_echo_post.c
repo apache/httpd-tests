@@ -42,22 +42,23 @@ static int echo_post_handler(request_rec *r)
 #endif
     
     if (r->args) {
-        ap_rprintf(r, "%ld:", r->remaining);
+        ap_rprintf(r, "%" APR_OFF_T_FMT ":", r->remaining);
     }
 
-    fprintf(stderr, "[mod_echo_post] going to echo %ld bytes\n",
+    fprintf(stderr, "[mod_echo_post] going to echo %" APR_OFF_T_FMT " bytes\n",
             r->remaining);
 
     while ((nrd = ap_get_client_block(r, buff, sizeof(buff))) > 0) {
         fprintf(stderr,
-                "[mod_echo_post] read %ld bytes (wanted %d, remaining=%ld)\n",
+                "[mod_echo_post] read %ld bytes (wanted %" APR_SIZE_T_FMT 
+                ", remaining=%" APR_OFF_T_FMT ")\n",
                 nrd, sizeof(buff), r->remaining);
         ap_rwrite(buff, nrd, r);
         total += nrd;
     }
 
     fprintf(stderr,
-            "[mod_echo_post] done reading %ld bytes, %ld bytes remain\n",
+            "[mod_echo_post] done reading %ld bytes, %" APR_OFF_T_FMT " bytes remain\n",
             total, r->remaining);
     
     return OK;

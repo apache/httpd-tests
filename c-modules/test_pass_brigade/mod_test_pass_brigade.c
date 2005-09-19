@@ -39,7 +39,8 @@ static int test_pass_brigade_handler(request_rec *r)
     httpd_test_split_qs_numbers(r, &buff_size, &remaining, NULL);
 
     fprintf(stderr, "[mod_test_pass_brigade] "
-            "going to echo %lu bytes with buffer size=%lu\n",
+            "going to echo %" APR_SIZE_T_FMT " bytes with "
+            "buffer size=%" APR_SIZE_T_FMT "\n",
             remaining, buff_size);
 
     buff = malloc(buff_size);
@@ -75,7 +76,8 @@ static int test_pass_brigade_handler(request_rec *r)
     
     apr_brigade_destroy(bb);
     fprintf(stderr,
-            "[mod_test_pass_brigade] done writing %ld of %ld bytes\n",
+            "[mod_test_pass_brigade] done writing %" APR_SIZE_T_FMT 
+            " of %" APR_SIZE_T_FMT " bytes\n",
             total, remaining);
 
     free(buff);    
