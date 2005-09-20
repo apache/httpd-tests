@@ -171,9 +171,10 @@ static int random_chunk_handler(request_rec *r)
         }
     }
 
-    ap_rprintf(r, "__END__:%d", total);
+    ap_rprintf(r, "__END__:%" APR_SIZE_T_FMT, total);
 
-    fprintf(stderr, "[mod_random_chunk] sent %d bytes\n", total);
+    fprintf(stderr, "[mod_random_chunk] sent %" APR_SIZE_T_FMT "bytes\n", 
+            total);
 
     return 0;
 }
