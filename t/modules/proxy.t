@@ -43,7 +43,7 @@ if (have_min_apache_version('2.0.55')) {
     $r = GET("/reverse/nonesuch/file%25");
     ok t_cmp($r->code, 404, "reverse proxy URI decoding issue, PR 15207");
 } else {
-    skip "skipping PR 15207 test with httpd < 2.1.0";
+    skip "skipping PR 15207 test with httpd < 2.0.55";
 }
 
 $r = GET("/reverse/notproxy/local.html");
