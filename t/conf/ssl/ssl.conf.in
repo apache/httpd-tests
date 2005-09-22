@@ -82,6 +82,9 @@
         Alias /ssl-cgi            @DocumentRoot@/modules/cgi
         Alias /require-ssl-cgi    @DocumentRoot@/modules/cgi
 
+        Alias /require-md5-cgi    @DocumentRoot@/modules/cgi
+        Alias /require-sha-cgi    @DocumentRoot@/modules/cgi
+
         <Location /require/asf>
             SSLVerifyClient require
             SSLVerifyDepth  10
@@ -108,6 +111,14 @@
             SSLOptions +StdEnvVars
             SSLVerifyClient require
             SSLVerifyDepth  10
+        </Location>
+
+        <Location /require-sha-cgi>
+            SSLCipherSuite RC4-SHA
+        </Location>
+
+        <Location /require-md5-cgi>
+            SSLCipherSuite RC4-MD5
         </Location>
 
         <IfModule @AUTH_MODULE@>
