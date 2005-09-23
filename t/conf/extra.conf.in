@@ -8,6 +8,14 @@
 </Directory>
 
 ##
+## Options override test config
+##
+<Directory @SERVERROOT@/htdocs/apache/htaccess/override>
+    AllowOverride All
+    Options -Includes
+</Directory>
+
+##
 ## AcceptPathInfo test config
 ##
 <IfDefine APACHE2>
