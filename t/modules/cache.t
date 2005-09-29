@@ -6,7 +6,7 @@ use Apache::TestRequest;
 use Apache::TestUtil;
 use Apache::TestConfig ();
 
-plan tests => 3, need 'cache', 'disk_cache', need_min_apache_version('2.3.0');
+plan tests => 3, need 'cache', 'disk_cache', need_min_apache_version('2.1.9');
 
 Apache::TestRequest::module('mod_cache');
 
