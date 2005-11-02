@@ -14,7 +14,7 @@ my $ext;
 
 my @vh = qw(www.vha-test.com big.server.name.from.heck.org ab.com w-t-f.net);
 
-plan tests => @vh * 2, sub { need_module('vhost_alias') && need_cgi() };
+plan tests => @vh * 2, need need_module('vhost_alias'), need_cgi, need_lwp;
 
 Apache::TestRequest::scheme('http'); #ssl not listening on this vhost
 Apache::TestRequest::module('mod_vhost_alias'); #use this module's port

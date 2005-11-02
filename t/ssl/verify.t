@@ -13,7 +13,7 @@ Apache::TestRequest::user_agent_keepalive(0);
 
 my $url = '/verify/index.html';
 
-plan tests => 3;
+plan tests => 3, need_lwp;
 
 Apache::TestRequest::scheme('https');
 

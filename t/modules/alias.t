@@ -40,7 +40,7 @@ my $tests = (keys %redirect) + (keys %rm_body) * 10 +
             (keys %rm_rc) * 10 + 12 + $script_tests;
 
 #LWP required to follow redirects
-plan tests => $tests, [qw(alias LWP)];
+plan tests => $tests, need need_module('alias'), need_lwp;
 
 ## simple alias ##
 t_debug "verifying simple aliases";

@@ -31,7 +31,7 @@ for my $module (sort keys %backend) {
 }
 
 plan tests => (8 + $post_tests) * $num_modules - 5 * $num_http_backends,
-              [qw(mod_proxy proxy_http.c)];
+              need need_lwp, [qw(mod_proxy proxy_http.c)];
 
 for my $module (sort keys %frontend) {
 

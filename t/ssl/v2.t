@@ -8,7 +8,7 @@ use warnings FATAL => 'all';
 use Apache::Test;
 use Apache::TestRequest;
 
-plan tests => 1;
+plan tests => 1, need_lwp;
 
 Apache::TestRequest::scheme('https');
 

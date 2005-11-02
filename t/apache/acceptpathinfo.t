@@ -23,7 +23,7 @@ my @files = ("", "/index.shtml");
 push @files, "/test.sh" if ($havecgi);
 
 my $numtests = ((scalar keys %tests) * (scalar @files) * 4);
-plan tests => $numtests, sub { need_apache(2) && need_module('include') };
+plan tests => $numtests, need need_apache(2), need_module('include'), need_lwp;
 
 my $loc = "/apache/acceptpathinfo";
 

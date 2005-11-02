@@ -213,7 +213,7 @@ unless ($have_apache_2) {
 
 plan tests => (scalar keys %tests) + @patterns + 32,
               todo => \@todo,
-              have_module 'include';
+              need need_lwp, need_module 'include';
 
 foreach $doc (sort keys %tests) {
     # do as much from %test as we can

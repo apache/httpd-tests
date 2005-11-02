@@ -6,6 +6,11 @@ use Apache::TestRequest;
 use Apache::TestUtil;
 use Apache::TestSSLCA qw(dn dn_oneline);
 
+unless (have_lwp) {
+    # bail out early, since the parser below relies on $LWP::VERSION
+    plan tests => 0, need_lwp;
+}
+
 use Time::localtime;
 
 my $config = Apache::Test::config();
@@ -66,7 +71,7 @@ while (<DATA>) {
     push @vars, $key;
 }
 
-plan tests => scalar @vars, need_module 'test_ssl';
+plan tests => scalar (@vars), need need_lwp, need_module('test_ssl');
 
 for my $key (@vars) {
     sok { verify($key); };

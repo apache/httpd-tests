@@ -10,7 +10,7 @@ use Apache::TestRequest;
 #happen in real-life, so just disable keepalives here.
 Apache::TestRequest::user_agent_keepalive(0);
 
-plan tests => 5;
+plan tests => 5, need_lwp;
 
 Apache::TestRequest::scheme('https');
 

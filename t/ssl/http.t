@@ -22,7 +22,7 @@ if (Apache::TestConfig::WIN32) {
     @todo = (todo => [2]);
 }
 
-plan tests => 2, @todo;
+plan tests => 2, @todo, need_lwp;
 
 my $config = Apache::Test::config();
 my $ssl_module = $config->{vars}->{ssl_module_name};
