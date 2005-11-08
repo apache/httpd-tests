@@ -1,10 +1,10 @@
 <?php
-	switch ($HTTP_SERVER_VARS["REQUEST_METHOD"]) {
+	switch ($_SERVER["REQUEST_METHOD"]) {
 	case "GET":
-		echo $HTTP_GET_VARS["variable"];
+		echo $_GET["variable"];
 		break;
 	case "POST":
-		echo $HTTP_POST_VARS["variable"];
+		echo $_POST["variable"];
 		break;
 	default:
 		echo "ERROR!";

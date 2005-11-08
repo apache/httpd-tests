@@ -1,6 +1,6 @@
 <?php
 
-$file = $HTTP_SERVER_VARS["argv"][0];
+$file = $_SERVER["argv"][0];
 
 function foo()
 {
