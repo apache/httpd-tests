@@ -1,6 +1,7 @@
 use strict;
 use warnings FATAL => 'all';
 use Apache::Test;
+use Apache::TestUtil;
 use Apache::TestRequest;
 use Apache::TestConfig ();
 use Apache::TestSSLCA ();
@@ -19,19 +20,27 @@ my $client_expect =
 
 my $url = '/ssl-cgi/env.pl';
 
-my $tests = (keys(%$server_expect) + keys(%$client_expect)) * 2;
+my $tests = (keys(%$server_expect) + keys(%$client_expect) + 1) * 2;
 plan tests => $tests, need need_cgi, need_lwp;
 
 Apache::TestRequest::scheme('https');
 
-my $env = getenv(GET_STR($url));
+my $r = GET($url);
+
+ok t_cmp($r->code, 200, "response status OK");
+
+my $env = getenv($r->as_string);
 
 verify($env, $server_expect);
 verify($env, $client_expect, 1);
 
 $url = '/require-ssl-cgi/env.pl';
 
-$env = getenv(GET_STR($url, cert => $cert));
+$r = GET($url, cert => $cert);
+
+ok t_cmp($r->code, 200, "second response status OK");
+
+$env = getenv($r->as_string);
 
 verify($env, $server_expect);
 verify($env, $client_expect);
