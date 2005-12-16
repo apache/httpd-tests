@@ -519,3 +519,9 @@ LimitRequestFields    32
     </Directory>
 
 </VirtualHost>
+
+<IfModule mod_bucketeer.c>
+   <Directory @DocumentRoot@/apache/chunked>
+       SetOutputFilter BUCKETEER
+   </Directory>
+</IfModule>
