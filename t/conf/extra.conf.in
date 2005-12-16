@@ -451,6 +451,9 @@ LimitRequestFields    32
     AllowOverride All
     Order allow,deny
     Allow from all
+
+    # for CVE-2005-3352 test:
+    AddHandler imap-file map
 </Directory>
 
 <Directory @SERVERROOT@/htdocs/security/CAN-2004-0811>
