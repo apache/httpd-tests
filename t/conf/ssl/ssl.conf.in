@@ -167,4 +167,16 @@
         </Location>
     </VirtualHost>
 
+    # An SSL vhost which can be used to trigger PR 33791
+
+    <VirtualHost ssl_pr33791>
+       SSLEngine On
+
+       ErrorDocument 400 /index.html
+
+       <Location />
+           SSLVerifyClient require
+       </Location>
+    </VirtualHost>
+
 </IfModule>
