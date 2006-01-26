@@ -21,7 +21,7 @@ foreach (split /\n/, $info) {
     if ($_ =~ /<a name=\"(\w+\.c)\">/) {
         if ($1 eq 'util_ldap.c') {
             push(@actual,'mod_ldap.c');
-        } elsif ($1 eq 'mod_imap.c') {        
+        } elsif ($1 eq 'mod_imap.c' && have_min_apache_version('2.1.5') ) {        
             push(@actual, 'mod_imagemap.c');
         } else {
             push(@actual, $1);
