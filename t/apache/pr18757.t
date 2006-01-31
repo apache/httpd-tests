@@ -13,17 +13,30 @@ use Apache::Test;
 use Apache::TestUtil;
 use Apache::TestRequest;
 
-plan tests => 2, need 'cgi', 'proxy', need_min_apache_version('2.2.1');
+plan tests => 3, need 'cgi', 'proxy', need_min_apache_version('2.2.1');
 
-my $sock = Apache::TestRequest::vhost_socket("proxy_http_https");
+Apache::TestRequest::module("mod_proxy");
 
-my $url = Apache::TestRequest::resolve_url("/modules/cgi/empty.pl");
+my $path = "/index.html";
+
+my $r = GET($path);
+
+ok t_cmp($r->code, 200, "200 response from GET");
+
+my $clength = $r->content_length;
+
+t_debug("expected C-L is $clength");
+
+my $url = Apache::TestRequest::resolve_url($path);
+my $hostport = Apache::TestRequest::hostport();
+my $sock = Apache::TestRequest::vhost_socket("mod_proxy");
 
 t_debug "URL via proxy is $url";
 
 ok $sock;
 
-$sock->print("HEAD $url HTTP/1.0\r\n");
+$sock->print("HEAD $url HTTP/1.1\r\n");
+$sock->print("Host: $hostport\r\n");
 $sock->print("\r\n");
 
 my $ok = 0;
@@ -32,8 +45,10 @@ my $response;
 do {
     chomp($response = Apache::TestRequest::getline($sock) || '');
     $response =~ s/\s$//;
+
+    t_debug("line: $response");
     
-    if ($response =~ /Content-Length: 0/) {
+    if ($response =~ /Content-Length: $clength/) {
         $ok = 1;
     }
 
