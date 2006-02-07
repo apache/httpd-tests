@@ -9,6 +9,40 @@ Alias /authany @DocumentRoot@
 
 #endif
 
+#include "ap_mmn.h"
+
+/* do not accept empty "" strings */
+#define strtrue(s) (s && *s)
+
+#if AP_MODULE_MAGIC_AT_LEAST(20060110, 0)
+
+#include "ap_provider.h"
+#include "mod_auth.h"
+
+static authz_status any_check_authorization(request_rec *r,
+                                            const char *requirement)
+{
+    return strtrue(r->user) && strcmp(requirement, "any-user") == 0 
+        ? AUTHZ_GRANTED : AUTHZ_DENIED;
+}
+
+static const authz_provider authz_any_provider =
+{
+    &any_check_authorization,
+};
+
+static void extra_hooks(apr_pool_t *p)
+{
+    ap_register_provider(p, AUTHZ_PROVIDER_GROUP,
+                         "user", "0", &authz_any_provider);
+}
+
+#define APACHE_HTTPD_TEST_EXTRA_HOOKS extra_hooks
+
+#include "apache_httpd_test.h"
+
+#else /* < 2.3 */
+
 #define APACHE_HTTPD_TEST_HOOK_ORDER    APR_HOOK_FIRST
 #define APACHE_HTTPD_TEST_CHECK_USER_ID authany_handler
 #define APACHE_HTTPD_TEST_AUTH_CHECKER  require_any_user
@@ -42,9 +76,6 @@ static int require_any_user(request_rec *r)
 
     return DECLINED;
 }
-
-/* do not accept empty "" strings */
-#define strtrue(s) (s && *s)
 
 static int authany_handler(request_rec *r)
 {
@@ -82,5 +113,6 @@ static int authany_handler(request_rec *r)
 
      return OK;
 }
+#endif
 
 APACHE_HTTPD_TEST_MODULE(authany);
