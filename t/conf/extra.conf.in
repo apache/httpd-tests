@@ -57,6 +57,11 @@
 </IfDefine>
 
 <IfModule @PHP_MODULE@>
+    # t/htdocs/php/arg.php et al require argc/argv in _SERVER
+    <Directory @SERVERROOT@/htdocs/php>
+       php_admin_flag "register_argc_argv" 1
+    </Directory>
+
     <Directory @SERVERROOT@/htdocs/php/safemode>
         php_admin_value safe_mode 1
         php_admin_value safe_mode_exec_dir /usr/bin
