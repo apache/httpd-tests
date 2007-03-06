@@ -9,7 +9,7 @@ use Apache::TestUtil;
 ##
 ## extra.conf.in:
 
-my @map = qw(txt rnd); #dbm XXX: howto determine dbm support is available?
+my @map = qw(txt rnd prg); #dbm XXX: howto determine dbm support is available?
 my @num = qw(1 2 3 4 5 6);
 my @url = qw(forbidden gone perm temp);
 my $r;
