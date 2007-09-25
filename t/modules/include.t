@@ -295,8 +295,7 @@ else {
     my $strftime = sub($) {
         my $fmt = shift;
 
-        POSIX::strftime($fmt, $time[0], $time[1], $time[2], $time[3], $time[4],
-                        $time[5], -1, -1, -1);
+        POSIX::strftime($fmt, @time);
     };
 
     # XXX: not sure about the locale thing, but it seems to work at least on my
