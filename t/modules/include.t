@@ -93,6 +93,8 @@ my %test = (
 "ranged-virtual.shtml"  =>    "x"x32768,
 "var128.shtml"          =>    "x"x126 . "yz",  # PR#32985
 "virtualq.shtml?foo=bar" =>   "foo=bar  pass    inc-two.shtml body  foo=bar", # PR#12655
+
+"inc-nego.shtml"        =>    "index.html.en", # requires mod_negotiation
 );
 
 # now, assuming 2.1 has the proper behavior across the board,
@@ -157,6 +159,10 @@ unless (have_min_apache_version "2.0.53") {
 unless ($have_apache_21) {
     # apache 1.3 and 2.0 do not support these tests
     delete $test{"echo2.shtml"};
+}
+
+unless (have_module 'mod_negotiation') {
+    delete $test{"inc-nego.shtml"};
 }
 
 # this test does not work on win32 (<!--#exec cmd="echo pass"-->)
