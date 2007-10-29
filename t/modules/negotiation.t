@@ -40,9 +40,11 @@ use Apache::TestUtil;
 
 my ($en, $fr, $de, $fu, $bu) = qw(en fr de fu bu);
 my @language = ($en, $fr, $de, $fu);
+my $tests = (@language * 3) + (@language * @language * 5) + 7;
 
-plan tests => (@language * 3) + (@language * @language * 5) + 6,
-    have_module 'negotiation';
+plan tests => $tests,
+    todo => [$tests],
+    have_module 'negotiation' && have_cgi && have_module 'mime';
 
 my $actual;
 
@@ -160,3 +162,11 @@ print "# GET /modules/negotiation/$en/compressed/\n# Accept-Language: $en; q=0.1
 my_chomp();
 ok t_cmp($actual, "index.html.$fr.gz",
          "bu has the highest quality but is non-existant, so fr is next best");
+
+# PR 43550 -- TODO
+$actual = GET_BODY "/modules/negotiation/query/test?foo";
+print "# GET /modules/negotiation/query/test?foo\n";
+my_chomp();
+ok t_cmp($actual, "QUERY_STRING --> foo",
+         "The type map gives the script the highest quality;"
+         . "\nthe request included a query string");

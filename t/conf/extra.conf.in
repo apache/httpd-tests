@@ -150,6 +150,15 @@
         Options +MultiViews
         LanguagePriority fu fr en de
     </Directory>
+
+   <IfModule @CGI_MODULE@>
+        <Directory @SERVERROOT@/htdocs/modules/negotiation/query>
+          Options +MultiViews +ExecCGI
+          MultiviewsMatch any
+          AddHandler cgi-script .pl
+       </Directory>
+   </IfModule>
+
 </IfModule>
 
 ##
