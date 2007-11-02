@@ -179,4 +179,19 @@
        </Location>
     </VirtualHost>
 
+    # For t/ssl/pr43738.t:
+    <IfModule mod_actions.c>
+        Action application/x-pf-action /modules/cgi/action.pl
+        
+        AddType application/x-pf-action .pfa
+    </IfModule>
+
+    <Location /modules/ssl/sha/>
+         SSLCipherSuite RC4-SHA
+    </Location>
+
+    <Location /modules/ssl/md5/>
+         SSLCipherSuite RC4-MD5
+    </Location>
+
 </IfModule>
