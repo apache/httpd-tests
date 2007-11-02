@@ -5,8 +5,8 @@ use Apache::Test;
 use Apache::TestRequest;
 use Apache::TestUtil;
 
-plan tests => 4, todo => [2, 4],
-    need 'ssl', need_module 'actions', need_min_apache_version('2.0');
+plan tests => 4, 
+    need 'ssl', need_module 'actions', need_min_apache_version('2.3');
 
 Apache::TestRequest::user_agent_keepalive(1);
 Apache::TestRequest::scheme('https');
