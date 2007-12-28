@@ -1,0 +1,18 @@
+use strict;
+use warnings FATAL => 'all';
+
+use Apache::Test;
+use Apache::TestUtil;
+use Apache::TestRequest;
+
+my $vars = Apache::Test::vars();
+
+plan tests => 2, need_module 'status';
+
+my $url = '/server-status?refresh=42;fish';
+
+my $r = GET $url;
+
+ok t_cmp($r->code, 200, "response code is OK");
+
+ok t_cmp($r->header('Refresh'), 42, "refresh parameter not echoed verbatim");

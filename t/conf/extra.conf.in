@@ -542,3 +542,7 @@ LimitRequestFields    32
        SetOutputFilter BUCKETEER
    </Directory>
 </IfModule>
+
+<IfModule mod_status.c>
+   ExtendedStatus On
+</IfModule>
