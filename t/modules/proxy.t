@@ -6,7 +6,7 @@ use Apache::TestRequest;
 use Apache::TestUtil;
 use Apache::TestConfig ();
 
-plan tests => 13, need_module 'proxy';
+plan tests => 15, need_module 'proxy';
 
 Apache::TestRequest::module("proxy_http_reverse");
 Apache::TestRequest::user_agent(requests_redirectable => 0);
@@ -24,6 +24,10 @@ if (have_cgi) {
     ok t_cmp($r->code, 200, "reverse proxy with query string");
     ok t_cmp($r->content, qr/QUERY_STRING = reverse-proxy\n/s, "reverse proxied query string OK");
 
+    $r = GET("/reverse/modules/cgi/nph-dripfeed.pl");
+    ok t_cmp($r->code, 200, "reverse proxy to dripfeed CGI");
+    ok t_cmp($r->content, "abcdef", "reverse proxied to dripfeed CGI content OK");
+
     if (have_min_apache_version('2.1.0')) {
         $r = GET("/reverse/modules/cgi/nph-102.pl");
         ok t_cmp($r->code, 200, "reverse proxy to nph-102");
@@ -32,7 +36,7 @@ if (have_cgi) {
         skip "skipping tests with httpd <2.1.0" foreach (1..2);
     }
 } else {
-    skip "skipping tests without CGI module" foreach (1..6);
+    skip "skipping tests without CGI module" foreach (1..8);
 }
 
 if (have_min_apache_version('2.0.55')) {
