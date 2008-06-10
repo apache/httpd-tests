@@ -36,10 +36,10 @@ if (have_cgi) {
         skip "skipping tests with httpd <2.1.0" foreach (1..2);
     }
     $r = GET("/reverse/modules/cgi/nph-interim1.pl");
-    ok t_cmp($r->code, 200, "small number of interim responses");
+    ok t_cmp($r->code, 200, "small number of interim responses - CVE-2008-2364");
 
     $r = GET("/reverse/modules/cgi/nph-interim2.pl");
-    ok t_cmp($r->code, 502, "large number of interim responses");
+    ok t_cmp($r->code, 502, "large number of interim responses - CVE-2008-2364");
 
 } else {
     skip "skipping tests without CGI module" foreach (1..10);
