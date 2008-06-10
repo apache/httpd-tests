@@ -6,7 +6,7 @@ use Apache::TestRequest;
 use Apache::TestUtil;
 use Apache::TestConfig ();
 
-plan tests => 15, need_module 'proxy';
+plan tests => 17, need_module 'proxy';
 
 Apache::TestRequest::module("proxy_http_reverse");
 Apache::TestRequest::user_agent(requests_redirectable => 0);
@@ -35,8 +35,14 @@ if (have_cgi) {
     } else {
         skip "skipping tests with httpd <2.1.0" foreach (1..2);
     }
+    $r = GET("/reverse/modules/cgi/nph-interim1.pl");
+    ok t_cmp($r->code, 200, "small number of interim responses");
+
+    $r = GET("/reverse/modules/cgi/nph-interim2.pl");
+    ok t_cmp($r->code, 502, "large number of interim responses");
+
 } else {
-    skip "skipping tests without CGI module" foreach (1..8);
+    skip "skipping tests without CGI module" foreach (1..10);
 }
 
 if (have_min_apache_version('2.0.55')) {
