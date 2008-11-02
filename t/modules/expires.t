@@ -231,6 +231,13 @@ sub expires_test {
     if ($exp_conf =~ /^([A|M])(\d+)$/) {
         $exp_type = $1;
         $expected = $2;
+        ## With modification date as base expire times can be in the past
+        ## Correct behaviour for the server in this case is to set expires
+        ## time equal to access time.
+        if (($exp_type eq 'M')
+            && ($headers{access} > $headers{modified} + $expected)) {
+            $expected = $headers{access} - $headers{modified};
+        }
     } else {
         print STDERR "\n\ndoom: $exp_conf\n\n";
         return 0;
