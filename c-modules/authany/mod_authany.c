@@ -5,6 +5,9 @@ Alias /authany @DocumentRoot@
    require user any-user
    AuthType Basic
    AuthName authany
+   <IfVersion >= 2.3>
+      AuthBasicProvider any
+   </IfVersion>
 </Location>
 
 #endif
@@ -19,6 +22,18 @@ Alias /authany @DocumentRoot@
 #include "ap_provider.h"
 #include "mod_auth.h"
 
+static authn_status authn_check_password(request_rec *r, const char *user,
+                                         const char *password)
+{
+    return strtrue(r->user) && strcmp(r->user, "guest") == 0
+        ? AUTH_GRANTED : AUTH_DENIED;
+}
+
+static const authn_provider authn_any_provider =
+{
+    &authn_check_password
+};
+
 static authz_status any_check_authorization(request_rec *r,
                                             const char *requirement)
 {
@@ -28,11 +43,13 @@ static authz_status any_check_authorization(request_rec *r,
 
 static const authz_provider authz_any_provider =
 {
-    &any_check_authorization,
+    &any_check_authorization
 };
 
 static void extra_hooks(apr_pool_t *p)
 {
+    ap_register_provider(p, AUTHN_PROVIDER_GROUP,
+                         "any", "0", &authn_any_provider);
     ap_register_provider(p, AUTHZ_PROVIDER_GROUP,
                          "user", "0", &authz_any_provider);
 }
