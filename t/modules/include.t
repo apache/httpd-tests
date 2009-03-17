@@ -214,10 +214,10 @@ unless ($have_apache_2) {
 }
 
 # in addition to %tests, there are 1 fsize and 1 flastmod test,
-# 1 GET test, 2 query string tests, 13 XBitHack tests and 14 
+# 1 GET test, 2 query string tests, 14 XBitHack tests and 14 
 # tests that use mod_bucketeer to construct brigades for mod_include
 
-plan tests => (scalar keys %tests) + @patterns + 32,
+plan tests => (scalar keys %tests) + @patterns + 33,
               todo => \@todo,
               need need_lwp, need_module 'include';
 
@@ -386,6 +386,17 @@ else {
                  "XBitHack on [$_]"
                 );
     }
+
+    # test timefmt - make sure filter only inserted once
+    # if Option Include and xbithack both say to process
+    $doc = "xbithack/both/timefmt.shtml";
+    my @now = localtime();
+    my $year = $now[5] + 1900;
+    chmod 0555, "$htdocs/$dir$doc";
+    ok t_cmp(super_chomp(GET_BODY "$dir$doc"),
+             "xx${year}xx",
+             "XBitHack both [timefmt]"
+             );
 
     # test xbithack full
     $doc = "xbithack/full/test.html";

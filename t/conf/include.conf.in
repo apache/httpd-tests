@@ -22,6 +22,11 @@
         XBitHack on
     </Directory>
 
+    <Directory @SERVERROOT@/htdocs/modules/include/xbithack/both>
+        Options Includes
+        XBitHack on
+    </Directory>
+
     <Directory @SERVERROOT@/htdocs/modules/include/xbithack/full>
         Options +IncludesNOEXEC
         XBitHack full
