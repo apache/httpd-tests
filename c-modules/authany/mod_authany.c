@@ -60,9 +60,21 @@ static void extra_hooks(apr_pool_t *p)
 
 #else /* < 2.3 */
 
+#ifdef APACHE2
+
+#include "apr_pools.h"
+
+static void extra_hooks(apr_pool_t *);
+
+#define APACHE_HTTPD_TEST_EXTRA_HOOKS extra_hooks
+
+#else
+
 #define APACHE_HTTPD_TEST_HOOK_ORDER    APR_HOOK_FIRST
 #define APACHE_HTTPD_TEST_CHECK_USER_ID authany_handler
 #define APACHE_HTTPD_TEST_AUTH_CHECKER  require_any_user
+
+#endif
 
 #include "apache_httpd_test.h"
  
@@ -130,6 +142,23 @@ static int authany_handler(request_rec *r)
 
      return OK;
 }
+
+#ifdef APACHE2
+static void extra_hooks(apr_pool_t *p)
+{
+    /* mod_authany and mod_ssl both specify APR_HOOK_FIRST as the
+     * ordering of their check-user-id hooks.
+     * mod_ssl's must run before mod_authany because it may need to
+     * generate the Basic auth information based on the certificate.
+     */
+    static const char * const modssl_runs_before[] = {"mod_ssl.c", NULL};
+
+    ap_hook_check_user_id(authany_handler, modssl_runs_before, NULL,
+                          APR_HOOK_FIRST);
+    ap_hook_auth_checker(require_any_user, NULL, NULL, APR_HOOK_FIRST);
+}
+#endif
+
 #endif
 
 APACHE_HTTPD_TEST_MODULE(authany);
