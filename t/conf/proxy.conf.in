@@ -32,3 +32,9 @@
 
    </VirtualHost>
 </IfModule>
+
+<IfModule mod_rewrite.c>
+  <Directory @SERVERROOT@/htdocs/modules/proxy/rewrite>
+     AllowOverride All
+  </Directory>
+</IfModule>
