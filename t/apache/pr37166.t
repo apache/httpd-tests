@@ -13,7 +13,7 @@ use Apache::Test;
 use Apache::TestRequest;
 use Apache::TestUtil;
 
-plan tests => 4, need 'cgi';
+plan tests => 4, \&need_cgi;
 
 my $uri = '/modules/cgi/pr37166.pl';
 

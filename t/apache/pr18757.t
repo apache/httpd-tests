@@ -13,7 +13,7 @@ use Apache::Test;
 use Apache::TestUtil;
 use Apache::TestRequest;
 
-plan tests => 3, need 'cgi', 'proxy', need_min_apache_version('2.2.1');
+plan tests => 3, need 'proxy', need_min_apache_version('2.2.1'), need_cgi;
 
 Apache::TestRequest::module("mod_proxy");
 
