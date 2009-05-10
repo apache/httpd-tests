@@ -483,5 +483,13 @@
    Options Includes
    AllowOverride None
 </Directory>
+<Directory "@SERVERROOT@/htdocs/modules/include/ssi-exec/121">
+   Options Includes
+   AllowOverride None
+</Directory>
+<Directory "@SERVERROOT@/htdocs/modules/include/ssi-exec/120/subdir">
+# Just a dummy directive that is always available to make this a valid block
+   FileETag All
+</Directory>
 
 </IfModule>
