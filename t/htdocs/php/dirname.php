@@ -13,5 +13,5 @@
         check_dirname(".../foo");
         check_dirname("./foo");
         check_dirname("foobar///");
-        check_dirname("c:\foo");
+        check_dirname("c:\\foo");
 ?>
