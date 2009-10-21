@@ -28,7 +28,7 @@ foreach (split /\n/, $info) {
 }
 
 foreach (sort keys %$mods) {
-    push(@expected,$_) if $mods->{$_};
+    push(@expected,$_) if $mods->{$_} && !$config->should_skip_module($_);
 }
 @actual = sort @actual;
 @expected = sort @expected;
