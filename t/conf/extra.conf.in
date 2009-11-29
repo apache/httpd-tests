@@ -171,7 +171,12 @@
     RewriteEngine On
     RewriteLog @SERVERROOT@/logs/rewrite_log
     RewriteLogLevel 9
+    <IfVersion < 2.3.4>
     RewriteLock @SERVERROOT@/logs/rewrite_lock
+    </IfVersion>
+    <IfVersion >= 2.3.4>
+    Mutex rewrite-map default
+    </IfVersion>
     RewriteMap numbers-txt txt:@SERVERROOT@/htdocs/modules/rewrite/numbers.txt
     RewriteMap numbers-rnd rnd:@SERVERROOT@/htdocs/modules/rewrite/numbers.rnd
     #RewriteMap numbers-dbm dbm:@SERVERROOT@/htdocs/modules/rewrite/numbers.dbm
