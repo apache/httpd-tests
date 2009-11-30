@@ -34,7 +34,6 @@ for my $module (sort keys %urls) {
 
 sub verify {
     my $r = shift;
-    my $url = shift;
     my $body = $r->content;
 
     ok $r->code == 200 and $body
