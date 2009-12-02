@@ -11,7 +11,15 @@
     #SSLSessionCache        dbm:@ServerRoot@/logs/ssl_scache
     #SSLSessionCacheTimeout  300
 
+    <IfVersion < 2.3.4>
     #SSLMutex  file:@ServerRoot@/logs/ssl_mutex
+    </IfVersion>
+    <IfVersion >= 2.3.4>
+    # mutex created automatically
+    # config needed only if file-based mutexes are used and
+    # default lock file dir is inappropriate
+    # Mutex file:/path/to/lockdir ssl-cache
+    </IfVersion>
 
     SSLRandomSeed startup builtin
     SSLRandomSeed connect builtin
