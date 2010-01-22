@@ -5,9 +5,11 @@ Alias /authany @DocumentRoot@
    require user any-user
    AuthType Basic
    AuthName authany
-   <IfVersion >= 2.3>
-      AuthBasicProvider any
-   </IfVersion>
+   <IfDefine !APACHE1>
+      <IfVersion >= 2.3>
+         AuthBasicProvider any
+      </IfVersion>
+   </IfDefine>
 </Location>
 
 #endif

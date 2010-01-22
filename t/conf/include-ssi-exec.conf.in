@@ -1,6 +1,7 @@
 # Test cases for Includes options inheritance, see test case
 # t/security/CVE-2009-1195.t
 
+<IfDefine !APACHE1>
 <IfModule mod_include.c>
 
 <Directory "@SERVERROOT@/htdocs/modules/include/ssi-exec/1">
@@ -493,3 +494,4 @@
 </Directory>
 
 </IfModule>
+</IfDefine>
