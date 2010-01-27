@@ -171,15 +171,20 @@
     RewriteEngine On
     RewriteLog @SERVERROOT@/logs/rewrite_log
     RewriteLogLevel 9
-    <IfVersion < 2.3.4>
-    RewriteLock @SERVERROOT@/logs/rewrite_lock
-    </IfVersion>
-    <IfVersion >= 2.3.4>
-    # mutex created automatically
-    # config needed only if file-based mutexes are used and
-    # default lock file dir is inappropriate
-    # Mutex file:/path/to/lockdir rewrite-map
-    </IfVersion>
+    <IfDefine !APACHE1>
+        <IfVersion < 2.3.4>
+            RewriteLock @SERVERROOT@/logs/rewrite_lock
+        </IfVersion>
+        <IfVersion >= 2.3.4>
+            # mutex created automatically
+            # config needed only if file-based mutexes are used and
+            # default lock file dir is inappropriate
+            # Mutex file:/path/to/lockdir rewrite-map
+        </IfVersion>
+    </IfDefine>
+    <IfDefine APACHE1>
+        RewriteLock @SERVERROOT@/logs/rewrite_lock
+    </IfDefine>        
     RewriteMap numbers-txt txt:@SERVERROOT@/htdocs/modules/rewrite/numbers.txt
     RewriteMap numbers-rnd rnd:@SERVERROOT@/htdocs/modules/rewrite/numbers.rnd
     #RewriteMap numbers-dbm dbm:@SERVERROOT@/htdocs/modules/rewrite/numbers.dbm
