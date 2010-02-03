@@ -151,6 +151,7 @@ SSL_CIPHER                   qr(^[A-Z0-9-]+$)
 SSL_CIPHER_EXPORT            'false'
 SSL_CIPHER_ALGKEYSIZE        qr(^\d+$)
 SSL_CIPHER_USEKEYSIZE        qr(^\d+$)
+SSL_SECURE_RENEG             qr(^(false|true)$)
 
 SSL_CLIENT_S_DN              "$client_dn"
 SSL_SERVER_S_DN              qr(^$server_dn$)
