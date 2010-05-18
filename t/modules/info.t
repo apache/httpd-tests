@@ -19,10 +19,15 @@ my (@actual,@expected) = ((),());
 ## extract module names from html ##
 foreach (split /\n/, $info) {
     if ($_ =~ /<a name=\"(\w+\.c)\">/) {
-        if ($1 eq 'util_ldap.c') {
+        my $name = $1;
+        if ($name eq 'util_ldap.c') {
             push(@actual,'mod_ldap.c');
+        } elsif ($name =~ /^(?:event|prefork|worker)\.c$/) {
+            push(@actual,"mod_mpm_$name");
+        } elsif ($name eq 'simple_api.c') {
+            push(@actual,"mod_mpm_simple.c");
         } else {
-            push(@actual, $1);
+            push(@actual, $name);
         }
     }
 }
