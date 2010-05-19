@@ -39,6 +39,7 @@ my %server_dn = dn('server');
 #turn into a pattern match: httpd-test/([-\w]+)
 #so we can test with different server keys/certs
 $server_dn{OU} =~ s:^([-\w]+/)([-\w]+)$:$1([-\\w]+):;
+$server_dn{CN} = $vars->{servername};
 
 my $server_dn = dn_oneline(\%server_dn);
 
