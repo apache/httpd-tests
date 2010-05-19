@@ -10,7 +10,7 @@ use Apache::TestRequest;
 #happen in real-life, so just disable keepalives here.
 Apache::TestRequest::user_agent_keepalive(0);
 
-plan tests => 5, need_lwp;
+plan tests => 8, need_lwp;
 
 Apache::TestRequest::scheme('https');
 
@@ -27,4 +27,12 @@ $url = '/require/snakeoil/index.html';
 ok GET_RC($url, cert => 'client_ok') != 200;
 
 ok GET_RC($url, cert => 'client_snakeoil') == 200;
+
+$url = '/require/certext/index.html';
+
+ok GET_RC($url, cert => undef) != 200;
+
+ok GET_RC($url, cert => 'client_ok') == 200;
+
+ok GET_RC($url, cert => 'client_snakeoil') != 200;
 

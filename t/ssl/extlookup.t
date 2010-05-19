@@ -5,19 +5,25 @@ use Apache::Test;
 use Apache::TestRequest;
 use Apache::TestUtil;
 
-plan tests => 2, need 'test_ssl', need_min_apache_version(2.1);
-
 Apache::TestRequest::scheme("https");
 
-my $oid = "2.16.840.1.113730.1.13"; # Netscape certificate comment
+my %exts = (
+   "2.16.840.1.113730.1.13" => "This Is A Comment",
+   "1.3.6.1.4.1.18060.12.0" => "Lemons",
+);
 
-my $r = GET("/test_ssl_ext_lookup?$oid", cert => 'client_ok');
+plan tests => 2 * (keys %exts), need 'test_ssl', need_min_apache_version(2.1);
 
-ok t_cmp($r->code, 200, "ssl_ext_lookup works");
+my ($actual, $expected, $r, $c);
 
-my $c = $r->content;
+foreach (sort keys %exts) {
+    $r = GET("/test_ssl_ext_lookup?$_", cert => 'client_ok');
+    
+    ok t_cmp($r->code, 200, "ssl_ext_lookup works for $_");
 
-chomp $c;
+    $c = $r->content;
+    chomp $c;
 
-ok t_cmp($c, "This Is A Comment", "Retrieve nsComment extension");
+    ok t_cmp($c, $exts{$_}, "Extension value match for $_");
+}
 

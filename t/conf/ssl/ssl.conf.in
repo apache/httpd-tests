@@ -85,6 +85,7 @@
         #t/ssl/require.t
         Alias /require/asf        @DocumentRoot@
         Alias /require/snakeoil   @DocumentRoot@
+        Alias /require/certext    @DocumentRoot@
         Alias /ssl-fakebasicauth  @DocumentRoot@
         Alias /ssl-fakebasicauth2 @DocumentRoot@
         Alias /ssl-cgi            @DocumentRoot@/modules/cgi
@@ -109,6 +110,16 @@
                         and %{SSL_CLIENT_S_DN_O} eq "Snake Oil, Ltd." \
                         and %{SSL_CLIENT_S_DN_OU} in \
                              {"Staff", "CA", "Dev"} )
+        </Location>
+
+        <Location /require/certext>
+            SSLVerifyClient require
+            <IfVersion > 2.3.0>
+               SSLRequire "Lemons" in PeerExtList("1.3.6.1.4.1.18060.12.0")
+            </IfVersion>
+            <IfVersion < 2.3.0>
+               SSLRequire "Lemons" in OID("1.3.6.1.4.1.18060.12.0")
+            </IfVersion>
         </Location>
 
         <Location /ssl-cgi>
