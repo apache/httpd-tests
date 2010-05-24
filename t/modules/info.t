@@ -19,21 +19,23 @@ my (@actual,@expected) = ((),());
 ## extract module names from html ##
 foreach (split /\n/, $info) {
     if ($_ =~ /<a name=\"(\w+\.c)\">/) {
-        my $name = $1;
-        if ($name eq 'util_ldap.c') {
+        if ($1 eq 'util_ldap.c') {
             push(@actual,'mod_ldap.c');
-        } elsif ($name =~ /^(?:event|prefork|worker)\.c$/) {
-            push(@actual,"mod_mpm_$name");
-        } elsif ($name eq 'simple_api.c') {
-            push(@actual,"mod_mpm_simple.c");
         } else {
-            push(@actual, $name);
+            push(@actual, $1);
         }
     }
 }
 
 foreach (sort keys %$mods) {
-    push(@expected,$_) if $mods->{$_} && !$config->should_skip_module($_);
+    ($mods->{$_} && !$config->should_skip_module($_)) or next;
+    if ($_ =~ /^mod_mpm_(event|prefork|worker)\.c$/) {
+        push(@expected,"$1.c");
+    } elsif ($_ eq 'mod_mpm_simple.c') {
+        push(@expected,'simple_api.c');
+    } else {
+        push(@expected,$_);
+    }
 }
 @actual = sort @actual;
 @expected = sort @expected;
