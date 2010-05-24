@@ -561,3 +561,22 @@ LimitRequestFields    32
 <IfModule mod_status.c>
    ExtendedStatus On
 </IfModule>
+
+<IfModule mod_filter.c>
+   <Directory @SERVERROOT@/htdocs/modules/filter>
+       Options +Includes
+       AddType text/html .shtml
+       AddOutputFilter INCLUDES .shtml
+
+       FilterDeclare pr49328 CONTENT_SET
+       <IfVersion < 2.3.0> 
+          FilterProvider pr49328 DEFLATE resp=Content-Type $text/
+       </IfVersion>
+       <IfVersion >= 2.3.0>
+          # resp{Content-Type} = /text/ should be equivalent but      
+          # doesn't seem to work.
+          FilterProvider pr49328 DEFLATE "true == true"
+       </IfVersion>
+       FilterChain pr49328
+   </Directory>
+</IfModule>
