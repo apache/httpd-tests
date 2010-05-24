@@ -45,20 +45,27 @@ static int echo_post_handler(request_rec *r)
         ap_rprintf(r, "%" APR_OFF_T_FMT ":", r->remaining);
     }
 
-    fprintf(stderr, "[mod_echo_post] going to echo %" APR_OFF_T_FMT " bytes\n",
-            r->remaining);
+    ap_log_rerror(APLOG_MARK, APLOG_DEBUG, 0, r,
+                  "[mod_echo_post] going to echo %" APR_OFF_T_FMT " bytes",
+                  r->remaining);
 
     while ((nrd = ap_get_client_block(r, buff, sizeof(buff))) > 0) {
-        fprintf(stderr,
-                "[mod_echo_post] read %ld bytes (wanted %" APR_SIZE_T_FMT 
-                ", remaining=%" APR_OFF_T_FMT ")\n",
-                nrd, sizeof(buff), r->remaining);
+        ap_log_rerror(APLOG_MARK, APLOG_DEBUG, 0, r,
+                      "[mod_echo_post] read %ld bytes (wanted %" APR_SIZE_T_FMT 
+                      ", remaining=%" APR_OFF_T_FMT ")",
+                      nrd, sizeof(buff), r->remaining);
         ap_rwrite(buff, nrd, r);
         total += nrd;
     }
 
-    fprintf(stderr,
-            "[mod_echo_post] done reading %ld bytes, %" APR_OFF_T_FMT " bytes remain\n",
+    if (nrd < 0) {
+        ap_rputs("!!!ERROR!!!", r);
+        ap_log_rerror(APLOG_MARK, APLOG_DEBUG, 0, r,
+                      "[mod_echo_post] ap_get_client_block got error");
+    }
+
+    ap_log_rerror(APLOG_MARK, APLOG_DEBUG, 0, r,
+            "[mod_echo_post] done reading %ld bytes, %" APR_OFF_T_FMT " bytes remain",
             total, r->remaining);
     
     return OK;
