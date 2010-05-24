@@ -573,9 +573,7 @@ LimitRequestFields    32
           FilterProvider pr49328 DEFLATE resp=Content-Type $text/
        </IfVersion>
        <IfVersion >= 2.3.0>
-          # resp{Content-Type} = /text/ should be equivalent but      
-          # doesn't seem to work.
-          FilterProvider pr49328 DEFLATE "true == true"
+          FilterProvider pr49328 DEFLATE "$content-type = /text\//"
        </IfVersion>
        FilterChain pr49328
    </Directory>
