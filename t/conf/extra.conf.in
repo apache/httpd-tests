@@ -461,6 +461,13 @@ LimitRequestFields    32
             SetOutputFilter DEFLATE
         </Directory> 
 
+        <Directory @SERVERROOT@/htdocs/modules/deflate/ssi>
+            Options +Includes
+            DirectoryIndex shtml
+            AddOutputFilter INCLUDES shtml
+            SetOutputFilter DEFLATE
+        </Directory> 
+
         <Location /modules/cgi/not-modified.pl>
             SetOutputFilter DEFLATE
         </Location> 
