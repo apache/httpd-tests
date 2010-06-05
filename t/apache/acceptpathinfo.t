@@ -56,13 +56,14 @@ foreach my $mode (keys %tests) {
 
             my $req = $loc.$tests{$mode}[0].$file.$pinf;
 
-            my $actual = GET_RC "$req";
-            ok t_cmp($actual,
+            my $resp = GET $req;
+            
+            ok t_cmp($resp->code,
                      $expectedrc,
                      "AcceptPathInfo $mode return code for $req"
                     );
 
-            $actual = super_chomp(GET_BODY "$req");
+            my $actual = super_chomp($resp->content);
             ok t_cmp($actual,
                      qr/$expectedbody/,
                      "AcceptPathInfo $mode body for $req"
