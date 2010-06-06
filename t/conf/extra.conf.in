@@ -169,8 +169,10 @@
 
 <IfModule mod_rewrite.c>
     RewriteEngine On
-    RewriteLog @SERVERROOT@/logs/rewrite_log
-    RewriteLogLevel 9
+    <IfVersion < 2.3.6>
+        RewriteLog @SERVERROOT@/logs/rewrite_log
+        RewriteLogLevel 9
+    </IfVersion>
     <IfDefine !APACHE1>
         <IfVersion < 2.3.4>
             RewriteLock @SERVERROOT@/logs/rewrite_lock
