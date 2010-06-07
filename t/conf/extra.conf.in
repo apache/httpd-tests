@@ -465,7 +465,7 @@ LimitRequestFields    32
 
         <Directory @SERVERROOT@/htdocs/modules/deflate/ssi>
             Options +Includes
-            DirectoryIndex shtml
+            DirectoryIndex default.html
             AddOutputFilter INCLUDES shtml
             SetOutputFilter DEFLATE
         </Directory> 
