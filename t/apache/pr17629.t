@@ -5,7 +5,7 @@ use Apache::Test;
 use Apache::TestUtil;
 use Apache::TestRequest;
 
-plan tests => 2, need [qw(cgi include deflate case_filter)];
+plan tests => 4, need [qw(cgi include deflate case_filter)];
 my $inflator = "/modules/deflate/echo_post";
 
 my @deflate_headers;
@@ -32,11 +32,20 @@ my $expected = "begin-foobar-end\n";
 
 ok t_cmp($content, $expected);
 
-$content = GET_BODY($uri, @deflate_headers);
+my $r = GET($uri, @deflate_headers);
 
-my $deflated = POST_BODY($inflator, @inflate_headers,
-                         content => $content);
+ok t_cmp($r->code, 200);
 
-ok t_cmp($deflated, $expected);
+my $renc = $r->header("Content-Encoding") || "";
 
+ok t_cmp($renc, "gzip", "response was gzipped");
 
+if ($renc eq "gzip") {
+    my $deflated = POST_BODY($inflator, @inflate_headers,
+                             content => $r->content);
+    
+    ok t_cmp($deflated, $expected);
+}
+else {
+    skip "response not gzipped";
+}
