@@ -481,6 +481,14 @@ LimitRequestFields    32
     </IfModule>
 </IfDefine>
 
+### pr17629.t
+<IfModule mod_case_filter.c>
+    <Location /modules/cgi/redirect.pl>
+        SetOutputFilter CASEFILTER
+    </Location> 
+</IfModule>
+
+
 ##
 ## Test config for security issues
 ##
