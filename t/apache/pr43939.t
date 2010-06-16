@@ -5,7 +5,7 @@ use Apache::Test;
 use Apache::TestUtil;
 use Apache::TestRequest;
 
-plan tests => 4, need [qw(cgi include deflate case_filter)];
+plan tests => 4, need [need_cgi, qw(include deflate case_filter)];
 my $inflator = "/modules/deflate/echo_post";
 
 my @deflate_headers;
