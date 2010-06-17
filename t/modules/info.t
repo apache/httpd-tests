@@ -33,6 +33,9 @@ foreach (sort keys %$mods) {
         push(@expected,"$1.c");
     } elsif ($_ eq 'mod_mpm_simple.c') {
         push(@expected,'simple_api.c');
+    # statically linked mod_ldap
+    } elsif ($_ eq 'util_ldap.c') {
+        push(@expected,'mod_ldap.c');
     } else {
         push(@expected,$_);
     }
