@@ -595,3 +595,35 @@ LimitRequestFields    32
        FilterChain pr49328
    </Directory>
 </IfModule>
+
+##
+## LogLevel configuration
+##
+<IfDefine APACHE2>
+   <IfVersion >= 2.3.6>
+      <Directory @SERVERROOT@/htdocs/apache/loglevel/core_crit>
+         LogLevel info core:crit
+      </Directory>         
+      <Directory @SERVERROOT@/htdocs/apache/loglevel/core_info>
+         LogLevel crit core:info
+      </Directory>         
+      <Directory @SERVERROOT@/htdocs/apache/loglevel/crit>
+         LogLevel crit
+      </Directory>         
+      <Directory @SERVERROOT@/htdocs/apache/loglevel/crit/core_info>
+         LogLevel core:info
+      </Directory>         
+      <Directory @SERVERROOT@/htdocs/apache/loglevel/crit/core_info/crit>
+         LogLevel crit
+      </Directory>         
+      <Directory @SERVERROOT@/htdocs/apache/loglevel/info>
+         LogLevel info
+      </Directory>         
+      <Directory @SERVERROOT@/htdocs/apache/loglevel/info/core_crit>
+         LogLevel core:crit
+      </Directory>         
+      <Directory @SERVERROOT@/htdocs/apache/loglevel/info/core_crit/info>
+         LogLevel info
+      </Directory>         
+   </IfVersion>
+</IfDefine>
