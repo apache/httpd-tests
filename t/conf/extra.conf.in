@@ -534,6 +534,42 @@ LimitRequestFields    32
 </IfDefine>
 
 ##
+## authz_core test config: authz by user or by env
+##
+<IfDefine APACHE2>
+    <IfModule mod_authz_core.c>
+    <IfModule mod_authn_file.c>
+        <IfModule mod_auth_digest.c>
+            Alias /authz/digest @DocumentRoot@
+            <Location /authz>
+                <RequireAny>
+                    Require valid-user
+                    Require env allowed
+                </RequireAny>
+                AuthType Digest
+                AuthName realm2
+                AuthUserFile realm2
+           </Location>
+        </IfModule>
+        <IfModule mod_auth_basic.c>
+            Alias /authz/basic @DocumentRoot@
+            <Location /authz/basic>
+                <RequireAny>
+                    Require valid-user
+                    Require env allowed
+                </RequireAny>
+                AuthType Basic
+                AuthName basic1
+                AuthUserFile basic1
+           </Location>
+        </IfModule>
+       SetEnvIf X-Allowed "yes" allowed
+    </IfModule>
+    </IfModule>
+</IfDefine>
+
+
+##
 ## ErrorDocument handling
 ## create it's own virtual host so it doesn't interfere
 ## with other tests for 404 messages
