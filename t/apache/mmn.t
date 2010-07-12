@@ -15,7 +15,7 @@ my $minor;
 my $skip;
 if (open(my $fh, "<", $filename)) {
     while (defined (my $line = <$fh>)) {
-        if ($line =~ m/^\s+[*]\s+(\d{8})[.](\d)\s+\([\d.]+(?:-dev)?\)\s/ ) {
+        if ($line =~ m/^\s+[*]\s+(\d{8})[.](\d+)\s+\([\d.]+(?:-dev)?\)\s/ ) {
             $cmajor = $1;
             $cminor = $2;
         }
