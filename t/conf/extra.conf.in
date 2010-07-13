@@ -538,10 +538,12 @@ LimitRequestFields    32
 ##
 <IfDefine APACHE2>
     <IfModule mod_authz_core.c>
+    <IfModule mod_authn_core.c>
     <IfModule mod_authn_file.c>
+    <IfModule mod_authz_host.c>
         <IfModule mod_auth_digest.c>
             Alias /authz/digest @DocumentRoot@
-            <Location /authz>
+            <Location /authz/digest>
                 <RequireAny>
                     Require valid-user
                     Require env allowed
@@ -563,7 +565,32 @@ LimitRequestFields    32
                 AuthUserFile basic1
            </Location>
         </IfModule>
+        <IfModule mod_auth_form.c>
+        <IfModule mod_session_cookie.c>
+            Alias /authz/form @DocumentRoot@
+            <Location /authz/form>
+                AuthFormLoginRequiredLocation http://@SERVERNAME@:@PORT@/authz/login.html
+                AuthFormLoginSuccessLocation  http://@SERVERNAME@:@PORT@/authz/form/
+                AuthFormProvider file
+                AuthType Form
+                AuthUserFile form1
+                AuthName form1
+                Session On
+                SessionCookieName session path=/
+                <RequireAny>
+                    Require valid-user
+                    Require env allowed
+                </RequireAny>
+            </Location>
+            <Location /authz/form/dologin.html>
+                SetHandler form-login-handler
+                Require all granted
+            </Location>
+        </IfModule>
+        </IfModule>
        SetEnvIf X-Allowed "yes" allowed
+    </IfModule>
+    </IfModule>
     </IfModule>
     </IfModule>
 </IfDefine>
