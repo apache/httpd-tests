@@ -39,6 +39,11 @@ static const authn_provider authn_any_provider =
 static authz_status any_check_authorization(request_rec *r,
                                             const char *requirement)
 {
+#if AP_MODULE_MAGIC_AT_LEAST(20100714,0)
+    if (!r->user)
+        return AUTHZ_DENIED_NO_USER;
+#endif
+
     return strtrue(r->user) && strcmp(requirement, "any-user") == 0 
         ? AUTHZ_GRANTED : AUTHZ_DENIED;
 }
