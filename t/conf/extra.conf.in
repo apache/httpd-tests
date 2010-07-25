@@ -534,7 +534,7 @@ LimitRequestFields    32
 </IfDefine>
 
 ##
-## authz_core test config: authz by user or by env
+## authz_core test config: authz by user or by env (modules/aaa.t)
 ##
 <IfDefine APACHE2>
     <IfModule mod_authz_core.c>
@@ -590,6 +590,26 @@ LimitRequestFields    32
         </IfModule>
        SetEnvIf X-Allowed "yes" allowed
     </IfModule>
+    </IfModule>
+    </IfModule>
+    </IfModule>
+</IfDefine>
+
+##
+## authz_core test config: authz merging (modules/authz_core.t)
+##
+<IfDefine APACHE2>
+    <IfModule mod_authz_core.c>
+    <IfModule mod_authn_core.c>
+    <IfModule mod_authz_host.c>
+       <Directory @DocumentRoot@/authz_core/>
+          AllowOverride all
+       </Directory>
+
+       SetEnvIf X-Allowed1 "yes" allowed1
+       SetEnvIf X-Allowed2 "yes" allowed2
+       SetEnvIf X-Allowed3 "yes" allowed3
+       SetEnvIf X-Allowed4 "yes" allowed4
     </IfModule>
     </IfModule>
     </IfModule>

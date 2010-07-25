@@ -6,6 +6,9 @@ use Apache::TestRequest;
 use Apache::TestUtil qw(t_write_file);
 use File::Spec;
 
+# test the possibility of doing authz by user id or envvar in conjunction
+# with the different AuthTypes
+
 Apache::TestRequest::user_agent(keep_alive => 1);
 
 my @headers = qw(WWW-Authenticate Authentication-Info Location);
