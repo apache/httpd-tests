@@ -4,12 +4,13 @@ use warnings FATAL => 'all';
 use Apache::Test;
 use Apache::TestRequest;
 use Apache::TestUtil;
+use HTTP::Date;
 
 ##
 ## mod_dav tests
 ##
 
-plan tests => 14, [qw(dav HTTP::DAV)];
+plan tests => 15, [qw(dav HTTP::DAV)];
 require HTTP::DAV;
 
 my $vars = Apache::Test::vars();
@@ -51,14 +52,20 @@ print "DAV put test:\n";
 ok $response->is_success;
 
 ## get properties ##
+## Wait until none of the returned time
+## properties equals "now"
+sleep(1);
 $response = $resource->propfind;
 print "getting DAV resource properties:\n";
 ok $response->is_success;
 
 my $createdate = $resource->get_property( "creationdate" );
 my $lastmodified = $resource->get_property( "getlastmodified" );
+my $now = HTTP::Date::time2str(time());
 print "created:     $createdate\n";
 print "modified:    $lastmodified\n";
+print "now:         $now\n";
+ok $createdate ne $now;
 ok $createdate eq $lastmodified;
 
 ## should be locked ##
