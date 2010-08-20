@@ -39,5 +39,5 @@ foreach $dir (@error_expected) {
   ok($log =~ m{does not exist.*?$base/$dir/not_found_error_expected});
 }
 foreach $dir (@error_not_expected) {
-  ok($log !~ m{$base/$dir/not_found_error_NOT_expected});
+  ok($log !~ m{does not exist.*?$base/$dir/not_found_error_NOT_expected});
 }
