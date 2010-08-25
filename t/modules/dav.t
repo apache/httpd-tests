@@ -54,7 +54,7 @@ ok $response->is_success;
 ## get properties ##
 ## Wait until none of the returned time
 ## properties equals "now"
-sleep(1);
+sleep(2);
 $response = $resource->propfind;
 print "getting DAV resource properties:\n";
 ok $response->is_success;
