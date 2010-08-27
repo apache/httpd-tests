@@ -25,12 +25,13 @@ static int echo_post_chunk_handler(request_rec *r)
     }
 
     if ((rc = ap_setup_client_block(r, REQUEST_CHUNKED_DECHUNK)) != OK) {
-        ap_log_error(APLOG_MARK, APLOG_ERR|APLOG_NOERRNO,
-#ifdef APACHE2
-                     0,
-#endif /* APACHE2 */
-                     r->server,
+#ifdef APACHE1
+        ap_log_error(APLOG_MARK, APLOG_ERR|APLOG_NOERRNO, r->server,
                      "[mod_echo_post_chunk] ap_setup_client_block failed: %d", rc);
+#else
+        ap_log_error(APLOG_MARK, APLOG_ERR|APLOG_NOERRNO, 0, r->server,
+                     "[mod_echo_post_chunk] ap_setup_client_block failed: %d", rc);
+#endif /* APACHE1 */
         return 0;
     }
 
