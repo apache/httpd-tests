@@ -12,9 +12,14 @@ use Apache::TestUtil;
 my @map = qw(txt rnd prg); #dbm XXX: howto determine dbm support is available?
 my @num = qw(1 2 3 4 5 6);
 my @url = qw(forbidden gone perm temp);
+my @todo = ();
 my $r;
 
-plan tests => @map * @num + 11, need_module 'rewrite';
+my $pr_46428_fix_version = '2.2.12';
+my $check_pr_46428 = have_min_apache_version($pr_46428_fix_version);
+@todo = (24) unless $check_pr_46428;
+
+plan tests => @map * @num + 11, todo => \@todo, need_module 'rewrite';
 
 foreach (@map) {
     foreach my $n (@num) {
@@ -63,12 +68,11 @@ if (have_module('mod_proxy')) {
     ok t_cmp($r, "JACKPOT", "request was proxied");
 
     # PR 46428
-    if (have_min_apache_version('2.2.12')) {
-        $r = GET_BODY("/modules/proxy/rewrite/foo bar.html");
-        chomp $r;
-        ok t_cmp($r, "foo bar", "per-dir proxied rewrite escaping worked");
-    } else {
-        skip "Skipping test for PR 46428 (whitespace in proxied URL).", 1;
+    $r = GET_BODY("/modules/proxy/rewrite/foo bar.html");
+    chomp $r;
+    ok t_cmp($r, "foo bar", "per-dir proxied rewrite escaping worked");
+    if (!$check_pr_46428) {
+        print STDERR "TODO: Fix for whitespace in proxied URL (PR 46428 not fixed before $pr_46428_fix_version).\n";
     }
 } else {
     skip "Skipping rewrite to proxy; no proxy module." foreach (1..2);
