@@ -62,6 +62,7 @@ my %test = (
 "if8.shtml"             =>    "pass",
 "if9.shtml"             =>    "pass   pass",
 "if10.shtml"            =>    "pass",
+"if11.shtml"            =>    "pass",
 "big.shtml"             =>    "hello   pass  pass   pass     hello",
 "newline.shtml"         =>    "inc-two.shtml body",
 "inc-rfile.shtml"       =>    "inc-extra2.shtml body  inc-extra1.shtml body  ".
@@ -105,7 +106,6 @@ my %test = (
 # that the 2.1 fixes will be backported
 
 my %todo = (
-"if11.shtml"            =>    "pass",
 );
 
 # some behaviors will never be backported, for various
