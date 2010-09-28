@@ -63,9 +63,13 @@ if (have_module('mod_proxy')) {
     ok t_cmp($r, "JACKPOT", "request was proxied");
 
     # PR 46428
-    $r = GET_BODY("/modules/proxy/rewrite/foo bar.html");
-    chomp $r;
-    ok t_cmp($r, "foo bar", "per-dir proxied rewrite escaping worked");
+    if (have_min_apache_version('2.2.12')) {
+        $r = GET_BODY("/modules/proxy/rewrite/foo bar.html");
+        chomp $r;
+        ok t_cmp($r, "foo bar", "per-dir proxied rewrite escaping worked");
+    } else {
+        skip "Skipping test for PR 46428 (whitespace in proxied URL).", 1;
+    }
 } else {
     skip "Skipping rewrite to proxy; no proxy module." foreach (1..2);
 }
