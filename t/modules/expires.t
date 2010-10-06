@@ -228,9 +228,6 @@ sub expires_test {
 
     my $expected = '';
     my $exp_type = '';
-    my $r713142_version = '2.2.11';
-    my $check_r713142 = have_min_apache_version($r713142_version);
-    my $ignore = 0;
     if ($exp_conf =~ /^([A|M])(\d+)$/) {
         $exp_type = $1;
         $expected = $2;
@@ -240,10 +237,6 @@ sub expires_test {
         if (($exp_type eq 'M')
             && ($headers{access} > $headers{modified} + $expected)) {
             $expected = $headers{access} - $headers{modified};
-            if (!$check_r713142) {
-                $ignore = 1;
-                print STDERR "\nTODO: Fix for expiration date being in the past (r713142 not backported before $r713142_version).\n";
-            }
         }
     } else {
         print STDERR "\n\ndoom: $exp_conf\n\n";
@@ -259,7 +252,7 @@ sub expires_test {
 
     print "# debug: expected: $expected\n";
     print "# debug: actual  : $actual\n";
-    return ($actual == $expected) || $ignore;
+    return ($actual == $expected);
 
 }
 
