@@ -10,7 +10,7 @@ use HTTP::Date;
 ## mod_dav tests
 ##
 
-plan tests => 16, [qw(dav HTTP::DAV)];
+plan tests => 17, [qw(dav HTTP::DAV)];
 require HTTP::DAV;
 
 my $vars = Apache::Test::vars();
@@ -168,8 +168,17 @@ my $user_agent = $dav->get_user_agent;
 $user_agent->default_header('Content-Range' => 'bytes 1-a/44' );
 $response = $resource->put($body);
 $actual = $response->code;
-print "expect 400 bad request got: $actual\n";
+print "PR 49825: expect 400 bad request got: $actual\n";
 ok $actual == 400;
+$user_agent->default_header('Content-Range' => undef);
+
+## PR 42978 ##
+$user_agent->default_header('Content-Foo' => 'xxx' );
+$response = $resource->put($body);
+$actual = $response->code;
+print "PR 42978: expect 501 not implemented got: $actual\n";
+ok $actual == 501;
+$user_agent->default_header('Content-Foo' => undef);
 
 ## clean up ##
 rmdir "$htdocs/$dir/.DAV" or print "warning: could not remove .DAV dir: $!";
