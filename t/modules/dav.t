@@ -10,7 +10,7 @@ use HTTP::Date;
 ## mod_dav tests
 ##
 
-plan tests => 15, [qw(dav HTTP::DAV)];
+plan tests => 16, [qw(dav HTTP::DAV)];
 require HTTP::DAV;
 
 my $vars = Apache::Test::vars();
@@ -161,6 +161,15 @@ ok $response->is_success;
 $actual = GET_RC $uri;
 print "expect 404 not found got: $actual\n";
 ok $actual == 404;
+
+## PR 49825 ##
+my $user_agent = $dav->get_user_agent;
+# invalid content-range header
+$user_agent->default_header('Content-Range' => 'bytes 1-a/44' );
+$response = $resource->put($body);
+$actual = $response->code;
+print "expect 400 bad request got: $actual\n";
+ok $actual == 400;
 
 ## clean up ##
 rmdir "$htdocs/$dir/.DAV" or print "warning: could not remove .DAV dir: $!";
