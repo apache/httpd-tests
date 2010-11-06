@@ -13,7 +13,7 @@ Apache::TestRequest::user_agent_keepalive(0);
 my $sslrequire_oid_needed_version = '2.1.7';
 my $have_sslrequire_oid = have_min_apache_version($sslrequire_oid_needed_version);
 
-plan tests => 8, need_lwp;
+plan tests => 10, need_lwp;
 
 Apache::TestRequest::scheme('https');
 
@@ -30,6 +30,10 @@ $url = '/require/snakeoil/index.html';
 ok GET_RC($url, cert => 'client_ok') != 200;
 
 ok GET_RC($url, cert => 'client_snakeoil') == 200;
+
+ok GET_RC('/require/strcmp/index.html', cert => undef) == 200;
+
+ok GET_RC('/require/intcmp/index.html', cert => undef) == 200;
 
 if ($have_sslrequire_oid) {
 
