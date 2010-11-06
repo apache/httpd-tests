@@ -673,7 +673,12 @@ LimitRequestFields    32
           FilterProvider pr49328 DEFLATE resp=Content-Type $text/
        </IfVersion>
        <IfVersion >= 2.3.0>
-          FilterProvider pr49328 DEFLATE "$content-type = /text\//"
+         <IfVersion < 2.3.9>
+            FilterProvider pr49328 DEFLATE "$content-type = /text\//"
+         </IfVersion>
+       </IfVersion>
+       <IfVersion >= 2.3.9>
+          FilterProvider pr49328 DEFLATE "%{CONTENT_TYPE} =~ m!text/!"
        </IfVersion>
        FilterChain pr49328
    </Directory>
@@ -710,3 +715,15 @@ LimitRequestFields    32
       </Directory>         
    </IfVersion>
 </IfDefine>
+
+##
+## expression parser test config
+##
+
+<IfVersion >= 2.3.9>
+    <Directory @SERVERROOT@/htdocs/apache/expr/>
+        AllowOverride All
+    </Directory>
+</IfVersion>
+
+
