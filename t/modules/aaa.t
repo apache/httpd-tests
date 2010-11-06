@@ -102,7 +102,11 @@ foreach my $t (qw/basic digest/) {
 #
 # Form based authentication works a bit differently
 #
-if (exists $do_tests{form}) {
+if (exists $do_tests{form} && !have_module("mod_session_cookie")) {
+    skip("skipping mod_auth_form tests (mod_session_cookie required)")
+    	for (1 .. $do_tests{form});
+}
+elsif (exists $do_tests{form}) {
     $type = 'form';
     my $url   = "/authz/$type/index.html";
     my $login_form_url='/authz/login.html';
