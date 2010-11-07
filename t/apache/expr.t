@@ -89,6 +89,8 @@ my @test_cases = (
     [ q[unescape('%3f')   = '?' ]      => 1 ],
     [ q[toupper(escape('?')) = '%3F' ] => 1 ],
     [ q[tolower(toupper(escape('?'))) = '%3f' ] => 1 ],
+    [ q[file('] . Apache::Test::vars('serverroot')
+      . q[/htdocs/expr/index.html') = 'foo\n' ]  => 1 ],
     # error handling
     [ q['%{foo:User-Agent}' != 'bar'] => undef ],
     [ q[%{foo:User-Agent} != 'bar']   => undef ],
