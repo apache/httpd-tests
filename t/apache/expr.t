@@ -3,7 +3,8 @@ use warnings FATAL => 'all';
 
 use Apache::Test;
 use Apache::TestRequest;
-use Apache::TestUtil qw(t_write_file);
+use Apache::TestUtil qw(t_write_file t_start_error_log_watch t_finish_error_log_watch);
+
 use File::Spec;
 
 # test ap_expr
@@ -14,6 +15,17 @@ my @test_cases = (
     [ 'true'  => 1     ],
     [ 'false' => 0     ],
     [ 'foo'   => undef ],
+    # bool logic
+    [ 'true && false'  => 0 ],
+    [ 'false && true'  => 0 ],
+    [ 'true && true'   => 1 ],
+    [ 'false && false' => 0 ],
+    [ 'false || true'  => 1 ],
+    [ 'true  || false' => 1 ],
+    [ 'false || false' => 0 ],
+    [ 'true  || true'  => 1 ],
+    [ '!true'  => 0 ],
+    [ '!false' => 1 ],
     # integer comparison
     [ '1 -eq 01' => 1 ],
     [ '1 -eq  2' => 0 ],
@@ -58,6 +70,21 @@ my @test_cases = (
     # string lists
     [ q{'a' -in { 'b', 'a' } } => 1 ],
     [ q{'a' -in { 'b', 'c' } } => 0 ],
+    # regexps
+    [ q[ 'abc' =~ /bc/ ]                 => 1 ],
+    [ q[ 'abc' =~ /BC/i ]                => 1 ],
+    [ q[ 'abc' !~ m!bc! ]                => 0 ],
+    [ q[ 'abc' !~ m!BC!i ]               => 0 ],
+    [ q[ $0 == '' ]                      => 1 ],
+    [ q[ $1 == '' ]                      => 1 ],
+    [ q[ $9 == '' ]                      => 1 ],
+    [ q[ '$0' == '' ]                    => 1 ],
+    [ q[ 'abc' =~ /(bc)/ && $0 == 'bc' ] => 1 ],
+    [ q[ 'abc' =~ /(bc)/ && $1 == 'bc' ] => 1 ],
+    [ q[ 'abc' =~ /b(.)/ && $1 == 'c' ]  => 1 ],
+    # $0 .. $9 are only populated if there are capturing parens
+    [ q[ 'abc' =~ /bc/ && $0 == '' ]                    => 1 ],
+    [ q[ 'abc' =~ /(bc)/ && 'xy' =~ /x/ && $0 == 'bc' ] => 1 ],
     # variables
     [ q[%{TIME_YEAR} =~ /^\d{4}$/]               => 1 ],
     [ q[%{TIME_YEAR} =~ /^\d{3}$/]               => 0 ],
@@ -72,6 +99,7 @@ my @test_cases = (
     [ q['x%{REQUEST_METHOD}' == 'xGET' ]         => 1 ],
     [ q['x%{REQUEST_METHOD}y' == 'xGETy' ]       => 1 ],
     [ q[%{REQUEST_SCHEME} == 'http' ]            => 1 ],
+    [ q[%{HTTPS} == 'off' ]                      => 1 ],
     [ q[%{REQUEST_URI} == '/apache/expr/index.html' ] => 1 ],
     # request headers
     [ q[%{req:referer}     = 'SomeReferer' ] => 1 ],
@@ -89,8 +117,14 @@ my @test_cases = (
     [ q[unescape('%3f')   = '?' ]      => 1 ],
     [ q[toupper(escape('?')) = '%3F' ] => 1 ],
     [ q[tolower(toupper(escape('?'))) = '%3f' ] => 1 ],
+    [ q[%{toupper:%{escape:?}} = '%3F' ] => 1 ],
     [ q[file('] . Apache::Test::vars('serverroot')
       . q[/htdocs/expr/index.html') = 'foo\n' ]  => 1 ],
+    # unary operators
+    [ q[-n '']  => 0 ],
+    [ q[-z '']  => 1 ],
+    [ q[-n '1'] => 1 ],
+    [ q[-z '1'] => 0 ],
     # error handling
     [ q['%{foo:User-Agent}' != 'bar'] => undef ],
     [ q[%{foo:User-Agent} != 'bar']   => undef ],
@@ -99,11 +133,14 @@ my @test_cases = (
     [ q['bar' = bar]                  => undef ],
 );
 
-plan tests => scalar(@test_cases),
+plan tests => scalar(@test_cases) + 1,
                   need need_lwp,
                   need_module('mod_authz_core'),
                   need_min_apache_version('2.3.9');
 
+t_start_error_log_watch();
+
+my %rc_map = ( 500 => 'parse error', 403 => 'true', 200 => 'false');
 foreach my $t (@test_cases) {
     my ($expr, $expect) = @{$t};
 
@@ -113,24 +150,30 @@ foreach my $t (@test_cases) {
                        'SomeHeader' => 'SomeValue',
                        'User-Agent' => 'SomeAgent',
                        'Referer'    => 'SomeReferer');
+    my $rc = $response->code;
     if (!defined $expect) {
-        my $passed = ($response->code == 500);
-        print qq{Should get parse error for "$expr"\n};
-        ok($passed);
+        print qq{Should get parse error for "$expr", got $rc_map{$rc}\n};
+        ok($rc == 500);
     }
     elsif ($expect) {
-        my $passed = ($response->code == 403);
-        print qq{"$expr" should evaluate to true\n};
-        ok($passed);
+        print qq{"$expr" should evaluate to true, got $rc_map{$rc}\n};
+        ok($rc == 403);
     }
     else {
-        my $passed = ($response->code == 200);
-        print qq{"$expr" should evaluate to false\n};
-        ok($passed);
+        print qq{"$expr" should evaluate to false, got $rc_map{$rc}\n};
+        ok($rc == 200);
     }
 }
 
+my @loglines = t_finish_error_log_watch();
+my @evalerrors = grep { /internal evaluation error/i } @loglines;
+my $num_errors = scalar @evalerrors;
+print "Error log should not have 'Internal evaluation error' entries, found $num_errors\n";
+ok($num_errors == 0);
 
+exit 0;
+
+### sub routines
 sub write_htaccess
 {
     my $expr = shift;
