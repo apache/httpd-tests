@@ -13,12 +13,12 @@ Apache::TestRequest::user_agent(keep_alive => 1);
 
 my @headers = qw(WWW-Authenticate Authentication-Info Location);
 
-my $tests = 0;
 my %do_tests = ( basic  => 11,
                  digest => 11,
                  form   => 16,
                 );
 
+my $tests = 2;	# AuthzSendForbiddenOnFailure tests
 foreach my $t (keys %do_tests) {
     $tests += $do_tests{$t};
 }
@@ -201,6 +201,21 @@ elsif (exists $do_tests{form}) {
     }
 }
 
+#
+# Test AuthzSendForbiddenOnFailure
+#
+if (have_min_apache_version("2.3.11")) {
+    foreach my $want (401, 403) {
+        my $response = GET "/authz/fail/$want",
+                           username => "ubasic",
+                           password => "pbasic";
+        my $got = $response->code;
+        ok($got, $want, "Expected code $want, got $got");
+    }
+}
+else {
+    skip "skipping tests with httpd <2.3.11" foreach (1..2);
+}
 
 #
 # check that none of the authentication related headers exists

@@ -565,6 +565,21 @@ LimitRequestFields    32
                 AuthUserFile basic1
            </Location>
         </IfModule>
+        <IfVersion >= 2.3.11>
+          <IfModule mod_auth_basic.c>
+            Alias /authz/fail/401 @DocumentRoot@
+            Alias /authz/fail/403 @DocumentRoot@
+            <Location /authz/fail>
+                Require user foo
+                AuthType Basic
+                AuthName basic1
+                AuthUserFile basic1
+           </Location>
+           <Location /authz/fail/403>
+                AuthzSendForbiddenOnFailure On
+           </Location>
+          </IfModule>
+        </IfVersion>
         <IfModule mod_auth_form.c>
         <IfModule mod_session_cookie.c>
             Alias /authz/form @DocumentRoot@
