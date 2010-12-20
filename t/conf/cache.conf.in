@@ -3,26 +3,23 @@
 #
 
 <IfModule mod_cache.c>
+    <VirtualHost mod_cache>
     <IfModule mod_disk_cache.c>
 
-        <VirtualHost mod_cache>
             CacheEnable    disk /cache/
             CacheRoot      @SERVERROOT@/conf/cacheroot/ 
             CacheDirLevels 1
             CacheDirLength 1
 
-            DocumentRoot @SERVERROOT@/htdocs/modules/cache
-        </VirtualHost>
    </IfModule>
    <IfModule mod_cache_disk.c>
 
-        <VirtualHost mod_cache>
             CacheEnable    disk /cache/
             CacheRoot      @SERVERROOT@/conf/cacheroot/ 
             CacheDirLevels 1
             CacheDirLength 1
 
-            DocumentRoot @SERVERROOT@/htdocs/modules/cache
-        </VirtualHost>
    </IfModule>
+   DocumentRoot @SERVERROOT@/htdocs/modules/cache
+   </VirtualHost>
 </IfModule>
