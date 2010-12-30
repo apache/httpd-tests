@@ -63,7 +63,14 @@ sub verify {
             print "#$key does not exist\n";
             $env->{$key} = ""; #prevent use of unitialized value
         }
-        ok $ne ? not exists $env->{$key} : $env->{$key} eq $val;
+        if ($ne) {
+            print "#$key should not exist\n";
+            ok not exists $env->{$key};
+        }
+        else {
+            print "#$key: expect '$val', got '$env->{$key}'\n";
+            ok $env->{$key} eq $val;
+        }
     }
 }
 
