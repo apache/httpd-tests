@@ -23,25 +23,30 @@ my $time = localtime();
 #Apache::TestRequest::scheme('https');
 local $vars->{scheme} = 'https';
 my $port = $config->port;
+my $rfc2253 = have_min_apache_version('2.3.11');
 
 my $url = '/test_ssl_var_lookup';
 my(%lookup, @vars);
 
 my %client_dn = dn('client_ok');
 
-my $client_dn = dn_oneline(\%client_dn);
+my $client_dn = dn_oneline(\%client_dn, $rfc2253);
 
 my %client_i_dn = dn('ca');
 
-my $client_i_dn = dn_oneline(\%client_i_dn);
+my $client_i_dn = dn_oneline(\%client_i_dn, $rfc2253);
 
 my %server_dn = dn('server');
-#turn into a pattern match: httpd-test/([-\w]+)
-#so we can test with different server keys/certs
-$server_dn{OU} =~ s:^([-\w]+/)([-\w]+)$:$1([-\\w]+):;
+
+# YYY will be turned into a pattern match: httpd-test/([-\w]+)
+# so we can test with different server keys/certs
+$server_dn{OU} = 'httpd-test/YYY';
 $server_dn{CN} = $vars->{servername};
 
-my $server_dn = dn_oneline(\%server_dn);
+my $server_dn = dn_oneline(\%server_dn, $rfc2253);
+
+$server_dn     =~ s{(httpd-test.*?)YYY}{$1([-\\w]+)};
+$server_dn{OU} =~ s{(httpd-test.*?)YYY}{$1([-\\w]+)};
 
 my %server_i_dn = %client_i_dn;
 my $server_i_dn = $client_i_dn;
