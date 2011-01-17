@@ -741,4 +741,50 @@ LimitRequestFields    32
     </Directory>
 </IfVersion>
 
+<IfDefine APACHE2>
+  <IfVersion >= 2.3.11>
+    <IfModule mod_headers.c>
+    <IfModule mod_proxy.c>
+       ProxyPass /if_sec/proxy/ http://@SERVERNAME@:@PORT@/
+       <Directory @SERVERROOT@/htdocs/if_sec/dir/>
+         <If "-n %{REQ:In-If1}">
+           Header merge Out-Trace dir1
+         </If>
+         <If "-n %{REQ:In-If2}">
+           Header merge Out-Trace dir2
+         </If>
+         <Files *.txt>
+           <If "-n %{REQ:In-If1}">
+             Header merge Out-Trace dir_files1
+           </If>
+         </Files>
+       </Directory>
+       <Location /if_sec/proxy/>
+         <If "-n %{REQ:In-If1}">
+           Header merge Out-Trace locp1
+         </If>
+         <If "-n %{REQ:In-If2}">
+           Header merge Out-Trace locp2
+         </If>
+       </Location>
+       <Location /if_sec/loc/>
+         <If "-n %{REQ:In-If1}">
+           Header merge Out-Trace loc1
+         </If>
+         <If "-n %{REQ:In-If2}">
+           Header merge Out-Trace loc2
+         </If>
+       </Location>
+       <Files *.if_test>
+         <If "-n %{REQ:In-If2}">
+           Header merge Out-Trace files2
+         </If>
+       </Files>
+       <If "-n %{REQ:In-If1}">
+         Header merge Out-Trace global1
+       </If>
+    </IfModule>
+    </IfModule>
+  </IfVersion>
+</IfDefine>
 
