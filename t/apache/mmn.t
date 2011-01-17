@@ -3,6 +3,10 @@ use warnings FATAL => 'all';
 
 use Apache::Test;
 
+#
+# check that the comment and the #define in ap_mmn.h are equal 
+#
+
 plan tests => 2, need_apache 2;
 
 my $config = Apache::TestConfig->thaw();
