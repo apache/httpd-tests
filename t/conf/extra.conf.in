@@ -685,7 +685,9 @@ LimitRequestFields    32
 
        FilterDeclare pr49328 CONTENT_SET
        <IfVersion < 2.3.0> 
-          FilterProvider pr49328 DEFLATE resp=Content-Type $text/
+          <IfModule mod_deflate.c>
+            FilterProvider pr49328 DEFLATE resp=Content-Type $text/
+          </IfModule>
        </IfVersion>
        <IfVersion >= 2.3.0>
          <IfVersion < 2.3.9>
