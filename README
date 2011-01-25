@@ -73,7 +73,7 @@ you run it again, the test might fail. It's important to run the
 repetition smoke testing. For example to repeat the tests 5 times you
 can run:
 
-    t/TEST -times=5
+    t/SMOKE -times=5
 
 It's also possible that a test will pass when it's run after a
 particular test, but if moved to run after a different state it may
@@ -88,7 +88,11 @@ via APACHE_TEST_SEED environment variable.
 Combining these two important smoke testing techiques, one can run
 tests with:
 
-    t/TEST -times=N -order=(repeat|rotate|random)
+    t/SMOKE -times=N -order=(repeat|rotate|random)
+
+For example, to run the mod_rewrite tests 5 times, one would:
+
+    t/SMOKE -times=5 -verbose t/modules/rewrite.t
 
 So the tests can be repeated N times, and run in the following three
 modes:
@@ -97,11 +101,7 @@ modes:
 - repeat the same test N times in sequence
 - rotate the whole tests suite N times
 
-If you want this process to be automated, run:
-
-    t/SMOKE
-
-for configuration options and default settings run:
+For configuration options and default settings run:
 
     t/SMOKE -help
 
