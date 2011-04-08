@@ -678,6 +678,19 @@ LimitRequestFields    32
 </IfModule>
 
 <IfModule mod_filter.c>
+   <IfModule mod_case_filter.c>
+      <Location /modules/cgi/xother.pl>
+        FilterDeclare xother CONTENT_SET
+        <IfVersion >= 2.3.9>
+          FilterProvider xother CASEFILTER "resp('X-Foo') == 'bar'"
+        </IfVersion>
+        <IfVersion < 2.3.0>
+          FilterProvider xother CASEFILTER resp=X-Foo bar
+        </IfVersion>
+        FilterChain xother
+      </Location>
+   </IfModule>
+
    <Directory @SERVERROOT@/htdocs/modules/filter>
        Options +Includes
        AddType text/html .shtml
