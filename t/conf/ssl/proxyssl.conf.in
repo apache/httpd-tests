@@ -8,7 +8,7 @@
         <IfDefine APACHE2>
             SSLProxyEngine On
 
-            SSLProxyProtocol +SSLv2 +SSLv3 +TLSv1
+            SSLProxyProtocol All
             SSLProxyCipherSuite ALL:!ADH:RC4+RSA:+HIGH:+MEDIUM:+LOW:+SSLv2:+EXP:+eNULL
 
             SSLProxyMachineCertificateFile @SSLCA@/asf/proxy/client_ok.pem
