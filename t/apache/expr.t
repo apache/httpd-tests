@@ -11,6 +11,10 @@ use File::Spec;
 
 Apache::TestRequest::user_agent(keep_alive => 1);
 
+my $file_foo = Apache::Test::vars('serverroot') . '/htdocs/expr/index.html';
+my $dir_foo = Apache::Test::vars('serverroot') . '/htdocs/expr';
+my $file_notexist = Apache::Test::vars('serverroot') . '/htdocs/expr/none';
+my $file_zero = Apache::Test::vars('serverroot') . '/htdocs/expr/zero';
 my @test_cases = (
     [ 'true'  => 1     ],
     [ 'false' => 0     ],
@@ -118,13 +122,31 @@ my @test_cases = (
     [ q[toupper(escape('?')) = '%3F' ] => 1 ],
     [ q[tolower(toupper(escape('?'))) = '%3f' ] => 1 ],
     [ q[%{toupper:%{escape:?}} = '%3F' ] => 1 ],
-    [ q[file('] . Apache::Test::vars('serverroot')
-      . q[/htdocs/expr/index.html') = 'foo\n' ]  => 1 ],
+    [ q[file('] . $file_foo . q[') = 'foo\n' ]  => 1 ],
+    [ q[filesize('] . $file_foo      . q[') = 4 ]  => 1 ],
+    [ q[filesize('] . $file_notexist . q[') = 0 ]  => 1 ],
+    [ q[filesize('] . $file_zero     . q[') = 0 ]  => 1 ],
     # unary operators
     [ q[-n '']  => 0 ],
     [ q[-z '']  => 1 ],
     [ q[-n '1'] => 1 ],
     [ q[-z '1'] => 0 ],
+    [ qq[-d '$file_foo' ] => 0 ],
+    [ qq[-e '$file_foo' ] => 1 ],
+    [ qq[-f '$file_foo' ] => 1 ],
+    [ qq[-S '$file_foo' ] => 1 ],
+    [ qq[-d '$file_zero' ] => 0 ],
+    [ qq[-e '$file_zero' ] => 1 ],
+    [ qq[-f '$file_zero' ] => 1 ],
+    [ qq[-S '$file_zero' ] => 0 ],
+    [ qq[-d '$dir_foo' ] => 1 ],
+    [ qq[-e '$dir_foo' ] => 1 ],
+    [ qq[-f '$dir_foo' ] => 0 ],
+    [ qq[-S '$dir_foo' ] => 0 ],
+    [ qq[-d '$file_notexist' ] => 0 ],
+    [ qq[-e '$file_notexist' ] => 0 ],
+    [ qq[-f '$file_notexist' ] => 0 ],
+    [ qq[-S '$file_notexist' ] => 0 ],
     # IP match
     [ q[-R 'abc']                   => undef ],
     [ q[-R %{REMOTE_ADDR}]          => undef ],
