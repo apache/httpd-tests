@@ -77,18 +77,20 @@ can run:
 
 It's also possible that a test will pass when it's run after a
 particular test, but if moved to run after a different state it may
-fail. For this reason it's important to ran the randomization smoking
-testing with -order=random option.
+fail. For this reason by default the tests run in random order.
 
 Since it's important to be able to reproduce the problem with the
 random testing, whenever -order=random is used, the used seed is
 printed to STDERR. Which can be then fed into the future tests with:
 via APACHE_TEST_SEED environment variable.
 
+By adding the option -order=repeat, the tests will be run in
+alphabetical order.
+
 Combining these two important smoke testing techiques, one can run
 tests with:
 
-    t/SMOKE -times=N -order=(repeat|rotate|random)
+    t/SMOKE -times=N -order=(repeat|random)
 
 For example, to run the mod_rewrite tests 5 times, one would:
 
@@ -98,8 +100,7 @@ So the tests can be repeated N times, and run in the following three
 modes:
 
 - randomize all tests
-- repeat the same test N times in sequence
-- rotate the whole tests suite N times
+- repeat the whole tests suite N times
 
 For configuration options and default settings run:
 
