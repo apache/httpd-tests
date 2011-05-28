@@ -98,6 +98,20 @@ my %test = (
 "inc-nego.shtml"        =>    "index.html.en", # requires mod_negotiation
 );
 
+my %ap_expr_test = (
+"apexpr/if1.shtml"      =>    "pass",
+"apexpr/err.shtml"      =>    "[an error occurred while processing this ".
+                              "directive] err.shtml",
+"apexpr/restrict.shtml" =>    "[an error occurred while processing this ".
+                              "directive] restrict.shtml",
+"apexpr/var.shtml"      =>    "pass   pass   pass",
+"apexpr/lazyvar.shtml"  =>    "pass",
+);
+
+if (have_min_apache_version "2.3.13") {
+    %test = (%test, %ap_expr_test);
+}
+
 # now, assuming 2.1 has the proper behavior across the board,
 # let's adjust our expectations for other versions
 

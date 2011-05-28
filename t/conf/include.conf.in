@@ -14,6 +14,16 @@
     </IfDefine>
 
     <Directory @SERVERROOT@/htdocs/modules/include>
+        <IfVersion >= 2.3.13>
+            SSILegacyExprParser on
+        </IfVersion>
+        Options +IncludesNOEXEC
+    </Directory>
+
+    <Directory @SERVERROOT@/htdocs/modules/include/apexpr>
+        <IfVersion >= 2.3.13>
+            SSILegacyExprParser off
+        </IfVersion>
         Options +IncludesNOEXEC
     </Directory>
 
