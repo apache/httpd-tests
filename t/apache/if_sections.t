@@ -13,6 +13,7 @@ plan tests => 11*2,
                   need need_lwp,
                   need_module('mod_headers'),
                   need_module('mod_proxy'),
+                  need_module('mod_proxy_http'),
                   need_min_apache_version('2.3.8');
 
 
