@@ -11,9 +11,17 @@ my @server_deflate_uris=("/modules/deflate/index.html",
                          "/modules/deflate/zero.txt",
                         );
 my $server_inflate_uri="/modules/deflate/echo_post";
+my @server_bucketeer_uri = ("/modules/deflate/bucketeer/P.txt",
+                            "/modules/deflate/bucketeer/F.txt",
+                            "/modules/deflate/bucketeer/FP.txt",
+                            "/modules/deflate/bucketeer/FBP.txt",
+                            "/modules/deflate/bucketeer/BB.txt",
+                            "/modules/deflate/bucketeer/BBF.txt",
+                            "/modules/deflate/bucketeer/BFB.txt"
+                           );
 
 my $cgi_tests = 3;
-my $tests = @server_deflate_uris + $cgi_tests;
+my $tests = @server_deflate_uris + $cgi_tests + @server_bucketeer_uri;
 my $vars = Apache::Test::vars();
 my $module = 'default';
 
@@ -27,6 +35,13 @@ push @deflate_headers, "Accept-Encoding" => "gzip";
 my @inflate_headers;
 push @inflate_headers, "Content-Encoding" => "gzip";
 
+if (have_module('bucketeer')) {
+    push @server_deflate_uris, @server_bucketeer_uri;
+}
+else {
+    skip "skipping bucketing deflate tests without mod_bucketeer"
+        foreach @server_bucketeer_uri;
+}
 for my $server_deflate_uri (@server_deflate_uris) {
     my $original_str = GET_BODY($server_deflate_uri);
 

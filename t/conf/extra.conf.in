@@ -470,6 +470,13 @@ LimitRequestFields    32
             SetOutputFilter DEFLATE
         </Directory> 
 
+        <IfModule mod_bucketeer.c>
+            <Directory @SERVERROOT@/htdocs/modules/deflate/bucketeer>
+                SetOutputFilter BUCKETEER;DEFLATE
+            </Directory> 
+        </IfModule>
+
+
         <Location /modules/cgi/not-modified.pl>
             SetOutputFilter DEFLATE
         </Location> 
