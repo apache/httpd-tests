@@ -698,6 +698,7 @@ LimitRequestFields    32
       </Location>
    </IfModule>
 
+   <IfModule mod_deflate.c>
    <Directory @SERVERROOT@/htdocs/modules/filter>
        Options +Includes
        AddType text/html .shtml
@@ -719,6 +720,7 @@ LimitRequestFields    32
        </IfVersion>
        FilterChain pr49328
    </Directory>
+   </IfModule>
 </IfModule>
 
 ##
