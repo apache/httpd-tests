@@ -698,17 +698,15 @@ LimitRequestFields    32
       </Location>
    </IfModule>
 
-   <IfModule mod_deflate.c>
-     <Directory @SERVERROOT@/htdocs/modules/filter>
-         Options +Includes
-         AddType text/html .shtml
-         AddOutputFilter INCLUDES .shtml
+   <Directory @SERVERROOT@/htdocs/modules/filter>
+       Options +Includes
+       AddType text/html .shtml
+       AddOutputFilter INCLUDES .shtml
 
+       <IfModule mod_deflate.c>
          FilterDeclare pr49328 CONTENT_SET
          <IfVersion < 2.3.0> 
-            <IfModule mod_deflate.c>
-              FilterProvider pr49328 DEFLATE resp=Content-Type $text/
-            </IfModule>
+            FilterProvider pr49328 DEFLATE resp=Content-Type $text/
          </IfVersion>
          <IfVersion >= 2.3.0>
            <IfVersion < 2.3.9>
@@ -719,8 +717,8 @@ LimitRequestFields    32
             FilterProvider pr49328 DEFLATE "%{CONTENT_TYPE} =~ m!text/!"
          </IfVersion>
          FilterChain pr49328
-     </Directory>
-   </IfModule>
+       </IfModule>
+   </Directory>
 </IfModule>
 
 ##
