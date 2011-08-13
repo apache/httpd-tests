@@ -753,6 +753,13 @@ LimitRequestFields    32
    </IfVersion>
 </IfDefine>
 
+<Directory @SERVERROOT@/htdocs/apache/cfg_getline/>
+    AllowOverride All
+    AddType text/html .shtml
+    AddOutputFilter INCLUDES .shtml
+    Options +Includes
+</Directory>
+
 ##
 ## expression parser test config
 ##
