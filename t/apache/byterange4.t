@@ -42,8 +42,8 @@ plan tests => scalar(@test_cases), need need_lwp,
 foreach my $test (@test_cases) {
     my ($start, $end) = @$test;
     my $r = "$start-$end";
-    my $result = GET $url, "Range" => "bytes=$r";
     print "range: $r\n";
+    my $result = GET $url, "Range" => "bytes=$r";
     my $expect = substr($content, $start, $end - $start + 1);
     my $got = $result->content;
     print("rc " . $result->code . "\n");
