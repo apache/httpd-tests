@@ -40,6 +40,10 @@ sub verify {
             my($start, $end, $total_bytes) = ($1, $2, $3);
             $total += ($end - $start) + 1;
         }
+        elsif ($total == 0 && $end == $wanted &&
+               $content_range eq 'NONE' && $res->code == 200) {
+               $total += $wanted;
+        }
         else {
             print "Range:         $range\n";
             print "Content-Range: $content_range\n";
