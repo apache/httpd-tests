@@ -760,6 +760,10 @@ LimitRequestFields    32
     Options +Includes
 </Directory>
 
+<Directory @SERVERROOT@/htdocs/modules/substitute/>
+    AllowOverride All
+</Directory>
+
 ##
 ## expression parser test config
 ##
