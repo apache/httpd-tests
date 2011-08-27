@@ -104,7 +104,6 @@ foreach my $test (@test_cases) {
 
     my @got;
     my $rcontent = $result->content;
-    print "Requested " . $test->{"h"} . " " . $result->content . "\n";
     my $error;
     while ($rcontent =~ s{^[\n\s]*--$boundary\s*?\n(.+?)\r\n\r\n}{}s ) {
         my $headers = $1;
