@@ -71,6 +71,10 @@ my @test_cases = (
     { h => "10-20,1-11,99-99", actlike => "1-20,99-99"},
     { h => "10-20,1-21,99-99", actlike => "1-21,99-99"},
 
+    { h => "5-10,11-12,99-99", actlike => "5-12,99-99"},
+    { h => "5-10,1-4,99-99", actlike => "1-10,99-99"},
+    { h => "5-10,1-3,99-99", actlike => "5-10,1-3,99-99"},
+
 );
 plan tests => scalar(@test_cases), need need_lwp, 
                                    need_min_apache_version('2.3.15');
