@@ -5,7 +5,14 @@ use Apache::Test;
 use Apache::TestRequest ();
 use Apache::TestCommon ();
 
-Apache::TestCommon::run_files_test(\&verify, 1);
+# test merging of byte ranges
+
+if (Apache::Test::need_min_apache_version("2.3.15")) { 
+  Apache::TestCommon::run_files_test(\&verify, 1);
+}
+else { 
+  plan tests => 0;
+}
 
 sub verify {
     my($ua, $url, $file) = @_;
