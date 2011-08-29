@@ -60,7 +60,7 @@ foreach my $range (@test_cases2, @test_cases3) {
     my $result = GET $url, "Range" => "$range";
     my $code = $result->code;
     print "Got $code\n";
-    if ($code == 216) {
+    if ($code == 416) {
         # guess that's ok
         ok(1);
     }
