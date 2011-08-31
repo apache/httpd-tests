@@ -38,6 +38,10 @@ sub verify {
         my $e20 = $end-10;
         #my $range = "bytes=$total-$end";
         my $range = "bytes=$t10-$end,$total-$e1,$t10-$e20,$total-$e1";
+        if ($end - $total < 15) {
+            # make sure to not send invalid ranges with start > end
+            $range = "bytes=$total-$end";
+        }
         $req->header(Range => $range);
 
         print $req->as_string if $debug;
