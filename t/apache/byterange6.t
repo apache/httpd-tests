@@ -3,7 +3,7 @@ use warnings FATAL => 'all';
 
 use Apache::Test;
 use Apache::TestRequest;
-use Apache::TestUtil qw(t_write_file);
+use Apache::TestUtil qw(t_write_file t_debug);
 
 # test multi-byterange-requests with overlaps (merges)
 
@@ -75,6 +75,8 @@ my @test_cases = (
     { h => "5-10,1-4,99-99", actlike => "1-10,99-99"},
     { h => "5-10,1-3,99-99", actlike => "5-10,1-3,99-99"},
 
+    { h => "0-1,-1", actlike => "0-1,-1"}, # PR 51748
+
 );
 plan tests => scalar(@test_cases), need need_lwp, 
                                    need_min_apache_version('2.3.15');
@@ -88,7 +90,7 @@ foreach my $test (@test_cases) {
         $boundary = $1;
     }
     else {
-        print "Wrong Content-Type: $ctype\n"; 
+        print "Wrong Content-Type: $ctype, for ".$test->{"h"}."\n"; 
         ok(0);
         next;
     }
@@ -96,7 +98,7 @@ foreach my $test (@test_cases) {
     my @want = split(",", $test->{"actlike"});
     foreach my $w (@want) {
         $w =~ /(\d*)-(\d*)/ or die;
-        if (defined $1 eq "") {
+        if ($1 eq "") {
             $w = [ $clen - $2, $clen - 1 ];
         }
         elsif ($2 eq "") {
@@ -105,6 +107,7 @@ foreach my $test (@test_cases) {
         else {
             $w = [ $1, $2 ];
         }
+        t_debug("expecting range ". $w->[0]. "-". $w->[1]);
     }
 
     my @got;
