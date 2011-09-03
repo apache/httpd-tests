@@ -836,4 +836,19 @@ LimitRequestFields    32
       </Location>
     </IfModule>
   </IfVersion>
+  <IfVersion >= 2.2.21>
+    <IfModule mod_alias.c>
+      AliasMatch /maxranges/([^/])+/ @SERVERROOT@/htdocs/apache/chunked/byteranges.txt
+      <Location /maxranges/0/>
+        MaxRanges 0 
+      </Location>
+      <Location /maxranges/1/>
+        MaxRanges 1
+      </Location>
+      <Location /maxranges/2/>
+        MaxRanges 2
+      </Location>
+    </IfModule>
+  </IfVersion>
+
 </IfDefine>
