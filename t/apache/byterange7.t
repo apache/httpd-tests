@@ -17,18 +17,37 @@ t_write_file($file, $content);
 my $real_clen = length($content);
 
 
-my @test_cases = ( 1, 2, 10, 50, 100);
-my @test_cases2 = ("", ",", "7-1", "foo");
-plan tests => scalar(@test_cases) + 2 * scalar(@test_cases2), need need_lwp;
+#
+# test cases
+#
 
-foreach my $num (@test_cases) {
+# check content-length for (multi-)range responses
+my @tc_ranges_cl = ( 1, 2, 10, 50, 100);
+# send 200 response if range invalid
+my @tc_invalid = ("", ",", "7-1", "foo", "1-4,x", "1-4,5-2",
+                  "100000-110000,5-2");
+# send 416 if no range satisfiable
+my %tc_416 = (
+        "100000-110000" => 416,
+        "100000-110000,200000-" => 416,
+        "1000-200000"   => 206,           # should be truncated until end
+        "100000-110000,1000-2000" => 206, # should ignore unsatifiable range
+        "100000-110000,2000-1000" => 200, # invalid, should ignore whole header
+    );
+
+plan tests => scalar(@tc_ranges_cl) +
+              2 * scalar(@tc_invalid) +
+              scalar(keys %tc_416),
+              need need_lwp;
+
+foreach my $num (@tc_ranges_cl) {
     my @ranges;
     foreach my $i (0 .. ($num-1)) {
         push @ranges, sprintf("%d-%d", $i * 100, $i * 100 + 1);
     }
     my $range = join(",", @ranges);
     my $result = GET $url, "Range" => "bytes=$range";
-    print "got ", $result->code, "\n";
+    print_result($result);
     if ($result->code != 206) {
         print "did not get 206\n";
         ok(0);
@@ -55,17 +74,13 @@ foreach my $num (@test_cases) {
 }
 
 # test invalid range headers, with and without "bytes="
-my @test_cases3 = map { "bytes=" . $_ } @test_cases2;
-foreach my $range (@test_cases2, @test_cases3) {
+my @tc_invalid2 = map { "bytes=" . $_ } @tc_invalid;
+foreach my $range (@tc_invalid, @tc_invalid2) {
     my $result = GET $url, "Range" => "$range";
+    print_result($result);
     my $code = $result->code;
-    print "Got $code\n";
-    if ($code == 416) {
-        # guess that's ok
-        ok(1);
-    }
-    elsif ($code == 206) {
-        print "got partial content response with invalid range header\n";
+    if ($code == 206) {
+        print "got partial content response with invalid range header '$range'\n";
         ok(0);
     }
     elsif ($code == 200) {
@@ -82,3 +97,23 @@ foreach my $range (@test_cases2, @test_cases3) {
     }
 }
 
+# test unsatisfiable ranges headers
+foreach my $range (sort keys %tc_416) {
+    print "Sending '$range', expecting $tc_416{$range}\n";
+    my $result = GET $url, "Range" => "bytes=$range";
+    print_result($result);
+    ok($result->code == $tc_416{$range});
+}
+
+sub print_result
+{
+    my $result = shift;
+    my $code = $result->code;
+    my $cr = $result->header("Content-Range");
+    my $ct = $result->header("Content-Type");
+    my $msg = "Got $code";
+    $msg .= " multipart/byteranges"
+        if (defined $ct && $ct =~ m{^multipart/byteranges});
+    $msg .= " Range: '$cr'" if defined $cr;
+    print "$msg\n";
+}
