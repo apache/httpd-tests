@@ -17,6 +17,9 @@
             SSLProxyCACertificateFile @SSLCA@/asf/certs/ca.crt
             SSLProxyCACertificatePath @ServerRoot@/conf/ssl
             SSLProxyCARevocationFile @SSLCA@/asf/crl/ca-bundle.crl
+            <IfVersion >= 2.3.15>
+                SSLProxyCARevocationCheck chain
+            </IfVersion>
             SSLProxyVerify on
             SSLProxyVerifyDepth 10
         </IfDefine>
@@ -40,6 +43,9 @@
             SSLProxyCACertificateFile @SSLCA@/asf/certs/ca.crt
             SSLProxyVerify on
             SSLProxyCARevocationPath @SSLCA@/asf/crl
+            <IfVersion >= 2.3.15>
+                SSLProxyCARevocationCheck chain
+            </IfVersion>
         </IfDefine>
 
 

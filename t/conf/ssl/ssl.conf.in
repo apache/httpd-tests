@@ -70,6 +70,9 @@
     SSLCACertificatePath @ServerRoot@/conf/ssl
 
     SSLCARevocationFile @SSLCA@/asf/crl/ca-bundle.crl
+    <IfVersion >= 2.3.15>
+        SSLCARevocationCheck chain
+    </IfVersion>
 
     <VirtualHost @ssl_module_name@>
         SSLEngine on
