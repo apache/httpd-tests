@@ -53,7 +53,7 @@ my @test_cases = (
     { url => "/maxranges/unlimited/byteranges.txt" ,       h => "$longrange", status => "206"},
 
 );
-plan tests => scalar(@test_cases), need need_lwp, need_min_apache_version('2.3.15'),
+plan tests => scalar(@test_cases), need need_lwp, need_min_apache_version('2.3.15') || need_min_apache_version('2.2.21'),
               need_module('mod_alias');
 
 
