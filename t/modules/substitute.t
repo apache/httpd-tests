@@ -26,6 +26,8 @@ my @test_cases = (
     [ "xfooo"          => 's/foo/fo/' ],
     [ "xfoo" x 4000    => 's/foo/bar/', 's/FOO/BAR/' ],
     [ "foox\n" x 4000  => 's/foo/bar/', 's/FOO/BAR/' ],
+    [ "a.baxb("        => 's/a.b/a$1/n' ],
+    [ "a.baxb("        => 's/a.b/a$1/n', 's/1axb(/XX/n' ],
 );
 
 plan tests => scalar @test_cases,
@@ -44,6 +46,14 @@ foreach my $t (@test_cases) {
     my $expect = $content;
     $expect =~ s/[$B$F$P]+//g;
     foreach my $rule (@rules) {
+        if ($rule =~ s/n$//) {
+            # non-regex match, escape specials for perl
+            my @parts = split('/', $rule);
+            $parts[1] = quotemeta($parts[1]);
+            $parts[2] = quotemeta($parts[2]);
+            $rule = join('/', @parts);
+            $rule .= '/' if (scalar @parts == 3);
+        }
         $rule .= "g";   # mod_substitute always does global search & replace
         eval "\$expect =~ $rule\n";
     }
