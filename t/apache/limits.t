@@ -20,7 +20,7 @@ use Apache::TestUtil;
 # </Directory>
 #
 
-my @conditions = qw(requestline fieldsize fieldcount bodysize);
+my @conditions = qw(requestline fieldsize fieldcount bodysize merged_fieldsize);
 
 my %params = ('requestline-succeed' => "/apache/limits/",
               'requestline-fail'    => ("/apache/limits/" . ('a' x 256)),
@@ -29,7 +29,9 @@ my %params = ('requestline-succeed' => "/apache/limits/",
               'fieldcount-succeed'  => 1,
               'fieldcount-fail'     => 64,
               'bodysize-succeed'    => ('a' x 1024),
-              'bodysize-fail'       => ('a' x 131072)
+              'bodysize-fail'       => ('a' x 131072),
+              'merged_fieldsize-succeed' => ('a' x 500),
+              'merged_fieldsize-fail'    => ('a' x 600),
               );
 my %xrcs = ('requestline-succeed' => 200,
             'requestline-fail'    => 414,
@@ -38,7 +40,9 @@ my %xrcs = ('requestline-succeed' => 200,
             'fieldcount-succeed'  => 200,
             'fieldcount-fail'     => 400,
             'bodysize-succeed'    => 200,
-            'bodysize-fail'       => 413
+            'bodysize-fail'       => 413,
+            'merged_fieldsize-succeed' => 200,
+            'merged_fieldsize-fail'    => 400,
             );
 
 my $res;
@@ -139,6 +143,19 @@ foreach my $cond (@conditions) {
                 }
                 $testnum++;
             }
+        }
+        elsif ($cond eq 'merged_fieldsize') {
+            print "# Testing LimitRequestFieldSize; should $goodbad\n";
+            $resp = GET('/apache/limits/', 'X-Subtest' => $testnum,
+                        'X-overflow-field' => $param,
+                        'X-overflow-field' => $param);
+            ok t_cmp($resp->code,
+                     $expected_rc,
+                     "Test #$testnum");
+            if ($resp->code != $expected_rc) {
+                print_response($resp);
+            }
+            $testnum++;
         }
         elsif ($cond eq 'fieldsize') {
             print "# Testing LimitRequestFieldSize; should $goodbad\n";
