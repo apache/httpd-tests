@@ -28,6 +28,7 @@ my @test_cases = (
     [ "foox\n" x 4000  => 's/foo/bar/', 's/FOO/BAR/' ],
     [ "a.baxb("        => 's/a.b/a$1/n' ],
     [ "a.baxb("        => 's/a.b/a$1/n', 's/1axb(/XX/n' ],
+    [ "xfoo" x 4000    => 's/foo/bar/n', 's/FOO/BAR/n' ],
 );
 
 plan tests => scalar @test_cases,
