@@ -14,7 +14,7 @@ Apache::TestRequest::user_agent(keep_alive => 1);
 my $dir_foo = Apache::Test::vars('serverroot') . '/htdocs/cfg_getline';
 
 my @test_cases = (100, 196 .. 202, 396 .. 402 , 596 .. 602 , 1016 .. 1030,
-                  8170 .. 8196 , 10000, 100000);
+                  8170 .. 8196 , 10000, 50000);
 plan tests => 2 * scalar(@test_cases), need need_lwp,
                                        need_module('mod_include'),
                                        need_module('mod_setenvif');
