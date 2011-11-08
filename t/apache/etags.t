@@ -53,8 +53,9 @@ my %expect = ($tokens_1 => "one component in ETag field",
               $tokens_3 => "three components in ETag field",
               ""        => "field to be absent"
               );
+my $tokens_default = have_min_apache_version("2.3.15") ? $tokens_2 : $tokens_3;
 my %tests = (
-             '/default/'                 => $tokens_3, # Legacy behaviour
+             '/default/'                 => $tokens_default,
              #
              # First, the absolute settings in various combinations,
              # disregarding inheritance.
