@@ -18,3 +18,11 @@ end
 function handle_201(r)
    r.status = 201
 end
+
+function handle_https(r)
+   if r.is_https then
+      r:puts("yep")
+   else
+      r:puts("nope")
+   end
+end

@@ -9,6 +9,10 @@ use Apache::TestConfig ();
 my $config = Apache::Test::config();
 my $server = $config->server;
 my $version = $server->{version};
+my $scheme = Apache::Test::vars()->{scheme};
+
+my $https = "nope";
+$https = "yep" if $scheme eq "https";
 
 my $pfx = "/modules/lua";
 
@@ -19,6 +23,7 @@ my @ts = (
     { url => "$pfx/test_version", rcontent => qr(^$version) },
     { url => "$pfx/test_method", rcontent => "GET" },
     { url => "$pfx/test_201", rcontent => "", code => 201 },
+    { url => "$pfx/test_https", rcontent => $https },
 );
 
 plan tests => 3 * scalar @ts, need 'lua';
