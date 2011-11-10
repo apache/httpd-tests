@@ -196,13 +196,20 @@ if (have_min_apache_version("2.3.15")) {
     $long_expr= 1;
 }
 push(@test_cases,
-     [("true && " x 2000) . "true"       => $long_expr ? 1 : undef],
      # longest string/regex with 2.3.15+ is 8191
      ["-n '" . ("a" x 8191) . "'"        => $long_expr ? 1 : undef],
      ["-n '" . ("a" x 9000) . "'"        => undef],
      ["'y' =~ /" . ("a" x 8191) . "/"    => $long_expr ? 0 : undef],
      ["'y' =~ /" . ("a" x 9000) . "/x"   => undef],
 );
+
+# Instead of testing the entire server with large non-default
+# stack-size, just skip this recursion heavy test on AIX 
+# (Default = 96k, required between 256 and 384)
+if (!Apache::TestConfig::AIX) { 
+    push(@test_cases,
+        [("true && " x 2000) . "true"       => $long_expr ? 1 : undef]);
+}
 
 plan tests => scalar(@test_cases) + 1,
                   need need_lwp,
