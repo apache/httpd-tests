@@ -6,20 +6,19 @@ use Apache::TestRequest;
 use Apache::TestUtil;
 use Apache::TestConfig ();
 
-Apache::TestRequest::module('mod_lua');
 my $config = Apache::Test::config();
 my $server = $config->server;
 my $version = $server->{version};
 
-my $r = GET("/modules/lua/test_hello");
+my $pfx = "/modules/lua";
 
 my @ts = (
-    { url => "/modules/lua/test_hello", code => 200, rcontent => "Hello Lua World!\n", 
+    { url => "$pfx/test_hello", rcontent => "Hello Lua World!\n", 
       ctype => "text/plain" },
-    { url => "/modules/lua/translate-me", code => 200, 
-      rcontent => "Hello Lua World!\n" },
-    { url => "/modules/lua/test_version", code => 200, 
-      rcontent => qr(^$version) },
+    { url => "$pfx/translate-me", rcontent => "Hello Lua World!\n" },
+    { url => "$pfx/test_version", rcontent => qr(^$version) },
+    { url => "$pfx/test_method", rcontent => "GET" },
+    { url => "$pfx/test_201", rcontent => "", code => 201 },
 );
 
 plan tests => 3 * scalar @ts, need 'lua';
@@ -27,8 +26,9 @@ plan tests => 3 * scalar @ts, need 'lua';
 for my $t (@ts) {
     my $url = $t->{"url"};
     my $r = GET $url;
-    
-    ok t_cmp($r->code, $t->{"code"}, "code for $url");
+    my $code = $t->{"code"} || 200;
+
+    ok t_cmp($r->code, $code, "code for $url");
     ok t_cmp($r->content, $t->{"rcontent"}, "response content for $url");
     if ($t->{"ctype"}) {
         ok t_cmp($r->header("Content-Type"), $t->{"ctype"}, "c-type for $url");

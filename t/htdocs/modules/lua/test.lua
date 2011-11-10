@@ -11,6 +11,10 @@ function handle_version(r)
   r:puts(apache2.version)
 end
 
-function handle_print(r)
-  r:puts("fish");
+function handle_method(r)
+   r:puts(r.method)
+end
+
+function handle_201(r)
+   r.status = 201
 end
