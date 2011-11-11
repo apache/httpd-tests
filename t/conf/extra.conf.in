@@ -874,7 +874,5 @@ LimitRequestFields    32
 <IfModule mod_lua.c>
    AddHandler lua-script .lua 
 
-   LuaMapHandler ^/modules/lua/(\w+)_([^/]+) @SERVERROOT@/htdocs/modules/lua/$1.lua handle_$2
-
    LuaHookTranslateName @SERVERROOT@/htdocs/modules/lua/translate.lua translate_name
 </IfModule>

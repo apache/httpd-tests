@@ -17,13 +17,13 @@ $https = "yep" if $scheme eq "https";
 my $pfx = "/modules/lua";
 
 my @ts = (
-    { url => "$pfx/test_hello", rcontent => "Hello Lua World!\n", 
+    { url => "$pfx/hello.lua", rcontent => "Hello Lua World!\n", 
       ctype => "text/plain" },
     { url => "$pfx/translate-me", rcontent => "Hello Lua World!\n" },
-    { url => "$pfx/test_version", rcontent => qr(^$version) },
-    { url => "$pfx/test_method", rcontent => "GET" },
-    { url => "$pfx/test_201", rcontent => "", code => 201 },
-    { url => "$pfx/test_https", rcontent => $https },
+    { url => "$pfx/version.lua", rcontent => qr(^$version) },
+    { url => "$pfx/method.lua", rcontent => "GET" },
+    { url => "$pfx/201.lua", rcontent => "", code => 201 },
+    { url => "$pfx/https.lua", rcontent => $https },
 );
 
 plan tests => 3 * scalar @ts, need 'lua';
