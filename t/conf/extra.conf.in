@@ -878,6 +878,18 @@ LimitRequestFields    32
 
 <IfModule mod_lua.c>
    AddHandler lua-script .lua 
-
    LuaHookTranslateName @SERVERROOT@/htdocs/modules/lua/translate.lua translate_name
+   <Location /modules/lua/translate-inherit-after>
+     LuaHookTranslateName @SERVERROOT@/htdocs/modules/lua/translate.lua translate_name2
+     LuaInherit PARENT_LAST
+   </Location>
+   <Location /modules/lua/translate-inherit-before>
+     LuaHookTranslateName @SERVERROOT@/htdocs/modules/lua/translate.lua translate_name2
+     LuaInherit PARENT_FIRST
+   </Location>
+   <Location /modules/lua/translate-inherit-default-before>
+     LuaHookTranslateName @SERVERROOT@/htdocs/modules/lua/translate.lua translate_name2
+     # default: LuaInherit PARENT_FIRST
+   </Location>
+
 </IfModule>

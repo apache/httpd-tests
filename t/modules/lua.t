@@ -19,7 +19,17 @@ my $pfx = "/modules/lua";
 my @ts = (
     { url => "$pfx/hello.lua", rcontent => "Hello Lua World!\n", 
       ctype => "text/plain" },
-    { url => "$pfx/translate-me", rcontent => "Hello Lua World!\n" },
+    { url => "$pfx/404?translateme=1", rcontent => "Hello Lua World!\n" },
+
+    { url => "$pfx/translate-inherit-before/404?translateme=1", rcontent => "other lua handler\n" },
+    { url => "$pfx/translate-inherit-default-before/404?translateme=1", rcontent => "other lua handler\n" },
+    { url => "$pfx/translate-inherit-after/404?translateme=1", rcontent => "Hello Lua World!\n" },
+
+    { url => "$pfx/translate-inherit-before/404?translateme=1&ok=1", rcontent => "other lua handler\n" },
+    { url => "$pfx/translate-inherit-default-before/404?translateme=1&ok=1", rcontent => "other lua handler\n" },
+    # the more specific translate_name handler will run first and return OK.
+    { url => "$pfx/translate-inherit-after/404?translateme=1&ok=1", rcontent => "other lua handler\n" },
+
     { url => "$pfx/version.lua", rcontent => qr(^$version) },
     { url => "$pfx/method.lua", rcontent => "GET" },
     { url => "$pfx/201.lua", rcontent => "", code => 201 },
