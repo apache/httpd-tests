@@ -881,15 +881,15 @@ LimitRequestFields    32
    LuaHookTranslateName @SERVERROOT@/htdocs/modules/lua/translate.lua translate_name
    <Location /modules/lua/translate-inherit-after>
      LuaHookTranslateName @SERVERROOT@/htdocs/modules/lua/translate.lua translate_name2
-     LuaInherit PARENT_LAST
+     LuaInherit parent-last
    </Location>
    <Location /modules/lua/translate-inherit-before>
      LuaHookTranslateName @SERVERROOT@/htdocs/modules/lua/translate.lua translate_name2
-     LuaInherit PARENT_FIRST
+     LuaInherit parent-first
    </Location>
    <Location /modules/lua/translate-inherit-default-before>
      LuaHookTranslateName @SERVERROOT@/htdocs/modules/lua/translate.lua translate_name2
-     # default: LuaInherit PARENT_FIRST
+     # default: LuaInherit parent-first
    </Location>
 
 </IfModule>
