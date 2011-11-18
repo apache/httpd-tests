@@ -8,7 +8,9 @@ use warnings FATAL => 'all';
 use Apache::Test;
 use Apache::TestRequest;
 
-plan tests => 1, need_lwp;
+plan tests => 1, need need_lwp,
+                      { "SSLv2 test(s) not applicable" =>
+                        sub { !need_min_apache_version('2.4.0') } };
 
 Apache::TestRequest::scheme('https');
 
