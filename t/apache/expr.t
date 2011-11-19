@@ -21,17 +21,6 @@ my @test_cases = (
     [ 'true'  => 1     ],
     [ 'false' => 0     ],
     [ 'foo'   => undef ],
-    # bool logic
-    [ 'true && false'  => 0 ],
-    [ 'false && true'  => 0 ],
-    [ 'true && true'   => 1 ],
-    [ 'false && false' => 0 ],
-    [ 'false || true'  => 1 ],
-    [ 'true  || false' => 1 ],
-    [ 'false || false' => 0 ],
-    [ 'true  || true'  => 1 ],
-    [ '!true'  => 0 ],
-    [ '!false' => 1 ],
     # integer comparison
     [ '1 -eq 01' => 1 ],
     [ '1 -eq  2' => 0 ],
@@ -68,7 +57,7 @@ my @test_cases = (
     [ q{'a1c' = 'a'. 1. 'c'}                  => 1 ],
     [ q{req('foo') . 'bar' = 'bar'}           => 1 ],
     [ q[%{req:foo} . 'bar' = 'bar']           => 1 ],
-    [ q[%{req:foo} . 'bar' = 'bar']           => 1 ],
+    [ q['x'.%{req:foo} . 'bar' = 'xbar']      => 1 ],
     [ q[%{req:User-Agent} . 'bar' != 'bar']   => 1 ],
     [ q['%{req:User-Agent}' . 'bar' != 'bar'] => 1 ],
     [ q['%{TIME}' . 'bar' != 'bar']           => 1 ],
@@ -160,6 +149,52 @@ my @test_cases = (
     [ q['bar' = bar]                  => undef ],
 );
 
+#
+# Bool logic:
+# Test all combinations with 0 to 2 '||' or '&&' operators
+#
+my @bool_base  = (
+    [ q[true]   => 1 ],
+);
+push @bool_base, (
+    [ q[-z '']  => 1 ],
+    [ q[-n 'x'] => 1 ],
+    [ q[false]  => 0 ],
+    [ q[-n '']  => 0 ],
+    [ q[-z 'x'] => 0 ],
+) if 0; # This produces an exessive number of tests for normal operation
+
+# negation function: perl's "!" returns undef for false, but we need 0
+sub neg
+{
+    return (shift) ? 0 : 1;
+}
+# also test combinations with '!' operator before each operand
+@bool_base = (@bool_base, map { ["!$_->[0]" => neg($_->[1]) ] } @bool_base);
+# now create the test cases
+my @bool_test_cases;
+foreach my $ex1 (@bool_base) {
+    my ($e1, $r1) = @$ex1;
+    push @bool_test_cases, [ $e1 => $r1 ];
+    foreach my $ex2 (@bool_base) {
+        my ($e2, $r2) = @$ex2;
+        push @bool_test_cases, [ "$e1 && $e2" => ($r1 && $r2) ];
+        push @bool_test_cases, [ "$e1 || $e2" => ($r1 || $r2) ];
+        foreach my $ex3 (@bool_base) {
+            my ($e3, $r3) = @$ex3;
+            foreach my $op1 ("||", "&&") {
+                foreach my $op2 ("||", "&&") {
+                    my $r = eval "$r1 $op1 $r2 $op2 $r3";
+                    push @bool_test_cases, [ "$e1 $op1 $e2 $op2 $e3" => $r];
+                }
+            }
+        }
+    }
+}
+push @test_cases, @bool_test_cases;
+# also test combinations with '!' operator before the whole expression
+push @test_cases, map { ["!($_->[0])" => neg($_->[1]) ] } @bool_test_cases;
+
 if (have_min_apache_version("2.3.13")) {
     push(@test_cases, (
         # functions
@@ -195,10 +230,9 @@ if (have_min_apache_version("2.3.15")) {
     # should support long expressions
     $long_expr= 1;
 }
-my $spaces = " " x 100;
 push(@test_cases,
      # longest string/regex with 2.3.15+ is 8191
-     [("true && $spaces" x 100) . "true" => $long_expr ? 1 : undef],
+     [("true && " x 2000) . "true"       => $long_expr ? 1 : undef],
      ["-n '" . ("a" x 8191) . "'"        => $long_expr ? 1 : undef],
      ["-n '" . ("a" x 9000) . "'"        => undef],
      ["'y' =~ /" . ("a" x 8191) . "/"    => $long_expr ? 0 : undef],
