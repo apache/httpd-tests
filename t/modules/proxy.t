@@ -30,8 +30,12 @@ if (have_cgi) {
 
     if (have_min_apache_version('2.1.0')) {
         $r = GET("/reverse/modules/cgi/nph-102.pl");
-        ok t_cmp($r->code, 200, "reverse proxy to nph-102");
-        ok t_cmp($r->content, "this is nph-stdout", "reverse proxy 102 response");
+        ## Uncomment next 2 lines and comment out the subsequant 2 lines
+        ## when LWP is fixed to work w/ 1xx
+        ##ok t_cmp($r->code, 200, "reverse proxy to nph-102");
+        ##ok t_cmp($r->content, "this is nph-stdout", "reverse proxy 102 response");
+        ok t_cmp($r->code, 102, "reverse proxy to nph-102");
+        ok t_cmp($r->content, "", "reverse proxy 102 response");
     } else {
         skip "skipping tests with httpd <2.1.0" foreach (1..2);
     }
