@@ -143,8 +143,8 @@ More Information
 For more information on using the test harness and writing tests, see
 the README in Apache-Test and the examples in Apache-Test/t.  
 
-The test harness was written by Doug MacEachern and is discussed on
-the modperl dev mailing list (dev@perl.apache.org).  
+The test harness was originally written by Doug MacEachern and is
+discussed on the httpd dev mailing list (dev@httpd.apache.org).  
 
 It is also included in modperl-2.0 source along with tests for
 modperl-2.0.
