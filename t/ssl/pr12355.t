@@ -1,12 +1,6 @@
 use strict;
 use warnings FATAL => 'all';
 
-BEGIN {
-    # Newer LWP version refuse to work if the modules necessary to verify
-    # certificates are not installed.
-    $ENV{PERL_LWP_SSL_VERIFY_HOSTNAME} = 0;
-}
-
 use Apache::Test;
 use Apache::TestRequest;
 use Apache::TestUtil;
