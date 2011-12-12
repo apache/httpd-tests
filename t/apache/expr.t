@@ -225,20 +225,6 @@ if (have_min_apache_version("2.3.13")) {
     ));
 }
 
-my $long_expr;
-if (have_min_apache_version("2.3.15")) {
-    # should support long expressions
-    $long_expr= 1;
-}
-push(@test_cases,
-     # longest string/regex with 2.3.15+ is 8191
-     [("true && " x 2000) . "true"       => $long_expr ? 1 : undef],
-     ["-n '" . ("a" x 8191) . "'"        => $long_expr ? 1 : undef],
-     ["-n '" . ("a" x 9000) . "'"        => undef],
-     ["'y' =~ /" . ("a" x 8191) . "/"    => $long_expr ? 0 : undef],
-     ["'y' =~ /" . ("a" x 9000) . "/x"   => undef],
-);
-
 plan tests => scalar(@test_cases) + 1,
                   need need_lwp,
                   need_module('mod_authz_core'),
