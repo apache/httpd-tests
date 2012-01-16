@@ -5,7 +5,7 @@ use Apache::Test;
 use Apache::TestUtil;
 use Apache::TestRequest;
 
-plan tests => 1, need_min_apache_version('2.0.51');
+plan tests => 1, need need_min_apache_version('2.0.51'), need_cgi;
 
 my $resp;
 
