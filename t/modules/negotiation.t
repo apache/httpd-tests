@@ -42,8 +42,8 @@ my ($en, $fr, $de, $fu, $bu) = qw(en fr de fu bu);
 my @language = ($en, $fr, $de, $fu);
 my $tests = (@language * 3) + (@language * @language * 5) + 7;
 
-plan tests => $tests,
-    have_module 'negotiation' && have_cgi && have_module 'mime';
+plan tests => $tests, need 
+     need_module('negotiation') && need_cgi && need_module('mime');
 
 my $actual;
 
