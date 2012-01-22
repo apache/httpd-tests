@@ -204,17 +204,23 @@ foreach my $length (@post_content) {
         ## characters logged from the post content
         open (LOG, $cgi_log) or die "died opening cgi log: $!";
         my $multiplier = 256;
-        while (<LOG>) {
-            if (/^$content+$/) {
-                chomp;
-                $multiplier = $length unless $length > $multiplier;
-                print "# verifying that logged content is $multiplier characters\n";
-                ok ($_ eq "$content"x$multiplier);
-                last;
-            }
+        my $log;
+        {
+            local $/;
+            $log = <LOG>;
         }
         close (LOG);
-
+        $multiplier = $length unless $length > $multiplier;
+        print "# verifying that logged content is $multiplier characters\n";
+        if ($log =~ /^(?:$content){$multiplier}\n?$/m) {
+            ok 1;
+        }
+        else {
+            $log =~ s{^}{# }m;
+            print "# no log line found with $multiplier '$content' characters\n";
+            print "# log is:\n'$log'\n";
+            ok 0;
+        }
     } else {
         ## log does not exist ##
         print "# cgi log does not exist, test fails.\n";
