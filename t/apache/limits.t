@@ -47,6 +47,10 @@ my %xrcs = ('requestline-succeed' => 200,
 
 my $res;
 
+if (have_min_apache_version("2.0") && !have_min_apache_version("2.3.0")) { 
+    $xrcs{"merged_fieldsize-fail"} = 200;
+}
+
 #
 # Two tests for each of the conditions, plus two more for the
 # chunked version of the body-too-large test IFF we have the
