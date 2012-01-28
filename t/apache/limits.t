@@ -47,7 +47,7 @@ my %xrcs = ('requestline-succeed' => 200,
 
 my $res;
 
-if (have_min_apache_version("2.0") && !have_min_apache_version("2.3.0")) { 
+if (!have_min_apache_version("2.3.15")) { 
     $xrcs{"merged_fieldsize-fail"} = 200;
 }
 
