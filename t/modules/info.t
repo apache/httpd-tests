@@ -38,6 +38,9 @@ foreach (sort keys %$mods) {
     # statically linked mod_ldap
     } elsif ($_ eq 'util_ldap.c') {
         push(@expected,'mod_ldap.c');
+    # statically linked mod_apreq2
+    } elsif ($_ eq 'mod_apreq2.c') {
+        push(@expected,'mod_apreq.c');
     } else {
         push(@expected,$_);
     }
