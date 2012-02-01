@@ -29,8 +29,9 @@
 
 #include "mod_ssl.h"
 
-#if MODULE_MAGIC_COOKIE == 0x41503234UL \
-    && AP_MODULE_MAGIC_AT_LEAST(20050919, 0) /* ssl_ext_list() only in 2.4.x */
+#if MODULE_MAGIC_COOKIE > 0x41503234UL || \
+    (MODULE_MAGIC_COOKIE == 0x41503234UL \
+    && AP_MODULE_MAGIC_AT_LEAST(20050919, 0)) /* ssl_ext_list() only in 2.4.x */
 #define HAVE_SSL_EXT_LIST
 static APR_OPTIONAL_FN_TYPE(ssl_ext_list) *ext_list;
 #elif AP_MODULE_MAGIC_AT_LEAST(20050127, 0) /* approx. when ssl_ext_lookup was added */
