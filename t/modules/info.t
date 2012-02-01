@@ -21,6 +21,8 @@ foreach (split /\n/, $info) {
     if ($_ =~ /<a name=\"(\w+\.c)\">/) {
         if ($1 eq 'util_ldap.c') {
             push(@actual,'mod_ldap.c');
+        } elsif ($1 eq 'mod_apreq2.c') {
+            push(@actual,'mod_apreq.c');
         } else {
             push(@actual, $1);
         }
