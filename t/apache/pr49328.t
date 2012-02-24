@@ -15,7 +15,7 @@ push @deflate_headers, "Accept-Encoding" => "gzip";
 my @inflate_headers;
 push @inflate_headers, "Content-Encoding" => "gzip";
 
-my $uri = "/modules/filter/pr49328.shtml";
+my $uri = "/modules/filter/pr49328/pr49328.shtml";
 
 my $content = GET_BODY($uri, @deflate_headers);
 
