@@ -726,10 +726,10 @@ LimitRequestFields    32
    </Directory>
    <Directory @SERVERROOT@/htdocs/modules/filter/bytype>
       <IfModule mod_deflate.c>
-        AddOutputFilterByType DEFLATE text/xml
+        AddOutputFilterByType DEFLATE application/xml
         AddOutputFilterByType DEFLATE text/css
       </IfModule>
-      AddOutputFilterByType CASEFILTER text/xml
+      AddOutputFilterByType CASEFILTER application/xml
       AddOutputFilterByType CASEFILTER text/plain
    </Directory>
 </IfModule>
