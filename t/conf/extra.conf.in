@@ -729,8 +729,10 @@ LimitRequestFields    32
         AddOutputFilterByType DEFLATE application/xml
         AddOutputFilterByType DEFLATE text/css
       </IfModule>
-      AddOutputFilterByType CASEFILTER application/xml
-      AddOutputFilterByType CASEFILTER text/plain
+      <IfModule mod_case_filter.c>
+        AddOutputFilterByType CASEFILTER application/xml
+        AddOutputFilterByType CASEFILTER text/plain
+      </IfModule>
    </Directory>
 </IfModule>
 
