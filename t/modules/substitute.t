@@ -31,6 +31,15 @@ my @test_cases = (
     [ "xfoo" x 4000    => 's/foo/bar/n', 's/FOO/BAR/n' ],
 );
 
+if (have_min_apache_version("2.3.5")) {
+    # tests for r1307067
+    push @test_cases, [ "x<body>x" => 's/<body>/&/' ],
+                      [ "x<body>x" => 's/<body>/$0/' ],
+                      [ "foobar"   => 's/(oo)b/c$1/' ],
+                      [ "foobar"   => 's/(oo)b/c\$1/' ],
+                      [ "foobar"   => 's/(oo)b/\d$1/' ];
+}
+
 plan tests => scalar @test_cases,
               need need_lwp,
               need_module('mod_substitute'),
@@ -55,8 +64,15 @@ foreach my $t (@test_cases) {
             $rule = join('/', @parts);
             $rule .= '/' if (scalar @parts == 3);
         }
+        else {
+            # special case: HTTPD uses $0 for the whole match, perl uses $&
+            $rule =~ s/\$0/\$&/g;
+        }
         $rule .= "g";   # mod_substitute always does global search & replace
-        eval "\$expect =~ $rule\n";
+
+	# "no warnings" because the '\d' in one of the rules causes a warning,
+	# which we have set to be fatal.
+        eval "{\n no warnings ; \$expect =~ $rule\n}";
     }
 
     my $response = GET('/modules/substitute/test.txt');
