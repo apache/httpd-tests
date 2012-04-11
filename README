@@ -16,7 +16,7 @@ for t/TEST -ssl): http://www.openssl.org/
 For an extensive documentation see
 http://perl.apache.org/docs/general/testing/testing.html
  or
-http://cvs.apache.org/viewcvs.cgi/modperl-docs/src/docs/general/testing/testing.pod
+http://svn.apache.org/viewvc/perl/modperl/docs/trunk/src/docs/general/testing/testing.pod
 
 Quick Start 
 ----------- 
