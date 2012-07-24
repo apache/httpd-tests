@@ -6,7 +6,7 @@ use Apache::TestRequest;
 use Apache::TestUtil;
 use Apache::TestConfig ();
 
-plan tests => 15, need_module 'proxy';
+plan tests => 17, need_module 'proxy';
 
 Apache::TestRequest::module("proxy_http_reverse");
 Apache::TestRequest::user_agent(requests_redirectable => 0);
@@ -65,7 +65,16 @@ if (have_module('alias')) {
     $r = GET("/reverse/perm");
     ok t_cmp($r->code, 301, "reverse proxy of redirect");
     ok t_cmp($r->header("Location"), qr{http://[^/]*/reverse/alias}, "reverse proxy rewrote redirect");
+
+    # More complex reverse mapping case with the balancer, PR 45434
+    Apache::TestRequest::module("proxy_http_balancer");
+    my $hostport = Apache::TestRequest::hostport();
+    $r = GET("/pr45434/redirect-me");
+    ok t_cmp($r->code, 301, "reverse proxy of redirect via balancer");
+    ok t_cmp($r->header("Location"), "http://$hostport/pr45434/5.html", "reverse proxy via balancer rewrote redirect");
+    Apache::TestRequest::module("proxy_http_reverse"); # flip back 
+
 } else {
-    skip "skipping tests without mod_alias" foreach (1..2);
+    skip "skipping tests without mod_alias" foreach (1..4);
 }
 

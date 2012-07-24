@@ -322,6 +322,8 @@
     RedirectTemp /temp2 http://@SERVERNAME@:@PORT@/alias/index.html
     RedirectPermanent /perm2 http://@SERVERNAME@:@PORT@/alias/index.html
 
+    Redirect permanent /modules/alias/redirect-me http://@SERVERNAME@:@PORT@/modules/alias/5.html
+
     ScriptAlias /cgi @SERVERROOT@/htdocs/modules/alias
     ScriptAliasMatch /aliascgi-(.*) @SERVERROOT@/htdocs/modules/alias/$1
 </IfModule>

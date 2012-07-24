@@ -30,7 +30,16 @@
        ProxyPass balancer://foo/
      </Location>
 
+     ## PR 45434 tests
+     <Proxy balancer://pr45434>
+       BalancerMember http://@SERVERNAME@:@PORT@/modules
+     </Proxy> 
+     
+     ProxyPass /pr45434 balancer://pr45434/alias
+     ProxyPassReverse /pr45434 balancer://pr45434/alias
+
    </VirtualHost>
+
 </IfModule>
 
 <IfModule mod_rewrite.c>
