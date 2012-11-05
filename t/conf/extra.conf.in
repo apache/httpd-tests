@@ -788,6 +788,9 @@ LimitRequestFields    32
 <IfVersion >= 2.3.9>
     <Directory @SERVERROOT@/htdocs/apache/expr/>
         AllowOverride All
+        <IfModule mod_log_debug.c>
+	  AllowOverrideList LogMessage
+        </IfModule>
     </Directory>
 </IfVersion>
 
