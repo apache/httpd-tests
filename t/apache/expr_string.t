@@ -62,7 +62,7 @@ foreach my $t (@test_cases) {
     else {
         print qq{Expected return code 200, got $rc for '$expr'\n};
         ok($rc == 200);
-        my @msg = grep { /log_debug:/ } @loglines;
+        my @msg = grep { /log_debug:info/ } @loglines;
         if (scalar @msg != 1) {
             print "expected 1 message, got " . scalar @msg . ":\n@msg\n";
             ok(0);
@@ -73,8 +73,9 @@ foreach my $t (@test_cases) {
                                [ ]                  # trailing space
                              ){4}                   # repeat 4 times (timestamp, level, pid, client IP)
                              (.*?)                  # The actual message logged by LogMessage
-                             [ ]                    # a space
-                             \(log_transaction      # trailing info
+                             (,[ ]referer           # either trailing referer (LogLevel info)
+                             |                      # or
+                             [ ]\(log_transaction)  # trailing hook info (LogLevel debug and higher)
                            }x ) {
             my $result = $1;
             print "Got '$result', expected '$expect'\n";
