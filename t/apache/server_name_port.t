@@ -19,29 +19,39 @@ my $url_suffix = 'modules/cgi/env.pl';
 my @test_cases = (
     [ "/",                     "righthost"     => 200, 'righthost', 'REMOTE' ],
     [ "/",                     "righthost:123" => 200, 'righthost', '123'    ],
+    [ "/",                     "Righthost"     => 200, 'righthost', 'REMOTE' ],
+    [ "/",                     "Righthost:123" => 200, 'righthost', '123'    ],
     [ "/",                     "128.0.0.1"     => 200, '128.0.0.1', 'REMOTE' ],
     [ "/",                     "128.0.0.1:123" => 200, '128.0.0.1', '123'    ],
     [ "/",                     "[::1]"         => 200, '[::1]',     'REMOTE' ],
     [ "/",                     "[::1]:123"     => 200, '[::1]',     '123'    ],
+    [ "/",                     "[a::1]"        => 200, '[a::1]',    'REMOTE' ],
+    [ "/",                     "[a::1]:123"    => 200, '[a::1]',    '123'    ],
+    [ "/",                     "[A::1]"        => 200, '[a::1]',    'REMOTE' ],
+    [ "/",                     "[A::1]:123"    => 200, '[a::1]',    '123'    ],
     [ "http://righthost/",     undef           => 200, 'righthost', 'REMOTE' ],
     [ "http://righthost:123/", undef           => 200, 'righthost', '123'    ],
+    [ "http://Righthost/",     undef           => 200, 'righthost', 'REMOTE' ],
+    [ "http://Righthost:123/", undef           => 200, 'righthost', '123'    ],
     [ "http://128.0.0.1/",     undef           => 200, '128.0.0.1', 'REMOTE' ],
     [ "http://128.0.0.1:123/", undef           => 200, '128.0.0.1', '123'    ],
     [ "http://[::1]/",         undef           => 200, '[::1]',     'REMOTE' ],
-    [ "http://[::1]123/",      undef           => 200, '[::1]',     '123'    ],
+    [ "http://[::1]:123/",     undef           => 200, '[::1]',     '123'    ],
     [ "http://righthost/",     "wronghost"     => 200, 'righthost', 'REMOTE' ],
     [ "http://righthost:123/", "wronghost:321" => 200, 'righthost', '123'    ],
+    [ "http://Righthost/",     "wronghost"     => 200, 'righthost', 'REMOTE' ],
+    [ "http://Righthost:123/", "wronghost:321" => 200, 'righthost', '123'    ],
     [ "http://128.0.0.1/",     "126.0.0.1"     => 200, '128.0.0.1', 'REMOTE' ],
     [ "http://128.0.0.1:123/", "126.0.0.1:321" => 200, '128.0.0.1', '123'    ],
     [ "http://[::1]/",         "[::2]"         => 200, '[::1]',     'REMOTE' ],
-    [ "http://[::1]123/",      "[::2]:321"     => 200, '[::1]',     '123'    ],
+    [ "http://[::1]:123/",     "[::2]:321"     => 200, '[::1]',     '123'    ],
 );
 
 plan tests => 3 * scalar(@test_cases);
 
 foreach my $t (@test_cases) {
     my $req = "GET $t->[0]$url_suffix HTTP/1.1\r\nConnection: close\r\n";
-    $req .= "Host: $t->[1]\r\n" if $t->[1];
+    $req .= "Host: $t->[1]\r\n" if defined $t->[1];
     $req .= "\r\n";
     	
     my %ex = (
