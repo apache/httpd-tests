@@ -906,5 +906,20 @@ LimitRequestFields    32
      LuaHookTranslateName @SERVERROOT@/htdocs/modules/lua/translate.lua translate_name2
      # default: LuaInherit parent-first
    </Location>
-
 </IfModule>
+
+# 
+# Strict HTTP mode test config
+#
+<IfDefine APACHE2>
+  <IfVersion >= 2.5.0>
+    <VirtualHost _default_:http_strict>
+      DocumentRoot @SERVERROOT@/htdocs/
+      HttpProtocol strict
+      <Directory @SERVERROOT@/htdocs/apache/http_strict>
+        Options +ExecCGI
+        AddHandler cgi-script .pl
+      </Directory>
+   </VirtualHost>
+  </IfVersion>
+</IfDefine>
