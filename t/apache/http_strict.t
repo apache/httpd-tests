@@ -113,7 +113,7 @@ my @test_cases = (
     [ "R" . "Location:  ../foo/"        => 500 ],
 );
 
-plan tests => scalar(@test_cases);
+plan tests => scalar(@test_cases), need_min_apache_version('2.5');
 
 foreach my $t (@test_cases) {
     my $req = $t->[0];
