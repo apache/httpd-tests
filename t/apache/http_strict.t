@@ -37,8 +37,8 @@ my @test_cases = (
     [ "GET / HTTP/1.0\r\nFoo bar\r\n\r\n"           => 400],
     [ "GET / HTTP/1.0\r\n: bar\r\n\r\n"             => 400],
     [ "GET / HTTP/1.0\r\nFoo:bar\r\n\r\n"           => 200],
-    # XXX TODO [ "GET / HTTP/1.0\r\nFoo :bar\r\n\r\n"          => 400],
-    # XXX TODO [ "GET / HTTP/1.0\r\n Foo:bar\r\n\r\n"          => 400],
+    [ "GET / HTTP/1.0\r\nFoo :bar\r\n\r\n"          => 400],
+    [ "GET / HTTP/1.0\r\n Foo:bar\r\n\r\n"          => 400],
     [ "GET / HTTP/1.0\r\nF\x01o: bar\r\n\r\n"       => 400],
     [ "GET / HTTP/1.0\r\nF\ro: bar\r\n\r\n"         => 400],
     [ "GET / HTTP/1.0\r\nF\to: bar\r\n\r\n"         => 400],
@@ -113,7 +113,9 @@ my @test_cases = (
     [ "R" . "Location:  ../foo/"        => 500 ],
 );
 
-plan tests => scalar(@test_cases), need_min_apache_version('2.5');
+plan tests => scalar(@test_cases),
+     todo => [25, 26],
+     need_min_apache_version('2.5');
 
 foreach my $t (@test_cases) {
     my $req = $t->[0];

@@ -47,7 +47,13 @@ my @test_cases = (
     [ "http://[::1]:123/",     "[::2]:321"     => 200, '[::1]',     '123'    ],
 );
 
-plan tests => 3 * scalar(@test_cases), need_min_apache_version('2.5');
+my @todo;
+if (!have_min_apache_version('2.5')) {
+   # r1426827
+   @todo = (32, 35, 56, 57, 59, 60, 80, 81, 83, 84);
+}
+
+plan tests => 3 * scalar(@test_cases), todo => \@todo;
 
 foreach my $t (@test_cases) {
     my $req = "GET $t->[0]$url_suffix HTTP/1.1\r\nConnection: close\r\n";
