@@ -50,7 +50,11 @@ my @test_cases = (
 my @todo;
 if (!have_min_apache_version('2.5')) {
    # r1426827
-   @todo = (32, 35, 56, 57, 59, 60, 80, 81, 83, 84);
+   push @todo, 32, 35, 56, 57, 59, 60, 80, 81, 83, 84;
+}
+if (!have_min_apache_version('2.4')) {
+   # r1147614, PR 26005
+   push @todo, 20, 23, 26, 29;
 }
 
 plan tests => 3 * scalar(@test_cases), todo => \@todo;
