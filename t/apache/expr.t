@@ -225,7 +225,7 @@ if (have_min_apache_version("2.3.13")) {
     ));
 }
 
-if (have_min_apache_version("2.5")) {
+if (have_min_apache_version("2.4.5")) {
     push(@test_cases, (
         [ qq[sha1('foo') = '0beec7b5ea3f0fdbc95d0dd47f3c5bc275da8a33' ] => 1 ],
         [ qq[md5('foo') = 'acbd18db4cc2f85cedef654fccc4a4d8' ]          => 1 ],
