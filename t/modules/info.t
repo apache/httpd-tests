@@ -31,7 +31,7 @@ foreach (split /\n/, $info) {
 
 foreach (sort keys %$mods) {
     ($mods->{$_} && !$config->should_skip_module($_)) or next;
-    if ($_ =~ /^mod_mpm_(event|prefork|worker)\.c$/) {
+    if ($_ =~ /^mod_mpm_(eventopt|event|prefork|worker)\.c$/) {
         push(@expected,"$1.c");
     } elsif ($_ eq 'mod_mpm_simple.c') {
         push(@expected,'simple_api.c');
