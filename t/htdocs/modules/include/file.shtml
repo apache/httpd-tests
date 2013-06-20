@@ -1,8 +1,6 @@
-<!--#flastmod file="file.shtml"-->
-<!--#flastmod virtual="/modules/include/file.shtml"-->
 <!--#config timefmt="%A, %B %e, %G"-->
 <!--#flastmod file="file.shtml"-->
 <!--#flastmod virtual="/modules/include/file.shtml"-->
-<!--#config timefmt="%T"-->
+<!--#config timefmt="%s"-->
 <!--#flastmod file="file.shtml"-->
 <!--#flastmod virtual="/modules/include/file.shtml"-->

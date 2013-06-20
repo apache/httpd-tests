@@ -340,12 +340,12 @@ else {
     };
 
     my $expected = join ' ' =>
-        $strftime->("%A, %d-%b-%Y %H:%M:%S %Z"),
-        $strftime->("%A, %d-%b-%Y %H:%M:%S %Z"),
+        #$strftime->("%A, %d-%b-%Y %H:%M:%S %Z"),
+        #$strftime->("%A, %d-%b-%Y %H:%M:%S %Z"),
         $strftime->("%A, %B %e, %G"),
         $strftime->("%A, %B %e, %G"),
-        $strftime->("%T"),
-        $strftime->("%T");
+        $strftime->("%s"),
+        $strftime->("%s");
 
     $ENV{TZ} = $oldtimezone && tzset;
 
