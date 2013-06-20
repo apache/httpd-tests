@@ -309,7 +309,7 @@ foreach $doc (sort keys %tests) {
             );
 }
 
-unless(eval{require POSIX}) {
+unless(eval "require POSIX") {
     skip "POSIX module not found", 1;
 }
 else {
