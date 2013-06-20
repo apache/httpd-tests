@@ -315,12 +315,18 @@ unless(eval{require POSIX}) {
 else {
     # XXX: not sure about the locale thing, but it seems to work at least on my
     # machine :)
+    # Perl is wonky about TZ and localtime. On some systems
+    # setting TZ and then tzset() works to adjust to the
+    # specified timezone; others don't.
+    # We should look at DateTime instead...
     use POSIX qw(tzset);
-    POSIX->import('locale_h');
-    my $oldloc = setlocale(&LC_TIME);
-    POSIX::setlocale(&LC_TIME, "C");
-    my $oldtimezone = $ENV{'TZ'};
-    ($ENV{'TZ'} = 'UTC' && tzset) unless $oldtimezone;
+    my $result = super_chomp(GET_BODY "${dir}file.shtml");
+    $result = single_space($result);
+
+    my $httpdtz = $1 if $result =~ /\w+, \d+-\w+-\d+ \d+:\d+:\d+ (\w+) /;
+
+    my $oldtimezone = $ENV{TZ};
+    ($ENV{TZ} = $httpdtz && tzset) if $httpdtz;
 
     my $file = catfile($htdocs, splitpath($dir), "file.shtml");
     my $mtime = (stat $file)[9];
@@ -341,13 +347,9 @@ else {
         $strftime->("%T"),
         $strftime->("%T");
 
-    POSIX::setlocale(&LC_TIME, $oldloc);
-    ($ENV{'TZ'} = $oldtimezone && tzset) if $oldtimezone;
-
-    my $result = super_chomp(GET_BODY "${dir}file.shtml");
+    $ENV{TZ} = $oldtimezone && tzset;
 
     # trim output
-    $result = single_space($result);
     $expected = single_space($expected);
 
     ok t_cmp("$result",
