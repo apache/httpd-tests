@@ -313,6 +313,15 @@ unless(eval{require POSIX}) {
     skip "POSIX module not found", 1;
 }
 else {
+    # XXX: not sure about the locale thing, but it seems to work at least on my
+    # machine :)
+    use POSIX qw(tzset);
+    POSIX->import('locale_h');
+    my $oldloc = setlocale(&LC_TIME);
+    POSIX::setlocale(&LC_TIME, "C");
+    my $oldtimezone = $ENV{'TZ'};
+    ($ENV{'TZ'} = 'UTC' && tzset) unless $oldtimezone;
+
     my $file = catfile($htdocs, splitpath($dir), "file.shtml");
     my $mtime = (stat $file)[9];
 
@@ -324,12 +333,6 @@ else {
         POSIX::strftime($fmt, @time);
     };
 
-    # XXX: not sure about the locale thing, but it seems to work at least on my
-    # machine :)
-    POSIX->import('locale_h');
-    my $oldloc = setlocale(&LC_TIME);
-    POSIX::setlocale(&LC_TIME, "C");
-
     my $expected = join ' ' =>
         $strftime->("%A, %d-%b-%Y %H:%M:%S %Z"),
         $strftime->("%A, %d-%b-%Y %H:%M:%S %Z"),
@@ -339,6 +342,7 @@ else {
         $strftime->("%T");
 
     POSIX::setlocale(&LC_TIME, $oldloc);
+    ($ENV{'TZ'} = $oldtimezone && tzset) if $oldtimezone;
 
     my $result = super_chomp(GET_BODY "${dir}file.shtml");
 
