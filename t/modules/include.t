@@ -232,10 +232,6 @@ unless ($have_apache_2) {
 # tests that use mod_bucketeer to construct brigades for mod_include
 
 my $tests = (scalar keys %tests) + @patterns + 1 + 1 + 1 + 2 + 14 + 14;
-my $pr_39369_fix_version = '2.2.12';
-my $check_pr_39369 = have_min_apache_version($pr_39369_fix_version);
-# XBitHack #7 is TODO as long as PR 39369 isn't fixed
-push @todo, $tests - 7 - 14 unless $check_pr_39369;
 
 plan tests => $tests,
               todo => \@todo,
@@ -423,9 +419,6 @@ else {
              "xx${year}xx",
              "XBitHack both [timefmt]"
              );
-    if (!$check_pr_39369) {
-        print STDERR "TODO: Fix for timefmt in SSI when using INCLUDES and XBitHack On (PR 39369 not fixed before $pr_39369_fix_version).\n";
-    }
 
     # test xbithack full
     $doc = "xbithack/full/test.html";
