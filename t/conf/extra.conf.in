@@ -254,10 +254,12 @@
       ProxyPassReverse /reverse/ http://@SERVERNAME@:@PORT@/
    </VirtualHost>
 
-   <VirtualHost cve_2011_3368>
-      DocumentRoot @SERVERROOT@/htdocs/modules/proxy
-      ProxyPassMatch (.*) http://@SERVERNAME@$1
-   </VirtualHost>
+   <IfVersion >= 2.2.5>
+      <VirtualHost cve_2011_3368>
+         DocumentRoot @SERVERROOT@/htdocs/modules/proxy
+         ProxyPassMatch (.*) http://@SERVERNAME@$1
+      </VirtualHost>
+   </IfVersion>
 </IfModule>
   
 ##
