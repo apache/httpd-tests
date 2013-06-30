@@ -243,6 +243,12 @@
     RewriteCond %{QUERY_STRING} horse=trigger
     RewriteRule ^/modules/rewrite/proxy3/(.*)$ http://@SERVERNAME@:@PORT@/modules/cgi/$1 [L,P]
 
+   <VirtualHost cve_2011_3368_rewrite>
+      DocumentRoot @SERVERROOT@/htdocs/modules/proxy
+      RewriteEngine On
+      RewriteRule (.*) http://localhost$1 [P]
+   </VirtualHost>
+
 </IfModule>
 
 
