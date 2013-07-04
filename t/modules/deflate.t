@@ -21,7 +21,8 @@ my @server_bucketeer_uri = ("/modules/deflate/bucketeer/P.txt",
                            );
 
 my $cgi_tests = 3;
-my $tests = @server_deflate_uris + $cgi_tests + @server_bucketeer_uri;
+my $tests_per_uri = 3;
+my $tests = $tests_per_uri * (@server_deflate_uris + @server_bucketeer_uri) + $cgi_tests;
 my $vars = Apache::Test::vars();
 my $module = 'default';
 
@@ -40,7 +41,7 @@ if (have_module('bucketeer')) {
 }
 else {
     skip "skipping bucketing deflate tests without mod_bucketeer"
-        foreach @server_bucketeer_uri;
+        foreach (1 .. ($tests_per_uri * @server_bucketeer_uri));
 }
 for my $server_deflate_uri (@server_deflate_uris) {
     my $original_str = GET_BODY($server_deflate_uri);
@@ -51,6 +52,28 @@ for my $server_deflate_uri (@server_deflate_uris) {
                                  content => $deflated_str);
 
     ok $original_str eq $inflated_str;
+
+    my $resp = POST($server_inflate_uri, @inflate_headers,
+                    content => "foo123456789012346");
+    ok($resp->code, 400, "did not detect invalid compressed body for $server_deflate_uri");
+    
+    # XXX This does not seem to work, does zlib ignore trailing garbage?
+    #$resp = POST($server_inflate_uri, @inflate_headers,
+    #             content => $deflated_str . "foobarfoo");
+    #ok($resp->code, 400, "did not detect spurious data after compressed body for $server_deflate_uri");
+
+    my $broken = $deflated_str;
+    substr($broken, -15, 15, "123456789012345");
+    $resp = POST($server_inflate_uri, @inflate_headers,
+                  content => $deflated_str);
+    if ($original_str eq $resp->content) {
+        # did not break compressed stream enough, but ok
+        ok 1;
+    }
+    else {
+        ok($resp->code, 400,
+           "did not detect broken compressed body for $server_deflate_uri");
+    }
 }
 
 # mod_deflate fixes still pending to make this work...
