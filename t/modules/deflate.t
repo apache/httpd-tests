@@ -52,10 +52,14 @@ for my $server_deflate_uri (@server_deflate_uris) {
                                  content => $deflated_str);
 
     ok $original_str eq $inflated_str;
-
     my $resp = POST($server_inflate_uri, @inflate_headers,
                     content => "foo123456789012346");
-    ok($resp->code, 400, "did not detect invalid compressed body for $server_deflate_uri");
+    if (have_min_apache_version("2.5.0")) {
+        ok($resp->code, 400, "did not detect invalid compressed body for $server_deflate_uri");
+    }
+    else {
+        ok($resp->code, 200, "invalid response for $server_deflate_uri");
+    }
     
     # XXX This does not seem to work, does zlib ignore trailing garbage?
     #$resp = POST($server_inflate_uri, @inflate_headers,
@@ -71,8 +75,12 @@ for my $server_deflate_uri (@server_deflate_uris) {
         ok 1;
     }
     else {
-        ok($resp->code, 400,
-           "did not detect broken compressed body for $server_deflate_uri");
+        if (have_min_apache_version("2.5.0")) {
+            ok($resp->code, 400, "did not detect broken compressed body for $server_deflate_uri");
+        }
+        else {
+            ok($resp->code, 200, "invalid response for $server_deflate_uri");
+        }
     }
 }
 
