@@ -21,7 +21,7 @@ my @server_bucketeer_uri = ("/modules/deflate/bucketeer/P.txt",
                            );
 
 my $cgi_tests = 3;
-my $tests_per_uri = 3;
+my $tests_per_uri = 4;
 my $tests = $tests_per_uri * (@server_deflate_uris + @server_bucketeer_uri) + $cgi_tests;
 my $vars = Apache::Test::vars();
 my $module = 'default';
@@ -54,33 +54,32 @@ for my $server_deflate_uri (@server_deflate_uris) {
     ok $original_str eq $inflated_str;
     my $resp = POST($server_inflate_uri, @inflate_headers,
                     content => "foo123456789012346");
-    if (have_min_apache_version("2.5.0")) {
-        ok($resp->code, 400, "did not detect invalid compressed body for $server_deflate_uri");
+    if (have_min_apache_version("2.4.5")) {
+        ok($resp->content, '!!!ERROR!!!', "did not detect invalid compressed request body for $server_deflate_uri");
     }
     else {
         ok($resp->code, 200, "invalid response for $server_deflate_uri");
     }
     
-    # XXX This does not seem to work, does zlib ignore trailing garbage?
-    #$resp = POST($server_inflate_uri, @inflate_headers,
-    #             content => $deflated_str . "foobarfoo");
-    #ok($resp->code, 400, "did not detect spurious data after compressed body for $server_deflate_uri");
+    if (have_min_apache_version("2.4.5")) {
+        # The "x 1000" can be removed, once r1502772 is ported back to 2.4.x
+        $resp = POST($server_inflate_uri, @inflate_headers,
+                     content => $deflated_str . ("foobarfoo" x 1000));
+        ok($resp->content, '/.*!!!ERROR!!!$/', "did not detect spurious data after compressed request body for $server_deflate_uri");
+    }
+    else {
+        ok($resp->code, 200, "invalid response for $server_deflate_uri");
+    }
 
     my $broken = $deflated_str;
     substr($broken, -15, 15, "123456789012345");
     $resp = POST($server_inflate_uri, @inflate_headers,
-                  content => $deflated_str);
-    if ($original_str eq $resp->content) {
-        # did not break compressed stream enough, but ok
-        ok 1;
+                  content => $broken);
+    if (have_min_apache_version("2.4.5")) {
+        ok($resp->content, '/.*!!!ERROR!!!$/', "did not detect broken compressed request body for $server_deflate_uri");
     }
     else {
-        if (have_min_apache_version("2.5.0")) {
-            ok($resp->code, 400, "did not detect broken compressed body for $server_deflate_uri");
-        }
-        else {
-            ok($resp->code, 200, "invalid response for $server_deflate_uri");
-        }
+        ok($resp->code, 200, "invalid response for $server_deflate_uri");
     }
 }
 
