@@ -322,7 +322,7 @@ else {
     my $httpdtz = $1 if $result =~ /\w+, \d+-\w+-\d+ \d+:\d+:\d+ (\w+) /;
 
     my $oldtimezone = $ENV{TZ};
-    ($ENV{TZ} = $httpdtz && tzset) if $httpdtz;
+    (($ENV{TZ} = $httpdtz) && tzset) if $httpdtz;
 
     my $file = catfile($htdocs, splitpath($dir), "file.shtml");
     my $mtime = (stat $file)[9];
@@ -343,7 +343,13 @@ else {
         $strftime->("%s"),
         $strftime->("%s");
 
-    $ENV{TZ} = $oldtimezone && tzset;
+    if (defined($oldtimezone)) {
+        $ENV{TZ} = $oldtimezone;
+    }
+    else {
+        delete($ENV{TZ});
+    }
+    tzset;
 
     # trim output
     $expected = single_space($expected);
