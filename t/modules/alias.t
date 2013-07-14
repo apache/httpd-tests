@@ -120,17 +120,27 @@ ok t_cmp((GET_BODY "/modules/alias/script"),
          $cgi,
           "/modules/alias/script") unless WINFU;
 
-## here it should be the result of the executed cgi ##
-t_debug "verifying same file accessed at /cgi/script is executed code";
-ok t_cmp((GET_BODY "/cgi/script"),
-         "$string\n",
-         "/cgi/script") unless WINFU;
+if (have_cgi) {
+    ## here it should be the result of the executed cgi ##
+    t_debug "verifying same file accessed at /cgi/script is executed code";
+    ok t_cmp((GET_BODY "/cgi/script"),
+             "$string\n",
+             "/cgi/script") unless WINFU;
+}
+else {
+    skip "skipping test without CGI module";
+}
 
-## with ScriptAliasMatch ##
-t_debug "verifying ScriptAliasMatch with /aliascgi-script";
-ok t_cmp((GET_BODY "/aliascgi-script"),
-         "$string\n",
-         "/aliascgi-script") unless WINFU;
+if (have_cgi) {
+    ## with ScriptAliasMatch ##
+    t_debug "verifying ScriptAliasMatch with /aliascgi-script";
+    ok t_cmp((GET_BODY "/aliascgi-script"),
+             "$string\n",
+             "/aliascgi-script") unless WINFU;
+}
+else {
+    skip "skipping test without CGI module";
+}
 
 ## failure with ScriptAliasMatch ##
 t_debug "verifying bad script alias.";
