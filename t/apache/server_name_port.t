@@ -57,7 +57,7 @@ if (!have_min_apache_version('2.4')) {
    push @todo, 20, 23, 26, 29;
 }
 
-plan tests => 3 * scalar(@test_cases), todo => \@todo, need_min_apache_version('2.2'), need_cgi;
+plan tests => 3 * scalar(@test_cases), todo => \@todo, need need_min_apache_version('2.2'), need_cgi;
 
 foreach my $t (@test_cases) {
     my $req = "GET $t->[0]$url_suffix HTTP/1.1\r\nConnection: close\r\n";
