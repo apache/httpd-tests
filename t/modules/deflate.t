@@ -21,7 +21,7 @@ my @server_bucketeer_uri = ("/modules/deflate/bucketeer/P.txt",
                            );
 
 my $cgi_tests = 3;
-my $tests_per_uri = 4;
+my $tests_per_uri = 3;
 my $tests = $tests_per_uri * (@server_deflate_uris + @server_bucketeer_uri) + $cgi_tests;
 my $vars = Apache::Test::vars();
 my $module = 'default';
@@ -54,28 +54,45 @@ for my $server_deflate_uri (@server_deflate_uris) {
     ok $original_str eq $inflated_str;
     my $resp = POST($server_inflate_uri, @inflate_headers,
                     content => "foo123456789012346");
-    if (have_min_apache_version("2.4.5")) {
+    if (have_min_apache_version("2.5")) {
+        ok($resp->code, 400, "did not detect invalid compressed request body for $server_deflate_uri");
+    }
+    elsif (have_min_apache_version("2.4.5")) {
         ok($resp->content, '!!!ERROR!!!', "did not detect invalid compressed request body for $server_deflate_uri");
     }
     else {
         ok($resp->code, 200, "invalid response for $server_deflate_uri");
     }
     
-    if (have_min_apache_version("2.4.5")) {
-        # The "x 1000" can be removed, once r1502772 is ported back to 2.4.x
-        $resp = POST($server_inflate_uri, @inflate_headers,
-                     content => $deflated_str . ("foobarfoo" x 1000));
-        ok($resp->content, '/.*!!!ERROR!!!$/', "did not detect spurious data after compressed request body for $server_deflate_uri");
-    }
-    else {
-        ok($resp->code, 200, "invalid response for $server_deflate_uri");
-    }
+    # Disabled because not working reliably.
+    # If the compressed data it big enough, a partial response
+    # will get flushed to the client before the trailing spurious data
+    # is found.
+    #
+    #if (have_min_apache_version("2.5")) {
+    #    $resp = POST($server_inflate_uri, @inflate_headers,
+    #                 content => $deflated_str . "foobarfoo");
+    #    ok($resp->code, 400, "did not detect spurious data after compressed request body for $server_deflate_uri");
+    #}
+    #elsif (have_min_apache_version("2.4.5")) {
+    #    # The "x 1000" can be removed, once r1502772 is ported back to 2.4.x
+    #    $resp = POST($server_inflate_uri, @inflate_headers,
+    #                 content => $deflated_str . ("foobarfoo" x 1000));
+    #    ok($resp->content, '/.*!!!ERROR!!!$/', "did not detect spurious data after compressed request body for $server_deflate_uri");
+    #}
+    #else {
+    #    ok($resp->code, 200, "invalid response for $server_deflate_uri");
+    #}
 
     my $broken = $deflated_str;
-    substr($broken, -15, 15, "123456789012345");
+    my $offset = (length($broken) > 35) ? 20 : -15;
+    substr($broken, $offset, 15, "123456789012345");
     $resp = POST($server_inflate_uri, @inflate_headers,
                   content => $broken);
-    if (have_min_apache_version("2.4.5")) {
+    if (have_min_apache_version("2.5")) {
+        ok($resp->code, 400, "did not detect broken compressed request body for $server_deflate_uri");
+    }
+    elsif (have_min_apache_version("2.4.5")) {
         ok($resp->content, '/.*!!!ERROR!!!$/', "did not detect broken compressed request body for $server_deflate_uri");
     }
     else {
