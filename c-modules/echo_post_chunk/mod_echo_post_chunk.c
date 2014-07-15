@@ -67,6 +67,8 @@ static int echo_post_chunk_handler(request_rec *r)
 
 #ifdef APACHE1
     trailer_header = ap_table_get(r->headers_in, "X-Chunk-Trailer");
+#elif (MODULE_MAGIC_COOKIE >= 0x41503235UL) && AP_MODULE_MAGIC_AT_LEAST(20140627,5)
+    trailer_header = apr_table_get(r->trailers_in, "X-Chunk-Trailer");
 #else
     trailer_header = apr_table_get(r->headers_in, "X-Chunk-Trailer");
 #endif
