@@ -5,7 +5,6 @@ use strict;
 my $socket_path = '/tmp/test-ptf.sock';
 my $sock_addr = sockaddr_un($socket_path);
 socket(my $server, PF_UNIX, SOCK_STREAM, 0) || die "socket: $!";
-unlink($socket_path);
 bind($server, $sock_addr) || die "bind: $!"; 
 listen($server,1024) || die "listen: $!";
 if (accept(my $new_sock, $server)) {
@@ -15,3 +14,4 @@ if (accept(my $new_sock, $server)) {
 	print $new_sock "<html><body><h1>Hello World</h1><pre>$data</pre></body></html>\n";
 	close $new_sock;
 }
+unlink($socket_path);
