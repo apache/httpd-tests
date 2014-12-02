@@ -8,7 +8,7 @@ socket(my $server, PF_UNIX, SOCK_STREAM, 0) || die "socket: $!";
 unlink($socket_path);
 bind($server, $sock_addr) || die "bind: $!"; 
 listen($server,1024) || die "listen: $!";
-while (accept(my $new_sock, $server)) {
+if (accept(my $new_sock, $server)) {
     my $data = <$new_sock>;
 	print $new_sock "HTTP/1.0 200 OK\r\n";
 	print $new_sock "Content-Type: text/html\r\n\r\n";
