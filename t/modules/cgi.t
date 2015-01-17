@@ -9,6 +9,11 @@ use File::stat;
 my $have_apache_2 = have_apache 2;
 my $have_apache_2050 = have_min_apache_version "2.0.50";
 
+my $script_log_length = 8192;
+if (have_module 'mod_cgi') {
+    $script_log_length = 40960;
+}
+
 ## mod_cgi test
 ##
 ## extra.conf.in:
@@ -16,7 +21,12 @@ my $have_apache_2050 = have_min_apache_version "2.0.50";
 ## AddHandler cgi-script .sh
 ## AddHandler cgi-script .pl
 ## ScriptLog logs/mod_cgi.log
-## ScriptLogLength 40960
+## <IfModule mod_cgi.c>
+##     ScriptLogLength 40960
+## </IfModule mod_cgi>
+## <IfModule !mod_cgi.c>
+##     ScriptLogLength 8192
+## </IfModule mod_cgi>
 ## ScriptLogBuffer 256
 ## <Directory @SERVERROOT@/htdocs/modules/cgi>
 ## Options +ExecCGI
@@ -187,9 +197,9 @@ foreach my $length (@post_content) {
 
     if (-e $cgi_log) {
         ## cgi log should be bigger.
-        ## as long as it's under ScriptLogLength (40960)
+        ## as long as it's under ScriptLogLength
         $stat = stat($cgi_log);
-        if ($log_size < 40960) {
+        if ($log_size < $script_log_length) {
             print "# checking that log size ($$stat[7]) is greater than $log_size\n";
             ok ($$stat[7] > $log_size);
         } else {
@@ -230,7 +240,7 @@ foreach my $length (@post_content) {
 
 ## make sure cgi log does not 
 ## keep logging after it is bigger
-## than ScriptLogLength (40960)
+## than ScriptLogLength
 for (my $i=1 ; $i<=20 ; $i++) {
 
     ## get out if log does not exist ##
@@ -243,12 +253,12 @@ for (my $i=1 ; $i<=20 ; $i++) {
     ## when log goes over max size stop making requests
     $stat = stat($cgi_log);
     $log_size = $$stat[7];
-    last if ($log_size > 40960);
+    last if ($log_size > $script_log_length);
 
 }
-## make sure its over (or equal) 40960
-print "# verifying log is greater than 40960 bytes.\n";
-ok ($log_size >= 40960);
+## make sure its over (or equal) our ScriptLogLength
+print "# verifying log is greater than $script_log_length bytes.\n";
+ok ($log_size >= $script_log_length);
 
 ## make sure it does not grow now.
 GET_RC "$path/bogus1k.pl";
