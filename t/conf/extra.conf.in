@@ -379,6 +379,11 @@ Alias /manual @inherit_documentroot@/manual
             Header add mod_headers_foo bar
         </Location>
     </VirtualHost>
+
+    # Should match anything mapped to disk
+    <DirectoryMatch ^>
+      Header append DMMATCH1 1
+    </DirectoryMatch>
 </IfModule>
 
 ##
