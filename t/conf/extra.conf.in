@@ -342,6 +342,29 @@
 
     ScriptAlias /cgi @SERVERROOT@/htdocs/modules/alias
     ScriptAliasMatch /aliascgi-(.*) @SERVERROOT@/htdocs/modules/alias/$1
+
+    <IfDefine APACHE2>
+        <IfVersion >= 2.5.0>
+            <LocationMatch /expr/ali(?<number>[0-9])>
+                Alias @SERVERROOT@/htdocs/modules/alias/%{env:MATCH_NUMBER}.html
+            </LocationMatch>
+            <LocationMatch /expr/aliascgi-(?<suffix>.*)>
+                ScriptAlias @SERVERROOT@/htdocs/modules/alias/%{env:MATCH_SUFFIX}
+            </LocationMatch>
+            <LocationMatch /expr/p(?<number>[0-9])>
+                Redirect permanent http://@SERVERNAME@:@PORT@/alias/%{env:MATCH_NUMBER}.html
+            </LocationMatch>
+            <LocationMatch /expr/t(?<number>[0-9])>
+                Redirect temp http://@SERVERNAME@:@PORT@/alias/%{env:MATCH_NUMBER}.html
+            </LocationMatch>
+            <LocationMatch /expr/s(?<number>[0-9])>
+                Redirect seeother http://@SERVERNAME@:@PORT@/alias/%{env:MATCH_NUMBER}.html
+            </LocationMatch>
+            <LocationMatch /expr/g([0-9])>
+                Redirect gone
+            </LocationMatch>
+        </IfVersion>
+    </IfDefine>
 </IfModule>
 
 Alias /manual @inherit_documentroot@/manual
@@ -944,3 +967,4 @@ LimitRequestFields    32
    </VirtualHost>
   </IfVersion>
 </IfDefine>
+

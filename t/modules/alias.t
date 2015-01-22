@@ -36,8 +36,8 @@ my %rm_rc = (
 #XXX: find something that'll on other platforms (/bin/sh aint it)
 my $script_tests = WINFU ? 0 : 4;
 
-my $tests = (keys %redirect) + (keys %rm_body) * 10 +
-            (keys %rm_rc) * 10 + 12 + $script_tests;
+my $tests = (keys %redirect) + (keys %rm_body) * (1 + have_min_apache_version("2.5")) * 10 +
+            (keys %rm_rc) * (1 + have_min_apache_version("2.5")) * 10 + have_min_apache_version("2.5") * 11 + 12 + $script_tests;
 
 #LWP required to follow redirects
 plan tests => $tests, need need_module('alias'), need_lwp;
@@ -58,6 +58,15 @@ for (my $i=0 ; $i <= 9 ; $i++) {
     ok t_cmp((GET_BODY "/ali$i"),
              $i,
              "/ali$i");
+}
+
+if (have_min_apache_version("2.5")) {
+    t_debug "verifying expression alias match with /expr/ali[0-9].";
+    for (my $i=0 ; $i <= 9 ; $i++) {
+        ok t_cmp((GET_BODY "/expr/ali$i"),
+                 $i,
+                 "/ali$i");
+    }
 }
 
 my ($actual, $expected);
@@ -84,6 +93,19 @@ foreach (sort keys %rm_body) {
     }
 }
 
+if (have_min_apache_version("2.5")) {
+    print "verifying body of perm and temp redirect match with expression support\n";
+    foreach (sort keys %rm_body) {
+        for (my $i=0 ; $i <= 9 ; $i++) {
+            $expected = $i;
+            $actual = GET_BODY "/expr/$_$i";
+            ok t_cmp($actual,
+                     $expected,
+                     "/$_$i");
+        }
+    }
+}
+
 print "verifying return code of seeother and gone redirect match\n";
 foreach (keys %rm_rc) {
     ## make LWP not follow the redirect since we
@@ -96,6 +118,23 @@ foreach (keys %rm_rc) {
         ok t_cmp($actual,
                  $expected,
                  "$_$i");
+    }
+}
+
+if (have_min_apache_version("2.5")) {
+    print "verifying return code of seeother and gone redirect match with expression support\n";
+    foreach (keys %rm_rc) {
+        ## make LWP not follow the redirect since we
+        ## are just interested in the return code.
+        local $Apache::TestRequest::RedirectOK = 0;
+
+        $expected = $rm_rc{$_};
+        for (my $i=0 ; $i <= 9 ; $i++) {
+            $actual = GET_RC "/expr/$_$i";
+            ok t_cmp($actual,
+                     $expected,
+                     "$_$i");
+        }
     }
 }
 
@@ -140,6 +179,19 @@ if (have_cgi) {
 }
 else {
     skip "skipping test without CGI module";
+}
+
+if (have_min_apache_version("2.5")) {
+    if (have_cgi) {
+        ## with ScriptAlias in LocationMatch ##
+        t_debug "verifying ScriptAlias in LocationMatch with /expr/aliascgi-script";
+        ok t_cmp((GET_BODY "/expr/aliascgi-script"),
+                 "$string\n",
+                 "/aliascgi-script") unless WINFU;
+    }
+    else {
+        skip "skipping test without CGI module";
+    }
 }
 
 ## failure with ScriptAliasMatch ##
