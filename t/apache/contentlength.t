@@ -10,21 +10,33 @@ my @test_strings = ("",
                     "0000000000000000000000000000000000",
                     "1000000000000000000000000000000000",
                     "-1",
+                    "123abc",
                     );
 my @req_strings =  ("/echo_post",
                     "/i_do_not_exist_in_your_wildest_imagination");
 
+my $resp_failure;
+if (have_min_apache_version('2.2.30')
+    && (!have_min_apache_version('2.3.0')
+        || have_min_apache_version('2.4.14'))) {
+    $resp_failure = "HTTP/1.1 400 Bad Request";
+}
+else {
+    $resp_failure = "HTTP/1.1 413 Request Entity Too Large";
+}
 # This is expanded out.
-my @resp_strings = ("HTTP/1.1 413 Request Entity Too Large",
-                    "HTTP/1.1 413 Request Entity Too Large",
+my @resp_strings = ($resp_failure,
+                    $resp_failure,
                     "HTTP/1.1 200 OK",
                     "HTTP/1.1 404 Not Found",
                     "HTTP/1.1 200 OK",
                     "HTTP/1.1 404 Not Found",
-                    "HTTP/1.1 413 Request Entity Too Large",
-                    "HTTP/1.1 413 Request Entity Too Large",
-                    "HTTP/1.1 413 Request Entity Too Large",
-                    "HTTP/1.1 413 Request Entity Too Large",
+                    $resp_failure,
+                    $resp_failure,
+                    $resp_failure,
+                    $resp_failure,
+                    $resp_failure,
+                    $resp_failure,
                    );
 
 my $tests = 4 * @test_strings;
