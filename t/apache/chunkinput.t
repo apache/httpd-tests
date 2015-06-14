@@ -6,7 +6,12 @@ use Apache::TestUtil;
 use Apache::TestRequest ();
 
 my @test_strings = ("0",
+                    "A\r\n1234567890\r\n0",
+                    "A    \r\n1234567890\r\n0",
+                    "A; ext=val\r\n1234567890\r\n0",
                     "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
+                    "A; ext=\x7Fval\r\n1234567890\r\n0",
+                    " A",
                     );
 my @req_strings =  ("/echo_post_chunk",
                     "/i_do_not_exist_in_your_wildest_imagination");
@@ -19,6 +24,16 @@ my @resp_strings;
 if (have_apache(1)) {
    @resp_strings = ("HTTP/1.1 200 OK",
                     "HTTP/1.1 404 Not Found",
+                    "HTTP/1.1 200 OK",
+                    "HTTP/1.1 404 Not Found",
+                    "HTTP/1.1 200 OK",
+                    "HTTP/1.1 404 Not Found",
+                    "HTTP/1.1 200 OK",
+                    "HTTP/1.1 404 Not Found",
+                    "HTTP/1.1 400 Bad Request",
+                    "HTTP/1.1 400 Bad Request",
+                    "HTTP/1.1 400 Bad Request",
+                    "HTTP/1.1 400 Bad Request",
                     "HTTP/1.1 400 Bad Request",
                     "HTTP/1.1 400 Bad Request",
 		   );
@@ -26,8 +41,18 @@ if (have_apache(1)) {
 else {
    @resp_strings = ("HTTP/1.1 200 OK",
                     "HTTP/1.1 404 Not Found",
+                    "HTTP/1.1 200 OK",
+                    "HTTP/1.1 404 Not Found",
+                    "HTTP/1.1 200 OK",
+                    "HTTP/1.1 404 Not Found",
+                    "HTTP/1.1 200 OK",
+                    "HTTP/1.1 404 Not Found",
                     "HTTP/1.1 413 Request Entity Too Large",
                     "HTTP/1.1 413 Request Entity Too Large",
+                    "HTTP/1.1 400 Bad Request",
+                    "HTTP/1.1 400 Bad Request",
+                    "HTTP/1.1 400 Bad Request",
+                    "HTTP/1.1 400 Bad Request",
                    );
 }
 
