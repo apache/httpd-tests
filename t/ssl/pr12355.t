@@ -7,6 +7,7 @@ use Apache::TestUtil;
 
 plan tests => 10, need 'ssl', need_min_apache_version('2.0');
 
+Apache::TestRequest::user_agent( ssl_opts => { SSL_cipher_list => 'ALL'});
 Apache::TestRequest::user_agent_keepalive(1);
 Apache::TestRequest::scheme('https');
 
