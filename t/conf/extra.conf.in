@@ -329,11 +329,13 @@
     Redirect temp /temp http://@SERVERNAME@:@PORT@/alias
     Redirect seeother /seeother http://@SERVERNAME@:@PORT@/alias
     Redirect gone /gone
+    Redirect 403 /forbid
 
     RedirectMatch permanent /p([0-9]) http://@SERVERNAME@:@PORT@/alias/$1.html
     RedirectMatch temp /t([0-9]) http://@SERVERNAME@:@PORT@/alias/$1.html
     RedirectMatch seeother /s([0-9]) http://@SERVERNAME@:@PORT@/alias/$1.html
     RedirectMatch gone /g([0-9])
+    RedirectMatch 403 /f([0-9])
 
     RedirectTemp /temp2 http://@SERVERNAME@:@PORT@/alias/index.html
     RedirectPermanent /perm2 http://@SERVERNAME@:@PORT@/alias/index.html
@@ -344,7 +346,7 @@
     ScriptAliasMatch /aliascgi-(.*) @SERVERROOT@/htdocs/modules/alias/$1
 
     <IfDefine APACHE2>
-        <IfVersion >= 2.5.0>
+        <IfVersion >= 2.4.15>
             <LocationMatch /expr/ali(?<number>[0-9])>
                 Alias @SERVERROOT@/htdocs/modules/alias/%{env:MATCH_NUMBER}.html
             </LocationMatch>
@@ -362,6 +364,9 @@
             </LocationMatch>
             <LocationMatch /expr/g([0-9])>
                 Redirect gone
+            </LocationMatch>
+            <LocationMatch /expr/f([0-9])>
+                Redirect 403
             </LocationMatch>
         </IfVersion>
     </IfDefine>
