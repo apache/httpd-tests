@@ -7,8 +7,10 @@ use Apache::TestRequest ();
 
 my @test_strings = ("0",
                     "A\r\n1234567890\r\n0",
-                    "A    \r\n1234567890\r\n0",
                     "A; ext=val\r\n1234567890\r\n0",
+                    "A    \r\n1234567890\r\n0",        # <10 BWS
+                    "A :: :: :: \r\n1234567890\r\n0",  # <10 BWS multiple send
+                    "A           \r\n1234567890\r\n0", # >10 BWS
                     "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
                     "A; ext=\x7Fval\r\n1234567890\r\n0",
                     " A",
@@ -30,6 +32,10 @@ if (have_apache(1)) {
                     "HTTP/1.1 404 Not Found",
                     "HTTP/1.1 200 OK",
                     "HTTP/1.1 404 Not Found",
+                    "HTTP/1.1 200 OK",
+                    "HTTP/1.1 404 Not Found",
+                    "HTTP/1.1 400 Bad Request",
+                    "HTTP/1.1 400 Bad Request",
                     "HTTP/1.1 400 Bad Request",
                     "HTTP/1.1 400 Bad Request",
                     "HTTP/1.1 400 Bad Request",
@@ -47,6 +53,10 @@ else {
                     "HTTP/1.1 404 Not Found",
                     "HTTP/1.1 200 OK",
                     "HTTP/1.1 404 Not Found",
+                    "HTTP/1.1 200 OK",
+                    "HTTP/1.1 404 Not Found",
+                    "HTTP/1.1 400 Bad Request",
+                    "HTTP/1.1 400 Bad Request",
                     "HTTP/1.1 413 Request Entity Too Large",
                     "HTTP/1.1 413 Request Entity Too Large",
                     "HTTP/1.1 400 Bad Request",
@@ -72,10 +82,21 @@ for my $data (@test_strings) {
 
     Apache::TestRequest::socket_trace($sock);
 
+    my @elts = split("::", $data);
+
     $sock->print("POST $request_uri HTTP/1.0\n");
     $sock->print("Transfer-Encoding: chunked\n");
     $sock->print("\n");
-    $sock->print("$data\n");
+    if (@elts > 1) {
+        for my $elt (@elts) {
+            $sock->print("$elt");
+            sleep 0.5;
+        }
+        $sock->print("\n");
+    }
+    else {
+        $sock->print("$data\n");
+    }
     $sock->print("X-Chunk-Trailer: $$\n");
     $sock->print("\n");
 
