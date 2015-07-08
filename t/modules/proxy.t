@@ -6,7 +6,11 @@ use Apache::TestRequest;
 use Apache::TestUtil;
 use Apache::TestConfig ();
 
-plan tests => 18, need_module 'proxy';
+my $num_tests = 17;
+if (have_min_apache_version('2.4.7')) {
+    $num_tests++;
+}
+plan tests => $num_tests, need_module 'proxy';
 
 Apache::TestRequest::module("proxy_http_reverse");
 Apache::TestRequest::user_agent(requests_redirectable => 0);
@@ -82,13 +86,15 @@ if (have_module('alias')) {
     skip "skipping tests without mod_alias" foreach (1..4);
 }
 
-my $pid = fork;
-if ($pid) {
-    system './scripts/uds-test.pl';
-    exit;
+if (have_min_apache_version('2.4.7')) {
+    my $pid = fork;
+    if ($pid) {
+        system './scripts/uds-test.pl';
+        exit;
+    }
+    # give time for the system call to take effect
+    sleep 2;
+    $r = GET("/uds/");
+    ok t_cmp($r->code, 200, "ProxyPass UDS path");
 }
-# give time for the system call to take effect
-sleep 2;
-$r = GET("/uds/");
-ok t_cmp($r->code, 200, "ProxyPass UDS path");
 
