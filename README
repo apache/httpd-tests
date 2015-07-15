@@ -18,6 +18,10 @@ http://perl.apache.org/docs/general/testing/testing.html
  or
 http://svn.apache.org/viewvc/perl/modperl/docs/trunk/src/docs/general/testing/testing.pod
 
+(Update 2015-07-14: to run the tests for all modules, it is advisable to have 
+ up-to-date versions of the following perl modules: Test::Harness, Crypt::SSLeay, 
+ Net:SSLeay, IO::Socket::SSL, LWP::Protocol::https, HTTP::DAV.)
+
 Quick Start 
 ----------- 
 
@@ -32,7 +36,6 @@ how you go about doing that.
 4. Run the tests:
    t/TEST
 5. Evaluate test output.
-
 
 Getting a little deeper
 -----------------------
@@ -63,6 +66,50 @@ environment, you do not need to specify 'httpd' on the t/TEST command
 line.  For instance, to start the server up again, the command
     t/TEST -start
 would be sufficient.
+
+Running Regression Tests 
+------------------------
+For a full regression test, you should have all modules loaded. Build the server
+with 
+  configure --enable-modules=reallyall --enable-load-all-modules ...
+among other things. Edit the generated httpd.conf and comment all mpm modules
+that you do not want. Run "t/TEST -clean" again.
+
+You will see some
+  skipped: cannot find module 'XXX'
+as not all modules are in every apache release (but the tests run for all).
+
+All in all, some >4k tests will run and the result needs to be: PASS
+
+Trouble Shooting
+----------------
+If you have a "PASS" at the end of "t/TEST", congratulations! If not, this
+sections gives some advise in order to find the cause. Feel free to expand
+this to make life easier for others.
+
+0. If your test startup hangs forever in "waiting for server to warm up", but
+   the test server is reachable under port 8529, you might be the victim of
+   ipv4/6 confusion. The default servername configured is "localhost" and 
+   some operating systems define 127.0.0.1 *as well as* ::1 in /etc/hosts.
+   If the test server listens only on 0.0.0.0 it might not answer requests to 
+   ::1 and that causes the test startup to hang.
+   Solution: comment the ::1 line in /etc/hosts and see if that improves matters.
+1. Run "t/TEST -clean" every time you change something in your Apache 
+   configuration. The test suite picks up certain things from your installed
+   httpd.conf (such as LoadModule statements) and will not see your changes
+   unless you clean it.
+2. Failures in proxy.t may originate from the fact that the test script cannot
+   open the specified port. This happens on some machines if you abort a test
+   run and the socket is not properly shut down. Check if the error goes
+   away after a reboot. (proxy.t tests are slow, so chances you interrupt tests
+   at that point are good.)
+3. Failures in access.t may result from reverse lookups not working or giving
+   other answers than expected. In the cause 0 above, if the test client
+   connects via 127.0.0.1, a "Grant for localhost" might resolve to "::1"
+   and therefore will not match the access rules of the tests.
+   Solution: check that your servername is 'localhost' (which is
+   the default) and that it *always* resolves to 127.0.0.1.
+
 
 Smoking Tests
 -------------
