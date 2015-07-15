@@ -20,7 +20,7 @@ http://svn.apache.org/viewvc/perl/modperl/docs/trunk/src/docs/general/testing/te
 
 (Update 2015-07-14: to run the tests for all modules, it is advisable to have 
  up-to-date versions of the following perl modules: Test::Harness, Crypt::SSLeay, 
- Net:SSLeay, IO::Socket::SSL, LWP::Protocol::https, HTTP::DAV.)
+ Net::SSLeay, IO::Socket::SSL, LWP::Protocol::https, HTTP::DAV.)
 
 Quick Start 
 ----------- 
@@ -109,6 +109,14 @@ this to make life easier for others.
    and therefore will not match the access rules of the tests.
    Solution: check that your servername is 'localhost' (which is
    the default) and that it *always* resolves to 127.0.0.1.
+4. If some ssl test cases fail, especially when t/ssl/proxy.t fails, the
+   reason can be mismatches between your installed SSL library and the one
+   httpd uses. The "openssl" binary found in your $PATH is used to create
+   binary setup files by t/TEST. If another version of openssl then tries
+   to read these from your Apache server process, it might fail.
+   Try the following:
+      > t/TEST -clean
+      > PATH=<bin dir of correct openssl>:$PATH t/TEST
 
 
 Smoking Tests
