@@ -20,7 +20,7 @@ if (have_ssl) {
 plan tests => $tests, need('mod_nntp_like',
                            { "deferred accept() prohibits testing with 2.1" =>
                                  sub { !have_min_apache_version('2.1.0') 
-                                           || $^O ne "linux" } } );
+                                           || ($^O ne "linux" && $^O ne "darwin")} } );
                                
 for my $module (@modules) {
     print "testing $module\n";
