@@ -96,8 +96,8 @@
         Alias /ssl-cgi            @DocumentRoot@/modules/cgi
         Alias /require-ssl-cgi    @DocumentRoot@/modules/cgi
 
-        Alias /require-md5-cgi    @DocumentRoot@/modules/cgi
-        Alias /require-sha-cgi    @DocumentRoot@/modules/cgi
+        Alias /require-aes128-cgi    @DocumentRoot@/modules/cgi
+        Alias /require-aes256-cgi    @DocumentRoot@/modules/cgi
 
         <Location /require/asf>
             SSLVerifyClient require
@@ -149,12 +149,12 @@
             SSLVerifyDepth  10
         </Location>
 
-        <Location /require-sha-cgi>
-            SSLCipherSuite RC4-SHA
+        <Location /require-aes128-cgi>
+            SSLCipherSuite AES128-SHA
         </Location>
 
-        <Location /require-md5-cgi>
-            SSLCipherSuite RC4-MD5
+        <Location /require-aes256-cgi>
+            SSLCipherSuite AES256-SHA
         </Location>
 
         <IfModule @AUTH_MODULE@>
@@ -222,12 +222,12 @@
         AddType application/x-pf-action .pfa
     </IfModule>
 
-    <Location /modules/ssl/sha/>
-         SSLCipherSuite RC4-SHA
+    <Location /modules/ssl/aes128/>
+         SSLCipherSuite AES128-SHA
     </Location>
 
-    <Location /modules/ssl/md5/>
-         SSLCipherSuite RC4-MD5
+    <Location /modules/ssl/aes256/>
+         SSLCipherSuite AES256-SHA
     </Location>
 
 </IfModule>

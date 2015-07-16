@@ -17,12 +17,12 @@ my $r;
 
 # Variation of the PR 12355 test which breaks per PR 43738.
 
-$r = POST "/modules/ssl/md5/empty.pfa", content => "hello world";
+$r = POST "/modules/ssl/aes128/empty.pfa", content => "hello world";
 
 ok t_cmp($r->code, 200, "renegotiation on POST works");
-ok t_cmp($r->content, "/modules/ssl/md5/empty.pfa\nhello world", "request body matches response");
+ok t_cmp($r->content, "/modules/ssl/aes128/empty.pfa\nhello world", "request body matches response");
 
-$r = POST "/modules/ssl/sha/empty.pfa", content => "hello world";
+$r = POST "/modules/ssl/aes256/empty.pfa", content => "hello world";
 
 ok t_cmp($r->code, 200, "renegotiation on POST works");
-ok t_cmp($r->content, "/modules/ssl/sha/empty.pfa\nhello world", "request body matches response");
+ok t_cmp($r->content, "/modules/ssl/aes256/empty.pfa\nhello world", "request body matches response");
