@@ -20,7 +20,7 @@ http://svn.apache.org/viewvc/perl/modperl/docs/trunk/src/docs/general/testing/te
 
 (Update 2015-07-14: to run the tests for all modules, it is advisable to have 
  up-to-date versions of the following perl modules: Test::Harness, Crypt::SSLeay, 
- Net::SSLeay, IO::Socket::SSL, LWP::Protocol::https, HTTP::DAV,
+ Net::SSLeay, IO::Socket::SSL, LWP::Protocol::https, HTTP::DAV, and
  DateTime.)
 
 Quick Start 
@@ -29,7 +29,7 @@ Quick Start
 If you don't care how it works and just want to run the tests, here's
 how you go about doing that.
 
-1. You need an installation of Apache. (Either 1.3 or 2.0)
+1. You need an installation of Apache. (1.3.x thru trunk)
 2. Any DSOs you wish to use should be configured in that Apache's
    httpd.conf (the test harness will pick this configuration up)
 3. Setup:
