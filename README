@@ -20,7 +20,8 @@ http://svn.apache.org/viewvc/perl/modperl/docs/trunk/src/docs/general/testing/te
 
 (Update 2015-07-14: to run the tests for all modules, it is advisable to have 
  up-to-date versions of the following perl modules: Test::Harness, Crypt::SSLeay, 
- Net::SSLeay, IO::Socket::SSL, LWP::Protocol::https, HTTP::DAV.)
+ Net::SSLeay, IO::Socket::SSL, LWP::Protocol::https, HTTP::DAV,
+ DateTime.)
 
 Quick Start 
 ----------- 

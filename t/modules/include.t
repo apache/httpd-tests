@@ -309,47 +309,24 @@ unless(eval "require POSIX") {
     skip "POSIX module not found", 1;
 }
 else {
-    # XXX: not sure about the locale thing, but it seems to work at least on my
-    # machine :)
-    # Perl is wonky about TZ and localtime. On some systems
-    # setting TZ and then tzset() works to adjust to the
-    # specified timezone; others don't.
-    # We should look at DateTime instead...
-    use POSIX qw(tzset);
+    # use DateTime and avoid the system locale messing things up
+    use DateTime;
     my $result = super_chomp(GET_BODY "${dir}file.shtml");
     $result = single_space($result);
 
     my $httpdtz = $1 if $result =~ /\w+, \d+-\w+-\d+ \d+:\d+:\d+ (\w+) /;
 
-    my $oldtimezone = $ENV{TZ};
-    (($ENV{TZ} = $httpdtz) && tzset) if $httpdtz;
-
     my $file = catfile($htdocs, splitpath($dir), "file.shtml");
     my $mtime = (stat $file)[9];
 
-    my @time = localtime($mtime);
+    my $dt = DateTime->from_epoch( epoch => $mtime,
+                locale => 'en_US', time_zone => $httpdtz||'UTC' );
     
-    my $strftime = sub($) {
-        my $fmt = shift;
-
-        POSIX::strftime($fmt, @time);
-    };
-
     my $expected = join ' ' =>
-        #$strftime->("%A, %d-%b-%Y %H:%M:%S %Z"),
-        #$strftime->("%A, %d-%b-%Y %H:%M:%S %Z"),
-        $strftime->("%A, %B %e, %G"),
-        $strftime->("%A, %B %e, %G"),
-        $strftime->("%s"),
-        $strftime->("%s");
-
-    if (defined($oldtimezone)) {
-        $ENV{TZ} = $oldtimezone;
-    }
-    else {
-        delete($ENV{TZ});
-    }
-    tzset;
+        $dt->strftime("%A, %B %e, %G"),
+        $dt->strftime("%A, %B %e, %G"),
+        $dt->strftime("%s"),
+        $dt->strftime("%s");
 
     # trim output
     $expected = single_space($expected);

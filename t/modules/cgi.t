@@ -241,12 +241,12 @@ foreach my $length (@post_content) {
 ## make sure cgi log does not 
 ## keep logging after it is bigger
 ## than ScriptLogLength
-for (my $i=1 ; $i<=20 ; $i++) {
+for (my $i=1 ; $i<=40 ; $i++) {
 
     ## get out if log does not exist ##
     last unless -e $cgi_log;
 
-    ## request the 1k bad cgi 8 times
+    ## request the 1k bad cgi
     ## (1k of data logged per request)
     GET_RC "$path/bogus1k.pl";
 
