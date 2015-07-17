@@ -184,6 +184,29 @@
             </IfModule>
         </IfModule>
 
+        ##
+        ## mod_h2 test config
+        ##
+        <IfModule h2_module>
+            LogLevel h2:debug
+            H2Engine on
+        </IfModule>
+
+        <IfModule @CGI_MODULE@>
+            <Directory @SERVERROOT@/htdocs/modules/h2>
+                Options +ExecCGI
+                AddHandler cgi-script .pl
+
+            </Directory>
+        </IfModule>
+        <Location /modules/h2/hello.py>
+            SSLOptions +StdEnvVars
+        </Location>
+        <IfModule mod_rewrite.c>
+            RewriteEngine on
+            RewriteRule ^/modules/h2/latest.tar.gz$ /modules/h2/xxx-1.0.2a.tar.gz [R=302,NC]
+        </IfModule>
+
     </VirtualHost>
 
     # An SSL vhost which does optional ccert checks at vhost level, to

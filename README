@@ -21,7 +21,11 @@ http://svn.apache.org/viewvc/perl/modperl/docs/trunk/src/docs/general/testing/te
 (Update 2015-07-14: to run the tests for all modules, it is advisable to have 
  up-to-date versions of the following perl modules: Test::Harness, Crypt::SSLeay, 
  Net::SSLeay, IO::Socket::SSL, LWP::Protocol::https, HTTP::DAV, and
- DateTime.)
+ DateTime.
+ Update 2015-07-17: the mod_h2 (HTTP/2) test cases make use of the CPAN
+ modules Protocol::HTTP2 and AnyEvent. That is only needed in trunk at the
+ moment...
+)
 
 Quick Start 
 ----------- 
@@ -118,6 +122,10 @@ this to make life easier for others.
    Try the following:
       > t/TEST -clean
       > PATH=<bin dir of correct openssl>:$PATH t/TEST
+5. If you see failures in the modules/h2.t test cases, please notify the dev
+   mailing list with a description of your setup. These tests are quite young,
+   currently only valid in trunk and interact with quite some other modules 
+   as well as Openssl versions installed.
 
 
 Smoking Tests
