@@ -11,7 +11,7 @@ use Protocol::HTTP2::Client;
 my $num_suite = 26;
 my $total_tests = 2 * $num_suite;
 
-plan tests => $total_tests, need_module 'h2';
+plan tests => $total_tests, need_module 'h2', need_min_apache_version('2.5');;
 
 Apache::TestRequest::module("h2");
 
