@@ -6,12 +6,10 @@ use Apache::TestRequest;
 use Apache::TestUtil;
 use Apache::TestConfig ();
 
-use Protocol::HTTP2::Client;
-
 my $num_suite = 26;
 my $total_tests = 2 * $num_suite;
 
-plan tests => $total_tests, need_module 'h2', need_min_apache_version('2.5');;
+plan tests => $total_tests, need_module 'h2', need_module 'Protocol::HTTP2::Client', need_min_apache_version('2.5');
 
 Apache::TestRequest::module("h2");
 
@@ -25,6 +23,7 @@ my $sport      = $config->{vhosts}->{$ssl_module}->{port};
 my $serverdir  = $config->{vars}->{t_dir};
 my $htdocs     =  $serverdir . "/htdocs";
 
+require Protocol::HTTP2::Client;
 use AnyEvent;
 use AnyEvent::Socket;
 use AnyEvent::Handle;
