@@ -189,7 +189,6 @@
         ##
         <IfModule h2_module>
             LogLevel h2:debug
-            H2Engine on
         </IfModule>
 
         <IfModule @CGI_MODULE@>
