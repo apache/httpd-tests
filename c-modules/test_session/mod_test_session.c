@@ -89,12 +89,13 @@ static void test_session_init(apr_pool_t *p, server_rec *s)
 
 static apr_status_t test_session_load(request_rec * r, session_rec ** z)
 {
+    session_rec *zz;
     test_session_dcfg_t *dconf = ap_get_module_config(r->per_dir_config,
                                                       &test_session_module);
     if (!dconf || !dconf->session)
         return DECLINED;
 
-    session_rec *zz = (session_rec *)apr_table_get(r->notes, TEST_SESSION_NOTE);
+    zz = (session_rec *)apr_table_get(r->notes, TEST_SESSION_NOTE);
 
     if (!zz) {
         /* Create the session using the query string as the data. */
@@ -207,15 +208,18 @@ static int test_session_handler(request_rec *r)
 
     /* Additional commands to test the session API via POST. */
     if (r->method_number == M_POST) {
+        char *fieldName = NULL;
+        char *fieldValue = NULL;
+        apr_array_header_t *pairs = NULL;
+        apr_status_t result;
+        TestSessionAction action;
+
         if (!ap_session_get_fn || !ap_session_set_fn ||
             !ap_session_load_fn || !ap_session_save_fn)
             return HTTP_INTERNAL_SERVER_ERROR;
 
-        char *fieldName = NULL;
-        char *fieldValue = NULL;
-        apr_array_header_t *pairs = NULL;
-        TestSessionAction action = TEST_SESSION_ACTION_NONE;
-        apr_status_t result = ap_parse_form_data(r, NULL, &pairs, 3, 1024);
+        action = TEST_SESSION_ACTION_NONE;
+        result = ap_parse_form_data(r, NULL, &pairs, 3, 1024);
 
         if (result != OK)
             return result;
