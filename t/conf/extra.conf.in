@@ -992,7 +992,9 @@ LimitRequestFields    32
         </Directory>
     </IfModule>
     <Location /modules/h2/hello.py>
+    <IfModule @ssl_module@>
         SSLOptions +StdEnvVars
+     </ifModule>
     </Location>
     <IfModule mod_rewrite.c>
         RewriteEngine on
