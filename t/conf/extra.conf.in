@@ -980,8 +980,9 @@ LimitRequestFields    32
 
 <IfDefine APACHE2>
     <IfModule h2_module>
+        Protocols h2 h2c http/1.1
         LogLevel h2:debug
-	H2Direct on
+        H2Direct on
     </IfModule>
 
     <IfModule @CGI_MODULE@>
