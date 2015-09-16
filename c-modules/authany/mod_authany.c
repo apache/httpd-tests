@@ -37,7 +37,8 @@ static const authn_provider authn_any_provider =
 };
 
 static authz_status any_check_authorization(request_rec *r,
-                                            const char *requirement)
+                                            const char *requirement,
+                                            const void *dummy)
 {
 #if AP_MODULE_MAGIC_AT_LEAST(20100714,0)
     if (!r->user)

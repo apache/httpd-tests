@@ -149,7 +149,6 @@ static apr_status_t test_session_encode(request_rec * r, session_rec * z)
 
 static apr_status_t test_session_decode(request_rec * r, session_rec * z)
 {
-    apr_status_t result = OK;
     const size_t prefix_len = strlen(TEST_SESSION_ENCODING_PREFIX);
     test_session_dcfg_t *dconf = ap_get_module_config(r->per_dir_config,
                                                       &test_session_module);
@@ -203,7 +202,7 @@ static int test_session_handler(request_rec *r)
         return DECLINED;
 
     /* Copy the header for SessionHeader from the request to the response. */
-    if (overrides = apr_table_get(r->headers_in, TEST_SESSION_HEADER))
+    if ((overrides = apr_table_get(r->headers_in, TEST_SESSION_HEADER)))
         apr_table_setn(r->headers_out, TEST_SESSION_HEADER, overrides);
 
     /* Additional commands to test the session API via POST. */
@@ -240,15 +239,15 @@ static int test_session_handler(request_rec *r)
             }
             else if (!strcmp(pair->name, "name")) {
                 apr_size_t len;
-                apr_brigade_length(pair->value, 1, &len);
+                apr_brigade_length(pair->value, 1, (apr_off_t *)&len);
                 fieldName = apr_pcalloc(r->pool, sizeof(char) * len + 1);
-                result = apr_brigade_flatten(pair->value, fieldName, &len);
+                result = apr_brigade_flatten(pair->value, fieldName, (apr_size_t *)&len);
             }
             else if (!strcmp(pair->name, "value")) {
                 apr_size_t len;
-                apr_brigade_length(pair->value, 1, &len);
+                apr_brigade_length(pair->value, 1, (apr_off_t *)&len);
                 fieldValue = apr_pcalloc(r->pool, sizeof(char) * len + 1);
-                result = apr_brigade_flatten(pair->value, fieldValue, &len);
+                result = apr_brigade_flatten(pair->value, fieldValue, (apr_size_t *)&len);
             }
             else {
                 return HTTP_BAD_REQUEST;
