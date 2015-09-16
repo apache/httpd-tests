@@ -238,16 +238,20 @@ static int test_session_handler(request_rec *r)
                     return HTTP_BAD_REQUEST;
             }
             else if (!strcmp(pair->name, "name")) {
+                apr_off_t off;
                 apr_size_t len;
-                apr_brigade_length(pair->value, 1, (apr_off_t *)&len);
+                apr_brigade_length(pair->value, 1, &off);
+                len = (apr_size_t)off;
                 fieldName = apr_pcalloc(r->pool, sizeof(char) * len + 1);
-                result = apr_brigade_flatten(pair->value, fieldName, (apr_size_t *)&len);
+                result = apr_brigade_flatten(pair->value, fieldName, &len);
             }
             else if (!strcmp(pair->name, "value")) {
+                apr_off_t off;
                 apr_size_t len;
-                apr_brigade_length(pair->value, 1, (apr_off_t *)&len);
+                apr_brigade_length(pair->value, 1, &off);
+                len = (apr_size_t)off;
                 fieldValue = apr_pcalloc(r->pool, sizeof(char) * len + 1);
-                result = apr_brigade_flatten(pair->value, fieldValue, (apr_size_t *)&len);
+                result = apr_brigade_flatten(pair->value, fieldValue, &len);
             }
             else {
                 return HTTP_BAD_REQUEST;
