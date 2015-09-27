@@ -42,6 +42,24 @@ my $dgst = Apache::TestSSLCA::dgst();
 
 my $email_field = Apache::TestSSLCA::email_field();
 
+my $san_email = "$client_dn{$email_field}";
+
+my $san_dns = "$server_dn{CN}";
+
+my $san_msupn  = $san_email;
+
+my $san_dnssrv = "_https.$server_dn{CN}";
+
+if (not have_min_apache_version('2.4.13')) {
+    $san_email = $san_dns = "NULL";
+}
+
+if (not have_min_apache_version('2.5.0') or
+    Apache::Test::normalize_vstring(Apache::TestSSLCA::version()) <
+    Apache::Test::normalize_vstring("0.9.8")) {
+    $san_msupn = $san_dnssrv = "NULL";
+}
+
 # YYY will be turned into a pattern match: httpd-test/([-\w]+)
 # so we can test with different server keys/certs
 $server_dn{OU} = 'httpd-test/YYY';
@@ -191,6 +209,10 @@ SSL_CLIENT_S_DN_UID
 SSL_SERVER_S_DN_UID
 SSL_CLIENT_S_DN_Email        "$client_dn{$email_field}"
 SSL_SERVER_S_DN_Email        "$server_dn{$email_field}"
+SSL_CLIENT_SAN_Email_0       "$san_email"
+SSL_SERVER_SAN_DNS_0         "$san_dns"
+SSL_CLIENT_SAN_OTHER_msUPN_0 "$san_msupn"
+SSL_SERVER_SAN_OTHER_dnsSRV_0 "$san_dnssrv"
 
 SSL_CLIENT_I_DN              "$client_i_dn"
 SSL_SERVER_I_DN              "$server_i_dn"
