@@ -38,6 +38,8 @@ my $client_i_dn = dn_oneline(\%client_i_dn, $rfc2253);
 
 my %server_dn = dn('server');
 
+my $dgst = Apache::TestSSLCA::dgst();
+
 # YYY will be turned into a pattern match: httpd-test/([-\w]+)
 # so we can test with different server keys/certs
 $server_dn{OU} = 'httpd-test/YYY';
@@ -216,8 +218,8 @@ SSL_CLIENT_I_DN_UID
 SSL_SERVER_I_DN_UID
 SSL_CLIENT_I_DN_Email
 SSL_SERVER_I_DN_Email
-SSL_CLIENT_A_SIG             'sha1WithRSAEncryption'
-SSL_SERVER_A_SIG             'sha1WithRSAEncryption'
+SSL_CLIENT_A_SIG             "${dgst}WithRSAEncryption"
+SSL_SERVER_A_SIG             "${dgst}WithRSAEncryption"
 SSL_CLIENT_A_KEY             'rsaEncryption'
 SSL_SERVER_A_KEY             qr(^[rd]saEncryption$)
 SSL_CLIENT_CERT              qr(^-----BEGIN CERTIFICATE-----)
