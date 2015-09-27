@@ -40,6 +40,8 @@ my %server_dn = dn('server');
 
 my $dgst = Apache::TestSSLCA::dgst();
 
+my $email_field = Apache::TestSSLCA::email_field();
+
 # YYY will be turned into a pattern match: httpd-test/([-\w]+)
 # so we can test with different server keys/certs
 $server_dn{OU} = 'httpd-test/YYY';
@@ -187,8 +189,8 @@ SSL_CLIENT_S_DN_D
 SSL_SERVER_S_DN_D
 SSL_CLIENT_S_DN_UID
 SSL_SERVER_S_DN_UID
-SSL_CLIENT_S_DN_Email
-SSL_SERVER_S_DN_Email
+SSL_CLIENT_S_DN_Email        "$client_dn{$email_field}"
+SSL_SERVER_S_DN_Email        "$server_dn{$email_field}"
 
 SSL_CLIENT_I_DN              "$client_i_dn"
 SSL_SERVER_I_DN              "$server_i_dn"
@@ -216,8 +218,8 @@ SSL_CLIENT_I_DN_D
 SSL_SERVER_I_DN_D
 SSL_CLIENT_I_DN_UID
 SSL_SERVER_I_DN_UID
-SSL_CLIENT_I_DN_Email
-SSL_SERVER_I_DN_Email
+SSL_CLIENT_I_DN_Email        "$client_i_dn{$email_field}"
+SSL_SERVER_I_DN_Email        "$server_i_dn{$email_field}"
 SSL_CLIENT_A_SIG             "${dgst}WithRSAEncryption"
 SSL_SERVER_A_SIG             "${dgst}WithRSAEncryption"
 SSL_CLIENT_A_KEY             'rsaEncryption'
