@@ -975,13 +975,13 @@ LimitRequestFields    32
 
 
 ##
-## mod_h2 test config
+## mod_http2 test config
 ##
 
 <IfDefine APACHE2>
-    <IfModule h2_module>
+    <IfModule http2_module>
         Protocols h2 h2c http/1.1
-        LogLevel h2:debug
+        LogLevel http2:debug
         H2Direct on
     </IfModule>
 
