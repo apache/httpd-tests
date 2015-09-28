@@ -9,9 +9,9 @@ use Apache::TestConfig ();
 my $num_suite = 26;
 my $total_tests = 2 * $num_suite;
 
-plan tests => $total_tests, need_module 'h2', need_module 'Protocol::HTTP2::Client', need_min_apache_version('2.4.17');
+plan tests => $total_tests, need_module 'http2', need_module 'Protocol::HTTP2::Client', need_min_apache_version('2.4.17');
 
-Apache::TestRequest::module("h2");
+Apache::TestRequest::module("http2");
 
 my $config = Apache::Test::config();
 my $host = $config->{vars}->{servername};
