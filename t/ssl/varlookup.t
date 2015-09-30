@@ -54,7 +54,7 @@ if (not have_min_apache_version('2.4.13')) {
     $san_email = $san_dns = "NULL";
 }
 
-if (not have_min_apache_version('2.5.0') or
+if (not have_min_apache_version('2.4.17') or
     Apache::Test::normalize_vstring(Apache::TestSSLCA::version()) <
     Apache::Test::normalize_vstring("0.9.8")) {
     $san_msupn = $san_dnssrv = "NULL";
