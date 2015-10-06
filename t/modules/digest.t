@@ -111,14 +111,20 @@ my $query = 'try=til%7Ede';
 # finally, the MSIE tests
 
 {
-  # fake current MSIE behavior - this should work as of 2.0.51
-  my $response = GET "$url?$query",
-                   Authorization => $no_query_auth, 
-                   'X-Browser'   => 'MSIE';
-
-  ok t_cmp($response->code,
-           200,
-           'manual Authorization with no query string in header + MSIE');
+  if (have_min_apache_version("2.5.0")) {
+    skip "'AuthDigestEnableQueryStringHack' has been removed in r1703305";
+  } 
+  else  
+  {
+    # fake current MSIE behavior - this should work as of 2.0.51
+    my $response = GET "$url?$query",
+                     Authorization => $no_query_auth, 
+                     'X-Browser'   => 'MSIE';
+  
+    ok t_cmp($response->code,
+             200,
+             'manual Authorization with no query string in header + MSIE');
+  }
 }
 
 {
