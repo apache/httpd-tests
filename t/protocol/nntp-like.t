@@ -12,7 +12,7 @@ my $tests = 5;
 my $vars = Apache::Test::vars();
 my @modules = qw(mod_nntp_like);
 
-if (have_ssl) {
+if (have_ssl && ! have_module('http2')) {
     $tests *= 2;
     unshift @modules, 'mod_nntp_like_ssl';
 }
