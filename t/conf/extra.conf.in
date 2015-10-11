@@ -992,7 +992,7 @@ LimitRequestFields    32
 
         </Directory>
     </IfModule>
-    <Location /modules/h2/hello.py>
+    <Location /modules/h2/hello.pl>
     <IfModule @ssl_module@>
         SSLOptions +StdEnvVars
      </ifModule>
