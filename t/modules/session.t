@@ -24,7 +24,7 @@ my @todo = [
 ];
 
 plan tests => $num_tests * $checks_per_test,
-              todo => \@todo,
+              todo => @todo,
               need need_module('session'),
               need_min_apache_version('2.3.0');
 
