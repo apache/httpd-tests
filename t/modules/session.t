@@ -46,7 +46,9 @@ sub check_result
     my $sessionData = $gotSession;
 
     if ($gotSession =~ /^(?:(.+)&)?expiry=([0-9]+)(?:&(.*))?$/i) {
-        my $gotExpiry = $2 / APR_TIME_PER_SEC;
+        # Don't use math ops, $2 is too big for 32 Bit Perl
+        # Use stripping of trailing "0"s instead
+        my $gotExpiry = substr($2, 0, -1 * (length(APR_TIME_PER_SEC) - 1));
         t_debug "expiry of $gotExpiry ($name)";
         ok $expiry && time() < $gotExpiry;
 
@@ -147,7 +149,9 @@ check_custom 'SessionHeader', GET("/sessiontest/on?$session&another=1",
     "$session&another=5&last=7", 1;
 
 # SessionMaxAge directive
-my $future_expiry = (time() + 100) * APR_TIME_PER_SEC;
+# Don't use math ops, the result is too big for 32 Bit Perl
+# Use adding of trailing "0"s instead
+my $future_expiry = (time() + 100) . "0" x (length(APR_TIME_PER_SEC) - 1);
 
 check_get 'SessionMaxAge adds expiry', "/on/expire?$session", $session, 0, 1;
 check_get 'Discard expired session', "/on/expire?$session&expiry=1", '', 0, 1;
