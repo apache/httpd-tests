@@ -18,19 +18,19 @@ http://perl.apache.org/docs/general/testing/testing.html
  or
 http://svn.apache.org/viewvc/perl/modperl/docs/trunk/src/docs/general/testing/testing.pod
 
-To run the tests for all modules, it is advisable to have 
-up-to-date versions of the following perl modules installed:
+To run the tests for all Apache web server modules, some additional 
+CPAN modules will be required:
+- HTTP::DAV (DAV tests)
+- DateTime (mod_include tests)
+- Protocol::HTTP2::Client and AnyEvent (mod_http2 tests)
+
+If the tests don't work, make sure, that you have up to
+date versions of the following perl modules installed:
 - Test::Harness
 - Crypt::SSLeay
 - Net::SSLeay
 - IO::Socket::SSL
 - LWP::Protocol::https
-- HTTP::DAV
-- DateTime
-
-The mod_http2 (HTTP/2) tests also need:
-- Protocol::HTTP2::Client
-- AnyEvent
 
 Quick Start 
 ----------- 
