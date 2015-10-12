@@ -264,11 +264,11 @@ sub do_suite {
         skip "skipping test as mod_rewrite not available" foreach(1..2);
     }
     if (have_cgi) {
-        my $ssl_protocol = $true_tls? 'TLSv1.2' : '';
+        my $sni_host = $true_tls? 'localhost' : '';
         my $content = <<EOF;
 <html><body>
 <h2>Hello World!</h2>
-SSL_PROTOCOL="$ssl_protocol"
+TLS_SNI="$sni_host"
 </body></html>
 EOF
         add_request( 
