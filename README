@@ -129,8 +129,8 @@ this to make life easier for others.
       > PATH=<bin dir of correct openssl>:$PATH t/TEST
 5. If you see failures in the modules/h2.t test cases, please notify the dev
    mailing list with a description of your setup. These tests are quite young,
-   currently only valid in trunk and interact with quite some other modules 
-   as well as Openssl versions installed.
+   currently only valid in 2.4.x and later and interact with quite some other
+   modules as well as Openssl versions installed.
 
 
 Smoking Tests
