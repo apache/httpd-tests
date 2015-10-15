@@ -983,6 +983,10 @@ LimitRequestFields    32
         Protocols h2 h2c http/1.1
         LogLevel http2:debug
         H2Direct on
+        <IfVersion > 2.4.17>
+            # new config directives 
+            H2ModernTLSOnly off
+        </IfVersion>
     </IfModule>
 
     <IfModule @CGI_MODULE@>
