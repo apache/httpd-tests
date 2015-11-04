@@ -59,7 +59,7 @@
                 SSLProtocol All -SSLv2 -SSLv3
                 SSLOptions +StdEnvVars
                 
-                <IfVersion > 2.4.17>
+                <IfVersion >= 2.5.0>
                     # new config directive
                     # need this off as long as we ran on platform openssl 
                     H2ModernTLSOnly off
