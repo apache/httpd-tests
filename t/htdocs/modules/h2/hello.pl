@@ -5,10 +5,9 @@ use Env;
 print "Content-Type: text/html\n";
 print "\n";
 
-my $ssl_protocol = $ENV{'SSL_TLS_SNI'};
+#my $ssl_protocol = $ENV{'SSL_TLS_SNI'};
 print <<EOF
 <html><body>
 <h2>Hello World!</h2>
-TLS_SNI="$ssl_protocol"
 </body></html>
 EOF

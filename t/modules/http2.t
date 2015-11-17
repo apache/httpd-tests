@@ -322,11 +322,10 @@ sub do_common {
     }
     
     if (have_cgi) {
-        my $sni_host = $true_tls? 'localhost' : '';
+        # my $sni_host = $true_tls? 'localhost' : '';
         my $content = <<EOF;
 <html><body>
 <h2>Hello World!</h2>
-TLS_SNI="$sni_host"
 </body></html>
 EOF
 
@@ -417,13 +416,13 @@ sub do_vhosts {
         },
         {
             descr => 'VHOST001, expect 404 or 421 (using Host:)',
-            rc     => 421, 
+            rc     => 404, 
             path   => '/misdirected', 
             header => [ 'host' => 'test.example.org' ] 
         },
         {
             descr => 'VHOST002, expect 404 or 421 (using :authority)',
-            rc     => 421, 
+            rc     => 404, 
             path   => '/misdirected', 
             authority => 'test.example.org:1234'
         },
