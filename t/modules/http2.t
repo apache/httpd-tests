@@ -310,7 +310,7 @@ sub do_common {
     ];
         
     if (have_module 'mod_rewrite') {
-        push $r, {
+        push @$r, {
             descr => 'TC0007, rewrite handling',
             path => '/modules/h2/latest.tar.gz',
             redir_path => "/modules/h2/xxx-1.0.2a.tar.gz",
@@ -330,7 +330,7 @@ TLS_SNI="$sni_host"
 </body></html>
 EOF
 
-        push $r, {
+        push @$r, {
             descr => 'TC0008, hello.pl with ssl vars',
             path    => '/modules/h2/hello.pl',
             content => $content,
@@ -342,44 +342,44 @@ EOF
 <p>No query was specified.</p>
 </body></html>
 EOF
-        push $r, {
+        push @$r, {
             descr => 'TC0009, necho.pl without arguments',
             path    => '/modules/h2/necho.pl',
             content => $content,
             rc      => 400,
             on_done => \&cmp_content,
         };
-        push $r, {
+        push @$r, {
             descr => 'TC0010, necho.pl 2x10',
             path    => '/modules/h2/necho.pl?count=2&text=0123456789',
             content => "01234567890123456789",
             on_done => \&cmp_content,
         };
-        push $r, {
+        push @$r, {
             descr => 'TC0011, necho.pl 10x10',
             path    => '/modules/h2/necho.pl?count=10&text=0123456789',
             content_length => 100,
             on_done => \&cmp_content_length,
         };
-        push $r, {
+        push @$r, {
             descr => 'TC0012, necho.pl 100x10',
             path    => '/modules/h2/necho.pl?count=100&text=0123456789',
             content_length => 1000,
             on_done => \&cmp_content_length,
         };
-        push $r, {
+        push @$r, {
             descr => 'TC0013, necho.pl 1000x10',
             path    => '/modules/h2/necho.pl?count=1000&text=0123456789',
             content_length => 10000,
             on_done => \&cmp_content_length,
         };
-        push $r, {
+        push @$r, {
             descr => 'TC0014, necho.pl 10000x10',
             path    => '/modules/h2/necho.pl?count=10000&text=0123456789',
             content_length => 100000,
             on_done => \&cmp_content_length,
         };
-        push $r, {
+        push @$r, {
             descr => 'TC0015, necho.pl 100000x10',
             path    => '/modules/h2/necho.pl?count=100000&text=0123456789',
             content_length => 1000000,
