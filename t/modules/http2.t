@@ -7,12 +7,16 @@ use Apache::TestUtil;
 use Apache::TestConfig ();
 
 my $num_suite = 24;
-my $vhost_suite = 3;
+my $vhost_suite = 4;
 
 my $total_tests = 2 * $num_suite;
 
-my $alpn_available = exists &Net::SSLeay::CTX_set_alpn_protos;
-if ($alpn_available) {
+Net::SSLeay::initialize();
+
+my $sni_available = Net::SSLeay::OPENSSL_VERSION_NUMBER() >= 0x01000000;
+my $alpn_available = $sni_available && exists &Net::SSLeay::CTX_set_alpn_protos;
+
+if ($sni_available) {
     $total_tests += $vhost_suite;
 }
 
@@ -35,8 +39,42 @@ use AnyEvent::Socket;
 use AnyEvent::Handle;
 use Net::SSLeay;
 use AnyEvent::TLS;
+use Carp qw( croak );
 
-Net::SSLeay::initialize();
+no warnings 'redefine';
+no strict 'refs';
+{  
+    my $old_ref = \&{ 'AnyEvent::TLS::new' };
+    *{ 'AnyEvent::TLS::new' } = sub {
+        my ( $class, %param ) = @_;
+
+        my $self = $old_ref->( $class, %param );
+
+        $self->{host_name} = $param{host_name}
+            if exists $param{host_name};
+
+        $self;
+    };
+}
+
+{
+    my $old_ref = \&{ 'AnyEvent::TLS::_get_session' };
+    *{ 'AnyEvent::TLS::_get_session' } = sub($$;$$) {
+        my ($self, $mode, $ref, $cn) = @_;
+
+        my $session = $old_ref->( @_ );
+
+        if ( $mode eq 'connect' ) {
+            if ( $self->{host_name} ) {
+                print 'setting host_name to ' . $self->{host_name};
+                Net::SSLeay::set_tlsext_host_name( $session, $self->{host_name} );
+            }
+        }
+
+        $session;
+    };
+}
+
 
 sub connect_and_do {
     my %args = (
@@ -46,6 +84,7 @@ sub connect_and_do {
     my $host   = $args{ctx}->{host};
     my $port   = $args{ctx}->{port};
     my $client = $args{ctx}->{client};
+    my $host_name = $args{ctx}->{host_name};
     my $w = AnyEvent->condvar;
 
     tcp_connect $host, $port, sub {
@@ -62,11 +101,12 @@ sub connect_and_do {
             eval {
                 # ALPN (Net-SSLeay > 1.55, openssl >= 1.0.1)
                 if ( $alpn_available ) {
-                    $tls_ctx = AnyEvent::TLS->new( method => "TLSv1_2", );
+                    $tls_ctx = AnyEvent::TLS->new( method => "TLSv1_2",
+                        host_name => $host_name );
                     Net::SSLeay::CTX_set_alpn_protos( $tls_ctx->ctx, ['h2'] );
                 }
                 else {
-                    $tls_ctx = AnyEvent::TLS->new();
+                    $tls_ctx = AnyEvent::TLS->new( host_name => $host_name );
                 }
             };
             if ($@) {
@@ -283,7 +323,7 @@ sub do_common {
         port   => 80,
         @_
     );
-    my $true_tls = ($args{scheme} eq 'https' and $alpn_available);
+    my $true_tls = ($args{scheme} eq 'https' and $sni_available);
     
     $args{client} = Protocol::HTTP2::Client->new( upgrade => 0 );
     
@@ -418,13 +458,19 @@ sub do_vhosts {
             descr => 'VHOST001, expect 404 or 421 (using Host:)',
             rc     => 404, 
             path   => '/misdirected', 
-            header => [ 'host' => 'test.example.org' ] 
+            header => [ 'host' => 'noh2.example.org' . $args{port} ] 
         },
         {
-            descr => 'VHOST002, expect 404 or 421 (using :authority)',
-            rc     => 404, 
+            descr => 'VHOST002, expect 421 (using :authority)',
+            rc     => 421, 
             path   => '/misdirected', 
-            authority => 'test.example.org:1234'
+            authority => 'noh2.example.org:' . $args{port}
+        },
+        {
+            descr => 'VHOST003, expect 421 ',
+            rc     => (have_min_apache_version('2.4.18')? 404 : 421), 
+            path   => '/misdirected', 
+            authority => 'test.example.org:' . $args{port}
         },
     ];
         
@@ -441,7 +487,7 @@ sub do_vhosts {
 #
 do_common( 'scheme' => 'http', 'host' => $host, 'port' => $port );
 do_common( 'scheme' => 'https', 'host' => $shost, 'port' => $sport );
-if ($alpn_available) {
-    do_vhosts( 'scheme' => 'https', 'host' => $shost, 'port' => $sport );
+if ($sni_available) {
+    do_vhosts( 'scheme' => 'https', 'host' => $shost, 'port' => $sport, host_name => "$shost:${sport}" );
 }
 
