@@ -6,7 +6,6 @@
     <IfModule http2_module>
 
         LogLevel http2:debug
-        H2Direct on
         
         <VirtualHost h2c>
             Protocols h2c http/1.1
@@ -32,6 +31,7 @@
         
             <VirtualHost localhost:h2>
                 Protocols h2 http/1.1
+                H2Direct on
 
                 SSLEngine on
                 SSLCACertificateFile @SSLCA@/asf/certs/ca.crt
@@ -74,6 +74,7 @@
             
             <VirtualHost test.example.org:h2>
                 Protocols h2 http/1.1
+                H2Direct on
 
                 SSLEngine on
                 SSLCACertificateFile @SSLCA@/asf/certs/ca.crt
@@ -91,6 +92,7 @@
             
             <VirtualHost test2.example.org:h2>
                 Protocols http/1.1 h2
+                H2Direct on
             </VirtualHost>
             
             <VirtualHost test-ser.example.org:h2>
