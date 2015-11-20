@@ -3,6 +3,7 @@ use Socket;
 use strict;
 
 my $socket_path = '/tmp/test-ptf.sock';
+unlink($socket_path);
 my $sock_addr = sockaddr_un($socket_path);
 socket(my $server, PF_UNIX, SOCK_STREAM, 0) || die "socket: $!";
 bind($server, $sock_addr) || die "bind: $!"; 
