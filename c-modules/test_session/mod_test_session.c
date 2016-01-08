@@ -31,8 +31,15 @@
         </Location>
     </IfModule>
     <Location /sessiontest/on/expire>
-        SessionMaxAge 10
+        SessionMaxAge 100
     </Location>
+    <IfModule mod_version.c>
+        <IfVersion >= 2.5.0>
+            <Location /sessiontest/on/expire/cache>
+                SessionExpiryUpdateInterval 50
+            </Location>
+        </IfVersion>
+    </IfModule>
     <Location /sessiontest/on/include>
         SessionInclude /sessiontest/on/include/yes
         SessionExclude /sessiontest/on/include/yes/no

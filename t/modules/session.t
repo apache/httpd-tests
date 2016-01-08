@@ -13,23 +13,37 @@ use Apache::TestUtil;
 my $checks_per_test = 5;
 
 # Session, API, Encoding, SessionEnv, SessionHeader, SessionMaxAge,
-# SessionInclude/Exclude.
-my $num_tests = 2 + 4 + 5 + 2 + 1 + 4 + 3;
+# SessionExpiryUpdateInterval, SessionInclude/Exclude.
+my $num_tests = 2 + 4 + 5 + 2 + 1 + 4 + 7 + 3;
 
-my @todo = [
+my @todo = (
     # Session writable after decode failure - PR 58171
     53, 54,
     # Session writable after expired - PR 56052
     88, 89
-];
+);
+
+# Until the fix for PR 57300 is backported, sessions are always saved.
+if (!have_min_apache_version('2.5')) {
+    my @todo_backport = ( 8, 18, 38, 43, 48, 58, 63, 133 );
+    push(@todo, @todo_backport);
+}
 
 plan tests => $num_tests * $checks_per_test,
-              todo => @todo,
+              todo => \@todo,
               need need_module('session'),
               need_min_apache_version('2.3.0');
 
 # APR time is in microseconds.
 use constant APR_TIME_PER_SEC => 1000000;
+
+# Don't use math ops, the result is too big for 32 Bit Perl
+# Use adding of trailing "0"s instead
+sub expiry_from_seconds
+{
+    my $seconds = shift;
+    return $seconds . "0" x (length(APR_TIME_PER_SEC) - 1);
+}
 
 # check_result(name, res, session, dirty, expiry, response)
 sub check_result
@@ -109,13 +123,13 @@ my $create_session = 'action=set&name=test&value=value';
 my $read_session = 'action=get&name=test';
 
 # Session directive
-check_get 'Session Off', '/';
-check_get 'Session On', '/on', '';
+check_post 'Cannot write session when off', '/', $create_session;
+check_get 'New empty session is not saved', '/on';
 
 # API optional functions
 check_post 'Set session', '/on', $create_session, $session, 1;
 check_post 'Get session', "/on?$session", $read_session,
-    $session, 0, 0, 'value';
+    undef, 0, 0, 'value';
 check_post 'Delete session', "/on?$session", 'action=set&name=test', '', 1;
 check_post 'Edit session', "/on?$session", 'action=set&name=test&value=',
     'test=', 1;
@@ -124,18 +138,18 @@ check_post 'Edit session', "/on?$session", 'action=set&name=test&value=',
 check_post 'Encode session', '/on/encode', $create_session,
     $encoded_session, 1;
 check_post 'Decode session', "/on/encode?$encoded_session", $read_session,
-    $encoded_session, 0, 0, 'value';
-check_get 'Custom decoder failure', "/on/encode?$session", $encoded_prefix;
-check_get 'Identity decoder failure', "/on?&=test", '';
+    undef, 0, 0, 'value';
+check_get 'Custom decoder failure', "/on/encode?$session";
+check_get 'Identity decoder failure', "/on?&=test";
 check_post 'Session writable after decode failure', "/on/encode?$session",
     $create_session, $encoded_session, 1;
 
 # SessionEnv directive - requires mod_include
 if (have_module('include')) {
     check_custom 'SessionEnv Off', GET("/modules/session/env.shtml?$session"),
-        $session, 0, 0, '(none)';
+        undef, 0, 0, '(none)';
     check_get 'SessionEnv On', "/on/env/on/env.shtml?$session",
-        $session, 0, 0, $session;
+        undef, 0, 0, $session;
 }
 else {
     for (1 .. 2 * $checks_per_test) {
@@ -149,9 +163,7 @@ check_custom 'SessionHeader', GET("/sessiontest/on?$session&another=1",
     "$session&another=5&last=7", 1;
 
 # SessionMaxAge directive
-# Don't use math ops, the result is too big for 32 Bit Perl
-# Use adding of trailing "0"s instead
-my $future_expiry = (time() + 100) . "0" x (length(APR_TIME_PER_SEC) - 1);
+my $future_expiry = expiry_from_seconds(time() + 200);
 
 check_get 'SessionMaxAge adds expiry', "/on/expire?$session", $session, 0, 1;
 check_get 'Discard expired session', "/on/expire?$session&expiry=1", '', 0, 1;
@@ -160,7 +172,37 @@ check_get 'Keep non-expired session',
 check_post 'Session writable after expired', '/on/expire?expiry=1',
     $create_session, $session, 1, 1;
 
+# SessionExpiryUpdateInterval directive - new in 2.5
+if (have_module('version') && have_min_apache_version('2.5')) {
+    my $max_expiry = expiry_from_seconds(time() + 100);
+    my $threshold_expiry = expiry_from_seconds(time() + 40);
+
+    check_get 'SessionExpiryUpdateInterval off by default',
+        "/on/expire?$session&expiry=$max_expiry", $session, 0, 1;
+    check_get 'SessionExpiryUpdateInterval skips save',
+        "/on/expire/cache?$session&expiry=$max_expiry";
+    check_post 'Session readable when save skipped',
+        "/on/expire/cache?$session&expiry=$max_expiry", $read_session,
+        undef, 0, 0, 'value';
+    check_post 'Dirty overrides SessionExpiryUpdateInterval',
+        "/on/expire/cache?$session&expiry=$max_expiry", $create_session,
+        $session, 1, 1;
+    check_get 'Old session always updates expiry',
+        "/on/expire/cache?$session&expiry=$threshold_expiry", $session, 0, 1;
+    check_get 'New empty session with expiry not saved', "/on/expire/cache";
+    check_post 'Can create session with SessionExpiryUpdateInterval',
+        "/on/expire/cache", $create_session, $session, 1, 1;
+}
+else {
+    for (1 .. 7 * $checks_per_test) {
+        skip "SessionExpiryUpdateInterval tests require backporting";
+    }
+}
+
 # SessionInclude/Exclude directives
-check_get 'Not in SessionInclude', "/on/include?$session";
-check_get 'SessionInclude', "/on/include/yes?$session", $session;
-check_get 'SessionExclude', "/on/include/yes/no?$session";
+check_post 'Cannot write session when not included',
+    "/on/include?$session", $create_session;
+check_post 'Can read session when included',
+    "/on/include/yes?$session", $read_session, undef, 0, 0, 'value';
+check_post 'SessionExclude overrides SessionInclude',
+    "/on/include/yes/no?$session", $create_session;
