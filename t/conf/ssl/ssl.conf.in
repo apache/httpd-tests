@@ -253,3 +253,8 @@
     </Location>
 
 </IfModule>
+
+<IfModule @ssl_module@>
+    # CTSCTStorage is needed, otherwise mod_ssl_ct does not load
+    CTSCTStorage ssl_ct_storage
+</IfModule>
