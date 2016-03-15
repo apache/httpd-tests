@@ -234,6 +234,9 @@
         ## Proxy and QSA
         RewriteRule ^proxy-qsa.html$ http://@SERVERNAME@:@PORT@/modules/cgi/env.pl?foo=bar [QSA,L,P]
 
+        ## Redirect, directory context
+        RewriteRule ^redirect-dir.html$ http://@SERVERNAME@:@PORT@/foobar.html [L,R=301]
+
     </Directory>
 
     ### Proxy pass-through to env.pl
@@ -242,6 +245,9 @@
     ### Pass-through conditional on QUERY_STRING
     RewriteCond %{QUERY_STRING} horse=trigger
     RewriteRule ^/modules/rewrite/proxy3/(.*)$ http://@SERVERNAME@:@PORT@/modules/cgi/$1 [L,P]
+
+    ### Redirect, server context
+    RewriteRule ^/modules/rewrite/redirect.html$ http://@SERVERNAME@:@PORT@/foobar.html [L,R=301]
 
    <VirtualHost cve_2011_3368_rewrite>
       DocumentRoot @SERVERROOT@/htdocs/modules/proxy

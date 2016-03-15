@@ -12,10 +12,19 @@ use Apache::TestUtil;
 my @map = qw(txt rnd prg); #dbm XXX: howto determine dbm support is available?
 my @num = qw(1 2 3 4 5 6);
 my @url = qw(forbidden gone perm temp);
-my @todo = ();
+my @todo;
 my $r;
 
-plan tests => @map * @num + 11, todo => \@todo, need_module 'rewrite';
+if (!have_min_apache_version('2.5')) {
+    # PR 50447, server context
+    push @todo, 26
+}
+if (!have_min_apache_version('2.4')) {
+    # PR 50447, directory context (r1044673)
+    push @todo, 24
+}
+
+plan tests => @map * @num + 15, todo => \@todo, need_module 'rewrite';
 
 foreach (@map) {
     foreach my $n (@num) {
@@ -57,6 +66,19 @@ ok ($r eq "JACKPOT");
 $r = GET_BODY("/modules/rewrite/qsa.html?baz=bee");
 chomp $r;
 ok t_cmp($r, qr/\nQUERY_STRING = foo=bar\&baz=bee\n/s, "query-string append test");
+
+# PR 50447 (double URL-escaping of the query string)
+my $hostport = Apache::TestRequest::hostport();
+
+$r = GET("/modules/rewrite/redirect-dir.html?q=%25", redirect_ok => 0);
+ok t_cmp($r->code, 301, "per-dir redirect response code is OK");
+ok t_cmp($r->header("Location"), "http://$hostport/foobar.html?q=%25",
+         "per-dir query-string escaping is OK");
+
+$r = GET("/modules/rewrite/redirect.html?q=%25", redirect_ok => 0);
+ok t_cmp($r->code, 301, "redirect response code is OK");
+ok t_cmp($r->header("Location"), "http://$hostport/foobar.html?q=%25",
+         "query-string escaping is OK");
 
 if (have_module('mod_proxy')) {
     $r = GET_BODY("/modules/rewrite/proxy.html");
