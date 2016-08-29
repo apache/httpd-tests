@@ -970,7 +970,7 @@ LimitRequestFields    32
   <IfVersion >= 2.5.0>
     <VirtualHost _default_:http_strict>
       DocumentRoot @SERVERROOT@/htdocs/
-      HttpProtocolOptions Strict Require1.0 StrictWhitespace RegisteredMethods
+      HttpProtocolOptions Strict StrictURI Require1.0 RegisteredMethods
       <Directory @SERVERROOT@/htdocs/apache/http_strict>
         Options +ExecCGI
         AddHandler cgi-script .pl
