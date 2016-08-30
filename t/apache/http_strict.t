@@ -14,7 +14,7 @@ use Data::Dumper;
 
 my @test_cases = (
     [ "GET / HTTP/1.0\r\n\r\n"                      => 1],
-    [ "GET / HTTP/1.0\n\n"                          => 1],
+    [ "GET / HTTP/1.0\n\n"                          => 400],
     [ "get / HTTP/1.0\r\n\r\n"                      => 501],
     [ "G ET / HTTP/1.0\r\n\r\n"                     => 400],
     [ "G\0ET / HTTP/1.0\r\n\r\n"                    => 400],
@@ -22,6 +22,7 @@ my @test_cases = (
     [ "GET /\0 HTTP/1.0\r\n\r\n"                    => 400],
     [ "GET / HTTP/1.0\0\r\n\r\n"                    => 400],
     [ "GET / HTT/1.0\r\n\r\n"                       => 0],
+    [ "GET / HTTP/1.0\r\nHost: localhost\r\n\r\n"   => 1],
     [ "GET / HTTP/2.0\r\nHost: localhost\r\n\r\n"   => 1],
     [ "GET / HTTP/1.2\r\nHost: localhost\r\n\r\n"   => 1],
     [ "GET / HTTP/1.11\r\nHost: localhost\r\n\r\n"  => 400],
