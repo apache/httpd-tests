@@ -6,14 +6,14 @@ use Apache::TestUtil;
 use Apache::TestRequest;
 
 my %headers = (
-               "Hello:World\n" => ["Hello", "World"],
-#              "Hello  :  World\n" => ["Hello", "World"],
-#              "Hello  :  World   \n" => ["Hello", "World"],
-#              "Hello \t :  World  \n" => ["Hello", "World"],
-               "Hello: Foo\n Bar\n" => ["Hello", "Foo Bar"],
-               "Hello: Foo\n\tBar\n" => ["Hello", "Foo Bar"],
-               "Hello: Foo\n    Bar\n" => ["Hello", qr/Foo +Bar/],
-               "Hello: Foo \n Bar\n" => ["Hello", qr/Foo +Bar/],
+               "Hello:World\r\n" => ["Hello", "World"],
+#              "Hello  :  World\r\n" => ["Hello", "World"],
+#              "Hello  :  World   \r\n" => ["Hello", "World"],
+#              "Hello \t :  World  \r\n" => ["Hello", "World"],
+               "Hello: Foo\r\n Bar\r\n" => ["Hello", "Foo Bar"],
+               "Hello: Foo\r\n\tBar\r\n" => ["Hello", "Foo Bar"],
+               "Hello: Foo\r\n    Bar\r\n" => ["Hello", qr/Foo +Bar/],
+               "Hello: Foo \r\n Bar\r\n" => ["Hello", qr/Foo +Bar/],
                );
 
 my $uri = "/modules/cgi/env.pl";

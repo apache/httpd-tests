@@ -84,21 +84,21 @@ for my $data (@test_strings) {
 
     my @elts = split("::", $data);
 
-    $sock->print("POST $request_uri HTTP/1.0\n");
-    $sock->print("Transfer-Encoding: chunked\n");
-    $sock->print("\n");
+    $sock->print("POST $request_uri HTTP/1.0\r\n");
+    $sock->print("Transfer-Encoding: chunked\r\n");
+    $sock->print("\r\n");
     if (@elts > 1) {
         for my $elt (@elts) {
             $sock->print("$elt");
             sleep 0.5;
         }
-        $sock->print("\n");
+        $sock->print("\r\n");
     }
     else {
-        $sock->print("$data\n");
+        $sock->print("$data\r\n");
     }
-    $sock->print("X-Chunk-Trailer: $$\n");
-    $sock->print("\n");
+    $sock->print("X-Chunk-Trailer: $$\r\n");
+    $sock->print("\r\n");
 
     #Read the status line
     chomp(my $response = Apache::TestRequest::getline($sock));

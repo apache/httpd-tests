@@ -55,10 +55,10 @@ for my $data (@test_strings) {
 
     Apache::TestRequest::socket_trace($sock);
 
-    $sock->print("POST $request_uri HTTP/1.0\n");
-    $sock->print("Content-Length: $data\n");
-    $sock->print("\n");
-    $sock->print("\n");
+    $sock->print("POST $request_uri HTTP/1.0\r\n");
+    $sock->print("Content-Length: $data\r\n");
+    $sock->print("\r\n");
+    $sock->print("\r\n");
 
     # Read the status line
     chomp(my $response = Apache::TestRequest::getline($sock) || '');
