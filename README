@@ -130,7 +130,15 @@ this to make life easier for others.
 5. If you see failures in the modules/h2.t test cases, please notify the dev
    mailing list with a description of your setup. These tests are quite young,
    currently only valid in 2.4.x and later and interact with quite some other
-   modules as well as Openssl versions installed.
+   modules as well as Openssl versions installed. Some tests require mod_ssl
+   so make sure to load it in the httpd conf.
+6. Segmentation faults and core dumps occurring while executing the test suite
+   might indicate a real problem but always run again the tests after
+   a clean make install to avoid inconsistencies from old objects.
+7. If you see error messages like "Parse errors: Bad plan.
+   You planned X tests but ran Y." it usually means that you are missing
+   a perl module or the tested httpd module depends on another one
+   not loaded in the httpd config.
 
 
 Smoking Tests
@@ -156,7 +164,7 @@ via APACHE_TEST_SEED environment variable.
 By adding the option -order=repeat, the tests will be run in
 alphabetical order.
 
-Combining these two important smoke testing techiques, one can run
+Combining these two important smoke testing techniques, one can run
 tests with:
 
     t/SMOKE -times=N -order=(repeat|random)
@@ -199,7 +207,7 @@ Apache::TestConfig access apache_test_config.pm and returns a hash
 reference with all the information.  Look through
 apache_test_config.pm, it's a lot of stuff.  Once these conf files are
 generated, you have a working test environment, and they must be
-'cleaned' if you wish to make chages to them.  To clean the
+'cleaned' if you wish to make changes to them.  To clean the
 environment:
 	t/TEST -clean
 (Now you will have to specify your httpd binary when starting back up
