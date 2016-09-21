@@ -979,4 +979,24 @@ LimitRequestFields    32
   </IfVersion>
 </IfDefine>
 
+#
+# mod_brotli test config
+#
+<IfDefine APACHE2>
+  <IfModule mod_alias.c>
+    <IfModule mod_brotli.c>
+        # Reuse existing data for mod_deflate
+        Alias /only_brotli @SERVERROOT@/htdocs/modules/deflate
+        <Location /only_brotli>
+          SetOutputFilter BROTLI_COMPRESS
+        </Location>
 
+        <IfModule mod_deflate.c>
+          Alias /brotli_and_deflate @SERVERROOT@/htdocs/modules/deflate
+          <Location /brotli_and_deflate>
+            SetOutputFilter BROTLI_COMPRESS;DEFLATE
+          </Location>
+        </IfModule>
+    </IfModule>
+  </IfModule>
+</IfDefine>
