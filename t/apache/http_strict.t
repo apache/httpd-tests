@@ -100,7 +100,7 @@ my @test_cases = (
     # XXX ap_scan_script_header() eats the \r
     #[ "R" . "F\roo: bar"                => 500 ],
     #[ "R" . "Foo: bar\rBaz: h"          => 500 ],
-    [ "R" . "Foo: b\tar"                => 500 ], # ?
+    [ "R" . "Foo: b\tar"                => 200 ],
     [ "R" . "Foo: b\x01ar"              => 500 ],
 
     [ "R" . "Location: http://foo/"     => 1   ],
