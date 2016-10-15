@@ -5,7 +5,9 @@ use Apache::Test;
 use Apache::TestUtil;
 use Apache::TestRequest;
 
-my %headers = (
+my %headers;
+if (have_min_apache_version("2.5.0")) {
+    %headers = (
                "Hello:World\r\n" => ["Hello", "World"],
 #              "Hello  :  World\r\n" => ["Hello", "World"],
 #              "Hello  :  World   \r\n" => ["Hello", "World"],
@@ -15,6 +17,19 @@ my %headers = (
                "Hello: Foo\r\n    Bar\r\n" => ["Hello", qr/Foo +Bar/],
                "Hello: Foo \r\n Bar\r\n" => ["Hello", qr/Foo +Bar/],
                );
+}
+else {
+    %headers = (
+               "Hello:World\n" => ["Hello", "World"],
+               "Hello  :  World\n" => ["Hello", "World"],
+               "Hello  :  World   \n" => ["Hello", "World"],
+               "Hello \t :  World  \n" => ["Hello", "World"],
+               "Hello: Foo\n Bar\n" => ["Hello", "Foo Bar"],
+               "Hello: Foo\n\tBar\n" => ["Hello", "Foo\tBar"],
+               "Hello: Foo\n    Bar\n" => ["Hello", qr/Foo +Bar/],
+               "Hello: Foo \n Bar\n" => ["Hello", qr/Foo +Bar/],
+               );
+}
 
 my $uri = "/modules/cgi/env.pl";
 
