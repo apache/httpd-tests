@@ -103,16 +103,6 @@ my @test_cases = (
     [ "R" . "Foo: b\tar"                => 200 ],
     [ "R" . "Foo: b\x01ar"              => 500 ],
 
-    [ "R" . "Location: http://foo/"     => 1   ],
-    [ "R" . "Location: h ttp://foo/"    => 500 ],
-    [ "R" . "Location: ../http://foo/"  => 500 ],
-    [ "R" . "Location: git+ssh://foo/"  => 1   ],
-    [ "R" . "Location: A-x.y://foo/"    => 1   ],
-    [ "R" . "Location: http:foo/"       => 500 ],
-    [ "R" . "Location: foo"             => 500 ],
-    [ "R" . "Location: :"               => 500 ],
-    [ "R" . "Location: ../foo/"         => 500 ],
-    [ "R" . "Location:  ../foo/"        => 500 ],
 );
 
 plan tests => scalar(@test_cases),
