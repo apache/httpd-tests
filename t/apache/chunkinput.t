@@ -11,60 +11,33 @@ my @test_strings = ("0",
                     "A    \r\n1234567890\r\n0",        # <10 BWS
                     "A :: :: :: \r\n1234567890\r\n0",  # <10 BWS multiple send
                     "A           \r\n1234567890\r\n0", # >10 BWS
-                    "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
+                    "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA\r\n",
                     "A; ext=\x7Fval\r\n1234567890\r\n0",
                     " A",
                     );
 my @req_strings =  ("/echo_post_chunk",
                     "/i_do_not_exist_in_your_wildest_imagination");
 
-# This is expanded out.
-# Apache 2.0 handles this test more correctly than Apache 1.3. 
-# 1.3 returns 400 Bad Request in this case and it is not worth 
-# changing 1.3s behaviour.
-my @resp_strings;
-if (have_apache(1)) {
-   @resp_strings = ("HTTP/1.1 200 OK",
+# This is expanded out as these results...
+my @resp_strings = ("HTTP/1.1 200 OK",        # "0"
                     "HTTP/1.1 404 Not Found",
-                    "HTTP/1.1 200 OK",
+                    "HTTP/1.1 200 OK",        # "A"
                     "HTTP/1.1 404 Not Found",
-                    "HTTP/1.1 200 OK",
+                    "HTTP/1.1 200 OK",        # "A; ext=val"
                     "HTTP/1.1 404 Not Found",
-                    "HTTP/1.1 200 OK",
+                    "HTTP/1.1 200 OK",        # "A    "
                     "HTTP/1.1 404 Not Found",
-                    "HTTP/1.1 200 OK",
-                    "HTTP/1.1 404 Not Found",
+                    "HTTP/1.1 400 Bad Request", # "A :: :: :: "
                     "HTTP/1.1 400 Bad Request",
+                    "HTTP/1.1 400 Bad Request", # >10 BWS
                     "HTTP/1.1 400 Bad Request",
-                    "HTTP/1.1 400 Bad Request",
-                    "HTTP/1.1 400 Bad Request",
-                    "HTTP/1.1 400 Bad Request",
-                    "HTTP/1.1 400 Bad Request",
-                    "HTTP/1.1 400 Bad Request",
-                    "HTTP/1.1 400 Bad Request",
-		   );
-} 
-else {
-   @resp_strings = ("HTTP/1.1 200 OK",
-                    "HTTP/1.1 404 Not Found",
-                    "HTTP/1.1 200 OK",
-                    "HTTP/1.1 404 Not Found",
-                    "HTTP/1.1 200 OK",
-                    "HTTP/1.1 404 Not Found",
-                    "HTTP/1.1 200 OK",
-                    "HTTP/1.1 404 Not Found",
-                    "HTTP/1.1 200 OK",
-                    "HTTP/1.1 404 Not Found",
-                    "HTTP/1.1 400 Bad Request",
-                    "HTTP/1.1 400 Bad Request",
+                    "HTTP/1.1 413 Request Entity Too Large", # Overflow size
                     "HTTP/1.1 413 Request Entity Too Large",
-                    "HTTP/1.1 413 Request Entity Too Large",
+                    "HTTP/1.1 400 Bad Request",    # Ctrl in data
                     "HTTP/1.1 400 Bad Request",
-                    "HTTP/1.1 400 Bad Request",
-                    "HTTP/1.1 400 Bad Request",
+                    "HTTP/1.1 400 Bad Request",    # Invalid LWS
                     "HTTP/1.1 400 Bad Request",
                    );
-}
 
 my $tests = 4 * @test_strings + 1;
 my $vars = Apache::Test::vars();
