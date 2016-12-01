@@ -6,16 +6,16 @@ use Apache::TestUtil;
 use Apache::TestRequest;
 
 my %headers;
-if (have_min_apache_version("2.5.0")) {
+if (have_min_apache_version("2.4.24")) {
     %headers = (
                "Hello:World\r\n" => ["Hello", "World"],
-#              "Hello  :  World\r\n" => ["Hello", "World"],
-#              "Hello  :  World   \r\n" => ["Hello", "World"],
-#              "Hello \t :  World  \r\n" => ["Hello", "World"],
+               "Hello:  World\r\n" => ["Hello", "World"],
+               "Hello:  World   \r\n" => ["Hello", "World"],
+               "Hello:  World \t \r\n" => ["Hello", "World"],
                "Hello: Foo\r\n Bar\r\n" => ["Hello", "Foo Bar"],
                "Hello: Foo\r\n\tBar\r\n" => ["Hello", "Foo Bar"],
-               "Hello: Foo\r\n    Bar\r\n" => ["Hello", qr/Foo +Bar/],
-               "Hello: Foo \r\n Bar\r\n" => ["Hello", qr/Foo +Bar/],
+               "Hello: Foo\r\n    Bar\r\n" => ["Hello", "Foo Bar"],
+               "Hello: Foo \t \r\n Bar\r\n" => ["Hello", "Foo Bar"],
                );
 }
 else {
