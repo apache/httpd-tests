@@ -27,8 +27,8 @@ my @resp_strings = ("HTTP/1.1 200 OK",        # "0"
                     "HTTP/1.1 404 Not Found",
                     "HTTP/1.1 200 OK",        # "A    "
                     "HTTP/1.1 404 Not Found",
-                    "HTTP/1.1 400 Bad Request", # "A :: :: :: "
-                    "HTTP/1.1 400 Bad Request",
+                    "HTTP/1.1 200 OK",        # "A " + " " + " "  + " " pkts 
+                    "HTTP/1.1 404 Not Found",
                     "HTTP/1.1 400 Bad Request", # >10 BWS
                     "HTTP/1.1 400 Bad Request",
                     "HTTP/1.1 413 Request Entity Too Large", # Overflow size
