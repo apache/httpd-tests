@@ -16,6 +16,7 @@ if (have_min_apache_version("2.4.24")) {
                "Hello: Foo\r\n\tBar\r\n" => ["Hello", "Foo Bar"],
                "Hello: Foo\r\n    Bar\r\n" => ["Hello", "Foo Bar"],
                "Hello: Foo \t \r\n Bar\r\n" => ["Hello", "Foo Bar"],
+               "Hello: Foo\r\n  \t Bar\r\n" => ["Hello", "Foo Bar"],
                );
 }
 else {
