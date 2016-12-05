@@ -1000,3 +1000,44 @@ LimitRequestFields    32
     </IfModule>
   </IfModule>
 </IfDefine>
+
+#
+# <IfFile> test config (see t/apache/iffile.t)
+#
+<IfDefine APACHE2>
+  <IfVersion >= 2.5.0>
+  <IfModule mod_headers.c>
+
+    <Location /apache/iffile>
+      # First, the IfFiles that should succeed.
+      <IfFile htdocs/apache/iffile/document>
+        Header merge X-Out success1
+      </IfFile>
+      <IfFile !htdocs/apache/iffile/doesnotexist>
+        Header merge X-Out success2
+      </IfFile>
+      <IfFile htdocs/apache/iffile>
+        Header merge X-Out success3
+      </IfFile>
+      <IfFile @SERVERROOT@/htdocs/apache/iffile/document>
+        Header merge X-Out success4
+      </IfFile>
+
+      # Followed by the IfFiles that should fail.
+      <IfFile !htdocs/apache/iffile/document>
+        Header merge X-Out fail1
+      </IfFile>
+      <IfFile htdocs/apache/iffile/doesnotexist>
+        Header merge X-Out fail2
+      </IfFile>
+      <IfFile !htdocs/apache/iffile>
+        Header merge X-Out fail3
+      </IfFile>
+      <IfFile !@SERVERROOT@/htdocs/apache/iffile/document>
+        Header merge X-Out fail4
+      </IfFile>
+    </Location>
+
+  </IfModule>
+  </IfVersion>
+</IfDefine>
