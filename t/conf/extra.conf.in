@@ -977,8 +977,10 @@ LimitRequestFields    32
       </Directory>
       <IfModule mod_headers.c>
         <Location /regression-header>
+          # Use two examples to ensure multiple bad headers are caught
           # Note the vertical tab (^K or 0x0B) embedded in the header value
           Header always set X-Bad "verticaltab"
+          Header always set X?Bad "badly named header"
         </Location>
       </IfModule>
    </VirtualHost>
