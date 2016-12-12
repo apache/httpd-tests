@@ -106,7 +106,8 @@ my @test_cases = (
     #
     # implementation regression tests
     #
-    # `Header always set <bad value>` should not cause a recursion loop
+    # `Header always set <bad value>` followed by a <bad field name>
+    # should not cause a recursion loop
     [ "GET /regression-header HTTP/1.1\r\nHost: localhost\r\n\r\n" => 500, have_module qw(mod_headers) ],
 );
 
