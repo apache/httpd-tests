@@ -80,6 +80,8 @@ my @test_cases = (
     # $0 .. $9 are only populated if there are capturing parens
     [ q[ 'abc' =~ /bc/ && $0 == '' ]                    => 1 ],
     [ q[ 'abc' =~ /(bc)/ && 'xy' =~ /x/ && $0 == 'bc' ] => 1 ],
+    # Attempt to blow up when more matches are present than 'typical' $0 .. $9 
+    [ q[ 'abcdefghijklm' =~ /(b)(c)(d)(e)(f)(g)(h)(i)(j)(k)(l)/ && $2 == 'c' ] => 1 ],
     # variables
     [ q[%{TIME_YEAR} =~ /^\d{4}$/]               => 1 ],
     [ q[%{TIME_YEAR} =~ /^\d{3}$/]               => 0 ],
