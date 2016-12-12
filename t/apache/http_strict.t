@@ -103,6 +103,11 @@ my @test_cases = (
     [ "R" . "Foo: b\tar"                => 200 ],
     [ "R" . "Foo: b\x01ar"              => 500 ],
 
+    #
+    # implementation regression tests
+    #
+    # `Header always set <bad value>` should not cause a recursion loop
+    [ "GET /regression-header HTTP/1.1\r\nHost: localhost\r\n\r\n" => 500, have_module qw(mod_headers) ],
 );
 
 plan tests => scalar(@test_cases),
@@ -112,6 +117,7 @@ plan tests => scalar(@test_cases),
 foreach my $t (@test_cases) {
     my $req = $t->[0];
     my $expect = $t->[1];
+    my $cond = $t->[2];
     my $decoded;
 
     if ($req =~ s/^R//) {
@@ -121,6 +127,12 @@ foreach my $t (@test_cases) {
         $req = "GET /apache/http_strict/send_hdr.pl?$q HTTP/1.0\r\n\r\n";
     }
 
+    if (defined $cond && not $cond) {
+        $req = escape($req);
+        print "# SKIPPING:\n# $req\n";
+        skip "Test prerequisites are not met";
+        next;
+    }
 
     my $sock = Apache::TestRequest::vhost_socket("http_strict");
     if (!$sock) {
