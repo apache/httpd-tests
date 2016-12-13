@@ -1049,3 +1049,29 @@ LimitRequestFields    32
   </IfModule>
   </IfVersion>
 </IfDefine>
+
+
+#
+# t/modules/ext_filter.t test config
+#
+<IfDefine APACHE2>
+  <IfModule mod_ext_filter.c>
+    ExtFilterDefine foo-to-bar mode=output cmd="/bin/sed s,foo,bar,g"
+    ExtFilterDefine ifoo-to-bar mode=input cmd="/bin/sed s,foo,bar,g"
+    AliasMatch /apache/extfilter/[^/]+/(.*) @DocumentRoot@/$1
+
+    <Location /apache/extfilter/out-foo>
+       SetOutputFilter foo-to-bar
+    </Location>
+
+    <Location /apache/extfilter/in-foo>
+       SetInputFilter ifoo-to-bar
+    </Location>
+
+    <Location /apache/extfilter/out-limit>
+       SetOutputFilter foo-to-bar
+       LimitRequestBody 6
+    </Location>
+
+</IfModule>
+</IfDefine>
