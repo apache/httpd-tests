@@ -24,7 +24,7 @@ if (!have_min_apache_version('2.4')) {
     push @todo, 24
 }
 
-plan tests => @map * @num + 15, todo => \@todo, need_module 'rewrite';
+plan tests => @map * @num + 16, todo => \@todo, need_module 'rewrite';
 
 foreach (@map) {
     foreach my $n (@num) {
@@ -114,3 +114,7 @@ if (have_module('mod_proxy') && have_cgi) {
 } else {
     skip "Skipping rewrite QUERY_STRING test; missing proxy or CGI module" foreach (1..5);
 }
+
+# See PR 60478 and the corresponding config in extra.conf
+$r = GET("/modules/rewrite/pr60478-rewrite-loop/a/X/b/c");
+ok t_cmp($r->code, 500, "PR 60478 rewrite loop is halted");

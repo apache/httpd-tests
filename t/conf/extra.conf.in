@@ -255,6 +255,16 @@
       RewriteRule (.*) http://localhost$1 [P]
    </VirtualHost>
 
+   # PR60478: pathological rewrite expansion
+   <Location /modules/rewrite/pr60478-rewrite-loop>
+      # This pair of RewriteRules will loop but should eventually 500 once we
+      # reach LimitRequestLine * 2 bytes. (In this case, 128 * 2 = 256.)
+      RewriteRule ^(.*)X(.*)$ $1x$2
+      # Don't run the test machine out of memory on failure, just stop the loop
+      RewriteCond expr "util_strlen(%{REQUEST_FILENAME}) -lt 257"
+      RewriteRule X - [N]
+   </Location>
+
 </IfModule>
 
 
