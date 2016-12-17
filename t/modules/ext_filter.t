@@ -14,7 +14,7 @@ plan tests => $tests, need
     need_module('ext_filter'), need_cgi;
 
 if (Apache::TestConfig::WINFU() || ! -x "/usr/bin/sed") {
-    skip "needs Unix and executable /usr/bin/sed" foreach 1..$tests;
+    skip "needs Unix and executable /usr/bin/sed" foreach 1..$tests; exit;
 }
 
 my $content = GET_BODY("/apache/extfilter/out-foo/foobar.html");
