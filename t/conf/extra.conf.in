@@ -1066,8 +1066,8 @@ LimitRequestFields    32
 #
 <IfDefine APACHE2>
   <IfModule mod_ext_filter.c>
-    ExtFilterDefine foo-to-bar mode=output cmd="/usr/bin/sed s,foo,bar,g"
-    ExtFilterDefine ifoo-to-bar mode=input cmd="/usr/bin/sed s,foo,bar,g"
+    ExtFilterDefine foo-to-bar mode=output cmd="@SERVERROOT@/htdocs/modules/ext_filter/eval-cmd.pl s,foo,bar,g"
+    ExtFilterDefine ifoo-to-bar mode=input cmd="@SERVERROOT@/htdocs/modules/ext_filter/eval-cmd.pl s,foo,bar,g"
     ExtFilterDefine sleepy-cat-out mode=output cmd=@SERVERROOT@/htdocs/modules/ext_filter/sleepycat.pl
     ExtFilterDefine sleepy-cat-in mode=input cmd=@SERVERROOT@/htdocs/modules/ext_filter/sleepycat.pl
     AliasMatch /apache/extfilter/[^/]+/(.*) @DocumentRoot@/$1
