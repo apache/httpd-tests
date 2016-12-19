@@ -122,6 +122,10 @@ foreach my $t (@test_cases) {
     my $decoded;
 
     if ($req =~ s/^R//) {
+        if (!have_cgi) {
+            skip "Skipping test without CGI module";
+            next;
+        }
         $decoded = $req;
         my $q = encode_base64($decoded);
         chomp $q;
