@@ -256,6 +256,7 @@
    </VirtualHost>
 
    # PR60478: pathological rewrite expansion
+   <IfVersion >= 2.4>
    <Location /modules/rewrite/pr60478-rewrite-loop>
       # This pair of RewriteRules will loop but should eventually 500 once we
       # reach LimitRequestLine * 2 bytes. (In this case, 128 * 2 = 256.)
@@ -264,6 +265,7 @@
       RewriteCond expr "util_strlen(%{REQUEST_FILENAME}) -lt 257"
       RewriteRule X - [N]
    </Location>
+   </IfVersion>
 
 </IfModule>
 

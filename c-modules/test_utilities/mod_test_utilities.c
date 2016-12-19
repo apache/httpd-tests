@@ -1,9 +1,9 @@
+#define HTTPD_TEST_REQUIRE_APACHE 2.4
+
 /**
  * This module provides utility functions for other tests; it doesn't provide
  * test cases of its own.
  */
-
-#define HTTPD_TEST_REQUIRE_APACHE 2
 
 #define APACHE_HTTPD_TEST_EXTRA_HOOKS util_register_hooks
 #include "apache_httpd_test.h"

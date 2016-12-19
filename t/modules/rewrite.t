@@ -115,6 +115,10 @@ if (have_module('mod_proxy') && have_cgi) {
     skip "Skipping rewrite QUERY_STRING test; missing proxy or CGI module" foreach (1..5);
 }
 
-# See PR 60478 and the corresponding config in extra.conf
-$r = GET("/modules/rewrite/pr60478-rewrite-loop/a/X/b/c");
-ok t_cmp($r->code, 500, "PR 60478 rewrite loop is halted");
+if (have_min_apache_version('2.4')) {
+    # See PR 60478 and the corresponding config in extra.conf
+    $r = GET("/modules/rewrite/pr60478-rewrite-loop/a/X/b/c");
+    ok t_cmp($r->code, 500, "PR 60478 rewrite loop is halted");
+} else {
+    skip "Skipping PR 60478 test; requires ap_expr in version 2.4"
+}
