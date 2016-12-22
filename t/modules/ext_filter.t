@@ -8,6 +8,10 @@ use Apache::TestUtil;
 Apache::TestRequest::user_agent(keep_alive => 1);
 
 my $iters = 10;
+if (!have_min_apache_version("2.4.0")) { 
+  # Not interested in 2.2
+  $iters = 0;
+}
 my $tests = 4 + $iters * 2;
 
 plan tests => $tests, need 
@@ -24,6 +28,8 @@ ok t_cmp($content, "foobar", "slow filter process");
 my $r = POST "/apache/extfilter/in-foo/modules/cgi/perl_echo.pl", content => "foobar\n";
 ok t_cmp($r->code, 200, "echo worked");
 ok t_cmp($r->content, "barbar\n", "request body filtered");
+
+
 
 # PR 60375 -- appears to be intermittent failure with 2.4.x ... but works with trunk?
 foreach (1..$iters) {
