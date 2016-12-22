@@ -41,7 +41,12 @@ if ($have_sslrequire_oid) {
 
     ok GET_RC($url, cert => undef) != 200;
 
-    ok GET_RC($url, cert => 'client_ok') == 200;
+    if (!have_min_apache_version("2.4.0")) { 
+       skip "not backported, see 2.2.19 vote thread for analysis";
+    }
+    else { 
+        ok GET_RC($url, cert => 'client_ok') == 200;
+    }
 
     ok GET_RC($url, cert => 'client_snakeoil') != 200;
 
