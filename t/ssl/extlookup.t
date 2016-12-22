@@ -8,9 +8,12 @@ use Apache::TestUtil;
 Apache::TestRequest::scheme("https");
 
 my %exts = (
-   "2.16.840.1.113730.1.13" => "This Is A Comment",
-   "1.3.6.1.4.1.18060.12.0" => "Lemons",
+   "2.16.840.1.113730.1.13" => "This Is A Comment"
 );
+
+if (have_min_apache_version("2.4.0")) { 
+   $exts{"1.3.6.1.4.1.18060.12.0"} = "Lemons",
+}
 
 plan tests => 2 * (keys %exts), need 'test_ssl', need_min_apache_version(2.1);
 
