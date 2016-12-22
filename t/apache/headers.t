@@ -6,7 +6,17 @@ use Apache::TestUtil;
 use Apache::TestRequest;
 
 my %headers;
-if (have_min_apache_version("2.4.24")) {
+
+my $hasfix = 0;
+if (have_min_apache_version("2.4.0")) { 
+  if (have_min_apache_version("2.4.24")) { 
+    $hasfix = 1;
+  }
+}
+elsif (have_min_apache_version("2.2.32")) {
+    $hasfix = 1;
+}
+if ($hasfix) { 
     %headers = (
                "Hello:World\r\n" => ["Hello", "World"],
                "Hello:  World\r\n" => ["Hello", "World"],

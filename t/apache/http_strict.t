@@ -113,7 +113,7 @@ my @test_cases = (
 
 plan tests => scalar(@test_cases),
 #    todo => [25, 26],
-     need_min_apache_version('2.4.24');
+     need_min_apache_version('2.2.32');
 
 foreach my $t (@test_cases) {
     my $req = $t->[0];

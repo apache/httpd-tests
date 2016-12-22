@@ -979,7 +979,7 @@ LimitRequestFields    32
 # Strict HTTP mode test config
 #
 <IfDefine APACHE2>
-  <IfVersion >= 2.4.24>
+  <IfVersion >= 2.2.23>
     <VirtualHost _default_:http_strict>
       DocumentRoot @SERVERROOT@/htdocs/
       HttpProtocolOptions Strict Require1.0 RegisteredMethods
