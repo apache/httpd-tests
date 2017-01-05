@@ -111,7 +111,9 @@ my @test_cases = (
     [ "GET /regression-header HTTP/1.1\r\nHost: localhost\r\n\r\n" => 500, have_module qw(mod_headers) ],
 );
 
-plan tests => scalar(@test_cases),
+my $test_fold = need_min_apache_fix("2.2.33", "2.4.26", "2.5.0");
+
+plan tests => scalar(@test_cases) + $test_fold,
 #    todo => [25, 26],
      need_min_apache_version('2.2.32');
 
@@ -189,6 +191,18 @@ foreach my $t (@test_cases) {
     else {
         print "# expecting error, got ", $rc, "\n";
         ok ($rc >= 400);
+    }
+}
+
+
+if ($test_fold) { 
+    my $resp;
+    my $foo;
+    $resp = GET("/fold");
+    $foo = $resp->header("Foo");
+    ok ($resp->code == 200);
+    if(defined($foo)) { 
+        ok ($foo =~ /Bar Baz/);
     }
 }
 
