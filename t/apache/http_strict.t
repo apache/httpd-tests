@@ -201,9 +201,7 @@ if ($test_fold) {
     $resp = GET("/fold");
     $foo = $resp->header("Foo");
     ok ($resp->code == 200);
-    if(defined($foo)) { 
-        ok ($foo =~ /Bar Baz/);
-    }
+    ok (defined($foo) && $foo =~ /Bar Baz/);
 }
 
 sub escape
