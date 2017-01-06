@@ -113,7 +113,7 @@ my @test_cases = (
 
 my $test_fold = need_min_apache_fix("2.2.33", "2.4.26", "2.5.0");
 
-plan tests => scalar(@test_cases) + $test_fold,
+plan tests => scalar(@test_cases) + $test_fold * 2,
 #    todo => [25, 26],
      need_min_apache_version('2.2.32');
 
