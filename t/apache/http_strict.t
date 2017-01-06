@@ -113,7 +113,7 @@ my @test_cases = (
 
 my $test_fold = need_min_apache_fix("2.2.33", "2.4.26", "2.5.0");
 
-plan tests => scalar(@test_cases) + $test_fold * 3,
+plan tests => scalar(@test_cases) + $test_fold,
 #    todo => [25, 26],
      need_min_apache_version('2.2.32');
 
@@ -135,13 +135,12 @@ foreach my $t (@test_cases) {
     }
 
     if (defined $cond && not $cond) {
-        print "# SKIPPING:\n# ", escape($req), "\n";
+        $req = escape($req);
+        print "# SKIPPING:\n# $req\n";
         skip "Test prerequisites are not met";
         next;
     }
 
-    print "# SENDING:\n# ", escape($req), "\n";
-    print "# DECODED: ", escape($decoded), "\n" if $decoded;
     my $sock = Apache::TestRequest::vhost_socket("http_strict");
     if (!$sock) {
         print "# failed to connect\n";
@@ -151,6 +150,9 @@ foreach my $t (@test_cases) {
     $sock->print($req);
     $sock->shutdown(1);
     sleep(0.1);
+    $req = escape($req);
+    print "# SENDING:\n# $req\n";
+    print "# DECODED: " . escape($decoded) . "\n" if $decoded;
 
     my $response_data = "";
     my $buf;
@@ -160,7 +162,9 @@ foreach my $t (@test_cases) {
     my $response = HTTP::Response->parse($response_data);
     if ($decoded) {
         $response_data =~ s/<title>.*/.../s;
-        print "# RESPONSE:\n# ", output($response_data), "\n";
+        my $out = escape($response_data);
+        $out =~ s{\\n}{\\n\n# }g;
+        print "# RESPONSE:\n# $out\n";
     }
     if (! defined $response) {
         die "HTTP::Response->parse failed";
@@ -194,33 +198,11 @@ foreach my $t (@test_cases) {
 if ($test_fold) { 
     my $resp;
     my $foo;
-
     $resp = GET("/fold");
-    ok ($resp->code == 200);
     $foo = $resp->header("Foo");
-    ok (defined($foo) && ($foo =~ /Bar Baz/));
-
-    my $sock = Apache::TestRequest::vhost_socket("http_strict");
-    if ($sock) {
-        my $buf;
-
-        $buf = "GET /fold?message/http HTTP/1.0\r\n\r\n";
-        print "# SENDING:\n# ", escape($buf), "\n";
-        $sock->print($buf);
-        $sock->shutdown(1);
-        sleep(0.1);
-
-        $resp = "";
-        while ($sock->read($buf, 10000) > 0) {
-            $resp .= $buf;
-        }
-        my $re = "\nFoo: Bar\r\n Baz\r\n";
-        print "# expecting /", escape($re), "/, got:\n# ", output($resp), "\n";
-        ok ($resp =~ /$re/);
-    }
-    else {
-        print "# failed to connect\n";
-        ok(0);
+    ok ($resp->code == 200);
+    if(defined($foo)) { 
+        ok ($foo =~ /Bar Baz/);
     }
 }
 
@@ -232,12 +214,5 @@ sub escape
     $in =~ s{\n}{\\n}g;
     $in =~ s{\t}{\\t}g;
     $in =~ s{([\x00-\x1f])}{sprintf("\\x%02x", ord($1))}ge;
-    return $in;
-}
-
-sub output
-{
-    my $in = escape(shift);
-    $in =~ s{\\n}{\\n\n# }g;
     return $in;
 }
