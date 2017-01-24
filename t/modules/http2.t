@@ -20,7 +20,8 @@ if ($sni_available) {
     $total_tests += $vhost_suite;
 }
 
-plan tests => $total_tests, need_module 'http2', need_module 'Protocol::HTTP2::Client', need_min_apache_version('2.4.17');
+plan tests => $total_tests, need 'Protocol::HTTP2::Client', 
+    need_module 'http2', need_min_apache_version('2.4.17');
 
 Apache::TestRequest::module("http2");
 
