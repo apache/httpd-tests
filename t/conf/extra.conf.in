@@ -279,6 +279,9 @@
       <IfVersion >= 2.4.7>
         ProxyPass /uds unix:/tmp/test-ptf.sock|http:
       </IfVersion>
+      <Location /reverse/locproxy/>
+         ProxyPass http://@SERVERNAME@:@PORT@/
+      </Location>
    </VirtualHost>
 
    <IfVersion >= 2.2.5>

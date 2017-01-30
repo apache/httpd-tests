@@ -6,7 +6,7 @@ use Apache::TestRequest;
 use Apache::TestUtil;
 use Apache::TestConfig ();
 
-my $num_tests = 17;
+my $num_tests = 19;
 if (have_min_apache_version('2.4.7')) {
     $num_tests++;
 }
@@ -18,6 +18,10 @@ Apache::TestRequest::user_agent(requests_redirectable => 0);
 my $r = GET("/reverse/");
 ok t_cmp($r->code, 200, "reverse proxy to index.html");
 ok t_cmp($r->content, qr/^welcome to /, "reverse proxied body");
+
+$r = GET("/reverse/locproxy/");
+ok t_cmp($r->code, 200, "reverse Location-proxy to index.html");
+ok t_cmp($r->content, qr/^welcome to /, "reverse Location-proxied body");
 
 if (have_cgi) {
     $r = GET("/reverse/modules/cgi/env.pl");
