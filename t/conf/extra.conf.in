@@ -282,6 +282,9 @@
       <Location /reverse/locproxy/>
          ProxyPass http://@SERVERNAME@:@PORT@/
       </Location>
+      <IfModule mod_setenvif.c>
+          SetEnvIf Request_URI "^/reverse/locproxy/index.html$" no-proxy
+      </IfModule>
    </VirtualHost>
 
    <IfVersion >= 2.2.5>
