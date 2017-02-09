@@ -42,6 +42,29 @@
 
 </IfModule>
 
+#
+# Test config for FCGI (see t/modules/proxy_fcgi.t)
+#
+<IfModule mod_proxy_fcgi.c>
+  # XXX we have no way to retrieve the NextAvailablePort from Apache::Test...
+  Define FCGI_PORT @NextAvailablePort@
+
+  <VirtualHost proxy_fcgi>
+    <IfVersion >= 2.5.0>
+      # ProxyFCGISetEnvIf tests
+      <Location /fcgisetenv>
+        SetHandler proxy:fcgi://127.0.0.1:${FCGI_PORT}
+
+        ProxyFCGISetEnvIf true  QUERY_STRING test_value
+        ProxyFCGISetEnvIf true  TEST_EMPTY
+        ProxyFCGISetEnvIf false TEST_NOT_SET
+        ProxyFCGISetEnvIf true  TEST_DOCROOT "%{DOCUMENT_ROOT}"
+        ProxyFCGISetEnvIf "reqenv('GATEWAY_INTERFACE') =~ m#CGI/(.\..)#" TEST_CGI_VERSION "v$1"
+      </Location>
+    </IfVersion>
+  </VirtualHost>
+</IfModule>
+
 <IfModule mod_rewrite.c>
   <Directory @SERVERROOT@/htdocs/modules/proxy/rewrite>
      AllowOverride All
