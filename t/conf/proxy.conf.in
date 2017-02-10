@@ -60,6 +60,7 @@
         ProxyFCGISetEnvIf false TEST_NOT_SET
         ProxyFCGISetEnvIf true  TEST_DOCROOT "%{DOCUMENT_ROOT}"
         ProxyFCGISetEnvIf "reqenv('GATEWAY_INTERFACE') =~ m#CGI/(.\..)#" TEST_CGI_VERSION "v$1"
+        ProxyFCGISetEnvIf true !PATH_TRANSLATED
       </Location>
     </IfVersion>
   </VirtualHost>

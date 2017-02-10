@@ -5,7 +5,7 @@ use Apache::Test;
 use Apache::TestRequest;
 use Apache::TestUtil;
 
-plan tests => 6,
+plan tests => 7,
      need (
         'mod_proxy_fcgi',
         'FCGI',
@@ -117,6 +117,7 @@ ok t_cmp($envs{'TEST_NOT_SET'},     undef,        "ProxyFCGISetEnvIf does not se
 ok t_cmp($envs{'TEST_EMPTY'},       '',           "ProxyFCGISetEnvIf can set empty values");
 ok t_cmp($envs{'TEST_DOCROOT'},     $docroot,     "ProxyFCGISetEnvIf can replace with request variables");
 ok t_cmp($envs{'TEST_CGI_VERSION'}, 'v1.1',       "ProxyFCGISetEnvIf can replace with backreferences");
+ok t_cmp($envs{'PATH_TRANSLATED'}, undef,         "ProxyFCGISetEnvIf can unset var");
 
 # Rejoin the child FCGI process.
 waitpid($child, 0);
