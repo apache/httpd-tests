@@ -10,7 +10,7 @@ plan tests => 7,
         'mod_proxy_fcgi',
         'FCGI',
         'IO::Select',
-        need_min_apache_version('2.5.0')
+        need_min_apache_version('2.4.26')
      );
 
 require FCGI;

@@ -50,7 +50,7 @@
   Define FCGI_PORT @NextAvailablePort@
 
   <VirtualHost proxy_fcgi>
-    <IfVersion >= 2.5.0>
+    <IfVersion >= 2.4.26>
       # ProxyFCGISetEnvIf tests
       <Location /fcgisetenv>
         SetHandler proxy:fcgi://127.0.0.1:${FCGI_PORT}
