@@ -1099,3 +1099,11 @@ LimitRequestFields    32
 
 </IfModule>
 </IfDefine>
+
+##
+## mod_ssl_ct configuration
+##
+<IfModule mod_ssl_ct.c>
+  # If mod_ssl_ct is loaded, CTSCTStorage is needed to pass the configtest.
+  CTSCTStorage .
+</IfModule>
