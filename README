@@ -2,6 +2,11 @@
                   Testing Apache with the Perl Test Harness
 Prerequisites
 -------------
+These two modules must first be installed;
+
+- perl-ExtUtils-MakeMaker 
+- perl-Test 
+
 You'll need to install the CPAN modules listed in:
 Apache-Test/lib/Bundle/ApacheTest.pm
 All you have to do to install them all in one shot is:
@@ -12,6 +17,9 @@ http://perl.apache.org/~dougm/httpd-test-bundle-0.02.tar.gz
 
 Note: Crypt::SSLeay requires OpenSSL to be installed (only required
 for t/TEST -ssl): http://www.openssl.org/
+More accurate results may be obtained by using the same openssl command
+line and libraries as consumed by APR-util and mod_ssl, due to X509
+formatting behavior differences.
 
 For an extensive documentation see
 http://perl.apache.org/docs/general/testing/testing.html
@@ -19,13 +27,12 @@ http://perl.apache.org/docs/general/testing/testing.html
 http://svn.apache.org/viewvc/perl/modperl/docs/trunk/src/docs/general/testing/testing.pod
 
 To run the tests for all Apache web server modules, some additional 
-CPAN modules will be required:
+CPAN modules will be required. If the tests don't work, make sure
+that you have up to date versions of each of these perl modules:
 - HTTP::DAV (DAV tests)
 - DateTime (mod_include tests)
 - Protocol::HTTP2::Client and AnyEvent (mod_http2 tests)
-
-If the tests don't work, make sure, that you have up to
-date versions of the following perl modules installed:
+- Test
 - Test::Harness
 - Crypt::SSLeay
 - Net::SSLeay
