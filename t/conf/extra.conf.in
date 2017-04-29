@@ -872,9 +872,23 @@ LimitRequestFields    32
     <IfModule mod_headers.c>
     <IfModule mod_proxy.c>
        ProxyPass /if_sec/proxy/ http://@SERVERNAME@:@PORT@/
+
+       # Directory context
        <Directory @SERVERROOT@/htdocs/if_sec/dir/>
          <If "-n %{REQ:In-If1}">
            Header merge Out-Trace dir1
+             <If "-n %{REQ:In-If11}">
+               Header merge Out-Trace nested11
+               <If "-n %{REQ:In-If111}">
+                 Header merge Out-Trace nested111
+               </If>
+               <Elseif "-n %{REQ:In-If112}">
+                 Header merge Out-Trace nested112
+               </Elseif>
+               <Else>
+                 Header merge Out-Trace nested113
+               </Else>
+             </If>
          </If>
          <If "-n %{REQ:In-If2}">
            Header merge Out-Trace dir2
@@ -885,6 +899,8 @@ LimitRequestFields    32
            </If>
          </Files>
        </Directory>
+
+       # Location context
        <Location /if_sec/proxy/>
          <If "-n %{REQ:In-If1}">
            Header merge Out-Trace locp1
@@ -896,18 +912,58 @@ LimitRequestFields    32
        <Location /if_sec/loc/>
          <If "-n %{REQ:In-If1}">
            Header merge Out-Trace loc1
+           <If "-n %{REQ:In-If11}">
+             Header merge Out-Trace nested11
+             <If "-n %{REQ:In-If111}">
+               Header merge Out-Trace nested111
+             </If>
+             <Elseif "-n %{REQ:In-If112}">
+               Header merge Out-Trace nested112
+             </Elseif>
+             <Else>
+               Header merge Out-Trace nested113
+             </Else>
+           </If>
          </If>
          <If "-n %{REQ:In-If2}">
            Header merge Out-Trace loc2
          </If>
        </Location>
+
+       # Files context
        <Files *.if_test>
          <If "-n %{REQ:In-If2}">
            Header merge Out-Trace files2
+           <If "-n %{REQ:In-If11}">
+             Header merge Out-Trace nested11
+             <If "-n %{REQ:In-If111}">
+               Header merge Out-Trace nested111
+             </If>
+             <Elseif "-n %{REQ:In-If112}">
+               Header merge Out-Trace nested112
+             </Elseif>
+             <Else>
+               Header merge Out-Trace nested113
+             </Else>
+           </If>
          </If>
        </Files>
+
+       # Global context
        <If "-n %{REQ:In-If1}">
          Header merge Out-Trace global1
+         <If "-n %{REQ:In-If11}">
+           Header merge Out-Trace nested11
+           <If "-n %{REQ:In-If111}">
+             Header merge Out-Trace nested111
+           </If>
+           <Elseif "-n %{REQ:In-If112}">
+             Header merge Out-Trace nested112
+           </Elseif>
+           <Else>
+             Header merge Out-Trace nested113
+           </Else>
+         </If>
        </If>
     </IfModule>
     </IfModule>
