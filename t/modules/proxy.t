@@ -19,9 +19,15 @@ my $r = GET("/reverse/");
 ok t_cmp($r->code, 200, "reverse proxy to index.html");
 ok t_cmp($r->content, qr/^welcome to /, "reverse proxied body");
 
-$r = GET("/reverse/locproxy/");
-ok t_cmp($r->code, 200, "reverse Location-proxy to index.html");
-ok t_cmp($r->content, qr/^welcome to /, "reverse Location-proxied body");
+if (have_min_apache_version('2.4.0')) {
+    $r = GET("/reverse/locproxy/");
+    ok t_cmp($r->code, 200, "reverse Location-proxy to index.html");
+    ok t_cmp($r->content, qr/^welcome to /, "reverse Location-proxied body");
+}
+else { 
+    skip "skipping per-location test with httpd <2.4";
+    skip "skipping per-location test with httpd <2.4";
+}
 
 if (have_min_apache_version('2.4.26')) {
     # This location should get trapped by the SetEnvIf and NOT be
