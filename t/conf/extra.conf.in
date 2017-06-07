@@ -1104,7 +1104,9 @@ LimitRequestFields    32
       <IfFile @SERVERROOT@/htdocs/apache/iffile/document>
         Header merge X-Out success4
       </IfFile>
-
+      <IfFile "htdocs/apache/iffile/document">
+        Header merge X-Out success5
+      </IfFile>
       # Followed by the IfFiles that should fail.
       <IfFile !htdocs/apache/iffile/document>
         Header merge X-Out fail1

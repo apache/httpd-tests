@@ -13,4 +13,4 @@ plan tests => 2,
 
 my $resp = GET('/apache/iffile/document');
 ok t_cmp($resp->code, 200);
-ok t_cmp($resp->header('X-Out'), "success1, success2, success3, success4");
+ok t_cmp($resp->header('X-Out'), "success1, success2, success3, success4, success5");
