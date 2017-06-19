@@ -199,7 +199,12 @@
 
     <Directory @SERVERROOT@/htdocs/modules/rewrite>
         RewriteEngine On
-        RewriteOptions inherit LongURLOptimization
+        <IfVersion >= 2.5.0>
+            RewriteOptions inherit LongURLOptimization
+        </IfVersion>
+        <IfVersion < 2.5.0>
+            RewriteOptions inherit
+        </IfVersion>
 
         RewriteRule ^forbidden$ - [F]
         RewriteRule ^gone$ - [G]
