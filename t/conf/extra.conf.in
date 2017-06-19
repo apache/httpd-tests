@@ -173,6 +173,10 @@
         RewriteLog @SERVERROOT@/logs/rewrite_log
         RewriteLogLevel 9
     </IfVersion>
+    <IfVersion >= 2.3.6>
+        LogLevel rewrite:trace8
+    </IfVersion>
+
     <IfDefine !APACHE1>
         <IfVersion < 2.3.4>
             RewriteLock @SERVERROOT@/logs/rewrite_lock
@@ -195,7 +199,7 @@
 
     <Directory @SERVERROOT@/htdocs/modules/rewrite>
         RewriteEngine On
-        RewriteOptions inherit
+        RewriteOptions inherit LongURLOptimization
 
         RewriteRule ^forbidden$ - [F]
         RewriteRule ^gone$ - [G]
