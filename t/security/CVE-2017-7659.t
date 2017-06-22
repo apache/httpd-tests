@@ -1,0 +1,28 @@
+use strict;
+use warnings FATAL => 'all';
+
+use Apache::Test;
+use Apache::TestUtil;
+use Apache::TestRequest;
+
+plan tests => 2,
+     need(
+         need_module('http2')
+     );
+
+my $module = "h2c";
+Apache::TestRequest::module($module);
+
+my $sock = Apache::TestRequest::vhost_socket($module);
+ok $sock;
+
+# Thanks to Javier Jimenez for this test case.
+Apache::TestRequest::socket_trace($sock);
+$sock->print("p * HTTP/1.0\r\n"
+           . "Connection:H/\r\n"
+           . "Upgrade:h2c\r\n"
+           . "HTTP2-Settings:\r\n\r\n");
+
+# The server should not have crashed -- getc() should return *something*.
+ok $sock->getc();
+$sock->close();
