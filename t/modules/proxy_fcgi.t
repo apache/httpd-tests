@@ -5,12 +5,13 @@ use Apache::Test;
 use Apache::TestRequest;
 use Apache::TestUtil;
 
-plan tests => 7,
+my $have_fcgisetenvif = have_min_apache_version('2.4.26');
+
+plan tests => (7 * $have_fcgisetenvif) + 2,
      need (
         'mod_proxy_fcgi',
         'FCGI',
-        'IO::Select',
-        need_min_apache_version('2.4.26')
+        'IO::Select'
      );
 
 require FCGI;
@@ -76,6 +77,55 @@ sub run_fcgi_handler($$)
     return $pid;
 }
 
+# Convenience wrapper for run_fcgi_handler() that will echo back the envvars in
+# the response. Returns the child PID; exits on failure.
+sub launch_envvar_echo_daemon($)
+{
+    my $fcgi_port = shift;
+
+    return run_fcgi_handler($fcgi_port, sub {
+        # Echo all the envvars back to the client.
+        print("Content-Type: text/plain\r\n\r\n");
+        foreach my $key (sort(keys %ENV)) {
+            print($key, "=", $ENV{$key}, "\n");
+        }
+    });
+}
+
+# Runs a single request using launch_envvar_echo_daemon(), then returns a
+# hashref containing the environment variables that were echoed by the FCGI
+# backend.
+#
+# Calling this function will run one test that must be accounted for in the test
+# plan.
+sub run_fcgi_envvar_request($$)
+{
+    my $fcgi_port = shift;
+    my $uri       = shift;
+
+    # Launch the FCGI process.
+    my $child = launch_envvar_echo_daemon($fcgi_port);
+
+    # Hit the backend.
+    my $r = GET($uri);
+    ok t_cmp($r->code, 200, "proxy to FCGI backend works");
+
+    # Split the returned envvars into a dictionary.
+    my %envs = ();
+
+    foreach my $line (split /\n/, $r->content) {
+        t_debug("> $line"); # log the response lines for debugging
+
+        my @components = split /=/, $line, 2;
+        $envs{$components[0]} = $components[1];
+    }
+
+    # Rejoin the child FCGI process.
+    waitpid($child, 0);
+
+    return \%envs;
+}
+
 #
 # MAIN
 #
@@ -85,39 +135,24 @@ sub run_fcgi_handler($$)
 # for the proxy_fcgi vhost is one greater than the reserved FCGI_PORT, but
 # depending on the test conditions, that may not always be the case...
 my $fcgi_port = Apache::Test::vars('proxy_fcgi_port') - 1;
+my $envs;
 
-# Launch the FCGI process.
-my $child = run_fcgi_handler($fcgi_port, sub {
-    # Echo all the envvars back to the client.
-    print("Content-Type: text/plain\r\n\r\n");
-    foreach my $key (sort(keys %ENV)) {
-        print($key, "=", $ENV{$key}, "\n");
-    }
-});
+if ($have_fcgisetenvif) {
+    # ProxyFCGISetEnvIf tests. Query the backend.
+    $envs = run_fcgi_envvar_request($fcgi_port, "/fcgisetenv?query");
 
-# Hit the backend.
-my $r = GET("/fcgisetenv?query");
-ok t_cmp($r->code, 200, "proxy to FCGI backend");
+    # Check the response values.
+    my $docroot = Apache::Test::vars('documentroot');
 
-# Split the returned envvars into a dictionary.
-my %envs = ();
-
-foreach my $line (split /\n/, $r->content) {
-    t_debug("> $line"); # log the response lines for debugging
-
-    my @components = split /=/, $line, 2;
-    $envs{$components[0]} = $components[1];
+    ok t_cmp($envs->{'QUERY_STRING'},     'test_value', "ProxyFCGISetEnvIf can override an existing variable");
+    ok t_cmp($envs->{'TEST_NOT_SET'},     undef,        "ProxyFCGISetEnvIf does not set variables if condition is false");
+    ok t_cmp($envs->{'TEST_EMPTY'},       '',           "ProxyFCGISetEnvIf can set empty values");
+    ok t_cmp($envs->{'TEST_DOCROOT'},     $docroot,     "ProxyFCGISetEnvIf can replace with request variables");
+    ok t_cmp($envs->{'TEST_CGI_VERSION'}, 'v1.1',       "ProxyFCGISetEnvIf can replace with backreferences");
+    ok t_cmp($envs->{'REMOTE_ADDR'},      undef,        "ProxyFCGISetEnvIf can unset var");
 }
 
-# Check the response values.
-my $docroot = Apache::Test::vars('documentroot');
+# Regression test for PR61202.
+$envs = run_fcgi_envvar_request($fcgi_port, "/modules/proxy/fcgi/index.php");
 
-ok t_cmp($envs{'QUERY_STRING'},     'test_value', "ProxyFCGISetEnvIf can override an existing variable");
-ok t_cmp($envs{'TEST_NOT_SET'},     undef,        "ProxyFCGISetEnvIf does not set variables if condition is false");
-ok t_cmp($envs{'TEST_EMPTY'},       '',           "ProxyFCGISetEnvIf can set empty values");
-ok t_cmp($envs{'TEST_DOCROOT'},     $docroot,     "ProxyFCGISetEnvIf can replace with request variables");
-ok t_cmp($envs{'TEST_CGI_VERSION'}, 'v1.1',       "ProxyFCGISetEnvIf can replace with backreferences");
-ok t_cmp($envs{'REMOTE_ADDR'},      undef,        "ProxyFCGISetEnvIf can unset var");
-
-# Rejoin the child FCGI process.
-waitpid($child, 0);
+ok t_cmp($envs->{'SCRIPT_NAME'}, '/modules/proxy/fcgi/index.php', "Server sets correct SCRIPT_NAME by default");

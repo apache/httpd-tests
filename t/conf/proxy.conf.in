@@ -63,6 +63,12 @@
         ProxyFCGISetEnvIf true !REMOTE_ADDR
       </Location>
     </IfVersion>
+
+    <Directory @SERVERROOT@/htdocs/modules/proxy/fcgi>
+      <FilesMatch \.php$>
+        SetHandler proxy:fcgi://127.0.0.1:${FCGI_PORT}
+      </FilesMatch>
+    </Directory>
   </VirtualHost>
 </IfModule>
 
