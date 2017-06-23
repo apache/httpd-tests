@@ -5,9 +5,11 @@ use Apache::Test;
 use Apache::TestRequest;
 use Apache::TestUtil;
 
-my $have_fcgisetenvif = have_min_apache_version('2.4.26');
+my $have_fcgisetenvif    = have_min_apache_version('2.4.26');
+my $have_fcgibackendtype = have_min_apache_version('2.4.26');
 
-plan tests => (7 * $have_fcgisetenvif) + 2,
+plan tests => (7 * $have_fcgisetenvif) + (2 * $have_fcgibackendtype) +
+               (2 * $have_fcgibackendtype * have_module('rewrite')) + 2,
      need (
         'mod_proxy_fcgi',
         'FCGI',
@@ -136,20 +138,36 @@ sub run_fcgi_envvar_request($$)
 # depending on the test conditions, that may not always be the case...
 my $fcgi_port = Apache::Test::vars('proxy_fcgi_port') - 1;
 my $envs;
+my $docroot = Apache::Test::vars('documentroot');
 
 if ($have_fcgisetenvif) {
     # ProxyFCGISetEnvIf tests. Query the backend.
     $envs = run_fcgi_envvar_request($fcgi_port, "/fcgisetenv?query");
 
     # Check the response values.
-    my $docroot = Apache::Test::vars('documentroot');
-
     ok t_cmp($envs->{'QUERY_STRING'},     'test_value', "ProxyFCGISetEnvIf can override an existing variable");
     ok t_cmp($envs->{'TEST_NOT_SET'},     undef,        "ProxyFCGISetEnvIf does not set variables if condition is false");
     ok t_cmp($envs->{'TEST_EMPTY'},       '',           "ProxyFCGISetEnvIf can set empty values");
     ok t_cmp($envs->{'TEST_DOCROOT'},     $docroot,     "ProxyFCGISetEnvIf can replace with request variables");
     ok t_cmp($envs->{'TEST_CGI_VERSION'}, 'v1.1',       "ProxyFCGISetEnvIf can replace with backreferences");
     ok t_cmp($envs->{'REMOTE_ADDR'},      undef,        "ProxyFCGISetEnvIf can unset var");
+}
+
+# Tests for GENERIC backend type behavior.
+if ($have_fcgibackendtype) {
+    $envs = run_fcgi_envvar_request($fcgi_port, "/modules/proxy/fcgi-generic/index.php?query");
+
+    ok t_cmp($envs->{'SCRIPT_FILENAME'},
+             $docroot . '/modules/proxy/fcgi-generic/index.php',
+             "GENERIC SCRIPT_FILENAME should have neither query string nor proxy: prefix");
+}
+
+if ($have_fcgibackendtype && have_module('rewrite')) {
+    $envs = run_fcgi_envvar_request($fcgi_port, "/modules/proxy/fcgi-generic-rewrite/index.php?query");
+
+    ok t_cmp($envs->{'SCRIPT_FILENAME'},
+             $docroot . '/modules/proxy/fcgi-generic-rewrite/index.php',
+             "GENERIC SCRIPT_FILENAME should have neither query string nor proxy: prefix");
 }
 
 # Regression test for PR61202.
