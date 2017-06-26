@@ -9,7 +9,8 @@ my $have_fcgisetenvif    = have_min_apache_version('2.4.26');
 my $have_fcgibackendtype = have_min_apache_version('2.4.26');
 
 plan tests => (7 * $have_fcgisetenvif) + (2 * $have_fcgibackendtype) +
-               (2 * $have_fcgibackendtype * have_module('rewrite')) + 2,
+               (2 * $have_fcgibackendtype * have_module('rewrite')) +
+               (7 * have_module('rewrite')) + 2,
      need (
         'mod_proxy_fcgi',
         'FCGI',
@@ -110,7 +111,7 @@ sub run_fcgi_envvar_request($$)
 
     # Hit the backend.
     my $r = GET($uri);
-    ok t_cmp($r->code, 200, "proxy to FCGI backend works");
+    ok t_cmp($r->code, 200, "proxy to FCGI backend works (" . $uri . ")");
 
     # Split the returned envvars into a dictionary.
     my %envs = ();
@@ -155,6 +156,7 @@ if ($have_fcgisetenvif) {
 
 # Tests for GENERIC backend type behavior.
 if ($have_fcgibackendtype) {
+    # Regression test for PR59618.
     $envs = run_fcgi_envvar_request($fcgi_port, "/modules/proxy/fcgi-generic/index.php?query");
 
     ok t_cmp($envs->{'SCRIPT_FILENAME'},
@@ -163,11 +165,38 @@ if ($have_fcgibackendtype) {
 }
 
 if ($have_fcgibackendtype && have_module('rewrite')) {
+    # Regression test for PR59815.
     $envs = run_fcgi_envvar_request($fcgi_port, "/modules/proxy/fcgi-generic-rewrite/index.php?query");
 
     ok t_cmp($envs->{'SCRIPT_FILENAME'},
              $docroot . '/modules/proxy/fcgi-generic-rewrite/index.php',
              "GENERIC SCRIPT_FILENAME should have neither query string nor proxy: prefix");
+}
+
+if (have_module('rewrite')) {
+    # Regression test for general FPM breakage when using mod_rewrite for
+    # nice-looking URIs; see
+    # https://github.com/apache/httpd/commit/cab0bfbb2645bb8f689535e5e2834e2dbc23f5a5#commitcomment-20393588
+    $envs = run_fcgi_envvar_request($fcgi_port, "/modules/proxy/fcgi-rewrite-path-info/path/info?query");
+
+    # Not all of these values follow the CGI spec, but unfortunately FPM expects
+    # some breakage and doesn't function properly without it, so we can't fully
+    # fix the problem by default. These tests verify that we follow the 2.4.20
+    # way of doing things for the "rewrite-redirect PATH_INFO to script" case.
+    ok t_cmp($envs->{'SCRIPT_FILENAME'}, "proxy:fcgi://127.0.0.1:" . $fcgi_port
+                                         . $docroot
+                                         . '/modules/proxy/fcgi-rewrite-path-info/index.php',
+             "Default SCRIPT_FILENAME has proxy:fcgi prefix for compatibility");
+    ok t_cmp($envs->{'SCRIPT_NAME'}, '/modules/proxy/fcgi-rewrite-path-info/index.php',
+             "Default SCRIPT_NAME uses actual path to script");
+    ok t_cmp($envs->{'PATH_INFO'}, '/path/info',
+             "Default PATH_INFO is correct");
+    ok t_cmp($envs->{'PATH_TRANSLATED'}, $docroot . '/path/info',
+             "Default PATH_TRANSLATED is correct");
+    ok t_cmp($envs->{'QUERY_STRING'}, 'query',
+             "Default QUERY_STRING is correct");
+    ok t_cmp($envs->{'REDIRECT_URL'}, '/modules/proxy/fcgi-rewrite-path-info/path/info',
+             "Default REDIRECT_URL uses original client URL");
 }
 
 # Regression test for PR61202.

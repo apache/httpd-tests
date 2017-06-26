@@ -79,15 +79,24 @@
       </Directory>
     </IfVersion>
 
-    <IfVersion >= 2.4.26>
     <IfModule mod_rewrite.c>
-      <Directory @SERVERROOT@/htdocs/modules/proxy/fcgi-generic-rewrite>
-        ProxyFCGIBackendType GENERIC
+      <IfVersion >= 2.4.26>
+        <Directory @SERVERROOT@/htdocs/modules/proxy/fcgi-generic-rewrite>
+          ProxyFCGIBackendType GENERIC
+          RewriteEngine On
+          RewriteRule ^.*\.php(/.*)?$ fcgi://127.0.0.1:${FCGI_PORT}@SERVERROOT@/htdocs/modules/proxy/fcgi-generic-rewrite/$0 [L,P]
+        </Directory>
+      </IfVersion>
+
+      <Directory @SERVERROOT@/htdocs/modules/proxy/fcgi-rewrite-path-info>
         RewriteEngine On
-        RewriteRule ^.*\.php(/.*)?$ fcgi://127.0.0.1:${FCGI_PORT}@SERVERROOT@/htdocs/modules/proxy/fcgi-generic-rewrite/$0 [L,P]
+        RewriteCond %{REQUEST_FILENAME} !-f
+        RewriteRule ^.*$ index.php/$0 [L]
+        <Files index.php>
+          SetHandler proxy:fcgi://127.0.0.1:${FCGI_PORT}
+        </Files>
       </Directory>
     </IfModule>
-    </IfVersion>
   </VirtualHost>
 </IfModule>
 
