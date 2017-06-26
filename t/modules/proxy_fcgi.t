@@ -179,10 +179,10 @@ if (have_module('rewrite')) {
     # https://github.com/apache/httpd/commit/cab0bfbb2645bb8f689535e5e2834e2dbc23f5a5#commitcomment-20393588
     $envs = run_fcgi_envvar_request($fcgi_port, "/modules/proxy/fcgi-rewrite-path-info/path/info?query");
 
-    # Not all of these values follow the CGI spec, but unfortunately FPM expects
-    # some breakage and doesn't function properly without it, so we can't fully
-    # fix the problem by default. These tests verify that we follow the 2.4.20
-    # way of doing things for the "rewrite-redirect PATH_INFO to script" case.
+    # Not all of these values make sense, but unfortunately FPM expects some
+    # breakage and doesn't function properly without it, so we can't fully fix
+    # the problem by default. These tests verify that we follow the 2.4.20 way
+    # of doing things for the "rewrite-redirect PATH_INFO to script" case.
     ok t_cmp($envs->{'SCRIPT_FILENAME'}, "proxy:fcgi://127.0.0.1:" . $fcgi_port
                                          . $docroot
                                          . '/modules/proxy/fcgi-rewrite-path-info/index.php',
