@@ -10,7 +10,7 @@ my $have_fcgibackendtype = have_min_apache_version('2.4.26');
 
 plan tests => (7 * $have_fcgisetenvif) + (2 * $have_fcgibackendtype) +
                (2 * $have_fcgibackendtype * have_module('rewrite')) +
-               (7 * have_module('rewrite')) + 2,
+               (7 * have_module('rewrite')) + (7 * have_module('actions')) + 2,
      need (
         'mod_proxy_fcgi',
         'FCGI',
@@ -197,6 +197,28 @@ if (have_module('rewrite')) {
              "Default QUERY_STRING is correct");
     ok t_cmp($envs->{'REDIRECT_URL'}, '/modules/proxy/fcgi-rewrite-path-info/path/info',
              "Default REDIRECT_URL uses original client URL");
+}
+
+if (have_module('actions')) {
+    # Regression test to ensure that the bizarre Action invocation for FCGI
+    # still works as it did in 2.4.20. Almost none of this follows any spec at
+    # all. As far as I can tell, this method does not work with FPM.
+    $envs = run_fcgi_envvar_request($fcgi_port, "/modules/proxy/fcgi-action/index.php/path/info?query");
+
+    ok t_cmp($envs->{'SCRIPT_FILENAME'}, "proxy:fcgi://127.0.0.1:" . $fcgi_port
+                                         . $docroot
+                                         . '/fcgi-action-virtual',
+             "Action SCRIPT_FILENAME has proxy:fcgi prefix and uses virtual action Location");
+    ok t_cmp($envs->{'SCRIPT_NAME'}, '/fcgi-action-virtual',
+             "Action SCRIPT_NAME is the virtual action Location");
+    ok t_cmp($envs->{'PATH_INFO'}, '/modules/proxy/fcgi-action/index.php/path/info',
+             "Action PATH_INFO contains full URI path");
+    ok t_cmp($envs->{'PATH_TRANSLATED'}, $docroot . '/modules/proxy/fcgi-action/index.php/path/info',
+             "Action PATH_TRANSLATED contains full URI path");
+    ok t_cmp($envs->{'QUERY_STRING'}, 'query',
+             "Action QUERY_STRING is correct");
+    ok t_cmp($envs->{'REDIRECT_URL'}, '/modules/proxy/fcgi-action/index.php/path/info',
+             "Action REDIRECT_URL uses original client URL");
 }
 
 # Regression test for PR61202.

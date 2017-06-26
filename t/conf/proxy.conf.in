@@ -97,6 +97,16 @@
         </Files>
       </Directory>
     </IfModule>
+
+    <IfModule mod_actions.c>
+      <Directory @SERVERROOT@/htdocs/modules/proxy/fcgi-action>
+        AddType application/x-fcgi-action .php
+        Action application/x-fcgi-action /fcgi-action-virtual virtual
+      </Directory>
+      <Location /fcgi-action-virtual>
+        SetHandler proxy:fcgi://127.0.0.1:${FCGI_PORT}
+      </Location>
+    </IfModule>
   </VirtualHost>
 </IfModule>
 
