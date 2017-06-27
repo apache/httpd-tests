@@ -238,7 +238,7 @@ if ($have_php_fpm) {
     my $pid = Misc::forker("php-fpm", sub { system "php-fpm -F -g $pid_file -p $servroot/php-fpm"; });
     if ($pid > 0) {
         while (! -e $pid_file) {}
-        $envs = run_fcgi_envvar_request(- 1, "/fpm/sub1/sub2/test.php?query", "PHP-FPM");
+        $envs = run_fcgi_envvar_request(-1, "/fpm/sub1/sub2/test.php?query", "PHP-FPM");
         ok t_cmp($envs->{'SCRIPT_NAME'}, '/fpm/sub1/sub2/test.php', "Server sets correct SCRIPT_NAME by default");
 
         # TODO: Add more here
