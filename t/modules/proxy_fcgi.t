@@ -204,11 +204,10 @@ ok t_cmp($envs->{'SCRIPT_NAME'}, '/modules/proxy/fcgi/index.php', "Server sets c
 
 # Testing using php-fpm directly
 if ($have_php_fpm) {
-    Misc::do_do_run_run("php-fpm", sub { system "php-fpm -F -p $servroot/php-fpm"; });
+    my $pid_file = "/tmp/php-fpm-" . $$ . "-" . time . ".pid";
+    Misc::do_do_run_run("php-fpm", sub { system "php-fpm -F -g $pid_file -p $servroot/php-fpm"; });
     sleep 1; # Yes, we really need this here since php-fpm takes a while
     $envs = run_fcgi_envvar_request(-1, "/fpm/sub1/sub2/test.php?query");
-    # NOTE: Magic location!! See www.conf in t/php-fpm/etc/php-fpm.d
-    # TODO: Make this less magical
-    kill 'TERM', `cat /tmp/httpd-test-php-fpm.pid`;
+    kill 'TERM', `cat $pid_file`;
     ok t_cmp($envs->{'SCRIPT_NAME'}, '/fpm/sub1/sub2/test.php', "Server sets correct SCRIPT_NAME by default");
 }
