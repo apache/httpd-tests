@@ -5,6 +5,8 @@ use Apache::Test;
 use Apache::TestRequest;
 use Apache::TestUtil;
 
+use Misc;
+
 my $have_fcgisetenvif    = have_min_apache_version('2.4.26');
 my $have_fcgibackendtype = have_min_apache_version('2.4.26');
 
@@ -24,60 +26,32 @@ Apache::TestRequest::module("proxy_fcgi");
 
 # Launches a short-lived FCGI daemon that will handle exactly one request with
 # the given handler function. Returns the child PID; exits on failure.
-sub run_fcgi_handler($$)
+
+sub fcgi_request
 {
     my $fcgi_port    = shift;
     my $handler_func = shift;
 
-    # Use a pipe for ready-signalling between the child and parent. Much faster
-    # (and more reliable) than just sleeping for a few seconds.
-    pipe(READ_END, WRITE_END);
-    my $pid = fork();
+    # Child process. Open up a listening socket.
+    my $sock = FCGI::OpenSocket(":$fcgi_port", 10);
 
-    unless (defined $pid) {
-        t_debug "couldn't fork FCGI process";
-        ok 0;
-        exit;
+    # Listen for and respond to exactly one request from the client.
+    my $request = FCGI::Request(\*STDIN, \*STDOUT, \*STDERR, \%ENV,
+                                $sock, &FCGI::FAIL_ACCEPT_ON_INTR);
+
+    if ($request->Accept() == 0) {
+        # Run the handler.
+        $handler_func->(@_);
+        $request->Finish();
     }
 
-    if ($pid == 0) {
-        # Child process. Open up a listening socket.
-        my $sock = FCGI::OpenSocket(":$fcgi_port", 10);
+    # Clean up and exit.
+    FCGI::CloseSocket($sock);
+}
 
-        # Signal the parent process that we're ready.
-        print WRITE_END 'x';
-        close WRITE_END;
-
-        # Listen for and respond to exactly one request from the client.
-        my $request = FCGI::Request(\*STDIN, \*STDOUT, \*STDERR, \%ENV,
-                                    $sock, &FCGI::FAIL_ACCEPT_ON_INTR);
-
-        if ($request->Accept() == 0) {
-            # Run the handler.
-            $handler_func->();
-            $request->Finish();
-        }
-
-        # Clean up and exit.
-        FCGI::CloseSocket($sock);
-        exit;
-    }
-
-    # Parent process. Wait for the daemon to launch.
-    unless (IO::Select->new((\*READ_END,))->can_read(2)) {
-        t_debug "timed out waiting for FCGI process to start";
-        ok 0;
-
-        kill 'TERM', $pid;
-        # Note that we don't waitpid() here because Perl's fork() implementation
-        # on some platforms (Windows) doesn't guarantee that the pseudo-TERM
-        # signal will be delivered. Just wait for the child to be cleaned up
-        # when we exit.
-
-        exit;
-    }
-
-    return $pid;
+sub run_fcgi_handler
+{
+    return Misc::do_do_run_run("FCGI process", \&fcgi_request, @_);
 }
 
 # Convenience wrapper for run_fcgi_handler() that will echo back the envvars in

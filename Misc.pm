@@ -28,7 +28,7 @@ BEGIN {
     # Just a bunch of useful subs
 }
 
-sub do_do_run_run ($$)
+sub do_do_run_run
 {
     my $msg = shift;
     my $func = shift;
@@ -43,7 +43,7 @@ sub do_do_run_run ($$)
     if ($pid == 0) {
         print WRITE_END 'x';
         close WRITE_END;
-        $func->();
+        $func->(@_);
         exit;
     }
     # give time for the system call to take effect
@@ -53,6 +53,7 @@ sub do_do_run_run ($$)
         kill 'TERM', $pid;
         exit;
     }
+    return $pid;
 }
 
 
