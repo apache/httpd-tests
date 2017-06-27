@@ -5,7 +5,7 @@ use Apache::Test;
 use Apache::TestRequest;
 use Apache::TestUtil;
 use Apache::TestConfig ();
-use Misc;
+
 my $num_tests = 20;
 if (have_min_apache_version('2.4.7')) {
     $num_tests++;
@@ -110,8 +110,7 @@ sub uds_script
     use Socket;
     use strict;
 
-    my $socket_path = '/tmp/test-ptf.sock';
-    unlink($socket_path);
+    my $socket_path = shift;
     my $sock_addr = sockaddr_un($socket_path);
     socket(my $server, PF_UNIX, SOCK_STREAM, 0) || die "socket: $!";
     bind($server, $sock_addr) || die "bind: $!";
@@ -127,7 +126,19 @@ sub uds_script
 }
 
 if (have_min_apache_version('2.4.7')) {
-    Misc::do_do_run_run("UDS script", \&uds_script);
+    my $socket_path = '/tmp/test-ptf.sock';
+    unlink($socket_path);
+    my $pid = fork();
+    unless (defined $pid) {
+        t_debug "couldn't start PHP-FPM";
+        ok 0;
+        exit;
+    }
+    if ($pid == 0) {
+        uds_script($socket_path);
+        exit;
+    }
+    while (! -e $socket_path) {}
     $r = GET("/uds/");
     ok t_cmp($r->code, 200, "ProxyPass UDS path");
 }
