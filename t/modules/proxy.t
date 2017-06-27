@@ -5,6 +5,7 @@ use Apache::Test;
 use Apache::TestRequest;
 use Apache::TestUtil;
 use Apache::TestConfig ();
+require IO::Select;
 
 my $num_tests = 20;
 if (have_min_apache_version('2.4.7')) {
@@ -105,14 +106,56 @@ if (have_module('alias')) {
     skip "skipping tests without mod_alias" foreach (1..4);
 }
 
-if (have_min_apache_version('2.4.7')) {
-    my $pid = fork;
-    if ($pid) {
-        system './scripts/uds-test.pl';
+sub uds_script
+{
+    use Socket;
+    use strict;
+
+    my $socket_path = '/tmp/test-ptf.sock';
+    unlink($socket_path);
+    my $sock_addr = sockaddr_un($socket_path);
+    socket(my $server, PF_UNIX, SOCK_STREAM, 0) || die "socket: $!";
+    bind($server, $sock_addr) || die "bind: $!";
+    listen($server,1024) || die "listen: $!";
+    if (accept(my $new_sock, $server)) {
+        my $data = <$new_sock>;
+        print $new_sock "HTTP/1.0 200 OK\r\n";
+        print $new_sock "Content-Type: text/html\r\n\r\n";
+        print $new_sock "<html><body><h1>Hello World</h1><pre>$data</pre></body></html>\n";
+        close $new_sock;
+    }
+    unlink($socket_path);
+}
+
+sub do_do_run_run ($$)
+{
+    my $msg = shift;
+    my $func = shift;
+
+    pipe(READ_END, WRITE_END);
+    my $pid = fork();
+    unless (defined $pid) {
+        t_debug "couldn't fork $msg";
+        ok 0;
+        exit;
+    }
+    if ($pid == 0) {
+        print WRITE_END 'x';
+        close WRITE_END;
+        $func->();
         exit;
     }
     # give time for the system call to take effect
-    sleep 2;
+    unless (IO::Select->new((\*READ_END,))->can_read(2)) {
+        t_debug "timed out waiting for $msg";
+        ok 0;
+        kill 'TERM', $pid;
+        exit;
+    }
+}
+
+if (have_min_apache_version('2.4.7')) {
+    do_do_run_run("UDS script", \&uds_script);
     $r = GET("/uds/");
     ok t_cmp($r->code, 200, "ProxyPass UDS path");
 }
