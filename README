@@ -37,6 +37,7 @@ that you have up to date versions of each of these perl modules:
 - Crypt::SSLeay
 - Net::SSLeay
 - IO::Socket::SSL
+- IO::Select
 - LWP::Protocol::https
 
 Quick Start 
