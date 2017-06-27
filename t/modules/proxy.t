@@ -5,8 +5,7 @@ use Apache::Test;
 use Apache::TestRequest;
 use Apache::TestUtil;
 use Apache::TestConfig ();
-require IO::Select;
-
+use Misc;
 my $num_tests = 20;
 if (have_min_apache_version('2.4.7')) {
     $num_tests++;
@@ -127,35 +126,8 @@ sub uds_script
     unlink($socket_path);
 }
 
-sub do_do_run_run ($$)
-{
-    my $msg = shift;
-    my $func = shift;
-
-    pipe(READ_END, WRITE_END);
-    my $pid = fork();
-    unless (defined $pid) {
-        t_debug "couldn't fork $msg";
-        ok 0;
-        exit;
-    }
-    if ($pid == 0) {
-        print WRITE_END 'x';
-        close WRITE_END;
-        $func->();
-        exit;
-    }
-    # give time for the system call to take effect
-    unless (IO::Select->new((\*READ_END,))->can_read(2)) {
-        t_debug "timed out waiting for $msg";
-        ok 0;
-        kill 'TERM', $pid;
-        exit;
-    }
-}
-
 if (have_min_apache_version('2.4.7')) {
-    do_do_run_run("UDS script", \&uds_script);
+    Misc::do_do_run_run("UDS script", \&uds_script);
     $r = GET("/uds/");
     ok t_cmp($r->code, 200, "ProxyPass UDS path");
 }
