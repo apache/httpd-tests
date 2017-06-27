@@ -9,10 +9,12 @@ use Misc;
 
 my $have_fcgisetenvif    = have_min_apache_version('2.4.26');
 my $have_fcgibackendtype = have_min_apache_version('2.4.26');
+my $have_php_fpm = `php-fpm -v` =~ /fpm-fcgi/;
 
 plan tests => (7 * $have_fcgisetenvif) + (2 * $have_fcgibackendtype) +
                (2 * $have_fcgibackendtype * have_module('rewrite')) +
-               (7 * have_module('rewrite')) + (7 * have_module('actions')) + 2,
+               (7 * have_module('rewrite')) + (7 * have_module('actions')) +
+               (2 * $have_php_fpm) + 2,
      need (
         'mod_proxy_fcgi',
         'FCGI',
@@ -81,7 +83,7 @@ sub run_fcgi_envvar_request($$)
     my $uri       = shift;
 
     # Launch the FCGI process.
-    my $child = launch_envvar_echo_daemon($fcgi_port);
+    my $child = launch_envvar_echo_daemon($fcgi_port) unless ($fcgi_port == -1) ;
 
     # Hit the backend.
     my $r = GET($uri);
@@ -98,7 +100,7 @@ sub run_fcgi_envvar_request($$)
     }
 
     # Rejoin the child FCGI process.
-    waitpid($child, 0);
+    waitpid($child, 0) unless ($fcgi_port == -1) ;
 
     return \%envs;
 }
@@ -114,6 +116,7 @@ sub run_fcgi_envvar_request($$)
 my $fcgi_port = Apache::Test::vars('proxy_fcgi_port') - 1;
 my $envs;
 my $docroot = Apache::Test::vars('documentroot');
+my $servroot = Apache::Test::vars('serverroot');
 
 if ($have_fcgisetenvif) {
     # ProxyFCGISetEnvIf tests. Query the backend.
@@ -197,5 +200,15 @@ if (have_module('actions')) {
 
 # Regression test for PR61202.
 $envs = run_fcgi_envvar_request($fcgi_port, "/modules/proxy/fcgi/index.php");
-
 ok t_cmp($envs->{'SCRIPT_NAME'}, '/modules/proxy/fcgi/index.php', "Server sets correct SCRIPT_NAME by default");
+
+# Testing using php-fpm directly
+if ($have_php_fpm) {
+    Misc::do_do_run_run("php-fpm", sub { system "php-fpm -F -p $servroot/php-fpm"; });
+    sleep 1; # Yes, we really need this here since php-fpm takes a while
+    $envs = run_fcgi_envvar_request(-1, "/fpm/sub1/sub2/test.php?query");
+    # NOTE: Magic location!! See www.conf in t/php-fpm/etc/php-fpm.d
+    # TODO: Make this less magical
+    kill 'TERM', `cat /tmp/httpd-test-php-fpm.pid`;
+    ok t_cmp($envs->{'SCRIPT_NAME'}, '/fpm/sub1/sub2/test.php', "Server sets correct SCRIPT_NAME by default");
+}
