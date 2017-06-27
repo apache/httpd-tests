@@ -5,8 +5,6 @@ use Apache::Test;
 use Apache::TestRequest;
 use Apache::TestUtil;
 
-use Misc;
-
 my $have_fcgisetenvif    = have_min_apache_version('2.4.26');
 my $have_fcgibackendtype = have_min_apache_version('2.4.26');
 my $have_php_fpm = `php-fpm -v` =~ /fpm-fcgi/;
@@ -235,15 +233,24 @@ ok t_cmp($envs->{'SCRIPT_NAME'}, '/modules/proxy/fcgi/index.php', "Server sets c
 # Testing using php-fpm directly
 if ($have_php_fpm) {
     my $pid_file = "/tmp/php-fpm-" . $$ . "-" . time . ".pid";
-    my $pid = Misc::forker("php-fpm", sub { system "php-fpm -F -g $pid_file -p $servroot/php-fpm"; });
-    if ($pid > 0) {
-        while (! -e $pid_file) {}
-        $envs = run_fcgi_envvar_request(-1, "/fpm/sub1/sub2/test.php?query", "PHP-FPM");
-        ok t_cmp($envs->{'SCRIPT_NAME'}, '/fpm/sub1/sub2/test.php', "Server sets correct SCRIPT_NAME by default");
-
-        # TODO: Add more here
-        kill 'TERM', $pid;
-        kill 'TERM', `cat $pid_file`;
-        waitpid($pid, 0);
+    my $pid = fork();
+    unless (defined $pid) {
+        t_debug "couldn't start PHP-FPM";
+        ok 0;
+        exit;
     }
+    if ($pid == 0) {
+        system "php-fpm -g $pid_file -p $servroot/php-fpm";
+    }
+    # Wait for php-fpm to start-up
+    while (!-e $pid_file) {}
+    $envs = run_fcgi_envvar_request(-1, "/fpm/sub1/sub2/test.php?query", "PHP-FPM");
+    ok t_cmp($envs->{'SCRIPT_NAME'}, '/fpm/sub1/sub2/test.php', "Server sets correct SCRIPT_NAME by default");
+
+    # TODO: Add more tests here
+
+    # Clean up php-fpm process(es)
+    kill 'TERM', $pid;
+    kill 'TERM', `cat $pid_file`;
+    waitpid($pid, 0);
 }

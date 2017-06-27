@@ -27,7 +27,7 @@ BEGIN {
     # Just a bunch of useful subs
 }
 
-sub forker
+sub runner
 {
     my $msg = shift;
     my $func = shift;
