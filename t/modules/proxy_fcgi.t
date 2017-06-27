@@ -29,31 +29,60 @@ Apache::TestRequest::module("proxy_fcgi");
 # Launches a short-lived FCGI daemon that will handle exactly one request with
 # the given handler function. Returns the child PID; exits on failure.
 
-sub fcgi_request
+sub run_fcgi_handler($$)
 {
     my $fcgi_port    = shift;
     my $handler_func = shift;
 
-    # Child process. Open up a listening socket.
-    my $sock = FCGI::OpenSocket(":$fcgi_port", 10);
+    # Use a pipe for ready-signalling between the child and parent. Much faster
+    # (and more reliable) than just sleeping for a few seconds.
+    pipe(READ_END, WRITE_END);
+    my $pid = fork();
 
-    # Listen for and respond to exactly one request from the client.
-    my $request = FCGI::Request(\*STDIN, \*STDOUT, \*STDERR, \%ENV,
-                                $sock, &FCGI::FAIL_ACCEPT_ON_INTR);
-
-    if ($request->Accept() == 0) {
-        # Run the handler.
-        $handler_func->(@_);
-        $request->Finish();
+    unless (defined $pid) {
+        t_debug "couldn't fork FCGI process";
+        ok 0;
+        exit;
     }
 
-    # Clean up and exit.
-    FCGI::CloseSocket($sock);
-}
+    if ($pid == 0) {
+        # Child process. Open up a listening socket.
+        my $sock = FCGI::OpenSocket(":$fcgi_port", 10);
 
-sub run_fcgi_handler
-{
-    return Misc::do_do_run_run("FCGI process", \&fcgi_request, @_);
+        # Signal the parent process that we're ready.
+        print WRITE_END 'x';
+        close WRITE_END;
+
+        # Listen for and respond to exactly one request from the client.
+        my $request = FCGI::Request(\*STDIN, \*STDOUT, \*STDERR, \%ENV,
+                                    $sock, &FCGI::FAIL_ACCEPT_ON_INTR);
+
+        if ($request->Accept() == 0) {
+            # Run the handler.
+            $handler_func->();
+            $request->Finish();
+        }
+
+        # Clean up and exit.
+        FCGI::CloseSocket($sock);
+        exit;
+    }
+
+    # Parent process. Wait for the daemon to launch.
+    unless (IO::Select->new((\*READ_END,))->can_read(2)) {
+        t_debug "timed out waiting for FCGI process to start";
+        ok 0;
+
+        kill 'TERM', $pid;
+        # Note that we don't waitpid() here because Perl's fork() implementation
+        # on some platforms (Windows) doesn't guarantee that the pseudo-TERM
+        # signal will be delivered. Just wait for the child to be cleaned up
+        # when we exit.
+
+        exit;
+    }
+
+    return $pid;
 }
 
 # Convenience wrapper for run_fcgi_handler() that will echo back the envvars in
@@ -77,17 +106,18 @@ sub launch_envvar_echo_daemon($)
 #
 # Calling this function will run one test that must be accounted for in the test
 # plan.
-sub run_fcgi_envvar_request($$)
+sub run_fcgi_envvar_request
 {
     my $fcgi_port = shift;
     my $uri       = shift;
+    my $backend   = shift || "FCGI";
 
     # Launch the FCGI process.
     my $child = launch_envvar_echo_daemon($fcgi_port) unless ($fcgi_port == -1) ;
 
     # Hit the backend.
     my $r = GET($uri);
-    ok t_cmp($r->code, 200, "proxy to FCGI backend works (" . $uri . ")");
+    ok t_cmp($r->code, 200, "proxy to $backend backend works (" . $uri . ")");
 
     # Split the returned envvars into a dictionary.
     my %envs = ();
@@ -205,9 +235,15 @@ ok t_cmp($envs->{'SCRIPT_NAME'}, '/modules/proxy/fcgi/index.php', "Server sets c
 # Testing using php-fpm directly
 if ($have_php_fpm) {
     my $pid_file = "/tmp/php-fpm-" . $$ . "-" . time . ".pid";
-    Misc::do_do_run_run("php-fpm", sub { system "php-fpm -F -g $pid_file -p $servroot/php-fpm"; });
-    sleep 1; # Yes, we really need this here since php-fpm takes a while
-    $envs = run_fcgi_envvar_request(-1, "/fpm/sub1/sub2/test.php?query");
-    kill 'TERM', `cat $pid_file`;
-    ok t_cmp($envs->{'SCRIPT_NAME'}, '/fpm/sub1/sub2/test.php', "Server sets correct SCRIPT_NAME by default");
+    my $pid = Misc::forker("php-fpm", sub { system "php-fpm -F -g $pid_file -p $servroot/php-fpm"; });
+    if ($pid > 0) {
+        while (! -e $pid_file) {}
+        $envs = run_fcgi_envvar_request(- 1, "/fpm/sub1/sub2/test.php?query", "PHP-FPM");
+        ok t_cmp($envs->{'SCRIPT_NAME'}, '/fpm/sub1/sub2/test.php', "Server sets correct SCRIPT_NAME by default");
+
+        # TODO: Add more here
+        kill 'TERM', $pid;
+        kill 'TERM', `cat $pid_file`;
+        waitpid($pid, 0);
+    }
 }

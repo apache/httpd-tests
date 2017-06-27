@@ -22,36 +22,24 @@ use Apache::TestConfig ();
 
 use strict;
 use warnings FATAL => 'all';
-require IO::Select;
 
 BEGIN {
     # Just a bunch of useful subs
 }
 
-sub do_do_run_run
+sub forker
 {
     my $msg = shift;
     my $func = shift;
 
-    pipe(READ_END, WRITE_END);
     my $pid = fork();
     unless (defined $pid) {
-        t_debug "couldn't fork $msg";
+        t_debug "couldn't fork/run $msg";
         ok 0;
-        exit;
+        $pid = -1;
     }
     if ($pid == 0) {
-        print WRITE_END 'x';
-        close WRITE_END;
         $func->(@_);
-        exit;
-    }
-    # give time for the system call to take effect
-    unless (IO::Select->new((\*READ_END,))->can_read(2)) {
-        t_debug "timed out waiting for $msg";
-        ok 0;
-        kill 'TERM', $pid;
-        exit;
     }
     return $pid;
 }
