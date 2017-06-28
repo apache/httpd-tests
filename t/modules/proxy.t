@@ -131,7 +131,7 @@ if (have_min_apache_version('2.4.7')) {
     unlink($socket_path);
     my $pid = fork();
     unless (defined $pid) {
-        t_debug "couldn't start PHP-FPM";
+        t_debug "couldn't fork UDS script";
         ok 0;
         exit;
     }
