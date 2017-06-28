@@ -31,6 +31,7 @@ CPAN modules will be required. If the tests don't work, make sure
 that you have up to date versions of each of these perl modules:
 - HTTP::DAV (DAV tests)
 - DateTime (mod_include tests)
+- Time::HiRes
 - Protocol::HTTP2::Client and AnyEvent (mod_http2 tests)
 - Test
 - Test::Harness

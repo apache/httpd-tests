@@ -5,6 +5,8 @@ use Apache::Test;
 use Apache::TestRequest;
 use Apache::TestUtil;
 
+use Time::HiRes qw(usleep);
+
 my $have_fcgisetenvif    = have_min_apache_version('2.4.26');
 my $have_fcgibackendtype = have_min_apache_version('2.4.26');
 my $have_php_fpm = `php-fpm -v` =~ /fpm-fcgi/;
@@ -243,7 +245,15 @@ if ($have_php_fpm) {
         system "php-fpm -g $pid_file -p $servroot/php-fpm";
     }
     # Wait for php-fpm to start-up
-    while (!-e $pid_file) {}
+    my $timer = time() + 2;
+    while (! -e $pid_file) {
+        usleep(100);
+        last if (time() >= $timer);
+    }
+    unless ( -e $pid_file ) {
+        ok 0;
+        exit;
+    }
     $envs = run_fcgi_envvar_request(-1, "/fpm/sub1/sub2/test.php?query", "PHP-FPM");
     ok t_cmp($envs->{'SCRIPT_NAME'}, '/fpm/sub1/sub2/test.php', "Server sets correct SCRIPT_NAME by default");
 

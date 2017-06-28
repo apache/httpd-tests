@@ -6,6 +6,8 @@ use Apache::TestRequest;
 use Apache::TestUtil;
 use Apache::TestConfig ();
 
+use Time::HiRes qw(usleep);
+
 my $num_tests = 20;
 if (have_min_apache_version('2.4.7')) {
     $num_tests++;
@@ -138,7 +140,15 @@ if (have_min_apache_version('2.4.7')) {
         uds_script($socket_path);
         exit;
     }
-    while (! -e $socket_path) {}
+    my $timer = time() + 2;
+    while (! -e $socket_path) {
+        usleep(100);
+        last if (time() >= $timer);
+    }
+    unless ( -e $socket_path) {
+        ok 0;
+        exit;
+    }
     $r = GET("/uds/");
     ok t_cmp($r->code, 200, "ProxyPass UDS path");
 }
