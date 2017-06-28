@@ -242,7 +242,7 @@ if ($have_php_fpm) {
         exit;
     }
     if ($pid == 0) {
-        system "php-fpm -g $pid_file -p $servroot/php-fpm";
+        system "php-fpm -n -g $pid_file -p $servroot/php-fpm";
     }
     # Wait for php-fpm to start-up
     my $timer = time() + 2;
