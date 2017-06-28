@@ -147,6 +147,8 @@ this to make life easier for others.
    You planned X tests but ran Y." it usually means that you are missing
    a perl module or the tested httpd module depends on another one
    not loaded in the httpd config.
+8. If you see SSL certificate errors, remove t/conf/ssl/ca prior to 
+   t/TEST -clean
 
 
 Smoking Tests
