@@ -5,8 +5,7 @@ use Apache::Test;
 use Apache::TestRequest;
 use Apache::TestUtil;
 use Apache::TestConfig ();
-
-use Time::HiRes qw(usleep);
+use Misc;
 
 my $num_tests = 20;
 if (have_min_apache_version('2.4.7')) {
@@ -140,12 +139,7 @@ if (have_min_apache_version('2.4.7')) {
         uds_script($socket_path);
         exit;
     }
-    my $timer = time() + 2;
-    while (! -e $socket_path) {
-        usleep(100);
-        last if (time() >= $timer);
-    }
-    unless ( -e $socket_path) {
+    unless (Misc::cwait('-e "'.$socket_path.'"')) {
         ok 0;
         exit;
     }

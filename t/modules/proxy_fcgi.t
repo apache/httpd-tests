@@ -4,8 +4,7 @@ use warnings FATAL => 'all';
 use Apache::Test;
 use Apache::TestRequest;
 use Apache::TestUtil;
-
-use Time::HiRes qw(usleep);
+use Misc;
 
 my $have_fcgisetenvif    = have_min_apache_version('2.4.26');
 my $have_fcgibackendtype = have_min_apache_version('2.4.26');
@@ -243,14 +242,10 @@ if ($have_php_fpm) {
     }
     if ($pid == 0) {
         system "php-fpm -n -g $pid_file -p $servroot/php-fpm";
+        exit;
     }
     # Wait for php-fpm to start-up
-    my $timer = time() + 2;
-    while (! -e $pid_file) {
-        usleep(100);
-        last if (time() >= $timer);
-    }
-    unless ( -e $pid_file ) {
+    unless ( Misc::cwait('-e "'.$pid_file.'"') ) {
         ok 0;
         exit;
     }
