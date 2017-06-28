@@ -7,7 +7,7 @@ use Apache::TestUtil;
 use Apache::TestConfig ();
 use Misc;
 
-my $num_tests = 20;
+my $num_tests = 21;
 if (have_min_apache_version('2.4.7')) {
     $num_tests++;
 }
@@ -119,8 +119,8 @@ sub uds_script
     if (accept(my $new_sock, $server)) {
         my $data = <$new_sock>;
         print $new_sock "HTTP/1.0 200 OK\r\n";
-        print $new_sock "Content-Type: text/html\r\n\r\n";
-        print $new_sock "<html><body><h1>Hello World</h1><pre>$data</pre></body></html>\n";
+        print $new_sock "Content-Type: text/plain\r\n\r\n";
+        print $new_sock "hello world\n";
         close $new_sock;
     }
     unlink($socket_path);
@@ -145,5 +145,9 @@ if (have_min_apache_version('2.4.7')) {
     }
     $r = GET("/uds/");
     ok t_cmp($r->code, 200, "ProxyPass UDS path");
+    my $c = $r->content;
+    chomp $c;
+    ok t_cmp($c, "hello world", "UDS content OK");
+
 }
 
