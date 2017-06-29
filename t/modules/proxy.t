@@ -7,9 +7,9 @@ use Apache::TestUtil;
 use Apache::TestConfig ();
 use Misc;
 
-my $num_tests = 21;
+my $num_tests = 20;
 if (have_min_apache_version('2.4.7')) {
-    $num_tests++;
+    $num_tests += 2;
 }
 plan tests => $num_tests, need need_module 'proxy', need_module 'setenvif';
 
