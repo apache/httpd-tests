@@ -244,8 +244,8 @@ if (have_module('actions')) {
             ok 0;
             exit;
         }
-        $envs = run_fcgi_envvar_request(-1, "/fpm/sub1/sub2/test.php/foo/bar?query", "PHP-FPM");
-        ok t_cmp($envs->{'SCRIPT_NAME'}, '/fpm/sub1/sub2/test.php', "PHP-FPM sets correct SCRIPT_NAME");
+        $envs = run_fcgi_envvar_request(-1, "/php/fpm/action/sub2/test.php/foo/bar?query", "PHP-FPM");
+        ok t_cmp($envs->{'SCRIPT_NAME'}, '/php/fpm/action/sub2/test.php', "PHP-FPM sets correct SCRIPT_NAME");
         ok t_cmp($envs->{'PATH_INFO'}, '/foo/bar', "PHP-FPM sets correct PATH_INFO");
         ok t_cmp($envs->{'QUERY_STRING'}, 'query', "PHP-FPM sets correct QUERY_STRING");
 

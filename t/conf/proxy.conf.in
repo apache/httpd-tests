@@ -100,8 +100,8 @@
 
     <IfModule mod_actions.c>
       #AddType application/x-php-fpm .php
-      Action application/x-php-fpm /fpm virtual
-      <Location /fpm>
+      Action application/x-php-fpm /php/fpm virtual
+      <Location /php/fpm>
            SetHandler proxy:fcgi://localhost:9001
       </Location>
       <Directory @SERVERROOT@/htdocs/modules/proxy/fcgi-action>
