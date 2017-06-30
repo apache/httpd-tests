@@ -13,7 +13,7 @@ my $have_php_fpm = `php-fpm -v` =~ /fpm-fcgi/;
 plan tests => (7 * $have_fcgisetenvif) + (2 * $have_fcgibackendtype) +
                (2 * $have_fcgibackendtype * have_module('rewrite')) +
                (7 * have_module('rewrite')) + (7 * have_module('actions')) +
-               (2 * $have_php_fpm) + 2,
+               (4 * $have_php_fpm * have_module('actions')) + 2,
      need (
         'mod_proxy_fcgi',
         'FCGI',
@@ -225,37 +225,41 @@ if (have_module('actions')) {
              "Action QUERY_STRING is correct");
     ok t_cmp($envs->{'REDIRECT_URL'}, '/modules/proxy/fcgi-action/index.php/path/info',
              "Action REDIRECT_URL uses original client URL");
+
+    # Testing using php-fpm directly
+    if ($have_php_fpm) {
+        my $pid_file = "/tmp/php-fpm-" . $$ . "-" . time . ".pid";
+        my $pid = fork();
+        unless (defined $pid) {
+            t_debug "couldn't start PHP-FPM";
+            ok 0;
+            exit;
+        }
+        if ($pid == 0) {
+            system "php-fpm -n -g $pid_file -p $servroot/php-fpm";
+            exit;
+        }
+        # Wait for php-fpm to start-up
+        unless ( Misc::cwait('-e "'.$pid_file.'"') ) {
+            ok 0;
+            exit;
+        }
+        $envs = run_fcgi_envvar_request(-1, "/fpm/sub1/sub2/test.php/foo/bar?query", "PHP-FPM");
+        ok t_cmp($envs->{'SCRIPT_NAME'}, '/fpm/sub1/sub2/test.php', "PHP-FPM sets correct SCRIPT_NAME");
+        ok t_cmp($envs->{'PATH_INFO'}, '/foo/bar', "PHP-FPM sets correct PATH_INFO");
+        ok t_cmp($envs->{'QUERY_STRING'}, 'query', "PHP-FPM sets correct QUERY_STRING");
+
+        # TODO: Add more tests here
+
+        # Clean up php-fpm process(es)
+        kill 'TERM', $pid;
+        kill 'TERM', `cat $pid_file`;
+        waitpid($pid, 0);
+    }
+
 }
 
 # Regression test for PR61202.
 $envs = run_fcgi_envvar_request($fcgi_port, "/modules/proxy/fcgi/index.php");
 ok t_cmp($envs->{'SCRIPT_NAME'}, '/modules/proxy/fcgi/index.php', "Server sets correct SCRIPT_NAME by default");
 
-# Testing using php-fpm directly
-if ($have_php_fpm) {
-    my $pid_file = "/tmp/php-fpm-" . $$ . "-" . time . ".pid";
-    my $pid = fork();
-    unless (defined $pid) {
-        t_debug "couldn't start PHP-FPM";
-        ok 0;
-        exit;
-    }
-    if ($pid == 0) {
-        system "php-fpm -n -g $pid_file -p $servroot/php-fpm";
-        exit;
-    }
-    # Wait for php-fpm to start-up
-    unless ( Misc::cwait('-e "'.$pid_file.'"') ) {
-        ok 0;
-        exit;
-    }
-    $envs = run_fcgi_envvar_request(-1, "/fpm/sub1/sub2/test.php?query", "PHP-FPM");
-    ok t_cmp($envs->{'SCRIPT_NAME'}, '/fpm/sub1/sub2/test.php', "Server sets correct SCRIPT_NAME by default");
-
-    # TODO: Add more tests here
-
-    # Clean up php-fpm process(es)
-    kill 'TERM', $pid;
-    kill 'TERM', `cat $pid_file`;
-    waitpid($pid, 0);
-}
