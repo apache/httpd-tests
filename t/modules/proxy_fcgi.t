@@ -13,7 +13,7 @@ my $have_php_fpm = `php-fpm -v` =~ /fpm-fcgi/;
 plan tests => (7 * $have_fcgisetenvif) + (2 * $have_fcgibackendtype) +
                (2 * $have_fcgibackendtype * have_module('rewrite')) +
                (7 * have_module('rewrite')) + (7 * have_module('actions')) +
-               (10 * $have_php_fpm * have_module('actions')) + 2,
+               (12 * $have_php_fpm * have_module('actions')) + 2,
      need (
         'mod_proxy_fcgi',
         'FCGI',
@@ -253,6 +253,8 @@ if (have_module('actions')) {
                 "PHP-FPM sets correct QUERY_STRING");
         ok t_cmp($envs->{'PATH_TRANSLATED'}, $docroot . '/foo/bar',
                 "PHP-FPM sets correct PATH_TRANSLATED");
+        ok t_cmp($envs->{'FCGI_ROLE'}, 'RESPONDER',
+                "PHP-FPM sets correct FCGI_ROLE");
 
         $envs = run_fcgi_envvar_request(-1, "/php-fpm-pp/php/fpm/pp/sub1/test.php/foo/bar?query", "PHP-FPM");
         ok t_cmp($envs->{'SCRIPT_NAME'}, '/php-fpm-pp/php/fpm/pp/sub1/test.php',
@@ -263,6 +265,8 @@ if (have_module('actions')) {
                 "ProxyPass PHP-FPM sets correct QUERY_STRING");
         ok t_cmp($envs->{'PATH_TRANSLATED'}, $docroot . '/foo/bar',
                 "ProxyPass PHP-FPM sets correct PATH_TRANSLATED");
+        ok t_cmp($envs->{'FCGI_ROLE'}, 'RESPONDER',
+                "ProxyPass PHP-FPM sets correct FCGI_ROLE");
 
         # TODO: Add more tests here
 
