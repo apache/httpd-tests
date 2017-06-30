@@ -77,6 +77,9 @@
           SetHandler proxy:fcgi://127.0.0.1:${FCGI_PORT}
         </FilesMatch>
       </Directory>
+      <Directory @SERVERROOT@/htdocs/php/fpm>
+        ProxyFCGIBackendType FPM
+      </Directory>
     </IfVersion>
 
     <IfModule mod_rewrite.c>
