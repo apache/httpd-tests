@@ -13,7 +13,7 @@ my $have_php_fpm = `php-fpm -v` =~ /fpm-fcgi/;
 plan tests => (7 * $have_fcgisetenvif) + (2 * $have_fcgibackendtype) +
                (2 * $have_fcgibackendtype * have_module('rewrite')) +
                (7 * have_module('rewrite')) + (7 * have_module('actions')) +
-               (12 * $have_php_fpm * have_module('actions')) + 2,
+               (15 * $have_php_fpm * have_module('actions')) + 2,
      need (
         'mod_proxy_fcgi',
         'FCGI',
@@ -267,6 +267,12 @@ if (have_module('actions')) {
                 "ProxyPass PHP-FPM sets correct PATH_TRANSLATED");
         ok t_cmp($envs->{'FCGI_ROLE'}, 'RESPONDER',
                 "ProxyPass PHP-FPM sets correct FCGI_ROLE");
+
+        $envs = run_fcgi_envvar_request(-1, "/php-fpm-pp/php/fpm/pp/sub1/test.php", "PHP-FPM");
+        ok t_cmp($envs->{'PATH_INFO'}, undef,
+                "ProxyPass PHP-FPM sets correct empty PATH_INFO");
+        ok t_cmp($envs->{'PATH_TRANSLATED'}, undef,
+                "ProxyPass PHP-FPM does not set PATH_TRANSLATED w/ empty PATH_INFO");
 
         # TODO: Add more tests here
 
