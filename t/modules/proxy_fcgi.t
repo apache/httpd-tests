@@ -236,7 +236,7 @@ if (have_module('actions')) {
             exit;
         }
         if ($pid == 0) {
-            system "php-fpm -n -g $pid_file -p $servroot/php-fpm";
+            system "php-fpm -n -D -g $pid_file -p $servroot/php-fpm";
             exit;
         }
         # Wait for php-fpm to start-up
@@ -271,8 +271,8 @@ if (have_module('actions')) {
         # TODO: Add more tests here
 
         # Clean up php-fpm process(es)
-        kill 'TERM', $pid;
-        kill 'TERM', `cat $pid_file`;
+        kill 'TERM', $pid;   # Kill child process
+        kill 'TERM', `cat $pid_file`;   # Kill php-fpm daemon
         waitpid($pid, 0);
     }
 
