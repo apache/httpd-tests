@@ -5,42 +5,31 @@ use Apache::Test;
 use Apache::TestRequest;
 use Apache::TestUtil;
 
-## mod_negotiation test
-##
-## extra.conf.in:
-##
-## <IfModule mod_mime.c>
-## AddLanguage en .en
-## AddLanguage fr .fr
-## AddLanguage de .de
-## AddLanguage fu .fu
-## AddHandler type-map .var
-## 
-## <IfModule mod_negotiation.c>
-## CacheNegotiatedDocs
-## <Directory @SERVERROOT@/htdocs/modules/negotiation/en>
-## Options +MultiViews
-## LanguagePriority en fr de fu
-## </Directory>
-## <Directory @SERVERROOT@/htdocs/modules/negotiation/de>
-## Options +MultiViews
-## LanguagePriority de en fr fu
-## </Directory>
-## <Directory @SERVERROOT@/htdocs/modules/negotiation/fr>
-## Options +MultiViews
-## LanguagePriority fr en de fu
-## </Directory>
-## <Directory @SERVERROOT@/htdocs/modules/negotiation/fu>
-## Options +MultiViews
-## LanguagePriority fu fr en de
-## </Directory>
-## </IfModule>
-## </IfModule>
-
+## mod_negotiation test (see extra.conf.in)
 
 my ($en, $fr, $de, $fu, $bu) = qw(en fr de fu bu);
 my @language = ($en, $fr, $de, $fu);
-my $tests = (@language * 3) + (@language * @language * 5) + 7;
+
+my @ct_tests = (
+    # [ Accept header, Expected response ]
+    [ "*/*",       "text/plain" ],
+    [ "text/*",    "text/plain" ],
+    [ "text/html", "text/html"  ],
+    [ "image/*",   "image/jpeg" ],
+    [ "image/gif", "image/gif"  ],
+
+    [ "*",         "text/plain" ], # Dubious
+
+    # Tests which expect a 406 response
+    [ "",     undef ],
+    [ "*bad", undef ],
+    [ "/*",   undef ],
+    [ "*/",   undef ],
+    [ "te/*", undef ],
+);
+
+my $tests = (@language * 3) + (@language * @language * 5) + (scalar @ct_tests)
+            + 7;
 
 plan tests => $tests, need 
      need_module('negotiation') && need_cgi && need_module('mime');
@@ -168,3 +157,25 @@ my_chomp();
 ok t_cmp($actual, "QUERY_STRING --> foo",
          "The type map gives the script the highest quality;"
          . "\nthe request included a query string");
+
+## Content-Type tests
+
+foreach my $test (@ct_tests) {
+    my $accept   = $test->[0];
+    my $expected = $test->[1];
+
+    my $r = GET "/modules/negotiation/content-type/test.var",
+                Accept => $accept;
+
+    if ($expected) {
+        $actual = $r->content;
+
+        # Strip whitespace from the body (we pad the variant map with spaces).
+        $actual =~ s/^\s+|\s+$//g;
+
+        ok t_cmp $expected, $actual, "should send correct variant";
+    }
+    else {
+        ok t_cmp $r->code, 406, "expect Not Acceptable for Accept: $accept";
+    }
+}
