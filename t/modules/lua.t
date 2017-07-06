@@ -37,7 +37,6 @@ my @ts = (
     { url => "$pfx/https.lua", rcontent => $https },
     { url => "$pfx/setheaders.lua", rcontent => "",
                                     headers => { "X-Header" => "yes",
-                                                 "X-Compat" => "compat",
                                                  "X-Host"   => $hostport } },
 );
 
