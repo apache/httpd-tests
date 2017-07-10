@@ -46,10 +46,10 @@ ok $sock;
 $sock->print($req . $url);
 $sock->shutdown(1);
 
+# In httpd, a bad PROXY format simply results in the connection
+# being dropped. So ensure we don't get anything that looks
+# like a response
 $response_data = slurp($sock);
-#print "--\n";
-#print "$response_data\n";
-#print "--\n";
 $r = HTTP::Response->parse($response_data);
 chomp($content = $r->content);
 ok t_cmp($r->code, undef, "broken PROXY protocol human readable check");
