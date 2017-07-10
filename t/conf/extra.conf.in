@@ -1186,3 +1186,13 @@ LimitRequestFields    32
   # If mod_ssl_ct is loaded, CTSCTStorage is needed to pass the configtest.
   CTSCTStorage .
 </IfModule>
+
+##
+## mod_remote_ip configuration
+##
+<IfModule mod_remoteip.c>
+   <VirtualHost remote_ip>
+      DocumentRoot @SERVERROOT@/htdocs/modules/remoteip
+      RemoteIPProxyProtocol On
+   </VirtualHost>
+</IfModule>
