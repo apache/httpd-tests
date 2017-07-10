@@ -9,7 +9,7 @@ use Apache::TestUtil;
 ## mod_remoteip tests
 ##
 Apache::TestRequest::module("remote_ip");
-plan tests => 12, need_module 'remoteip', have_min_apache_version('2.4.28');
+plan tests => 12, need_module 'remoteip', have_min_apache_version('2.5.0');
 
 sub slurp
 {
