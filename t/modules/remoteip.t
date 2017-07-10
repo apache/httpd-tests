@@ -74,6 +74,7 @@ ok t_cmp($content, "PROXY-OK", "Context check");
 $sock->shutdown(2);
 
 # TODO: test binary format
+# Use NetAddr::IP::Util as needed??
 $proxy = "\x0D\x0A\x0D\x0A\x00\x0D\x0A\x51\x55\x49\x54\x0A"; # header
 $proxy .= "\x21"; # protocol version and command (AF_INET STREAM)
 $proxy .= "\x11"; # transport protocol and address family (TCP over IPv4)
