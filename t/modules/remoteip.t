@@ -9,7 +9,7 @@ use Apache::TestUtil;
 ## mod_remoteip tests
 ##
 Apache::TestRequest::module("remote_ip");
-plan tests => 9, need_module 'remoteip', have_min_apache_version('2.4.28');
+plan tests => 12, need_module 'remoteip', have_min_apache_version('2.4.28');
 
 sub slurp
 {
@@ -73,8 +73,18 @@ ok t_cmp($r->code, 200, "PROXY TCP6 protocol human readable check");
 ok t_cmp($content, "PROXY-OK", "Context check");
 $sock->shutdown(2);
 
-# TODO: test binary format
-# Use NetAddr::IP::Util as needed??
+# Test binary format
 $proxy = "\x0D\x0A\x0D\x0A\x00\x0D\x0A\x51\x55\x49\x54\x0A"; # header
 $proxy .= "\x21"; # protocol version and command (AF_INET STREAM)
 $proxy .= "\x11"; # transport protocol and address family (TCP over IPv4)
+$proxy .= "\x00\x0C";
+$proxy .= "\xC0\xA8\xC0\x42\xC0\xA8\xC0\x4D\x01\xF0\x01\xF1";
+ok ($sock = Apache::TestRequest::vhost_socket("remote_ip"));
+$sock->print($proxy . $url);
+$sock->shutdown(1);
+$response_data = slurp($sock);
+$r = HTTP::Response->parse($response_data);
+chomp($content = $r->content);
+ok t_cmp($r->code, 200, "PROXY TCP4 protocol binary check");
+ok t_cmp($content, "PROXY-OK", "Context check");
+$sock->shutdown(2);
