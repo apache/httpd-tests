@@ -27,11 +27,11 @@ ok(my $sock = Apache::TestRequest::vhost_socket("remote_ip"));
 #
 # Test human readable format: TCP4
 #
-my $req = "PROXY TCP4 192.168.192.66 192.168.192.77 1111 2222\r\n";
+my $proxy = "PROXY TCP4 192.168.192.66 192.168.192.77 1111 2222\r\n";
 my $url = "GET /index.html HTTP/1.1\r\nConnection: close\r\n";
 $url .= "Host: dummy\r\n\r\n";
 
-$sock->print($req . $url);
+$sock->print($proxy . $url);
 $sock->shutdown(1);
 
 my $response_data = slurp($sock);
@@ -44,9 +44,9 @@ $sock->shutdown(2);
 #
 # BAD format test
 #
-$req = "PROXY FOO 192.168.192.66 192.168.192.77 1111 2222\r\n";
+$proxy = "PROXY FOO 192.168.192.66 192.168.192.77 1111 2222\r\n";
 ok ($sock = Apache::TestRequest::vhost_socket("remote_ip"));
-$sock->print($req . $url);
+$sock->print($proxy . $url);
 $sock->shutdown(1);
 
 # In httpd, a bad PROXY format simply results in the connection
@@ -62,9 +62,9 @@ $sock->shutdown(2);
 #
 # Test human readable format: TCP6
 #
-$req = "PROXY TCP6 2001:DB8::21f:5bff:febf:ce22:8a2e 2001:DB8::12f:8baa:eafc:ce29:6b2e 3333 4444\r\n";
+$proxy = "PROXY TCP6 2001:DB8::21f:5bff:febf:ce22:8a2e 2001:DB8::12f:8baa:eafc:ce29:6b2e 3333 4444\r\n";
 ok ($sock = Apache::TestRequest::vhost_socket("remote_ip"));
-$sock->print($req . $url);
+$sock->print($proxy . $url);
 $sock->shutdown(1);
 $response_data = slurp($sock);
 $r = HTTP::Response->parse($response_data);
@@ -74,3 +74,6 @@ ok t_cmp($content, "PROXY-OK", "Context check");
 $sock->shutdown(2);
 
 # TODO: test binary format
+$proxy = "\x0D\x0A\x0D\x0A\x00\x0D\x0A\x51\x55\x49\x54\x0A"; # header
+$proxy .= "\x21"; protocol version and command (AF_INET STREAM)
+$proxy .= "\x11"; transport protocol and address family (TCP over IPv4)
