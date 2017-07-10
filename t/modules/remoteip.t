@@ -77,7 +77,7 @@ $sock->shutdown(2);
 $proxy = "\x0D\x0A\x0D\x0A\x00\x0D\x0A\x51\x55\x49\x54\x0A"; # header
 $proxy .= "\x21"; # protocol version and command (AF_INET STREAM)
 $proxy .= "\x11"; # transport protocol and address family (TCP over IPv4)
-$proxy .= "\x00\x0C";
+$proxy .= "\x00\x0C"; # 12 bytes coming up
 $proxy .= "\xC0\xA8\xC0\x42\xC0\xA8\xC0\x4D\x01\xF0\x01\xF1";
 ok ($sock = Apache::TestRequest::vhost_socket("remote_ip"));
 $sock->print($proxy . $url);
