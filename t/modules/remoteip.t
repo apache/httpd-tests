@@ -8,6 +8,8 @@ use Apache::TestUtil;
 ## 
 ## mod_remoteip tests
 ##
+## PROXY protocol: https://www.haproxy.org/download/1.8/doc/proxy-protocol.txt
+##
 Apache::TestRequest::module("remote_ip");
 plan tests => 12, need_module 'remoteip', have_min_apache_version('2.5.0');
 
