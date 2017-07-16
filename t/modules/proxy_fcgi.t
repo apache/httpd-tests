@@ -112,7 +112,7 @@ sub run_fcgi_envvar_request
     my $backend   = shift || "FCGI";
 
     # Launch the FCGI process.
-    my $child = launch_envvar_echo_daemon($fcgi_port) unless ($fcgi_port == -1) ;
+    my $child = launch_envvar_echo_daemon($fcgi_port) unless ($fcgi_port <= 0) ;
 
     # Hit the backend.
     my $r = GET($uri);
@@ -129,7 +129,7 @@ sub run_fcgi_envvar_request
     }
 
     # Rejoin the child FCGI process.
-    waitpid($child, 0) unless ($fcgi_port == -1) ;
+    waitpid($child, 0) unless ($fcgi_port <= 0) ;
 
     return \%envs;
 }
@@ -244,7 +244,7 @@ if (have_module('actions')) {
             ok 0;
             exit;
         }
-        $envs = run_fcgi_envvar_request(-1, "/php/fpm/action/sub2/test.php/foo/bar?query", "PHP-FPM");
+        $envs = run_fcgi_envvar_request(0, "/php/fpm/action/sub2/test.php/foo/bar?query", "PHP-FPM");
         ok t_cmp($envs->{'SCRIPT_NAME'}, '/php/fpm/action/sub2/test.php',
                 "Handler PHP-FPM sets correct SCRIPT_NAME");
         ok t_cmp($envs->{'PATH_INFO'}, '/foo/bar',
@@ -256,7 +256,7 @@ if (have_module('actions')) {
         ok t_cmp($envs->{'FCGI_ROLE'}, 'RESPONDER',
                 "Handler PHP-FPM sets correct FCGI_ROLE");
 
-        $envs = run_fcgi_envvar_request(-1, "/php-fpm-pp/php/fpm/pp/sub1/test.php/foo/bar?query", "PHP-FPM");
+        $envs = run_fcgi_envvar_request(0, "/php-fpm-pp/php/fpm/pp/sub1/test.php/foo/bar?query", "PHP-FPM");
         ok t_cmp($envs->{'SCRIPT_NAME'}, '/php-fpm-pp/php/fpm/pp/sub1/test.php',
                 "ProxyPass PHP-FPM sets correct SCRIPT_NAME");
         ok t_cmp($envs->{'PATH_INFO'}, '/foo/bar',
@@ -268,7 +268,7 @@ if (have_module('actions')) {
         ok t_cmp($envs->{'FCGI_ROLE'}, 'RESPONDER',
                 "ProxyPass PHP-FPM sets correct FCGI_ROLE");
 
-        $envs = run_fcgi_envvar_request(-1, "/php-fpm-pp/php/fpm/pp/sub1/test.php", "PHP-FPM");
+        $envs = run_fcgi_envvar_request(0, "/php-fpm-pp/php/fpm/pp/sub1/test.php", "PHP-FPM");
         ok t_cmp($envs->{'PATH_INFO'}, undef,
                 "ProxyPass PHP-FPM sets correct empty PATH_INFO");
         ok t_cmp($envs->{'PATH_TRANSLATED'}, undef,
