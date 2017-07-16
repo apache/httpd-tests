@@ -8,6 +8,7 @@ use Misc;
 
 my $have_fcgisetenvif    = have_min_apache_version('2.4.26');
 my $have_fcgibackendtype = have_min_apache_version('2.4.26');
+# NOTE: This will fail if php-fpm is installed but not in $PATH
 my $have_php_fpm = `php-fpm -v` =~ /fpm-fcgi/;
 
 plan tests => (7 * $have_fcgisetenvif) + (2 * $have_fcgibackendtype) +
