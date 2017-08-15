@@ -296,6 +296,16 @@
       </IfModule>
    </VirtualHost>
 
+   <VirtualHost proxy_http_nofwd>
+      ProxyAddHeaders off
+      ProxyPass /reverse/ http://@SERVERNAME@:@PORT@/
+
+      <Proxy "*">
+         # Noop config to trigger merging bug.
+         Require all granted
+      </Proxy>
+    </VirtualHost>
+
    <IfVersion >= 2.2.5>
       <VirtualHost cve_2011_3368>
          DocumentRoot @SERVERROOT@/htdocs/modules/proxy

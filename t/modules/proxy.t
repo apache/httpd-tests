@@ -7,7 +7,7 @@ use Apache::TestUtil;
 use Apache::TestConfig ();
 use Misc;
 
-my $num_tests = 20;
+my $num_tests = 23;
 if (have_min_apache_version('2.4.7')) {
     $num_tests += 2;
 }
@@ -43,7 +43,20 @@ if (have_cgi) {
     $r = GET("/reverse/modules/cgi/env.pl");
     ok t_cmp($r->code, 200, "reverse proxy to env.pl");
     ok t_cmp($r->content, qr/^APACHE_TEST_HOSTNAME = /, "reverse proxied env.pl response");
+    ok t_cmp($r->content, qr/HTTP_X_FORWARDED_FOR = /, "X-Forwarded-For enabled");
     
+    if (have_min_apache_version('2.5.0')) {
+        Apache::TestRequest::module("proxy_http_nofwd");
+        $r = GET("/reverse/modules/cgi/env.pl");
+        ok t_cmp($r->code, 200, "reverse proxy to env.pl without X-F-F");
+        ok !t_cmp($r->content, qr/HTTP_X_FORWARDED_FOR = /, "reverse proxied env.pl w/o X-F-F");
+
+        Apache::TestRequest::module("proxy_http_reverse");
+    }
+    else {
+        skip "skipping tests with httpd < 2.5" foreach (1..2);
+    }
+
     $r = GET("/reverse/modules/cgi/env.pl?reverse-proxy");
     ok t_cmp($r->code, 200, "reverse proxy with query string");
     ok t_cmp($r->content, qr/QUERY_STRING = reverse-proxy\n/s, "reverse proxied query string OK");
