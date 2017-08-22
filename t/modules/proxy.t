@@ -45,7 +45,7 @@ if (have_cgi) {
     ok t_cmp($r->content, qr/^APACHE_TEST_HOSTNAME = /, "reverse proxied env.pl response");
     ok t_cmp($r->content, qr/HTTP_X_FORWARDED_FOR = /, "X-Forwarded-For enabled");
     
-    if (have_min_apache_version('2.5.0')) {
+    if (have_min_apache_version('2.4.28')) {
         Apache::TestRequest::module("proxy_http_nofwd");
         $r = GET("/reverse/modules/cgi/env.pl");
         ok t_cmp($r->code, 200, "reverse proxy to env.pl without X-F-F");
@@ -54,7 +54,7 @@ if (have_cgi) {
         Apache::TestRequest::module("proxy_http_reverse");
     }
     else {
-        skip "skipping tests with httpd < 2.5" foreach (1..2);
+        skip "skipping tests with httpd < 2.4.28" foreach (1..2);
     }
 
     $r = GET("/reverse/modules/cgi/env.pl?reverse-proxy");
