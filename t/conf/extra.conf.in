@@ -248,6 +248,14 @@
 
     </Directory>
 
+    # PR 58231: Vary:Host header mistakenly added to the response
+    RewriteCond "%{HTTP_HOST} = 'test1'"
+    RewriteRule /modules/rewrite/vary1.html /modules/rewrite/vary2.html [L]
+
+    RewriteCond "%{HTTP:Host} = 'test2'"
+    RewriteRule /modules/rewrite/vary1.html /modules/rewrite/vary2.html [L]
+
+
     ### Proxy pass-through to env.pl
     RewriteRule ^/modules/rewrite/proxy2/(.*)$ http://@SERVERNAME@:@PORT@/modules/cgi/$1 [L,P]
     

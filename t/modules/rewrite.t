@@ -24,7 +24,7 @@ if (!have_min_apache_version('2.4')) {
     push @todo, 24
 }
 
-plan tests => @map * @num + 16, todo => \@todo, need_module 'rewrite';
+plan tests => @map * @num + 16 + (have_min_apache_version("2.5") ? 2 : 0), todo => \@todo, need_module 'rewrite';
 
 foreach (@map) {
     foreach my $n (@num) {
@@ -122,3 +122,13 @@ if (have_min_apache_version('2.4')) {
 } else {
     skip "Skipping PR 60478 test; requires ap_expr in version 2.4"
 }
+
+if (have_min_apache_version("2.5")) {
+    # PR 58231: Vary:Host header mistakenly added to the response
+    $r = GET("/modules/rewrite/vary1.html", "Host" => "test1");
+    ok t_cmp($r->header("Vary"), qr/(?!.*Host.*)/, "Vary:Host header not added, OK");
+
+    $r = GET("/modules/rewrite/vary1.html", "Host" => "test2");
+    ok t_cmp($r->header("Vary"), qr/(?!.*Host.*)/, "Vary:Host header not added, OK");
+}
+
