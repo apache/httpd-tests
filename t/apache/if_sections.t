@@ -7,9 +7,6 @@ use Apache::TestUtil;
 
 #
 # Test <If > section merging
-# Nested <If> evaluation is only available in trunk,
-# in 2.4.x the default behavior is to ignore any nested
-# <If> block. 
 #
 
 plan tests => (have_min_apache_version('2.4.26') ? 23 : 11) * 2,
