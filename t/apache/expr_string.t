@@ -18,14 +18,17 @@ my @test_cases = (
     [ 'foo'                     => 'foo'                ],
     [ '%{req:SomeHeader}'       => 'SomeValue'          ],
     [ '%{'                      => undef                ],
-# XXX: this is broken ATM and maybe we want to reserve that syntax for
-# future enhancements, like functions with multiple arguments
-#    [ '%{tolower:"ident"}'      => q{"ident"}           ],
     [ '%'                       => '%'                  ],
     [ '}'                       => '}'                  ],
     [ q{\"}                     => q{"}                 ],
     [ q{\'}                     => q{'}                 ],
     [ q{"\%{req:SomeHeader}"}   => '%{req:SomeHeader}'  ],
+
+    [ '%{tolower:IDENT}'                            => 'ident'          ],
+    [ '%{tolower:"IDENT"}'                          => '"ident"'        ],
+    [ '%{tolower:%{REQUEST_METHOD}}'                => 'get'            ],
+    [ '%{tolower:%{:toupper(%{REQUEST_METHOD}):}}'  => 'get'            ],
+    [ q["Method %{:'is ' . %{REQUEST_METHOD}:}"]    => 'Method is GET'  ],
 );
 
 my $successful_expected = scalar(grep { defined $_->[1] } @test_cases);

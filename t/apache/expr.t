@@ -236,6 +236,36 @@ if (have_min_apache_version("2.4.5")) {
     ));
 }
 
+if (have_min_apache_version("2.5")) {
+    my $SAN_multi = "{ 'email:<redacted1>', 'email:<redacted2>', " .
+                      "'IP Address:127.0.0.1', 'IP Address:0:0:0:0:0:0:0:1', " .
+                      "'IP Address:192.168.169.170' }";
+    my $SAN_single = "{ 'email:<redacted1>, email:<redacted2>, " .
+                        "IP Address:127.0.0.1, IP Address:0:0:0:0:0:0:0:1, " .
+                        "IP Address:192.168.169.170' }";
+    my $SAN_split = '.*?IP Address:([^,]+)';
+
+    push(@test_cases, (
+        [ "join {'a', 'b', 'c'} == 'abc'"                                => 1 ],
+        [ "join ($SAN_multi, ', ') == " .
+             "'email:<redacted1>, email:<redacted2>, " .
+              "IP Address:127.0.0.1, IP Address:0:0:0:0:0:0:0:1, " .
+              "IP Address:192.168.169.170'"                              => 1 ],
+        [ "join ($SAN_multi, ', ') == join $SAN_single"                  => 1 ],
+        [ "join ($SAN_multi =~ split/$SAN_split/\$1/, ', ') == " .
+             "'email:<redacted1>, email:<redacted2>, " .
+              "127.0.0.1, 0:0:0:0:0:0:0:1, 192.168.169.170'"             => 1 ],
+        [ "join ($SAN_single =~ split/$SAN_split/\$1/, ', ') == " .
+             "'127.0.0.1, 0:0:0:0:0:0:0:1, 192.168.169.170'"             => 1 ],
+        [ "'IP Address:192.168.169.170' -in $SAN_multi"                  => 1 ],
+        [ "'192.168.169.170' -in $SAN_multi =~ split/$SAN_split/\$1/"    => 1 ],
+        [ "'0:0:0:0:0:0:0:1' -in $SAN_single =~ split/$SAN_split/\$1/"   => 1 ],
+        [ "%{REMOTE_ADDR} -in $SAN_single =~ split/$SAN_split/\$1/"      => 1 ],
+        [ "'email:<redacted1>' -in $SAN_multi =~ split/$SAN_split/\$1/"  => 1 ],
+        [ "'email:<redacted2>' -in $SAN_single =~ split/$SAN_split/\$1/" => 0 ],
+    ));
+}
+
 plan tests => scalar(@test_cases) + 1,
                   need need_lwp,
                   need_module('mod_authz_core'),
