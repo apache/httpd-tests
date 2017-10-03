@@ -23,13 +23,16 @@ my @test_cases = (
     [ q{\"}                     => q{"}                 ],
     [ q{\'}                     => q{'}                 ],
     [ q{"\%{req:SomeHeader}"}   => '%{req:SomeHeader}'  ],
-
-    [ '%{tolower:IDENT}'                            => 'ident'          ],
-    [ '%{tolower:"IDENT"}'                          => '"ident"'        ],
-    [ '%{tolower:%{REQUEST_METHOD}}'                => 'get'            ],
-    [ '%{tolower:%{:toupper(%{REQUEST_METHOD}):}}'  => 'get'            ],
-    [ q["Method %{:'is ' . %{REQUEST_METHOD}:}"]    => 'Method is GET'  ],
+    [ '%{tolower:IDENT}'                => 'ident'      ],
+    [ '%{tolower:"IDENT"}'              => '"ident"'    ],
+    [ '%{tolower:%{REQUEST_METHOD}}'    => 'get'        ],
 );
+
+if (have_min_apache_version("2.5")) {
+    push(@test_cases, (
+        [ '%{tolower:%{:toupper(%{REQUEST_METHOD}):}}'  => 'get'    ],
+    ));
+}
 
 my $successful_expected = scalar(grep { defined $_->[1] } @test_cases);
 
