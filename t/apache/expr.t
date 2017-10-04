@@ -237,32 +237,37 @@ if (have_min_apache_version("2.4.5")) {
 }
 
 if (have_min_apache_version("2.5")) {
-    my $SAN_multi = "{ 'email:<redacted1>', 'email:<redacted2>', " .
-                      "'IP Address:127.0.0.1', 'IP Address:0:0:0:0:0:0:0:1', " .
-                      "'IP Address:192.168.169.170' }";
-    my $SAN_single = "{ 'email:<redacted1>, email:<redacted2>, " .
-                        "IP Address:127.0.0.1, IP Address:0:0:0:0:0:0:0:1, " .
-                        "IP Address:192.168.169.170' }";
+    my $SAN_one         = "email:<redacted1>, email:<redacted2>, " .
+                          "IP Address:127.0.0.1, IP Address:0:0:0:0:0:0:0:1, " .
+                          "IP Address:192.168.169.170";
+    my $SAN_tuple       = "'email:<redacted1>', 'email:<redacted2>', " .
+                          "'IP Address:127.0.0.1', 'IP Address:0:0:0:0:0:0:0:1', " .
+                          "'IP Address:192.168.169.170'";
+    my $SAN_list_one    = "{ '$SAN_one' }";
+    my $SAN_list_tuple  = "{ $SAN_tuple }";
+
     my $SAN_split = '.*?IP Address:([^,]+)';
 
     push(@test_cases, (
-        [ "join {'a', 'b', 'c'} == 'abc'"                                => 1 ],
-        [ "join ($SAN_multi, ', ') == " .
+        [ "join {'a', 'b', 'c'} == 'abc'"                                       => 1 ],
+        [ "join($SAN_list_tuple, ', ') == " .
              "'email:<redacted1>, email:<redacted2>, " .
               "IP Address:127.0.0.1, IP Address:0:0:0:0:0:0:0:1, " .
-              "IP Address:192.168.169.170'"                              => 1 ],
-        [ "join ($SAN_multi, ', ') == join $SAN_single"                  => 1 ],
-        [ "join ($SAN_multi =~ split/$SAN_split/\$1/, ', ') == " .
+              "IP Address:192.168.169.170'"                                     => 1 ],
+        [ "join($SAN_list_tuple, ', ') == join $SAN_list_one"                   => 1 ],
+        [ "join(split(s/$SAN_split/\$1/, $SAN_list_tuple), ', ') == " .
              "'email:<redacted1>, email:<redacted2>, " .
-              "127.0.0.1, 0:0:0:0:0:0:0:1, 192.168.169.170'"             => 1 ],
-        [ "join ($SAN_single =~ split/$SAN_split/\$1/, ', ') == " .
-             "'127.0.0.1, 0:0:0:0:0:0:0:1, 192.168.169.170'"             => 1 ],
-        [ "'IP Address:192.168.169.170' -in $SAN_multi"                  => 1 ],
-        [ "'192.168.169.170' -in $SAN_multi =~ split/$SAN_split/\$1/"    => 1 ],
-        [ "'0:0:0:0:0:0:0:1' -in $SAN_single =~ split/$SAN_split/\$1/"   => 1 ],
-        [ "%{REMOTE_ADDR} -in $SAN_single =~ split/$SAN_split/\$1/"      => 1 ],
-        [ "'email:<redacted1>' -in $SAN_multi =~ split/$SAN_split/\$1/"  => 1 ],
-        [ "'email:<redacted2>' -in $SAN_single =~ split/$SAN_split/\$1/" => 0 ],
+              "127.0.0.1, 0:0:0:0:0:0:0:1, 192.168.169.170'"                    => 1 ],
+        [ "join(split(s/$SAN_split/\$1/, $SAN_list_one), ', ') == " .
+             "'127.0.0.1, 0:0:0:0:0:0:0:1, 192.168.169.170'"                    => 1 ],
+        [ "'IP Address:192.168.169.170' -in $SAN_list_tuple"                    => 1 ],
+        [ "'192.168.169.170' -in split s/$SAN_split/\$1/, $SAN_list_tuple"      => 1 ],
+        [ "'0:0:0:0:0:0:0:1' -in split s/$SAN_split/\$1/, $SAN_list_one"        => 1 ],
+        [ "%{REMOTE_ADDR} -in split s/$SAN_split/\$1/, $SAN_list_one"           => 1 ],
+        [ "'email:<redacted1>' -in split s/$SAN_split/\$1/, $SAN_list_tuple"    => 1 ],
+        [ "'email:<redacted2>' -in split s/$SAN_split/\$1/, $SAN_list_one"      => 0 ],
+        [ "'IP Address:%{REMOTE_ADDR}' -in split/, /, join $SAN_list_one"
+                                                                                => 1 ],
     ));
 }
 
