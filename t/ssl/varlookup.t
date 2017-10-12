@@ -99,6 +99,10 @@ while (<DATA>) {
     push @vars, $key;
 }
 
+if (not have_min_apache_version('2.5.0')) {
+    @vars = grep(!/_RAW/, @vars);
+}
+
 plan tests => scalar (@vars), need need_lwp, need_module('test_ssl');
 
 for my $key (@vars) {
@@ -228,6 +232,8 @@ SSL_CLIENT_I_DN_OU           "$client_i_dn{OU}"
 SSL_SERVER_I_DN_OU           "$server_i_dn{OU}"
 SSL_CLIENT_I_DN_CN           "$client_i_dn{CN}"
 SSL_SERVER_I_DN_CN           "$server_i_dn{CN}"
+SSL_SERVER_I_DN_CN_RAW       "$server_i_dn{CN}"
+SSL_SERVER_I_DN_CN_0_RAW     "$server_i_dn{CN}"
 SSL_CLIENT_I_DN_T
 SSL_SERVER_I_DN_T
 SSL_CLIENT_I_DN_I
