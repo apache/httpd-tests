@@ -24,7 +24,6 @@ my @test_cases = (
     [ q{\'}                     => q{'}                 ],
     [ q{"\%{req:SomeHeader}"}   => '%{req:SomeHeader}'  ],
     [ '%{tolower:IDENT}'                => 'ident'      ],
-    [ '%{tolower:"IDENT"}'              => '"ident"'    ],
     [ '%{tolower:%{REQUEST_METHOD}}'    => 'get'        ],
 );
 
@@ -42,6 +41,7 @@ if (have_min_apache_version("2.5")) {
         [ qq["%{tolower:%{:toupper(%{REQUEST_METHOD}):}}"]  => "get"        ],
         [ qq["%{: join $SAN_list_one :}"]                   => "$SAN_one"   ],
         [ qq["%{: join($SAN_list_tuple, ', ') :}"]          => "$SAN_one"   ],
+        [ qq['%{tolower:"IDENT"}']                          => '"ident"'    ],
         [ qq["%{: 'IP Address:%{REMOTE_ADDR}' -in split/, /, join $SAN_list_one :}"]
                                                             => "true"       ],
     ));
