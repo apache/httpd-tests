@@ -246,13 +246,25 @@
         ## Redirect, directory context
         RewriteRule ^redirect-dir.html$ http://@SERVERNAME@:@PORT@/foobar.html [L,R=301]
 
+        # PR 58231: Vary header not added to the response if the RewriteCond/Rule
+        # combination is in a directory context.
+        # Vary:Host header must not also be returned in any case.
+        RewriteCond %{HTTP_HOST} directory-domain
+        RewriteRule vary3.html vary4.html [L]
+
+        RewriteCond %{HTTP_USER_AGENT} directory-agent
+        RewriteRule vary3.html vary4.html [L]
+
+        RewriteCond %{HTTP:Accept} directory-accept [OR]
+        RewriteCond %{HTTP_REFERER} directory-referer
+        RewriteRule vary3.html vary4.html [L]
     </Directory>
 
     # PR 58231: Vary:Host header mistakenly added to the response
-    RewriteCond "%{HTTP_HOST} = 'test1'"
+    RewriteCond %{HTTP_HOST} test1
     RewriteRule /modules/rewrite/vary1.html /modules/rewrite/vary2.html [L]
 
-    RewriteCond "%{HTTP:Host} = 'test2'"
+    RewriteCond %{HTTP:Host} test2
     RewriteRule /modules/rewrite/vary1.html /modules/rewrite/vary2.html [L]
 
 

@@ -24,7 +24,10 @@ if (!have_min_apache_version('2.4')) {
     push @todo, 24
 }
 
-plan tests => @map * @num + 16 + (have_min_apache_version("2.5") ? 2 : 0), todo => \@todo, need_module 'rewrite';
+# Specific tests for PR 58231
+my $vary_header_tests = (have_min_apache_version("2.5") ? 9 : 0) + (have_min_apache_version("2.4.29") ? 4 : 0);
+
+plan tests => @map * @num + 16 + $vary_header_tests, todo => \@todo, need_module 'rewrite';
 
 foreach (@map) {
     foreach my $n (@num) {
@@ -123,12 +126,45 @@ if (have_min_apache_version('2.4')) {
     skip "Skipping PR 60478 test; requires ap_expr in version 2.4"
 }
 
-if (have_min_apache_version("2.5")) {
-    # PR 58231: Vary:Host header mistakenly added to the response
+if (have_min_apache_version("2.4.29")) {
+    # PR 58231: Vary:Host header (was) mistakenly added to the response
     $r = GET("/modules/rewrite/vary1.html", "Host" => "test1");
+    ok t_cmp($r->content, qr/VARY2/, "Correct internal redirect happened, OK");
     ok t_cmp($r->header("Vary"), qr/(?!.*Host.*)/, "Vary:Host header not added, OK");
 
     $r = GET("/modules/rewrite/vary1.html", "Host" => "test2");
+    ok t_cmp($r->content, qr/VARY2/, "Correct internal redirect happened, OK");
     ok t_cmp($r->header("Vary"), qr/(?!.*Host.*)/, "Vary:Host header not added, OK");
 }
 
+if (have_min_apache_version("2.5")) {
+    # PR 58231: Vary header added when a condition evaluates to true and
+    # the RewriteRule happens in a directory context.
+    $r = GET("/modules/rewrite/vary3.html", "User-Agent" => "directory-agent");
+    ok t_cmp($r->content, qr/VARY4/, "Correct internal redirect happened, OK");
+    ok t_cmp($r->header("Vary"), qr/User-Agent/, "Vary:User-Agent header added, OK");
+
+    # Corner cases in which two RewriteConds are joined using the [OR]
+    # operator (or similar).
+    # 1) First RewriteCond condition evaluates to true, so only the related
+    #    header value is added to the Vary list even though the second condition
+    #    evaluates to true as well.
+    $r = GET("/modules/rewrite/vary3.html",
+             "Referer" => "directory-referer",
+             "Accept" => "directory-accept");
+    ok t_cmp($r->content, qr/VARY4/, "Correct internal redirect happened, OK");
+    ok t_cmp($r->header("Vary"), qr/Accept/, "Vary:Accept header added, OK");
+    # 2) First RewriteCond condition evaluates to false and the second to true,
+    #    so only the second condition's header value is added to the Vary list.
+    $r = GET("/modules/rewrite/vary3.html",
+             "Referer" => "directory-referer",
+             "Accept" => "this-is-not-the-value-in-the-rewritecond");
+    ok t_cmp($r->content, qr/VARY4/, "Correct internal redirect happened, OK");
+    ok t_cmp($r->header("Vary"), qr/Referer/, "Vary:Referer header added, OK");
+    ok t_cmp($r->header("Vary"), qr/(?!.*Accept.*)/, "Vary:Accept header not added, OK");
+
+    # Vary:Host header (was) mistakenly added to the response
+    $r = GET("/modules/rewrite/vary3.html", "Host" => "directory-domain");
+    ok t_cmp($r->content, qr/VARY4/, "Correct internal redirect happened, OK");
+    ok t_cmp($r->header("Vary"), qr/(?!.*Host.*)/, "Vary:Host header not added, OK");
+}
