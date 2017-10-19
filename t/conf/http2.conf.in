@@ -29,7 +29,7 @@
 
         <IfModule @ssl_module@>
         
-            <VirtualHost localhost:h2>
+        <VirtualHost @SERVERNAME@:h2>
                 Protocols h2 http/1.1
                 H2Direct on
 
