@@ -13,7 +13,7 @@ Apache::TestRequest::user_agent_keepalive(0);
 
 my $url = '/ssl-fakebasicauth/index.html';
 
-plan tests => 3, need need_auth, need_lwp;
+plan tests => 4, need need_auth, need_lwp;
 
 Apache::TestRequest::scheme('https');
 
@@ -31,3 +31,13 @@ ok t_cmp (GET_RC($url, cert => 'client_ok'),
           401,
           "Getting $url with client_ok cert"
          );
+
+if (!have_min_apache_version("2.5.1")) {
+    skip "Colon in username test skipped.";
+}
+else {
+    ok t_cmp (GET_RC($url, cert => 'client_colon'),
+              403,
+              "Getting $url with client_colon cert"
+        );
+}
