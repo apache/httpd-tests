@@ -25,7 +25,7 @@ if (!have_min_apache_version('2.4')) {
 }
 
 # Specific tests for PR 58231
-my $vary_header_tests = (have_min_apache_version("2.5") ? 9 : 0) + (have_min_apache_version("2.4.29") ? 4 : 0);
+my $vary_header_tests = (have_min_apache_version("2.4.30") ? 9 : 0) + (have_min_apache_version("2.4.29") ? 4 : 0);
 
 plan tests => @map * @num + 16 + $vary_header_tests, todo => \@todo, need_module 'rewrite';
 
@@ -137,7 +137,7 @@ if (have_min_apache_version("2.4.29")) {
     ok t_cmp($r->header("Vary"), qr/(?!.*Host.*)/, "Vary:Host header not added, OK");
 }
 
-if (have_min_apache_version("2.5")) {
+if (have_min_apache_version("2.4.30")) {
     # PR 58231: Vary header added when a condition evaluates to true and
     # the RewriteRule happens in a directory context.
     $r = GET("/modules/rewrite/vary3.html", "User-Agent" => "directory-agent");
