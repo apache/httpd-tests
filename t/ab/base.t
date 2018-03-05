@@ -4,12 +4,15 @@ use warnings FATAL => 'all';
 use Apache::Test;
 use Apache::TestConfig;
 use IPC::Open3;
+use File::Spec::Functions qw(catfile);
+
 my $vars = Apache::Test::vars();
 
 plan tests => ($vars->{ssl_module_name} ? 5 : 2);
 
 sub run_and_gather_output {
     my $command = shift;
+    print "# running: ", $command, "\n";
     my ($cin, $cout, $cerr) = (0, 0, 0);
     my $pid = open3($cin, $cout, $cerr, $command);
     waitpid( $pid, 0 );
@@ -19,8 +22,7 @@ sub run_and_gather_output {
     return { status => $status, stdout => \@cstdout, stderr => \@cstderr };
 }
 
-my $cfg = Apache::TestConfig->new(());
-my $ab_path = "$cfg->{httpd_basedir}" . "/bin/ab";
+my $ab_path = catfile $vars->{bindir}, "ab";
 
 my $http_url = Apache::TestRequest::module2url("core", {scheme => 'http', path => '/'});
 my $http_results = run_and_gather_output("$ab_path -q -n 10 $http_url");
