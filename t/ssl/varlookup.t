@@ -99,7 +99,7 @@ while (<DATA>) {
     push @vars, $key;
 }
 
-if (not have_min_apache_version('2.5.0')) {
+if (not have_min_apache_version('2.4.32')) {
     @vars = grep(!/_RAW/, @vars);
 }
 
