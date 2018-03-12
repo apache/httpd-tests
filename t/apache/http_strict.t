@@ -119,7 +119,9 @@ my @test_cases = (
       have_module qw(mod_headers) ],
 );
 
-my $test_fold = need_min_apache_fix("2.2.33", "2.4.26", "2.5.0");
+my $test_fold = defined(&need_min_apache_fix) ? 
+                need_min_apache_fix("2.2.33", "2.4.26", "2.5.0") : 
+                need_min_apache_version('2.4.26');
 
 plan tests => scalar(@test_cases) * 2 + $test_fold * 2,
      need_min_apache_version('2.2.32');
