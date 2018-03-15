@@ -4,6 +4,7 @@ use warnings FATAL => 'all';
 use Apache::Test;
 use Apache::TestConfig;
 use IPC::Open3;
+use Symbol;
 use File::Spec::Functions qw(catfile);
 
 my $vars = Apache::Test::vars();
@@ -13,7 +14,8 @@ plan tests => ($vars->{ssl_module_name} ? 5 : 2);
 sub run_and_gather_output {
     my $command = shift;
     print "# running: ", $command, "\n";
-    my ($cin, $cout, $cerr) = (0, 0, 0);
+    my ($cin, $cout, $cerr);
+    $cerr = gensym();
     my $pid = open3($cin, $cout, $cerr, $command);
     waitpid( $pid, 0 );
     my $status = $? >> 8;
