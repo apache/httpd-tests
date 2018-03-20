@@ -38,9 +38,9 @@ if ($vars->{ssl_module_name}) {
     my $https_results = run_and_gather_output("$ab_path -q -n 10 $https_url");
     ok ($https_results->{status} == 0);
     ok (scalar(@{$https_results->{stderr}}), 0, 
-        "https stderr was scary " . Dumper $https_results->{stderr});
+        "https had stderr output:" . Dumper $https_results->{stderr});
 
     #XXX: For some reason, stderr is getting pushed into stdout. This test will at least catch known SSL failures
     ok (scalar(grep(/SSL.*(fail|err)/i, @{$https_results->{stdout}})), 0, 
-        "https stdout had some error strong " .  Dumper $https_results->{stdout} );
+        "https stdout had some possibly alarming content:" .  Dumper $https_results->{stdout} );
 }
