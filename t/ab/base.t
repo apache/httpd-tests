@@ -3,9 +3,11 @@ use warnings FATAL => 'all';
 
 use Apache::Test;
 use Apache::TestConfig;
+use Apache::TestUtil qw(t_debug);
 use IPC::Open3;
 use Symbol;
 use File::Spec::Functions qw(catfile);
+use Data::Dumper;
 
 my $vars = Apache::Test::vars();
 
@@ -13,7 +15,7 @@ plan tests => ($vars->{ssl_module_name} ? 5 : 2);
 
 sub run_and_gather_output {
     my $command = shift;
-    print "# running: ", $command, "\n";
+    t_debug "# running: ", $command, "\n";
     my ($cin, $cout, $cerr);
     $cerr = gensym();
     my $pid = open3($cin, $cout, $cerr, $command);
@@ -35,8 +37,10 @@ if ($vars->{ssl_module_name}) {
     my $https_url = Apache::TestRequest::module2url($vars->{ssl_module_name}, {scheme => 'https', path => '/'});
     my $https_results = run_and_gather_output("$ab_path -q -n 10 $https_url");
     ok ($https_results->{status} == 0);
-    ok (scalar(@{$https_results->{stderr}}) == 0);
+    ok (scalar(@{$https_results->{stderr}}), 0, 
+        "https stderr was scary " . Dumper $https_results->{stderr});
 
     #XXX: For some reason, stderr is getting pushed into stdout. This test will at least catch known SSL failures
-    ok (scalar(grep(/SSL.*(fail|err)/i, @{$https_results->{stdout}}) == 0) );
+    ok (scalar(grep(/SSL.*(fail|err)/i, @{$https_results->{stdout}})), 0, 
+        "https stdout had some error strong " .  Dumper $https_results->{stdout} );
 }
