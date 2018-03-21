@@ -15,7 +15,7 @@ my @url = qw(forbidden gone perm temp);
 my @todo;
 my $r;
 
-if (!have_min_apache_version('2.5')) {
+if (!have_min_apache_version('2.4.19')) {
     # PR 50447, server context
     push @todo, 26
 }
