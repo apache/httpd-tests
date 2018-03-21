@@ -1201,7 +1201,7 @@ LimitRequestFields    32
 <IfModule mod_remoteip.c>
    <VirtualHost remote_ip>
       DocumentRoot @SERVERROOT@/htdocs/modules/remoteip
-      <IfVersion >= 2.5.0>
+      <IfVersion >= 2.4.30>
         RemoteIPProxyProtocol On
       </IfVersion>
    </VirtualHost>

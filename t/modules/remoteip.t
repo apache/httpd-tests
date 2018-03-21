@@ -14,7 +14,7 @@ Apache::TestRequest::module("remote_ip");
 plan tests => 12,
     need(
         need_module('remoteip'),
-        need_min_apache_version('2.5.0')
+        need_min_apache_version('2.4.30')
     );
 
 sub slurp
