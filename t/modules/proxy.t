@@ -26,8 +26,7 @@ if (have_min_apache_version('2.4.0')) {
     ok t_cmp($r->content, qr/^welcome to /, "reverse Location-proxied body");
 }
 else { 
-    skip "skipping per-location test with httpd <2.4";
-    skip "skipping per-location test with httpd <2.4";
+    skip "skipping per-location test with httpd <2.4" foreach (1..2);
 }
 
 if (have_min_apache_version('2.4.26')) {
@@ -78,7 +77,7 @@ if (have_cgi) {
     }
 
 } else {
-    skip "skipping tests without CGI module" foreach (1..8);
+    skip "skipping tests without CGI module" foreach (1..11);
 }
 
 if (have_min_apache_version('2.0.55')) {
