@@ -387,7 +387,7 @@
     ScriptAliasMatch /aliascgi-(.*) @SERVERROOT@/htdocs/modules/alias/$1
 
     <IfDefine APACHE2>
-        <IfVersion >= 2.5.0>
+        <IfVersion >= 2.4.8>
             <LocationMatch /expr/ali(?<number>[0-9])>
                 Alias @SERVERROOT@/htdocs/modules/alias/%{env:MATCH_NUMBER}.html
             </LocationMatch>
