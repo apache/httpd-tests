@@ -19,15 +19,46 @@
    </VirtualHost>
 
    <VirtualHost proxy_http_balancer>
-     <Proxy balancer://foo>
+     <Proxy balancer://foo1>
        BalancerMember http://@SERVERNAME@:@PROXY_HTTP_BAL1_PORT@  loadfactor=1
        BalancerMember http://@SERVERNAME@:@PROXY_HTTP_BAL2_PORT@  loadfactor=1
      </Proxy>
 
-     ProxySet balancer://foo lbmethod=bytraffic
+     <Proxy balancer://foo2>
+       BalancerMember http://@SERVERNAME@:@PROXY_HTTP_BAL1_PORT@  loadfactor=1
+       BalancerMember http://@SERVERNAME@:@PROXY_HTTP_BAL2_PORT@  loadfactor=1
+     </Proxy>
 
-     <Location /baltest>
-       ProxyPass balancer://foo/
+     <Proxy balancer://foo3>
+       BalancerMember http://@SERVERNAME@:@PROXY_HTTP_BAL1_PORT@  loadfactor=1
+       BalancerMember http://@SERVERNAME@:@PROXY_HTTP_BAL2_PORT@  loadfactor=1
+     </Proxy>
+
+     <Proxy balancer://foo4>
+       BalancerMember http://@SERVERNAME@:@PROXY_HTTP_BAL1_PORT@  loadfactor=1
+       BalancerMember http://@SERVERNAME@:@PROXY_HTTP_BAL2_PORT@  loadfactor=1
+     </Proxy>
+
+     ProxySet balancer://foo1 lbmethod=byrequests
+     ProxySet balancer://foo2 lbmethod=bytraffic
+     ProxySet balancer://foo3 lbmethod=bybusyness
+     ProxySet balancer://foo4 lbmethod=heartbeat
+
+     <Location /baltest1>
+       ProxyPass balancer://foo1/
+     </Location>
+
+     <Location /baltest2>
+       ProxyPass balancer://foo2/
+     </Location>
+
+     <Location /baltest3>
+       ProxyPass balancer://foo3/
+     </Location>
+
+     <Location /baltest4>
+       # TODO heartbeat needs additional configuration to have it work
+       ProxyPass balancer://foo4/
      </Location>
 
      ## PR 45434 tests
