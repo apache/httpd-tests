@@ -472,6 +472,7 @@ Alias /manual @inherit_documentroot@/manual
 <IfModule mod_env.c>
     PassEnv APACHE_TEST_HOSTNAME
     SetEnv ENV_TEST "mod_env test environment variable"
+    SetEnv ENV_TEST_EMPTY
     UnsetEnv UNSET
 
     PassEnv APACHE_TEST_HOSTTYPE
