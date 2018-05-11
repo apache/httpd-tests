@@ -237,6 +237,25 @@
        </Location>
     </VirtualHost>
 
+    # For t/ssl/ocsp.t --
+    <Location /modules/ssl/ocsp>
+        SetEnv SSL_CA_ROOT @sslca@/asf
+    </Location>
+    Alias /modules/ssl/ocsp            @DocumentRoot@/modules/cgi/ocsp.pl
+
+    <VirtualHost ssl_ocsp>
+       SSLEngine on
+
+       SSLVerifyClient on
+
+       SSLOCSPEnable on
+       SSLOCSPDefaultResponder http://@SERVERNAME@:@PORT@/modules/ssl/ocsp
+       SSLOCSPResponderCertificateFile @SSLCA@/asf/certs/server.crt
+
+       # Ignore CRL check results
+       SSLCARevocationCheck none
+    </VirtualHost>
+
     # For t/ssl/pr43738.t:
     <IfModule mod_actions.c>
         Action application/x-pf-action /modules/cgi/action.pl
