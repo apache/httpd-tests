@@ -137,6 +137,11 @@ this to make life easier for others.
    Try the following:
       > t/TEST -clean
       > PATH=<bin dir of correct openssl>:$PATH t/TEST
+   If a lot of ssl tests fail, check in the error log for the presence of
+   a certificate validation error. If you find it, check the expiration date
+   of the TLS/SSL certificates used by the tests, they might be expired.
+   Running TEST -clean should delete the old ssl certificates, so they'll be
+   regenerated during the next run.
 5. If you see failures in the modules/h2.t test cases, please notify the dev
    mailing list with a description of your setup. These tests are quite young,
    currently only valid in 2.4.x and later and interact with quite some other
