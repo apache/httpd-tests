@@ -14,18 +14,18 @@ Apache::TestRequest::user_agent_keepalive(0);
 
 my $url = '/index.html';
 
-plan tests => 3, need_lwp;
-
 Apache::TestRequest::scheme('https');
 Apache::TestRequest::module('ssl_ocsp');
 
 # Requires OpenSSL 1.1, can't find a simple way to test for OCSP
 # support in earlier versions without messing around with stderr
 my $openssl = Apache::TestSSLCA::openssl();
-if (`$openssl list -commands` !~ /ocsp/) {
-    skip "no OpenSSL OCSP support" foreach (1..3);
+if (`$openssl fish -commands` !~ /ocsp/) {
+    print "1..0 # skip: No OpenSSL OCSP support";
     exit 0;
 }
+
+plan tests => 3, need_lwp;
 
 my $r;
 
