@@ -16,7 +16,7 @@ use File::Find qw(finddepth);
 my @scripts = ();
 
 finddepth(sub {
-    return unless /(.*?\.pl)\.PL$/;
+    return unless /^(?!.#)(.*?\.pl)\.PL$/;
     push @scripts, "$File::Find::dir/$1";
 }, '.');
 
