@@ -8,6 +8,11 @@
 
 </IfModule>
 
+<IfModule mod_proxy_hcheck.c>
+  # Suppress the error_log spam every 100ms watchdog cycle at trace5
+  LogLevel proxy_hcheck:trace4
+</IfModule>
+
 <IfModule mod_proxy_balancer.c>
 
    <VirtualHost proxy_http_bal1>
