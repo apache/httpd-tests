@@ -772,6 +772,10 @@ LimitRequestFields    32
 
 </VirtualHost>
 
+<Directory @DocumentRoot@/modules/filter/byterange/pr61860>
+    Header always set TestDuplicateHeader  "shouldnotbeduplicated"
+</Directory>
+
 <IfModule mod_bucketeer.c>
    <Directory @DocumentRoot@/apache/chunked>
        SetOutputFilter BUCKETEER
