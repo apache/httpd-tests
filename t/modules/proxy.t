@@ -7,7 +7,7 @@ use Apache::TestUtil;
 use Apache::TestConfig ();
 use Misc;
 
-my $num_tests = 23 + 4;
+my $num_tests = 23 + 6;
 if (have_min_apache_version('2.4.7')) {
     $num_tests += 2;
 }
@@ -102,16 +102,20 @@ if (have_module('lua')) {
     # '/' is escaped as %2F
     # ';' is escaped as %3B
     # '=' is escaped as %3D    
-    $r = GET("/reverse//modules/lua/setheaderfromparam.lua?HeaderName=Set-Cookie&HeaderValue=fakedomain%3Dlocal%3Bdomain%3Dlocal");
+    $r = GET("/reverse/modules/lua/setheaderfromparam.lua?HeaderName=Set-Cookie&HeaderValue=fakedomain%3Dlocal%3Bdomain%3Dlocal");
     ok t_cmp($r->code, 200, "Lua executed");
-    ok t_cmp($r->header("Set-Cookie"), "fakedomain=local;domain=remote", "'Set-Cookie domain=' wrongly updated by the ProxyPassReverseCookieDomain, PR 61560");
-    
-    $r = GET("/reverse//modules/lua/setheaderfromparam.lua?HeaderName=Set-Cookie&HeaderValue=fakepath%3D%2Flocal%3Bpath%3D%2Flocal");
+    ok t_cmp($r->header("Set-Cookie"), "fakedomain=local;domain=remote", "'Set-Cookie domain=' wrongly updated by ProxyPassReverseCookieDomain, PR 61560");
+
+    $r = GET("/reverse/modules/lua/setheaderfromparam.lua?HeaderName=Set-Cookie&HeaderValue=fakepath%3D%2Flocal%3Bpath%3D%2Flocal");
     ok t_cmp($r->code, 200, "Lua executed");
-    ok t_cmp($r->header("Set-Cookie"), "fakepath=/local;path=/remote", "'Set-Cookie path=' wrongly updated by the ProxyPassReverseCookiePath, PR 61560");
+    ok t_cmp($r->header("Set-Cookie"), "fakepath=/local;path=/remote", "'Set-Cookie path=' wrongly updated by ProxyPassReverseCookiePath, PR 61560");
+
+    $r = GET("/reverse/modules/lua/setheaderfromparam.lua?HeaderName=Set-Cookie&HeaderValue=domain%3Dlocal%3Bpath%3D%2Flocal%3bfoo%3Dbar");
+    ok t_cmp($r->code, 200, "Lua executed");
+    ok t_cmp($r->header("Set-Cookie"), "domain=remote;path=/remote;foo=bar", "'Set-Cookie path=' wrongly updated by ProxyPassReverseCookiePath and/or ProxyPassReverseCookieDomain");
 }
 else { 
-    skip "skipping tests which need mod_lua" foreach (1..4);
+    skip "skipping tests which need mod_lua" foreach (1..6);
 }
 
 if (have_module('alias')) {
