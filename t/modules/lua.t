@@ -38,6 +38,9 @@ my @ts = (
     { url => "$pfx/setheaders.lua", rcontent => "",
                                     headers => { "X-Header" => "yes",
                                                  "X-Host"   => $hostport } },
+    { url => "$pfx/setheaderfromparam.lua?HeaderName=foo&HeaderValue=bar",
+                                    rcontent => "Header set",
+                                    headers => { "foo" => "bar" } },
 );
 
 plan tests => 4 * scalar @ts, need 'lua';
