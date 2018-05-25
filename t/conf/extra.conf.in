@@ -283,6 +283,8 @@
       ProxyPass /reverse/notproxy/ !
       ProxyPass /reverse/ http://@SERVERNAME@:@PORT@/
       ProxyPassReverse /reverse/ http://@SERVERNAME@:@PORT@/
+      ProxyPassReverseCookieDomain local remote
+      ProxyPassReverseCookiePath /local /remote
       <IfVersion >= 2.4.7>
         ProxyPass /uds/ unix:/tmp/test-ptf.sock|http:
       </IfVersion>
