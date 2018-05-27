@@ -6,7 +6,6 @@ use Apache::TestUtil;
 use Apache::TestRequest;
 
 plan tests => 2,
-     todo => [2],
      need(
         need_module('mod_headers'),
         need_min_apache_version('2.5.0')
