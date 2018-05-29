@@ -7,9 +7,12 @@ use Apache::TestUtil;
 use Apache::TestConfig ();
 use Misc;
 
-my $num_tests = 23 + 6;
+my $num_tests = 23;
 if (have_min_apache_version('2.4.7')) {
     $num_tests += 2;
+}
+if (have_min_apache_version('2.5') && have_module('lua')) {
+    $num_tests += 6;
 }
 plan tests => $num_tests, need need_module 'proxy', need_module 'setenvif';
 
@@ -98,7 +101,7 @@ chomp $c;
 ok t_cmp($c, "hello world", "ProxyPass not-proxied content OK");
 
 # Testing ProxyPassReverseCookieDomain and ProxyPassReverseCookiePath
-if (have_module('lua')) {
+if (have_min_apache_version('2.5') && have_module('lua')) {
     # '/' is escaped as %2F
     # ';' is escaped as %3B
     # '=' is escaped as %3D    
@@ -113,9 +116,6 @@ if (have_module('lua')) {
     $r = GET("/reverse/modules/lua/setheaderfromparam.lua?HeaderName=Set-Cookie&HeaderValue=domain%3Dlocal%3Bpath%3D%2Flocal%3bfoo%3Dbar");
     ok t_cmp($r->code, 200, "Lua executed");
     ok t_cmp($r->header("Set-Cookie"), "domain=remote;path=/remote;foo=bar", "'Set-Cookie path=' wrongly updated by ProxyPassReverseCookiePath and/or ProxyPassReverseCookieDomain");
-}
-else { 
-    skip "skipping tests which need mod_lua" foreach (1..6);
 }
 
 if (have_module('alias')) {
