@@ -7,13 +7,7 @@ use Apache::TestUtil;
 use Apache::TestConfig ();
 use Misc;
 
-my $num_tests = 23;
-if (have_min_apache_version('2.4.7')) {
-    $num_tests += 2;
-}
-if (have_min_apache_version('2.5') && have_module('lua')) {
-    $num_tests += 6;
-}
+my $num_tests = 31;
 plan tests => $num_tests, need need_module 'proxy', need_module 'setenvif';
 
 Apache::TestRequest::module("proxy_http_reverse");
@@ -117,6 +111,9 @@ if (have_min_apache_version('2.5') && have_module('lua')) {
     ok t_cmp($r->code, 200, "Lua executed");
     ok t_cmp($r->header("Set-Cookie"), "domain=remote;path=/remote;foo=bar", "'Set-Cookie path=' wrongly updated by ProxyPassReverseCookiePath and/or ProxyPassReverseCookieDomain");
 }
+else {
+    skip "skipping tests which need mod_lua" foreach (1..6);
+}
 
 if (have_module('alias')) {
     $r = GET("/reverse/perm");
@@ -182,5 +179,8 @@ if (have_min_apache_version('2.4.7')) {
     chomp $c;
     ok t_cmp($c, "hello world", "UDS content OK");
 
+}
+else {
+    skip "skipping UDS tests with httpd < 2.4.7" foreach (1..2);
 }
 
