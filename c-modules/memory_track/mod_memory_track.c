@@ -27,7 +27,7 @@ static int memory_track_handler(request_rec *r)
         return HTTP_SERVICE_UNAVAILABLE;
     }
     
-#if defined(APR_POOL_DEBUG)
+#if APR_POOL_DEBUG
     {
         conn_rec *c = r->connection;
         apr_size_t n = apr_pool_num_bytes(c->pool, 1);
