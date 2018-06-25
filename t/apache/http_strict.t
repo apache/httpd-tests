@@ -6,6 +6,11 @@ use Apache::TestRequest;
 use MIME::Base64;
 use Data::Dumper;
 
+
+my $test_underscore = defined(&need_min_apache_fix) ? 
+                need_min_apache_fix("2.5.1") :
+                need_min_apache_version('2.5.1');
+
 # possible expected results:
 #   0:       any HTTP error
 #   1:       any HTTP success
@@ -91,6 +96,9 @@ my @test_cases = (
     [ "GET http://foo:81/ HTTP/1.0\r\nHost: bar\r\n\r\n"      => 200],
     [ "GET http://[::1]:81/ HTTP/1.0\r\nHost: bar\r\n\r\n"    => 200],
     [ "GET http://10.0.0.1:81/ HTTP/1.0\r\nHost: bar\r\n\r\n" => 200],
+    [ "GET / HTTP/1.0\r\nHost: foo-bar.example.com\r\n\r\n"   => 200],
+    [ "GET / HTTP/1.0\r\nHost: foo_bar.example.com\r\n\r\n"   => 200, 200, $test_underscore],
+    [ "GET http://foo_bar/ HTTP/1.0\r\n\r\n"   => 200, 200, $test_underscore],
 
     #
     # tests for response headers
