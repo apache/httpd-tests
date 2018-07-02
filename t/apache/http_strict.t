@@ -8,8 +8,8 @@ use Data::Dumper;
 
 
 my $test_underscore = defined(&need_min_apache_fix) ? 
-                need_min_apache_fix("2.5.1") :
-                need_min_apache_version('2.5.1');
+                need_min_apache_fix("2.4.34", "2.5.1") :
+                need_min_apache_version('2.4.34');
 
 # possible expected results:
 #   0:       any HTTP error
