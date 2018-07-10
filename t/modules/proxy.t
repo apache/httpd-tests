@@ -95,7 +95,7 @@ chomp $c;
 ok t_cmp($c, "hello world", "ProxyPass not-proxied content OK");
 
 # Testing ProxyPassReverseCookieDomain and ProxyPassReverseCookiePath
-if (have_min_apache_version('2.5') && have_module('lua')) {
+if (have_min_apache_version('2.4.34') && have_module('lua')) {
     # '/' is escaped as %2F
     # ';' is escaped as %3B
     # '=' is escaped as %3D    
