@@ -5,6 +5,7 @@ use Apache::Test;
 use Apache::TestRequest;
 use MIME::Base64;
 use Data::Dumper;
+use HTTP::Response;
 
 
 my $test_underscore = defined(&need_min_apache_fix) ? 
