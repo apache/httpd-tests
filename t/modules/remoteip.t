@@ -4,6 +4,7 @@ use warnings FATAL => 'all';
 use Apache::Test;
 use Apache::TestRequest;
 use Apache::TestUtil;
+use HTTP::Response;
 
 ## 
 ## mod_remoteip tests
