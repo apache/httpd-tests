@@ -1,0 +1,17 @@
+# NameVirtualHost sections for :core.  All virtual hosts ending in :core
+# will be converted to a set of NVH'es on the same dynamic port, so they
+# are collected here.
+
+
+<VirtualHost strict-default:core>
+      ServerName default-strict
+      <IfVersion >= 2.5.1>
+          # StrictHostCheck can only be configure globally or in a "default" vhost
+          StrictHostCheck  ON
+      </IfVersion>
+</VirtualHost>
+<VirtualHost strict-nvh:core>
+      ServerName nvh-strict
+      ServerAlias nvh-strict-alias
+      # Implicitly StrictHostCheck ON from default VH above
+</VirtualHost>
