@@ -1213,3 +1213,17 @@ LimitRequestFields    32
       </IfVersion>
    </VirtualHost>
 </IfModule>
+
+
+<IfModule mod_ratelimit.c>
+   AliasMatch ^/apache/ratelimit/autoindex/$ @SERVERROOT@/htdocs/
+   AliasMatch ^/apache/ratelimit/ @SERVERROOT@/htdocs/index.html
+   <Location /apache/ratelimit/>
+       Options +Indexes
+       SetOutputFilter RATE_LIMIT
+       <IfModule mod_env.c>
+           SetEnv rate-limit 400 
+           SetEnv rate-initial-burst 512
+       </IfModule>
+   </Location>
+</IfModule>
