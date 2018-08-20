@@ -21,7 +21,7 @@ my @testcases = (
 plan tests => scalar @testcases, need need_lwp,
                  need_module('mod_ratelimit'),
                  need_module('mod_autoindex'),
-                 need_min_apache_version('2.5.1');
+                 need_min_apache_version('2.4.35');
 
 my $ua = LWP::UserAgent->new;
 $ua->timeout(4);
