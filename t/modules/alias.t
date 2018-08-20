@@ -36,10 +36,13 @@ my %rm_rc = (
 );
 
 #XXX: find something that'll on other platforms (/bin/sh aint it)
-my $script_tests = WINFU ? 0 : 4;
+my $script_tests = WINFU ? 0 : 4 + have_min_apache_version("2.4.19");
 
-my $tests = (keys %redirect) + (keys %rm_body) * (1 + have_min_apache_version("2.4.8")) * 10 +
-            (keys %rm_rc) * (1 + have_min_apache_version("2.4.8")) * 10 + have_min_apache_version("2.4.8") * 11 + 12 + $script_tests;
+my $tests = 12 + have_min_apache_version("2.4.19") * 10 +
+            (keys %redirect) +
+            (keys %rm_body) * (1 + have_min_apache_version("2.4.19")) * 10 +
+            (keys %rm_rc) * (1 + have_min_apache_version("2.4.19")) * 10 +
+            $script_tests;
 
 #LWP required to follow redirects
 plan tests => $tests, need need_module('alias'), need_lwp;
@@ -62,7 +65,7 @@ for (my $i=0 ; $i <= 9 ; $i++) {
              "/ali$i");
 }
 
-if (have_min_apache_version("2.4.8")) {
+if (have_min_apache_version("2.4.19")) {
     t_debug "verifying expression alias match with /expr/ali[0-9].";
     for (my $i=0 ; $i <= 9 ; $i++) {
         ok t_cmp((GET_BODY "/expr/ali$i"),
@@ -95,7 +98,7 @@ foreach (sort keys %rm_body) {
     }
 }
 
-if (have_min_apache_version("2.4.8")) {
+if (have_min_apache_version("2.4.19")) {
     print "verifying body of perm and temp redirect match with expression support\n";
     foreach (sort keys %rm_body) {
         for (my $i=0 ; $i <= 9 ; $i++) {
@@ -123,7 +126,7 @@ foreach (keys %rm_rc) {
     }
 }
 
-if (have_min_apache_version("2.4.8")) {
+if (have_min_apache_version("2.4.19")) {
     print "verifying return code of seeother and gone redirect match with expression support\n";
     foreach (keys %rm_rc) {
         ## make LWP not follow the redirect since we
@@ -183,7 +186,7 @@ else {
     skip "skipping test without CGI module";
 }
 
-if (have_min_apache_version("2.4.8")) {
+if (have_min_apache_version("2.4.19")) {
     if (have_cgi) {
         ## with ScriptAlias in LocationMatch ##
         t_debug "verifying ScriptAlias in LocationMatch with /expr/aliascgi-script";
