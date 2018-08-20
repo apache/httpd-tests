@@ -139,8 +139,8 @@ static int nntp_like_process_connection(conn_rec *c)
 
         if ((rv = ap_get_brigade(c->input_filters, bb,
                                  AP_MODE_GETLINE,
-                                 APR_BLOCK_READ, 0) != APR_SUCCESS || 
-             APR_BRIGADE_EMPTY(bb)))
+                                 APR_BLOCK_READ, 0)) != APR_SUCCESS || 
+             APR_BRIGADE_EMPTY(bb))
         {
             apr_brigade_destroy(bb);
             break;
