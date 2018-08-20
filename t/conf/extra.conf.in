@@ -1217,13 +1217,16 @@ LimitRequestFields    32
 
 <IfModule mod_ratelimit.c>
    AliasMatch ^/apache/ratelimit/autoindex/$ @SERVERROOT@/htdocs/
-   AliasMatch ^/apache/ratelimit/ @SERVERROOT@/htdocs/index.html
+   AliasMatch ^/apache/ratelimit/$ @SERVERROOT@/htdocs/index.html
    <Location /apache/ratelimit/>
        Options +Indexes
        SetOutputFilter RATE_LIMIT
        <IfModule mod_env.c>
-           SetEnv rate-limit 400 
+           SetEnv rate-limit 1024
            SetEnv rate-initial-burst 512
        </IfModule>
+   </Location>
+   <Location /apache/ratelimit/chunk>
+      SetHandler random_chunk
    </Location>
 </IfModule>

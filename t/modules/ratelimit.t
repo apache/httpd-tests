@@ -9,19 +9,27 @@ use Data::Dumper;
 use HTTP::Response;
 use Socket;
 
+use LWP::UserAgent ();
+ 
+
 my @testcases = (
-    ['/apache/ratelimit/'           => '200'],
-    ['/apache/ratelimit/autoindex/' => '200'],
+    ['/apache/ratelimit/'                    => '200', "ratelimited small file"],
+    ['/apache/ratelimit/autoindex/'          => '200', "ratelimited small autoindex output"],
+    ['/apache/ratelimit/chunk?0,8192'        => '200', "ratelimited chunked response"],
 );
 
-plan tests => scalar @testcases, need
+plan tests => scalar @testcases, need need_lwp,
                  need_module('mod_ratelimit'),
                  need_module('mod_autoindex'),
                  need_min_apache_version('2.5.1');
 
+my $ua = LWP::UserAgent->new;
+$ua->timeout(4);
+
 foreach my $t (@testcases) {
     my $r = GET($t->[0]);
     chomp $r;
-    ok t_cmp($r->code, $t->[1], "rc was bad");
+    t_debug "Status Line: '" .  $r->status_line . "'";
+    ok t_cmp($r->code, $t->[1], $t->[2]);
 }
 
