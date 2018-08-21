@@ -27,9 +27,17 @@ my $ua = LWP::UserAgent->new;
 $ua->timeout(4);
 
 foreach my $t (@testcases) {
-    my $r = GET($t->[0]);
-    chomp $r;
-    t_debug "Status Line: '" .  $r->status_line . "'";
-    ok t_cmp($r->code, $t->[1], $t->[2]);
+    my $r;
+
+    # trap a die() in WLP when the the status line is invalid to avoid
+    # 'dubious test...' instead of just a failure.
+    eval { $r = GET($t->[0]) ;
+        chomp $r;
+        t_debug "Status Line: '" .  $r->status_line . "'";
+        ok t_cmp($r->code, $t->[1], $t->[2]);
+    }; 
+    # Check if the eval() die'ed
+    ok t_cmp($@, undef, $t->[2]) if $@
+ 
 }
 
