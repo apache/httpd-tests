@@ -21,5 +21,7 @@ ok t_cmp($r->code, 200, "Balancer did not die");
 $r = GET("/baltest3/index.html");
 ok t_cmp($r->code, 200, "Balancer did not die");
 
-# $r = GET("/baltest4/index.html");
-# ok t_cmp($r->code, 200, "Balancer did not die");
+if (have_min_apache_version("2.3.0")) {
+    # $r = GET("/baltest4/index.html");
+    # ok t_cmp($r->code, 200, "Balancer did not die");
+}

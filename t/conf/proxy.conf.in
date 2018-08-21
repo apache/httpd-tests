@@ -47,7 +47,9 @@
      ProxySet balancer://foo1 lbmethod=byrequests
      ProxySet balancer://foo2 lbmethod=bytraffic
      ProxySet balancer://foo3 lbmethod=bybusyness
-     ProxySet balancer://foo4 lbmethod=heartbeat
+     <IfVersion >= 2.3.0>
+        ProxySet balancer://foo4 lbmethod=heartbeat
+     </IfVersion>
 
      <Location /baltest1>
        ProxyPass balancer://foo1/
@@ -61,10 +63,12 @@
        ProxyPass balancer://foo3/
      </Location>
 
-     <Location /baltest4>
-       # TODO heartbeat needs additional configuration to have it work
-       ProxyPass balancer://foo4/
-     </Location>
+     <IfVersion >= 2.3.0>
+         <Location /baltest4>
+           # TODO heartbeat needs additional configuration to have it work
+           ProxyPass balancer://foo4/
+         </Location>
+     </IfVersion>
 
      ## PR 45434 tests
      <Proxy balancer://pr45434>
