@@ -297,7 +297,9 @@
    </VirtualHost>
 
    <VirtualHost proxy_http_nofwd>
-      ProxyAddHeaders off
+      <IfVersion >= 2.3.10>
+         ProxyAddHeaders off
+      </IfVersion>
       ProxyPass /reverse/ http://@SERVERNAME@:@PORT@/
 
       <Proxy "*">
