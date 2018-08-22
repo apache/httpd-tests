@@ -246,6 +246,8 @@
     <VirtualHost ssl_ocsp>
        SSLEngine on
 
+     # SSLOCSPResponderCertificateFile is available from 2.4.26
+     <IfVersion >= 2.4.26>
        SSLVerifyClient on
 
        SSLOCSPEnable on
@@ -254,6 +256,7 @@
 
        # Ignore CRL check results
        SSLCARevocationCheck none
+     </IfVersion>
     </VirtualHost>
 
     # For t/ssl/pr43738.t:

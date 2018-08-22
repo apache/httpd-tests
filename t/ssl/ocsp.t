@@ -20,8 +20,9 @@ Apache::TestRequest::module('ssl_ocsp');
 # Requires OpenSSL 1.1, can't find a simple way to test for OCSP
 # support in earlier versions without messing around with stderr
 my $openssl = Apache::TestSSLCA::openssl();
-if (`$openssl list -commands 2>/dev/null` !~ /ocsp/) {
-    print "1..0 # skip: No OpenSSL OCSP support";
+if (!have_min_apache_version('2.4.26')
+    or `$openssl list -commands 2>/dev/null` !~ /ocsp/) {
+    print "1..0 # skip: No OpenSSL or mod_ssl OCSP support";
     exit 0;
 }
 
