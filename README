@@ -156,7 +156,8 @@ this to make life easier for others.
    not loaded in the httpd config.
 8. If you see SSL certificate errors, remove t/conf/ssl/ca prior to 
    t/TEST -clean
-
+9. perl 5.28 in MacOS homebrew seems to hang the test suite.  Invoking 
+   /usr/bin/perl Makefile.PL -apxs ... will cause an older perl to be used.
 
 Smoking Tests
 -------------
