@@ -17,7 +17,7 @@ push @headers, "header2delete" => "1";
 push @headers, "Content-Encoding" => "gzip";
 push @headers, "Accept-Encoding" => "gzip";
 
-plan tests => scalar @testcases * 6, need 'reflector', 'mod_deflate';
+plan tests => scalar @testcases * 7, need 'mod_reflector', 'mod_deflate';
 
 foreach my $t (@testcases) {
     my $r = POST($t->[0], @headers, content => $t->[1]);
@@ -33,11 +33,12 @@ foreach my $t (@testcases) {
     } else {
         # With DEFLATE, input should have been updated and 'Content-Encoding' added
         ok not t_is_equal($r->content, $t->[1]);
-        ok not t_cmp($r->header("Content-Encoding"), undef, "'Content-Encoding' has been added by the DEFLATE filter");
+        ok t_cmp($r->header("Content-Encoding"), "gzip", "'Content-Encoding' has been added by the DEFLATE filter");
     }
 
     # Checking for headers
     ok t_cmp($r->header("header2reflect"), "1", "'header2reflect' is present");
+    ok t_cmp($r->header("header2update"), undef, "'header2update' is absent");
     ok t_cmp($r->header("header2updateUpdated"), "1", "'header2updateUpdated' is present");
     ok t_cmp($r->header("header2delete"), undef, "'header2delete' is absent");
 }
