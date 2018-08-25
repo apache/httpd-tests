@@ -1232,3 +1232,18 @@ LimitRequestFields    32
       SetHandler random_chunk
    </Location>
 </IfModule>
+
+<IfModule mod_reflector.c>
+   <Location /apache/reflector_nodeflate/>
+       SetHandler reflector
+       # Do not set any filter
+       ReflectorHeader header2reflect
+       ReflectorHeader header2update header2updateUpdated
+   </Location>
+   <Location /apache/reflector_deflate/>
+       SetHandler reflector
+       SetOutputFilter DEFLATE
+       ReflectorHeader header2reflect
+       ReflectorHeader header2update header2updateUpdated
+   </Location>
+</IfModule>
