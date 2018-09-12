@@ -173,7 +173,7 @@ SSL_CLIENT_M_VERSION         qr(^\d+$)
 SSL_SERVER_M_VERSION         qr(^\d+$)
 SSL_CLIENT_M_SERIAL          qr(^[0-9A-F]+$)
 SSL_SERVER_M_SERIAL          qr(^[0-9A-F]+$)
-SSL_PROTOCOL                 qr((TLS|SSL)v([1-3]|1\.[0-2])$)
+SSL_PROTOCOL                 qr((TLS|SSL)v([1-3]|1\.[0-3])$)
 SSL_CLIENT_V_START           qr($cert_datefmt);
 SSL_SERVER_V_START           qr($cert_datefmt);
 SSL_SESSION_ID
