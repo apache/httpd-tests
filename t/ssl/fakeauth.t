@@ -17,8 +17,10 @@ plan tests => 3, need need_auth,
 
 Apache::TestRequest::scheme('https');
 
+# With TLSv1.3 mod_ssl may return a better 403 error here, otherwise
+# expect a TLS alert which is represented as a 500 by LWP.
 ok t_cmp (GET_RC($url, cert => undef),
-          500,
+          qr/^(500|403)$/,
           "Getting $url with no cert"
          );
 
