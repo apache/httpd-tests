@@ -179,7 +179,7 @@ SSL_SERVER_V_START           qr($cert_datefmt);
 SSL_SESSION_ID
 SSL_CLIENT_V_END             qr($cert_datefmt);
 SSL_SERVER_V_END             qr($cert_datefmt);
-SSL_CIPHER                   qr(^[A-Z0-9-]+$)
+SSL_CIPHER                   qr(^[A-Z0-9_-]+$)
 SSL_CIPHER_EXPORT            'false'
 SSL_CIPHER_ALGKEYSIZE        qr(^\d+$)
 SSL_CIPHER_USEKEYSIZE        qr(^\d+$)
