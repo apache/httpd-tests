@@ -10,7 +10,7 @@ use HTTP::Date;
 ## mod_dav tests
 ##
 
-plan tests => 16, [qw(dav HTTP::DAV)];
+plan tests => 19, [qw(dav HTTP::DAV)];
 require HTTP::DAV;
 
 my $vars = Apache::Test::vars();
@@ -73,11 +73,8 @@ print "resource lock status test:\n";
 ok $resource->is_locked;
 
 ## unlock ##
-## for some reason $resource->unlock is not working for me...
-## even $resource->unlock( -force => 1 ) did not do it...
-## nothing unlocked it except $resource->forcefully_unlock_all
 print "resource unlock test:\n";
-$response = $resource->forcefully_unlock_all;
+$response = $resource->unlock;
 ok $response->is_success;
 
 ## should be unlocked ##
@@ -93,7 +90,7 @@ ok $actual eq $body;
 
 ## testing with second dav client ##
 my $d2 = HTTP::DAV->new;
-my $r2 = $dav->new_resource( -uri => "http://$server$uri");
+my $r2 = $d2->new_resource( -uri => "http://$server$uri");
 
 ## put an unlocked resource (will work) ##
 $response = $r2->get;
@@ -131,26 +128,20 @@ $response = $r2->lock
 );
 ok !$response->is_success;
 
-##############################################################################
-## this should work, but does not.  i'm thinking probably a bug in HTTP::DAV
-## so i'm commenting it out.  the second client (without the lock) can put
-## the resource locked by client 1... that is no good.  look into this later.
-## it's also entirely possible, i'm doing something totally wrong.
-##############################################################################
-#$response = $r2->get;
-#my $b3 = $r2->get_content;
-#$b3 =~ s#mod_dav#f00#g;
-#
-#print "client 2 attempting to put resource locked by client 1\n";
-#$response = $r2->put($b3);
-#ok !$response->is_success;
-#
-#print "verifying all is well through http\n";
-#$actual = GET_BODY $uri;
-#print "getting new uri...\nexpect:\n->$b2<-\ngot:\n->$actual<-\n";
-#ok $actual ne $b3;
-#ok $actual eq $b2;
-###############################################################################
+## client 2 should not be able to put because the resource is already locked by client 1 ##
+$response = $r2->get;
+my $b3 = $r2->get_content;
+$b3 =~ s#mod_dav#f00#g;
+
+print "client 2 attempting to put resource locked by client 1\n";
+$response = $r2->put($b3);
+ok !$response->is_success;
+
+print "verifying all is well through http\n";
+$actual = GET_BODY $uri;
+print "getting new uri...\nexpect:\n->$b2<-\ngot:\n->$actual<-\n";
+ok $actual ne $b3;
+ok $actual eq $b2;
 
 ## delete resource ##
 $response = $resource->forcefully_unlock_all; ## trusing this will work
