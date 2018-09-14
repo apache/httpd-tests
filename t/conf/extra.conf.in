@@ -1247,3 +1247,21 @@ LimitRequestFields    32
        ReflectorHeader header2update header2updateUpdated
    </Location>
 </IfModule>
+
+<IfModule mod_allowmethods.c>
+    <Directory @SERVERROOT@/htdocs/modules/allowmethods>
+        Options +Indexes
+    </Directory>
+    <Directory @SERVERROOT@/htdocs/modules/allowmethods/Get>
+        AllowMethods GET
+    </Directory>
+    <Directory @SERVERROOT@/htdocs/modules/allowmethods/Head>
+        AllowMethods HEAD
+    </Directory>
+    <Directory @SERVERROOT@/htdocs/modules/allowmethods/Post>
+        AllowMethods POST
+    </Directory>
+    <Directory @SERVERROOT@/htdocs/modules/allowmethods/Post/reset>
+        AllowMethods reset
+    </Directory>
+</IfModule>
