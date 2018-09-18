@@ -11,6 +11,9 @@ my $htdocs = Apache::Test::vars('documentroot');
 ## mod_setenvif tests
 ##
 
+my $good_ua = '^libwww-perl/.*';
+my $bad_ua = 'foo-browser/0.1';
+
 my $page = "/modules/setenvif/htaccess/setenvif.shtml";
 my %var_att =
     (
@@ -38,13 +41,16 @@ my %var_att =
             {
                 'pass' => $page,
                 'fail' => 'foo.html'
+            },
+        # Test with a regex. Looking for 'User-Agent'
+        '^User-Ag' =>
+            {
+                'pass' => $good_ua,
+                'fail' => $bad_ua
             }
     );
 
 my @var = qw(VAR_ONE VAR_TWO VAR_THREE);
-
-my $good_ua = '^libwww-perl/.*';
-my $bad_ua = 'foo-browser/0.1';
 
 my $htaccess = "$htdocs/modules/setenvif/htaccess/.htaccess";
 
