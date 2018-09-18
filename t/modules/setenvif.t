@@ -54,7 +54,7 @@ my @var = qw(VAR_ONE VAR_TWO VAR_THREE);
 
 my $htaccess = "$htdocs/modules/setenvif/htaccess/.htaccess";
 
-plan tests => @var * 7 + (keys %var_att) * 6 * @var,
+plan tests => @var * 8 + (keys %var_att) * 6 * @var,
     have_module qw(setenvif include);
 
 sub write_htaccess {
@@ -122,9 +122,9 @@ foreach my $attribute (sort keys %var_att) {
 
     ## some 'relaying' variables ##
     test_all_vars(0,
-    "SetEnvIf $attribute $var_att{$attribute}{pass} RELAY=1\nSetEnvIf RELAY 1");
+        "SetEnvIf $attribute $var_att{$attribute}{pass} RELAY=1\nSetEnvIf RELAY 1");
     test_all_vars(1,
-    "SetEnvIf $attribute $var_att{$attribute}{pass} RELAY=1\nSetEnvIf RELAY 0");
+        "SetEnvIf $attribute $var_att{$attribute}{pass} RELAY=1\nSetEnvIf RELAY 0");
 
     ## SetEnvIfNoCase tests ##
     my $uc = uc $var_att{$attribute}{pass};
@@ -136,20 +136,26 @@ foreach my $attribute (sort keys %var_att) {
 ## test 'relaying' variables ##
 test_all_vars(0,"BrowserMatch $good_ua RELAY=1\nSetEnvIf RELAY 1");
 test_all_vars(0,
-"BrowserMatch $good_ua RELAY=1\nSetEnvIf RELAY 1 R2=1\nSetEnvIf R2 1");
+    "BrowserMatch $good_ua RELAY=1\nSetEnvIf RELAY 1 R2=1\nSetEnvIf R2 1");
 test_all_vars(1,
-"BrowserMatch $good_ua RELAY=1\nSetEnvIf RELAY 1 R2=1\nSetEnvIf R2 0");
+    "BrowserMatch $good_ua RELAY=1\nSetEnvIf RELAY 1 R2=1\nSetEnvIf R2 0");
 test_all_vars(1,"BrowserMatch $good_ua RELAY=0\nSetEnvIf RELAY 1");
 test_all_vars(1,"BrowserMatch $good_ua RELAY=1\nSetEnvIf RELAY 0");
+
+## test '!' ##
+# We set then unset 'R2' (see a few lines above for the corresponding test, without the 'unset'
+test_all_vars(1,
+    "BrowserMatch $good_ua RELAY=1\nSetEnvIf RELAY 1 R2=1\nSetEnvIf RELAY 1 !R2\nSetEnvIf R2 1");
+
 
 ## i think this should work, but it doesnt.
 ## leaving it commented now pending investigation.
 ## seems you cant override variables that have been previously set.
 ##
 ## test_all_vars(0,
-## "SetEnv RELAY 1\nSetEnvIf RELAY 1 RELAY=2\nSetEnvIf RELAY 2");
+##     "SetEnv RELAY 1\nSetEnvIf RELAY 1 RELAY=2\nSetEnvIf RELAY 2");
 ## test_all_vars(0,
-## "BrowserMatch $good_ua RELAY=1\nSetEnvIf RELAY 1 RELAY=2\nSetEnvIf RELAY 2");
+##     "BrowserMatch $good_ua RELAY=1\nSetEnvIf RELAY 1 RELAY=2\nSetEnvIf RELAY 2");
 ##
 ##
 
