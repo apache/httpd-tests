@@ -5,10 +5,11 @@ use Apache::Test;
 use Apache::TestRequest;
 use Apache::TestUtil;
 
+# Available since 2.4.34, but quoted paths in <IfFile> fixed in 2.4.35
 plan tests => 2,
      need(
          need_module('mod_headers'),
-         need_min_apache_version('2.5.0')
+         need_min_apache_version('2.4.35')
      );
 
 my $resp = GET('/apache/iffile/document');

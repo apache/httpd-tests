@@ -1125,7 +1125,7 @@ LimitRequestFields    32
 # <IfFile> test config (see t/apache/iffile.t)
 #
 <IfDefine APACHE2>
-  <IfVersion >= 2.5.0>
+  <IfVersion >= 2.4.34>
   <IfModule mod_headers.c>
 
     <Location /apache/iffile>
@@ -1157,6 +1157,9 @@ LimitRequestFields    32
       </IfFile>
       <IfFile !@SERVERROOT@/htdocs/apache/iffile/document>
         Header merge X-Out fail4
+      </IfFile>
+      <IfFile !"htdocs/apache/iffile/document">
+        Header merge X-Out fail5
       </IfFile>
     </Location>
 
@@ -1264,4 +1267,8 @@ LimitRequestFields    32
     <Directory @SERVERROOT@/htdocs/modules/allowmethods/Post/reset>
         AllowMethods reset
     </Directory>
+</IfModule>
+
+<IfModule mod_proxy_wstunnel.c>
+    ProxyPass "/modules/proxy_wstunnel/"  "ws://127.0.0.1:9999/"
 </IfModule>
