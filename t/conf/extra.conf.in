@@ -1268,7 +1268,3 @@ LimitRequestFields    32
         AllowMethods reset
     </Directory>
 </IfModule>
-
-<IfModule mod_proxy_wstunnel.c>
-    ProxyPass "/modules/proxy_wstunnel/"  "ws://127.0.0.1:9999/"
-</IfModule>
