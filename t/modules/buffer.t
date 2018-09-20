@@ -23,7 +23,7 @@ foreach my $t (@testcases) {
     ok t_is_equal($r->content, $t->[1]);
     
     ## Big query ##
-    # 'foo' is 3 bytes, so 'foo' * 1000000 is ~3M, wich is way over the default 'BufferSize'
+    # 'foo' is 3 bytes, so 'foo' x 1000000 is ~3M, which is way over the default 'BufferSize'
     $r = POST($t->[0], content => $t->[1] x 1000000);
 
     # Checking for return code
