@@ -1268,3 +1268,21 @@ LimitRequestFields    32
         AllowMethods reset
     </Directory>
 </IfModule>
+
+<IfModule mod_buffer.c>
+   <IfModule mod_reflector.c>
+      <Location /apache/buffer_in/>
+          SetHandler reflector
+          SetInputFilter BUFFER
+      </Location>
+      <Location /apache/buffer_out/>
+          SetHandler reflector
+          SetOutputFilter BUFFER
+      </Location>
+      <Location /apache/buffer_in_out/>
+          SetHandler reflector
+          SetInputFilter BUFFER
+          SetOutputFilter BUFFER
+      </Location>
+   </IfModule>
+</IfModule>
