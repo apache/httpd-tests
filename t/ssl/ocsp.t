@@ -21,7 +21,7 @@ Apache::TestRequest::module('ssl_ocsp');
 # support in earlier versions without messing around with stderr
 my $openssl = Apache::TestSSLCA::openssl();
 if (!have_min_apache_version('2.4.26')
-    or `$openssl list -commands 2>/dev/null` !~ /ocsp/) {
+    or `$openssl list-standard-commands 2>/dev/null` !~ /ocsp/) {
     print "1..0 # skip: No OpenSSL or mod_ssl OCSP support";
     exit 0;
 }
