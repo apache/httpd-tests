@@ -6,6 +6,8 @@ use Apache::TestSSLCA;
 use Apache::TestRequest;
 use Apache::TestConfig ();
 
+use Net::SSLeay
+
 #if keepalives are on, renegotiation not happen again once
 #a client cert is presented.  so on test #3, the cert from #2
 #will be used.  this test scenerio would never
