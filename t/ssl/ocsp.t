@@ -6,8 +6,6 @@ use Apache::TestSSLCA;
 use Apache::TestRequest;
 use Apache::TestConfig ();
 
-use Net::SSLeay;
-
 #if keepalives are on, renegotiation not happen again once
 #a client cert is presented.  so on test #3, the cert from #2
 #will be used.  this test scenerio would never
@@ -23,7 +21,6 @@ Apache::TestRequest::module('ssl_ocsp');
 # support in earlier versions without messing around with stderr
 my $openssl = Apache::TestSSLCA::openssl();
 if (!have_min_apache_version('2.4.26')
-    or Net::SSLeay::OPENSSL_VERSION_NUMBER() < 0x10002000
     or `$openssl list -commands 2>&1` !~ /ocsp/) {
     print "1..0 # skip: No OpenSSL or mod_ssl OCSP support";
     exit 0;
