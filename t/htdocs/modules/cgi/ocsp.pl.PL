@@ -16,8 +16,8 @@ EOT
 
 chdir($caroot);
 
-my $filein = tempnam();
-my $fileout = tempnam();
+my $filein = tmpnam();
+my $fileout = tmpnam();
 
 # Enable slurp mode (read all lines at once)
 local $/;
