@@ -15,6 +15,7 @@ my @modules = qw(mod_nntp_like);
 if (have_ssl && ! have_module('http2')) {
     $tests *= 2;
     unshift @modules, 'mod_nntp_like_ssl';
+    Apache::TestRequest::set_ca_cert();
 }
 
 plan tests => $tests, need('mod_nntp_like',

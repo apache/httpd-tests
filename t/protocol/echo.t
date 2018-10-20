@@ -18,6 +18,7 @@ my @modules = qw(mod_echo);
 if (have_ssl) {
     $tests *= 2;
     unshift @modules, 'mod_echo_ssl';
+    Apache::TestRequest::set_ca_cert();
 }
 
 plan tests => $tests, ['mod_echo'];
