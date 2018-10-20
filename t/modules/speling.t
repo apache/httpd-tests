@@ -29,22 +29,29 @@ my @testcases = (
     ['several0.html', "multiple choise",     300, 404],
 );
 
-plan tests => scalar @testcasespaths * scalar @testcases, need 'mod_speling';
+plan tests => scalar @testcasespaths * scalar @testcases * 2, need 'mod_speling';
 
 my $r;
 my $code = 2;
 
-# disable redirect
+# Disable redirect
 local $Apache::TestRequest::RedirectOK = 0;
 
 foreach my $p (@testcasespaths) {
     foreach my $t (@testcases) {
         ## 
         $r = GET($p->[0] . $t->[0]);
-        print $r->content;
 
         # Checking for return code
         ok t_cmp($r->code, $t->[$code], "Checking " . $t->[1] . ". Expecting: ". $t->[$code]);
+        
+        # Checking that the expected filename is in the answer
+        if ($t->[$code] != 200 && $t->[$code] != 404) {
+            ok t_cmp($r->content, qr/good\.html|several1\.html/, "Redirect ok");
+        }
+        else {
+            skip "Skipping. No redirect with status " . $t->[$code];
+        }
     }
     
     $code = $code+1;
