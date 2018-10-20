@@ -1292,3 +1292,13 @@ LimitRequestFields    32
       SetOutputFilter DATA
    </Directory>
 </IfModule>
+
+<IfModule mod_speling.c>
+   <Directory @SERVERROOT@/htdocs/modules/speling/nocase/>
+      CheckSpelling on
+   </Directory>
+   <Directory @SERVERROOT@/htdocs/modules/speling/caseonly/>
+      CheckSpelling on
+      CheckCaseOnly on
+   </Directory>
+</IfModule>
