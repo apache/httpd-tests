@@ -17,8 +17,6 @@ my $url = '/index.html';
 Apache::TestRequest::scheme('https');
 Apache::TestRequest::module('ssl_ocsp');
 
-# Requires OpenSSL 1.1, can't find a simple way to test for OCSP
-# support in earlier versions without messing around with stderr
 my $openssl = Apache::TestSSLCA::openssl();
 if (!have_min_apache_version('2.4.26')
     or `$openssl list -commands 2>&1` !~ /ocsp/) {
@@ -32,8 +30,11 @@ my $r;
 
 sok {
     $r = GET $url, cert => undef;
+    my $message = $r->message() || '';
+    my $warning = $r->header('Client-Warning') || '';
     print $r->as_string;
-    $r->code != 200;
+    $r->code == 500 && $warning =~ 'Internal response' &&
+        $message =~ /alert handshake failure|read failed/;
 };
 
 sok {
@@ -44,7 +45,9 @@ sok {
 
 sok {
     $r = GET $url, cert => 'client_revoked';
+    my $message = $r->message() || '';
+    my $warning = $r->header('Client-Warning') || '';
     print $r->as_string;
-    $r->code != 200 && $r->as_string =~ "alert certificate revoked";
+    $r->code == 500 && $warning =~ 'Internal response' &&
+        $message =~ /alert certificate revoked|read failed/;
 };
-
