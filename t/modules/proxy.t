@@ -146,6 +146,8 @@ sub uds_script
     socket(my $server, PF_UNIX, SOCK_STREAM, 0) || die "socket: $!";
     bind($server, $sock_addr) || die "bind: $!";
     listen($server,1024) || die "listen: $!";
+    open(MARKER, '>', $socket_path.'.marker') or die "Unable to open file $socket_path.marker : $!";
+    close(MARKER);
     if (accept(my $new_sock, $server)) {
         my $data = <$new_sock>;
         print $new_sock "HTTP/1.0 200 OK\r\n";
@@ -154,6 +156,7 @@ sub uds_script
         close $new_sock;
     }
     unlink($socket_path);
+    unlink($socket_path.'.marker');
 }
 
 if (have_min_apache_version('2.4.7')) {
@@ -169,10 +172,11 @@ if (have_min_apache_version('2.4.7')) {
         uds_script($socket_path);
         exit;
     }
-    unless (Misc::cwait('-e "'.$socket_path.'"')) {
+    unless (Misc::cwait('-e "'.$socket_path.'.marker"', 10, 50)) {
         ok 0;
         exit;
     }
+    sleep(1);
     $r = GET("/uds/");
     ok t_cmp($r->code, 200, "ProxyPass UDS path");
     my $c = $r->content;

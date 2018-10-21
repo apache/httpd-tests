@@ -241,10 +241,11 @@ if (have_module('actions')) {
             exit;
         }
         # Wait for php-fpm to start-up
-        unless ( Misc::cwait('-e "'.$pid_file.'"') ) {
+        unless ( Misc::cwait('-e "'.$pid_file.'"', 10, 50) ) {
             ok 0;
             exit;
         }
+        sleep(1);
         $envs = run_fcgi_envvar_request(0, "/php/fpm/action/sub2/test.php/foo/bar?query", "PHP-FPM");
         ok t_cmp($envs->{'SCRIPT_NAME'}, '/php/fpm/action/sub2/test.php',
                 "Handler PHP-FPM sets correct SCRIPT_NAME");
