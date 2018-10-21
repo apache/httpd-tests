@@ -1293,6 +1293,14 @@ LimitRequestFields    32
    </Directory>
 </IfModule>
 
+<IfModule mod_usertrack.c>
+   <Directory @SERVERROOT@/htdocs/modules/usertrack/>
+      CookieTracking on
+      CookieName usertrack_test
+      CookieExpires "60 seconds"
+   </Directory>
+</IfModule>
+
 <IfModule mod_speling.c>
    <Directory @SERVERROOT@/htdocs/modules/speling/nocase/>
       CheckSpelling on
