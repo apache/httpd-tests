@@ -1,6 +1,7 @@
 use strict;
 use warnings FATAL => 'all';
 
+use Net::SSLeay;
 use Apache::Test;
 use Apache::TestRequest;
 use Apache::TestUtil;
@@ -9,19 +10,22 @@ use Apache::TestConfig ();
 my $num_suite = 24;
 my $vhost_suite = 4;
 
-my $total_tests = 2 * $num_suite;
+my $total_tests = 2 * $num_suite + $vhost_suite;
 
 Net::SSLeay::initialize();
 
 my $sni_available = Net::SSLeay::OPENSSL_VERSION_NUMBER() >= 0x01000000;
 my $alpn_available = $sni_available && exists &Net::SSLeay::CTX_set_alpn_protos;
 
-if ($sni_available) {
-    $total_tests += $vhost_suite;
-}
-
 plan tests => $total_tests, need 'Protocol::HTTP2::Client', 
     need_module 'http2', need_min_apache_version('2.4.17');
+
+# Check client and server for OpenSSL >= 1.0.0
+my $tls_modern = 1;
+my $openssl_version = Net::SSLeay::OPENSSL_VERSION_NUMBER();
+if ($openssl_version < 0x10000000) {
+    $tls_modern = 0;
+}
 
 Apache::TestRequest::module("http2");
 
@@ -487,8 +491,17 @@ sub do_vhosts {
 # Bring it on
 #
 do_common( 'scheme' => 'http', 'host' => $host, 'port' => $port );
-do_common( 'scheme' => 'https', 'host' => $shost, 'port' => $sport );
-if ($sni_available) {
-    do_vhosts( 'scheme' => 'https', 'host' => $shost, 'port' => $sport, host_name => "$shost:${sport}" );
+if ($tls_modern) {
+    do_common( 'scheme' => 'https', 'host' => $shost, 'port' => $sport );
+} else {
+    skip "skipping test as TLS1.2 not available in '$openssl_version'" foreach(1..$num_suite);
 }
-
+if ($sni_available) {
+    if ($tls_modern) {
+        do_vhosts( 'scheme' => 'https', 'host' => $shost, 'port' => $sport, host_name => "$shost:${sport}" );
+    } else {
+        skip "skipping test as TLS1.2 not available in '$openssl_version'" foreach(1..$vhost_suite);
+    }
+} else {
+    skip "skipping test as SNI not available" foreach(1..$vhost_suite);
+}
