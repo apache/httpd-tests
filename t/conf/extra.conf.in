@@ -1301,6 +1301,14 @@ LimitRequestFields    32
    </Directory>
 </IfModule>
 
+<IfModule mod_session_cookie.c>
+    <Directory @SERVERROOT@/htdocs/modules/session_cookie>
+        Session On
+        SessionCookieName thisisatest path=/
+        SessionMaxAge 1
+    </Directory>
+</IfModule>
+
 <IfModule mod_speling.c>
    <Directory @SERVERROOT@/htdocs/modules/speling/nocase/>
       CheckSpelling on
