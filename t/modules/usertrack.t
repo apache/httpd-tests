@@ -59,4 +59,4 @@ foreach (1..$iters) {
 }
 
 # Check the overall number of cookies generated
-ok ((scalar (%cookiex)) == ($iters * 2));
+ok ((scalar (keys %cookiex)) == ($iters * 2));
