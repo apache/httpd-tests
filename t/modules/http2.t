@@ -26,7 +26,7 @@ plan tests => $total_tests, need 'Protocol::HTTP2::Client',
 my $tls_modern = 1;
 
 Apache::TestRequest::set_ca_cert();
-my $sock = Apache::TestRequest::vhost_socket('mod_ssl');
+my $sock = Apache::TestRequest::vhost_socket('h2');
 ok ($sock && $sock->connected);
 
 my $req = "GET / HTTP/1.1\r\n".
