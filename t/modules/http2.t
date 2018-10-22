@@ -7,10 +7,11 @@ use Apache::TestRequest;
 use Apache::TestUtil;
 use Apache::TestConfig ();
 
+my $tls_version_suite = 4;
 my $num_suite = 24;
 my $vhost_suite = 4;
 
-my $total_tests = 2 * $num_suite + $vhost_suite;
+my $total_tests = 2 * $num_suite + $vhost_suite + $tls_version_suite;
 
 Net::SSLeay::initialize();
 
@@ -20,10 +21,30 @@ my $alpn_available = $sni_available && exists &Net::SSLeay::CTX_set_alpn_protos;
 plan tests => $total_tests, need 'Protocol::HTTP2::Client', 
     need_module 'http2', need_min_apache_version('2.4.17');
 
-# Check client and server for OpenSSL >= 1.0.0
+# Check support for TLSv1_2 and later
+
 my $tls_modern = 1;
-my $openssl_version = Net::SSLeay::OPENSSL_VERSION_NUMBER();
-if ($openssl_version < 0x10000000) {
+
+Apache::TestRequest::set_ca_cert();
+my $sock = Apache::TestRequest::vhost_socket('mod_ssl');
+ok ($sock && $sock->connected);
+
+my $req = "GET / HTTP/1.1\r\n".
+   "Host: " . Apache::TestRequest::hostport() . "\r\n".
+    "\r\n";
+
+ok $sock->print($req);
+
+my $line = Apache::TestRequest::getline($sock) || '';
+
+ok t_cmp($line, qr{^HTTP/1\.. 200}, "read first response-line");
+
+my $tls_version = $sock->get_sslversion();
+
+ok t_cmp($tls_version, qr{^(SSL|TLSv\d(_\d)?$)}, "TLS version in use");
+
+if ($tls_version =~ /^(SSL|TLSv1(|_0|_1)$)/) {
+    print STDOUT "Disabling TLS tests due to TLS version $tls_version\n";
     $tls_modern = 0;
 }
 
@@ -494,13 +515,13 @@ do_common( 'scheme' => 'http', 'host' => $host, 'port' => $port );
 if ($tls_modern) {
     do_common( 'scheme' => 'https', 'host' => $shost, 'port' => $sport );
 } else {
-    skip "skipping test as TLS1.2 not available in '$openssl_version'" foreach(1..$num_suite);
+    skip "skipping test as TLS version '$tls_version' is not supported" foreach(1..$num_suite);
 }
 if ($sni_available) {
     if ($tls_modern) {
         do_vhosts( 'scheme' => 'https', 'host' => $shost, 'port' => $sport, host_name => "$shost:${sport}" );
     } else {
-        skip "skipping test as TLS1.2 not available in '$openssl_version'" foreach(1..$vhost_suite);
+        skip "skipping test as TLS version '$tls_version' is not supported" foreach(1..$vhost_suite);
     }
 } else {
     skip "skipping test as SNI not available" foreach(1..$vhost_suite);
