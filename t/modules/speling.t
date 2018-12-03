@@ -45,7 +45,7 @@ local $Apache::TestRequest::RedirectOK = 0;
 foreach my $p (@testcasespaths) {
     foreach my $t (@testcases) {
         ## 
-        local $Apache::TestRequest::RedirectOK = 0;
+        #local $Apache::TestRequest::RedirectOK = 0;
         $r = GET($p->[0] . $t->[0]);
 
         # Checking for return code
