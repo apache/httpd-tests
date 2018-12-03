@@ -2,8 +2,8 @@ use strict;
 use warnings FATAL => 'all';
 
 use Apache::Test;
-use Apache::TestUtil;
 use Apache::TestRequest;
+use Apache::TestUtil;
 
 my @testcasespaths = (
     ['/modules/speling/nocase/'], 
@@ -17,7 +17,6 @@ my @testcases = (
     ['goood.html', "insertion",              301, 404],
     ['godo.html',  "transposition",          301, 404],
     ['go_d.html',  "wrong character",        301, 404],
-    ['GOOD.html',  "case",                   301, 301],
 
     ['good.wrong_ext', "wrong extension",    300, 300],
     ['GOOD.wrong_ext', "NC wrong extension", 300, 300],
@@ -26,8 +25,14 @@ my @testcases = (
     ['dogo.html', "double transposition",    404, 404],
     ['XooX.html', "double wrong character",  404, 404],
 
-    ['several0.html', "multiple choise",     300, 404],
+    ['several0.html', "multiple choice",     300, 404],
 );
+
+# macOS HFS is case-insensitive but case-preserving so the below tests
+# would cause misleading failures
+if ($^O ne "darwin") {
+    push (@testcases, ['GOOD.html',  "case",                   301, 301]);
+}
 
 plan tests => scalar @testcasespaths * scalar @testcases * 2, need 'mod_speling';
 
@@ -40,6 +45,7 @@ local $Apache::TestRequest::RedirectOK = 0;
 foreach my $p (@testcasespaths) {
     foreach my $t (@testcases) {
         ## 
+        local $Apache::TestRequest::RedirectOK = 0;
         $r = GET($p->[0] . $t->[0]);
 
         # Checking for return code
