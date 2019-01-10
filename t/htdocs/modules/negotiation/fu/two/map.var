@@ -15,3 +15,7 @@ Content-Language: fr
 URI: index.fu.html
 Content-Type: text/html
 Content-Language: fu
+
+URI: index.zh-TW.html
+Content-Type: text/html
+Content-Language: zh-TW
