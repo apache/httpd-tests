@@ -10,14 +10,12 @@ use Apache::TestConfig ();
 my $tls_version_suite = 4;
 my $num_suite = 24;
 my $vhost_suite = 4;
-
+my $total_tests = 2 * $num_suite + $vhost_suite + $tls_version_suite;
 
 Net::SSLeay::initialize();
 
 my $sni_available = Net::SSLeay::OPENSSL_VERSION_NUMBER() >= 0x01000000;
 my $alpn_available = $sni_available && exists &Net::SSLeay::CTX_set_alpn_protos;
-
-my $total_tests = 2 * $num_suite + $vhost_suite + ($sni_available? $tls_version_suite : 0);
 
 plan tests => $total_tests, need 'Protocol::HTTP2::Client', 
     need_module 'http2', need_min_apache_version('2.4.17');
@@ -35,7 +33,7 @@ my $tls_modern = 1;
 my $tls_version = 0;
 
 my $sock = Apache::TestRequest::vhost_socket('h2');
-if ( $sock ) {
+if ($sock) {
     ok ($sock->connected);
 
     my $req = "GET / HTTP/1.1\r\n".
@@ -54,7 +52,7 @@ if ( $sock ) {
     }
 }
 else {
-    $tls_modern = 1;
+    skip "skipping test as socket not defined" foreach(1..$tls_version_suite);
 }
 
 Apache::TestRequest::module("http2");
@@ -461,7 +459,7 @@ EOF
         };
     }
     else {
-        skip "skipping test as mod_cgi not available" foreach(1..1);
+        skip "skipping test as mod_cgi not available" foreach(1..16);
     }
  
     add_sequential(
