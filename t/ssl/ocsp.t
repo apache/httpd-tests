@@ -30,7 +30,7 @@ my $r;
 
 sok {
     $r = GET $url, cert => undef;
-    my $message = $r->message() || '';
+    my $message = $r->content() || '';
     my $warning = $r->header('Client-Warning') || '';
     print $r->as_string;
     $r->code == 500 && $warning =~ 'Internal response' &&
@@ -45,7 +45,7 @@ sok {
 
 sok {
     $r = GET $url, cert => 'client_revoked';
-    my $message = $r->message() || '';
+    my $message = $r->content() || '';
     my $warning = $r->header('Client-Warning') || '';
     print $r->as_string;
     $r->code == 500 && $warning =~ 'Internal response' &&
