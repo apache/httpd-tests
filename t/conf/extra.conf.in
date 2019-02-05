@@ -512,7 +512,9 @@ Alias /manual @inherit_documentroot@/manual
 ##
 
 <IfModule mod_dav.c>
-    DAVLockDB @SERVERROOT@/logs/davlock.db
+    <IfVersion < 2.5.1>
+      DAVLockDB @SERVERROOT@/logs/davlock.db
+    </IfVersion>
 
     <Directory @SERVERROOT@/htdocs/modules/dav>
         DAV On
