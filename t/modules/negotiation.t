@@ -8,7 +8,11 @@ use Apache::TestUtil;
 ## mod_negotiation test (see extra.conf.in)
 
 my ($en, $fr, $de, $fu, $bu, $zh) = qw(en fr de fu bu zh-TW);
-my @language = ($en, $fr, $de, $fu, $zh);
+
+my @language = ($en, $fr, $de, $fu);
+if (have_min_apache_version("2.4.38")) {
+  push @language, $zh;
+}
 
 my @ct_tests = (
     # [ Accept header, Expected response ]
