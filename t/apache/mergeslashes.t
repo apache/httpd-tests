@@ -21,7 +21,7 @@ my @test_cases = (
   [ "GET /authz_core/a//b/c/index.html HTTP/1.1\r\nHost: merge-disabled\r\n\r\n"  => 403, "a// matches locationmatch"],
   [ "GET /authz_core/a/b/c//index.html HTTP/1.1\r\nHost: merge-disabled\r\n\r\n"  => 200, "c// doesn't match locationmatch"],
 );
-plan tests => scalar(@test_cases), need_min_apache_version('2.5.1');
+plan tests => scalar(@test_cases), need_min_apache_version('2.4.39');
 
 
   foreach my $t (@test_cases) {

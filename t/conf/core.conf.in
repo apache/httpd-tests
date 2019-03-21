@@ -17,26 +17,28 @@
 </VirtualHost>
 
 # MergeSlashes 
-<VirtualHost merge-default:core>
-      ServerName merge-default
-      <Directory @DocumentRoot@/authz_core/>
-          require all granted
-      </Directory>
-      <LocationMatch ^/authz_core/a/b/c/index.html>
-          require all denied 
-      </LocationMatch>
-</virtualHost>
-<VirtualHost merge-disabled:core>
-      ServerName merge-disabled
-      MergeSlashes OFF
-      <Directory @DocumentRoot@/authz_core/>
-          require all granted
-      </Directory>
-      <LocationMatch ^/authz_core/a/b/c/index.html>
-          require all denied 
-      </LocationMatch>
-      <LocationMatch ^/authz_core/a//b/c/index.html>
-          require all denied 
-      </LocationMatch>
-</virtualHost>
+<IfVersion >= 2.4.39>
+   <VirtualHost merge-default:core>
+         ServerName merge-default
+         <Directory @DocumentRoot@/authz_core/>
+             require all granted
+         </Directory>
+         <LocationMatch ^/authz_core/a/b/c/index.html>
+             require all denied 
+         </LocationMatch>
+   </virtualHost>
+   <VirtualHost merge-disabled:core>
+         ServerName merge-disabled
+         MergeSlashes OFF
+         <Directory @DocumentRoot@/authz_core/>
+             require all granted
+         </Directory>
+         <LocationMatch ^/authz_core/a/b/c/index.html>
+             require all denied 
+         </LocationMatch>
+         <LocationMatch ^/authz_core/a//b/c/index.html>
+             require all denied 
+         </LocationMatch>
+   </virtualHost>
+</IfVersion>
 
