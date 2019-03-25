@@ -13,13 +13,13 @@ use Socket;
 
 my @test_cases = (
     # request, status code global, status code 'mergeslashes off' VH, msg
-  [ "GET /authz_core/a/b/c/index.html HTTP/1.1\r\nHost: merge-default\r\n\r\n"    => 403, "exact match"],
-  [ "GET //authz_core/a/b/c/index.html HTTP/1.1\r\nHost: merge-default\r\n\r\n"    => 403, "merged even at front"],
-  [ "GET ///authz_core/a/b/c/index.html HTTP/1.1\r\nHost: merge-default\r\n\r\n"    => 403, "merged even at front"],
-  [ "GET /authz_core/a/b/c//index.html HTTP/1.1\r\nHost: merge-default\r\n\r\n"   => 403, "c// should be merged"],
-  [ "GET /authz_core/a//b/c/index.html HTTP/1.1\r\nHost: merge-default\r\n\r\n"   => 403, "a// should be merged"],
-  [ "GET /authz_core/a//b/c/index.html HTTP/1.1\r\nHost: merge-disabled\r\n\r\n"  => 403, "a// matches locationmatch"],
-  [ "GET /authz_core/a/b/c//index.html HTTP/1.1\r\nHost: merge-disabled\r\n\r\n"  => 200, "c// doesn't match locationmatch"],
+  [ "GET /authz_core/a/b/c/index.html HTTP/1.1\r\nHost: merge-default\r\nConnection: close\r\n\r\n"    => 403, "exact match"],
+  [ "GET //authz_core/a/b/c/index.html HTTP/1.1\r\nHost: merge-default\r\nConnection: close\r\n\r\n"    => 403, "merged even at front"],
+  [ "GET ///authz_core/a/b/c/index.html HTTP/1.1\r\nHost: merge-default\r\nConnection: close\r\n\r\n"    => 403, "merged even at front"],
+  [ "GET /authz_core/a/b/c//index.html HTTP/1.1\r\nHost: merge-default\r\nConnection: close\r\n\r\n"   => 403, "c// should be merged"],
+  [ "GET /authz_core/a//b/c/index.html HTTP/1.1\r\nHost: merge-default\r\nConnection: close\r\n\r\n"   => 403, "a// should be merged"],
+  [ "GET /authz_core/a//b/c/index.html HTTP/1.1\r\nHost: merge-disabled\r\nConnection: close\r\n\r\n"  => 403, "a// matches locationmatch"],
+  [ "GET /authz_core/a/b/c//index.html HTTP/1.1\r\nHost: merge-disabled\r\nConnection: close\r\n\r\n"  => 200, "c// doesn't match locationmatch"],
 );
 plan tests => scalar(@test_cases), need_min_apache_version('2.4.39');
 
@@ -38,7 +38,6 @@ plan tests => scalar(@test_cases), need_min_apache_version('2.4.39');
     }
 
     $sock->print($req);
-    $sock->shutdown(1);
     sleep(0.1);
     $req = escape($req);
     print "# SENDING to " . peer($sock) . "\n# $req\n";
@@ -102,6 +101,7 @@ sub peer
 {
    my $sock = shift;
    my $hersockaddr    = getpeername($sock);
+   return "<disconnected>" if !$hersockaddr;
    my ($port, $iaddr) = sockaddr_in($hersockaddr);
    my $herhostname    = gethostbyaddr($iaddr, AF_INET);
    my $herstraddr     = inet_ntoa($iaddr);
