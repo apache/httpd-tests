@@ -235,7 +235,7 @@ my $tests = (scalar keys %tests) + @patterns + 1 + 1 + 1 + 2 + 14 + 14;
 
 plan tests => $tests,
               todo => \@todo,
-              need need_lwp, need_module 'include';
+              need 'DateTime', need_lwp, need_module 'include';
 
 foreach $doc (sort keys %tests) {
     # do as much from %test as we can
