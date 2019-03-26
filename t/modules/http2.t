@@ -17,7 +17,7 @@ Net::SSLeay::initialize();
 my $sni_available = Net::SSLeay::OPENSSL_VERSION_NUMBER() >= 0x01000000;
 my $alpn_available = $sni_available && exists &Net::SSLeay::CTX_set_alpn_protos;
 
-plan tests => $total_tests, need 'Protocol::HTTP2::Client', 
+plan tests => $total_tests, need 'Protocol::HTTP2::Client', 'AnyEvent',
     need_module 'http2', need_min_apache_version('2.4.17');
 
 # Check support for TLSv1_2 and later
