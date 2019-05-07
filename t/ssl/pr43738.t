@@ -9,7 +9,7 @@ plan tests => 4,
     need 'ssl', need_module('actions'),
     need_min_apache_version('2.2.7');
 
-Apache::TestRequest::user_agent( ssl_opts => { SSL_cipher_list => 'ALL'});
+Apache::TestRequest::user_agent( ssl_opts => { SSL_cipher_list => 'ALL', SSL_version => 'TLSv12'});
 Apache::TestRequest::user_agent_keepalive(1);
 Apache::TestRequest::scheme('https');
 
