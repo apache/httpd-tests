@@ -7,14 +7,18 @@ use Apache::TestUtil;
 use Apache::TestCommon ();
 
 my %frontend = (
-    proxy_http_https  => 'http',
-    proxy_https_https => 'https',
-    proxy_https_http  => 'https',
+    proxy_http_https                => 'http',
+    proxy_https_https               => 'https',
+    proxy_https_http                => 'https',
+    proxy_http_https_proxy_section  => 'http',
+    proxy_https_https_proxy_section => 'https',
 );
 my %backend = (
-    proxy_http_https  => 'https',
-    proxy_https_https => 'https',
-    proxy_https_http  => 'http',
+    proxy_http_https                => 'https',
+    proxy_https_https               => 'https',
+    proxy_https_http                => 'http',
+    proxy_http_https_proxy_section  => 'https',
+    proxy_https_https_proxy_section => 'https',
 );
 
 my $num_modules = scalar keys %frontend;
