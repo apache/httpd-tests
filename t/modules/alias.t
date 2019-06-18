@@ -35,6 +35,14 @@ my %rm_rc = (
     f   =>  '403'
 );
 
+
+my %relative_redirects = (
+    "/redirect_relative/default"     => "^http",    # URL should be absolute
+    "/redirect_relative/on"  => "^/out-on",         # URL should be relative
+    "/redirect_relative/off" => "^http",            # URL should be absolute
+    "/redirect_relative/off/fail" => undef,         # 500 due to invalid URL
+);
+
 #XXX: find something that'll on other platforms (/bin/sh aint it)
 my $script_tests = WINFU ? 0 : 4 + have_min_apache_version("2.4.19");
 
@@ -43,6 +51,10 @@ my $tests = 12 + have_min_apache_version("2.4.19") * 10 +
             (keys %rm_body) * (1 + have_min_apache_version("2.4.19")) * 10 +
             (keys %rm_rc) * (1 + have_min_apache_version("2.4.19")) * 10 +
             $script_tests;
+
+if (have_min_apache_version("2.5.1")) { 
+  $tests += (keys %relative_redirects)*2;
+}
 
 #LWP required to follow redirects
 plan tests => $tests, need need_module('alias'), need_lwp;
@@ -207,3 +219,22 @@ ok t_cmp((GET_RC "/aliascgi-nada"),
 
 ## clean up ##
 t_rmtree("$vars->{t_logs}/mod_cgi.log");
+
+
+if (have_min_apache_version("2.5.1")) {
+  my ($path, $regex);
+  while (($path, $regex) = each (%relative_redirects)) {
+    local $Apache::TestRequest::RedirectOK = 0;
+    my $r;
+    $r = GET($path);
+    if (defined($regex)) { 
+      ok t_cmp($r->code, "302");
+      ok t_cmp($r->header("Location"), qr/$regex/, "failure on $path");
+    }
+    else { 
+      ok t_cmp($r->code, "500");
+      ok t_cmp($r->header("Location"), undef, "failure on $path");
+    }
+  }
+}
+

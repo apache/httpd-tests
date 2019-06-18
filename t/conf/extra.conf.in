@@ -423,6 +423,24 @@
     </IfDefine>
 </IfModule>
 
+
+<IfVersion >= 2.5.1>
+    <Location /redirect_relative/default>
+        Redirect /out-default
+    </Location>
+    <Location /redirect_relative/on>
+        RedirectRelative ON
+        Redirect /out-on
+    </Location>
+    <Location /redirect_relative/off>
+        RedirectRelative OFF
+        Redirect /out-off
+    </Location>
+    <Location /redirect_relative/off/fail>
+        Redirect fail-to-construct-url
+    </Location>
+</IfVersion>
+
 Alias /manual @inherit_documentroot@/manual
 <Location /manual>
     Order deny,allow
