@@ -41,11 +41,10 @@ foreach my $vhosts ((["default" => 1], ["core" => 2])) {
         next;
     }
 
+    print "# SENDING to " . peer($sock) . "\n# $req\n";
     $sock->print($req);
     $sock->shutdown(1);
-    sleep(0.1);
     $req = escape($req);
-    print "# SENDING to " . peer($sock) . "\n# $req\n";
 
     my $response_data = "";
     my $buf;
