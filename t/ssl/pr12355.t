@@ -7,11 +7,26 @@ use Apache::TestUtil;
 
 plan tests => 10, need 'ssl', need_min_apache_version('2.0');
 
-Apache::TestRequest::user_agent( ssl_opts => { SSL_cipher_list => 'ALL', SSL_version => 'TLSv12'});
-Apache::TestRequest::user_agent_keepalive(1);
+my $r;
+
+Apache::TestRequest::user_agent(ssl_opts => {SSL_version => 'TLSv13'});
 Apache::TestRequest::scheme('https');
 
-my $r;
+$r = GET "/";
+my $tls13_works = $r->is_success;
+
+# Forget the above user agent settings, start fresh
+Apache::TestRequest::user_agent(reset => 1);
+
+# If TLS 1.3 worked, downgrade to TLS 1.2, otherwise use what works.
+if ($tls13_works) {
+    t_debug "Downgrading to TLSv12";
+    Apache::TestRequest::user_agent(ssl_opts => {SSL_cipher_list => 'ALL', SSL_version => 'TLSv12'});
+} else {
+    Apache::TestRequest::user_agent(ssl_opts => {SSL_cipher_list => 'ALL'});
+}
+Apache::TestRequest::user_agent_keepalive(1);
+Apache::TestRequest::scheme('https');
 
 # Send a series of POST requests with varying size request bodies.
 # Alternate between the location which requires a AES128-SHA ciphersuite
