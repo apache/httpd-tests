@@ -24,7 +24,7 @@ my @todo = (
 );
 
 # Until the fix for PR 57300 is backported, sessions are always saved.
-if (!have_min_apache_version('2.5')) {
+if (!have_min_apache_version('2.4.41')) {
     my @todo_backport = ( 8, 18, 38, 43, 48, 58, 63, 133 );
     push(@todo, @todo_backport);
 }
