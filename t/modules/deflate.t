@@ -21,7 +21,7 @@ my @server_bucketeer_uri = ("/modules/deflate/bucketeer/P.txt",
                            );
 
 my $cgi_tests = 3;
-my $tests_per_uri = 3;
+my $tests_per_uri = 4;
 my $tests = $tests_per_uri * (@server_deflate_uris + @server_bucketeer_uri) + $cgi_tests;
 my $vars = Apache::Test::vars();
 my $module = 'default';
@@ -32,6 +32,9 @@ print "testing $module\n";
 
 my @deflate_headers;
 push @deflate_headers, "Accept-Encoding" => "gzip";
+
+my @deflate_headers_q0;
+push @deflate_headers_q0, "Accept-Encoding" => "gzip;q=0";
 
 my @inflate_headers;
 push @inflate_headers, "Content-Encoding" => "gzip";
@@ -47,11 +50,13 @@ for my $server_deflate_uri (@server_deflate_uris) {
     my $original_str = GET_BODY($server_deflate_uri);
 
     my $deflated_str = GET_BODY($server_deflate_uri, @deflate_headers);
+    my $deflated_str_q0 = GET_BODY($server_deflate_uri, @deflate_headers_q0);
 
     my $inflated_str = POST_BODY($server_inflate_uri, @inflate_headers,
                                  content => $deflated_str);
 
     ok $original_str eq $inflated_str;
+    ok $original_str eq $deflated_str_q0;
     my $resp = POST($server_inflate_uri, @inflate_headers,
                     content => "foo123456789012346");
     if (have_min_apache_version("2.5")) {
