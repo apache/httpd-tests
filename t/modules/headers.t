@@ -98,6 +98,23 @@ my @testcases = (
        [ 'Test-Header' => 'foo' ],
        [ 'Test-Header' => 'foo', 'Test-Header2' => 'bar' ],
     ],
+    # env=
+    [
+       "SetEnv MY_ENV\nHeader set Test-Header foo env=MY_ENV",          # env defined
+       [  ],
+       [ 'Test-Header' => 'foo' ],
+    ],
+    [
+       "Header set Test-Header foo env=!MY_ENV",                        # env NOT defined
+       [  ],
+       [ 'Test-Header' => 'foo' ],
+    ],
+    # expr=
+    [
+       "Header set Test-Header foo \"expr=%{REQUEST_URI} =~ m#htaccess#\"", # expr
+       [  ],
+       [ 'Test-Header' => 'foo' ],
+    ],
 );
    
 plan tests => 
