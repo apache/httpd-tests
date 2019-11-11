@@ -2,6 +2,7 @@ use strict;
 use warnings FATAL => 'all';
 
 use Apache::Test;
+use Apache::TestUtil;
 use Apache::TestRequest;
 
 ## 
@@ -11,11 +12,99 @@ use Apache::TestRequest;
 my $htdocs = Apache::Test::vars('documentroot');
 my $htaccess = "$htdocs/modules/headers/htaccess/.htaccess";
 my @header_types = ('set', 'append', 'add', 'unset');
-    
+
+my @testcases = (
+    ## htaccess
+    ## Header to set in the request
+    ## Expected result
+
+    # echo
+    [
+       "Header echo Test-Header\nHeader echo ^Aaa\$\nHeader echo ^Aa\$",
+       [ 'Test-Header' => 'value', 'Aaa' => 'b' , 'Aa' => 'bb' ],
+       [ 'Test-Header' => 'value', 'Aaa' => 'b' , 'Aa' => 'bb' ],
+    ],
+    [
+       "Header echo Test-Header\nHeader echo XXX\nHeader echo ^Aa\$",
+       [ 'Test-Header' => 'foo', 'aaa' => 'b', 'aa' => 'bb' ],
+       [ 'Test-Header' => 'foo', 'aa' => 'bb' ],
+    ],
+    [
+       "Header echo Test-Header.*",                                     # regex
+       [ 'Test-Header' => 'foo', 'Test-Header1' => 'value1', 'Test-Header2' => 'value2' ],
+       [ 'Test-Header' => 'foo', 'Test-Header1' => 'value1', 'Test-Header2' => 'value2' ],
+    ],
+    # edit
+    [
+       "Header echo Test-Header\nHeader edit Test-Header foo bar",      # sizeof(foo) = sizeof(bar)
+       [ 'Test-Header' => 'foofoo' ],
+       [ 'Test-Header' => 'barfoo' ],
+    ],
+    [
+       "Header echo Test-Header\nHeader edit Test-Header foo2 bar",     # sizeof(foo2) > sizeof(bar)
+       [ 'Test-Header' => 'foo2foo2' ],
+       [ 'Test-Header' => 'barfoo2' ],
+    ],
+    [
+       "Header echo Test-Header\nHeader edit Test-Header foo bar2",     # sizeof(foo) < sizeof(bar2)
+       [ 'Test-Header' => 'foofoo' ],
+       [ 'Test-Header' => 'bar2foo' ],
+    ],
+    # edit*
+    [
+       "Header echo Test-Header\nHeader edit* Test-Header foo bar",     # sizeof(foo) = sizeof(bar)
+       [ 'Test-Header' => 'foofoo' ],
+       [ 'Test-Header' => 'barbar' ],
+    ],
+    [
+       "Header echo Test-Header\nHeader edit* Test-Header foo2 bar",    # sizeof(foo2) > sizeof(bar)
+       [ 'Test-Header' => 'foo2foo2' ],
+       [ 'Test-Header' => 'barbar' ],
+    ],
+    [
+       "Header echo Test-Header\nHeader edit* Test-Header foo bar2",    # sizeof(foo) < sizeof(bar2)
+       [ 'Test-Header' => 'foofoo' ],
+       [ 'Test-Header' => 'bar2bar2' ],
+    ],
+    # merge
+    [
+       "Header merge Test-Header foo",                                  # missing header
+       [  ],
+       [ 'Test-Header' => 'foo' ],
+    ],
+    [
+       "Header echo Test-Header\nHeader merge Test-Header foo",         # already existing, same value
+       [ 'Test-Header' => 'foo' ],
+       [ 'Test-Header' => 'foo' ],
+    ],
+    [
+       "Header echo Test-Header\nHeader merge Test-Header foo",         # already existing, same value, but with ""
+       [ 'Test-Header' => '"foo"' ],
+       [ 'Test-Header' => '"foo", foo' ],
+    ],
+    [
+       "Header echo Test-Header\nHeader merge Test-Header bar",         # already existing, different value
+       [ 'Test-Header' => 'foo' ],
+       [ 'Test-Header' => 'foo, bar' ],
+    ],
+    # setifempty
+    [
+       "Header echo Test-Header\nHeader setifempty Test-Header bar",    # already existing
+       [ 'Test-Header' => 'foo' ],
+       [ 'Test-Header' => 'foo' ],
+    ],
+    [
+       "Header echo Test-Header\nHeader setifempty Test-Header2 bar",   # missing header
+       [ 'Test-Header' => 'foo' ],
+       [ 'Test-Header' => 'foo', 'Test-Header2' => 'bar' ],
+    ],
+);
+   
 plan tests => 
-    @header_types**4 + @header_types**3 + @header_types**2 + @header_types**1,
+    @header_types**4 + @header_types**3 + @header_types**2 + @header_types**1 + scalar @testcases * 2,
     have_module 'headers';
 
+# Test various configurations
 foreach my $header1 (@header_types) {
 
     ok test_header($header1);
@@ -35,6 +124,13 @@ foreach my $header1 (@header_types) {
 
     }
 
+}
+
+# Test some other Header directives, including regex
+my $ua = LWP::UserAgent->new();
+my $hostport = Apache::TestRequest::hostport();
+foreach my $t (@testcases) {
+    test_header2($t);
 }
 
 ## clean up ##
@@ -156,4 +252,43 @@ sub test_header {
         return 0;
 
     }
+}
+
+sub test_header2 {
+    my @test = @_;
+    my $h = HTTP::Headers->new;
+    
+    print "\n\n\n";
+    for (my $i = 0; $i < scalar @{$test[0][1]}; $i += 2) {
+        print "Header sent n°" . $i/2 . ":\n";
+        print "  header: " . $test[0][1][$i] . "\n";
+        print "  value:  " . $test[0][1][$i+1] . "\n";
+        $h->header($test[0][1][$i] => $test[0][1][$i+1]);
+    }
+    
+    open (HT, ">$htaccess");
+    print HT $test[0][0];
+    close(HT);
+
+    ## 
+    my $r = HTTP::Request->new('GET', "http://$hostport/modules/headers/htaccess/", $h);
+    my $res = $ua->request($r);
+    ok t_cmp($res->code, 200, "Checking return code is '200'");
+    
+    my $isok = 1;
+    for (my $i = 0; $i < scalar @{$test[0][2]}; $i += 2) {
+        print "\n";
+        print "Header received n°" . $i/2 . ":\n";
+        print "  header:   " . $test[0][2][$i] . "\n";
+        print "  expected: " . $test[0][2][$i+1] . "\n";
+        if ($res->header($test[0][2][$i])) {
+            print "  received: " . $res->header($test[0][2][$i]) . "\n";
+        } else {
+            print "  received: <undefined>\n";
+        }
+        $isok = $isok && $res->header($test[0][2][$i]) && $test[0][2][$i+1] eq $res->header($test[0][2][$i]);
+    }
+    print "\nResponse received is:\n" . $res->as_string;
+
+    ok $isok;
 }
