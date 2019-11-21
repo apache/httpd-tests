@@ -12,18 +12,15 @@ Apache::TestRequest::user_agent(ssl_opts => {SSL_version => 'TLSv13'});
 Apache::TestRequest::scheme('https');
 Apache::TestRequest::user_agent_keepalive(1);
 
-my $has_pha = defined &IO::Socket::SSL::can_pha &&
-    IO::Socket::SSL::can_pha() ? 1 : 0;
-
 my $r = GET "/";
 
 if (!$r->is_success) {
-    print "1..0 # skip: TLSv1.3 not supported or PHA not supported";
+    print "1..0 # skip: TLSv1.3 not supported";
     exit 0;
 }
 
-if (!$has_pha) {
-    print "1..0 # skip: PHA not supported in IO::Socket::SSL";
+if (!defined &IO::Socket::SSL::can_pha || !IO::Socket::SSL::can_pha()) {
+    print "1..0 # skip: PHA not supported by IO::Socket::SSL < 2.061";
     exit 0;
 }
 
