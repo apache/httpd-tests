@@ -87,6 +87,15 @@
             SSLVerifyDepth  10
         </Location>
 
+        # t/ssl/pha.t
+        <Location /require/small>
+            SSLVerifyClient require
+            SSLVerifyDepth  10
+
+            SSLRenegBufferSize 10
+        </Location>
+        Alias /require/small      @DocumentRoot@/modules/cgi
+
         #t/ssl/require.t
         Alias /require/asf        @DocumentRoot@
         Alias /require/snakeoil   @DocumentRoot@

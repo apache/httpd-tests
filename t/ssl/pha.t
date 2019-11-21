@@ -27,16 +27,21 @@ if (!$has_pha) {
     exit 0;
 }
 
-plan tests => 3;
+plan tests => 4;
 
 $r = GET("/verify/", cert => undef);
 ok t_cmp($r->code, 403, "access must be denied without client certificate");
 
-# Send a series of POST requests with varying size request bodies.
-# Alternate between the location which requires a AES128-SHA ciphersuite
-# and one which requires AES256-SHA; mod_ssl will attempt to perform the
-# renegotiation between each request, and hence needs to perform the
-# buffering of request body data.
+# SSLRenegBufferSize 10 for this location which should mean a 413
+# error.
+$r = POST("/require/small/perl_echo.pl", content => 'y'x101,
+          cert => 'client_ok');
+ok t_cmp($r->code, 413, "PHA reneg body buffer size restriction works");
+
+# Reset to use a new connection.
+Apache::TestRequest::user_agent(reset => 1);
+Apache::TestRequest::user_agent(ssl_opts => {SSL_version => 'TLSv13'});
+Apache::TestRequest::scheme('https');
 
 $r = POST("/verify/modules/cgi/perl_echo.pl", content => 'x'x10000,
           cert => 'client_ok');
