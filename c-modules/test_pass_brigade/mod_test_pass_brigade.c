@@ -38,10 +38,10 @@ static int test_pass_brigade_handler(request_rec *r)
 
     httpd_test_split_qs_numbers(r, &buff_size, &remaining, NULL);
 
-    fprintf(stderr, "[mod_test_pass_brigade] "
-            "going to echo %" APR_SIZE_T_FMT " bytes with "
-            "buffer size=%" APR_SIZE_T_FMT "\n",
-            remaining, buff_size);
+    ap_log_rerror(APLOG_MARK, APLOG_INFO, 0, r,
+                  "going to echo %" APR_SIZE_T_FMT " bytes with "
+                  "buffer size=%" APR_SIZE_T_FMT "",
+                  remaining, buff_size);
 
     buff = malloc(buff_size);
     memset(buff, 'a', buff_size);
@@ -50,35 +50,51 @@ static int test_pass_brigade_handler(request_rec *r)
     while (total < remaining) {
         int left = (remaining - total);
         int len = left <= buff_size ? left : buff_size;
-        apr_bucket *bucket = apr_bucket_heap_create(buff, len, NULL,
-                                                    c->bucket_alloc);
+        apr_bucket *bucket = apr_bucket_transient_create(buff, len, 
+                                                         c->bucket_alloc);
         apr_status_t status;
 
         apr_brigade_cleanup(bb);
         APR_BRIGADE_INSERT_TAIL(bb, bucket);
+        if (len + total == remaining) {
+            bucket = apr_bucket_eos_create(c->bucket_alloc);
+            APR_BRIGADE_INSERT_TAIL(bb, bucket);
+
+#if 0
+            /* ###### A FLUSH should not be strictly necessary here
+             * but inserting one apears to work around intermittent
+             * failures when running t/apache/pass_brigade.t under
+             * worker. */
+            bucket = apr_bucket_flush_create(c->bucket_alloc);
+            APR_BRIGADE_INSERT_TAIL(bb, bucket);
+#endif
+
+            ap_log_rerror(APLOG_MARK, APLOG_INFO, 0, r,
+                          "[mod_test_pass_brigade] sending EOS");
+        }
 
         status = ap_pass_brigade(r->output_filters->next, bb);
 
         if (status != APR_SUCCESS) {
             apr_brigade_destroy(bb);
-            ap_log_error(APLOG_MARK, APLOG_ERR|APLOG_NOERRNO,
-                         status, r->server,
-                         "[mod_test_pass_brigade] ap_pass_brigade failed");
+            ap_log_rerror(APLOG_MARK, APLOG_ERR, status, r,
+                          "[mod_test_pass_brigade] ap_pass_brigade failed");
             free(buff);
             return HTTP_INTERNAL_SERVER_ERROR;
         }
 
         total += len;
 
-        fprintf(stderr, "[mod_test_pass_brigade] wrote %d of %d bytes\n",
-                len, len);
+        ap_log_rerror(APLOG_MARK, APLOG_INFO, 0, r,
+                      "[mod_test_pass_brigade] wrote %d of %d bytes",
+                      len, len);
     }
     
     apr_brigade_destroy(bb);
-    fprintf(stderr,
-            "[mod_test_pass_brigade] done writing %" APR_SIZE_T_FMT 
-            " of %" APR_SIZE_T_FMT " bytes\n",
-            total, remaining);
+    ap_log_rerror(APLOG_MARK, APLOG_INFO, 0, r,
+                  "[mod_test_pass_brigade] done writing %" APR_SIZE_T_FMT 
+                  " of %" APR_SIZE_T_FMT " bytes",
+                 total, remaining);
 
     free(buff);    
     return OK;
