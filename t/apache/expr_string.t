@@ -7,6 +7,8 @@ use Apache::TestUtil qw(t_write_file t_start_error_log_watch t_finish_error_log_
 
 use File::Spec;
 
+use Time::HiRes qw(usleep);
+
 # test ap_expr
 
 Apache::TestRequest::user_agent(keep_alive => 1);
@@ -62,6 +64,8 @@ foreach my $t (@test_cases) {
                        'SomeHeader' => 'SomeValue',
                        'User-Agent' => 'SomeAgent',
                        'Referer'    => 'SomeReferer');
+    ### Sleep here, attempt to avoid intermittent failures.
+    usleep(250000);
     my @loglines = t_finish_error_log_watch();
 
     my @evalerrors = grep {/(?:internal evaluation error|flex scanner jammed)/i
