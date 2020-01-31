@@ -122,8 +122,17 @@ foreach my $fancy (0,1) {
 sub ai_test ($$$$) {
     my ($htconf,$c,$o,$t_uri) = @_;
 
-    my $html_head = <<HEAD;
-<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2 Final//EN">
+    my $html_head;
+
+    if (have_min_apache_version('2.5.1')) {
+        $html_head = '<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">';
+    }
+    else {
+        $html_head = '<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2 Final//EN">';
+    }
+
+    $html_head .= <<HEAD;
+
 <html>
  <head>
   <title>Index of $uri_prefix</title>
