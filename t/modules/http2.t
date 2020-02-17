@@ -135,7 +135,7 @@ sub connect_and_do {
                 # ALPN (Net-SSLeay > 1.55, openssl >= 1.0.1)
                 if ( $alpn_available ) {
                     $tls_ctx = AnyEvent::TLS->new( method => "TLSv1_2",
-                        host_name => $host_name );
+                        host_name => $host_name, dh => "schmorp2048" );
                     Net::SSLeay::CTX_set_alpn_protos( $tls_ctx->ctx, ['h2'] );
                 }
                 else {
