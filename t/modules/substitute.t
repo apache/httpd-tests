@@ -15,6 +15,8 @@ my $B = chr(0x02);
 my $F = chr(0x06);
 my $P = chr(0x10);
 
+my @simple_cases = ();
+
 my @test_cases = (
     [ "f${B}o${P}ofoo" => 's/foo/bar/' ],
     [ "f${B}o${P}ofoo" => 's/fo/fa/', 's/fao/bar/' ],
@@ -40,7 +42,10 @@ if (have_min_apache_version("2.3.5")) {
                       [ "foobar"   => 's/(oo)b/\d$1/' ];
 }
 
-plan tests => scalar @test_cases,
+if (have_min_apache_version("2.4.42")) {
+    push @simple_cases, [ "foo\nbar" => 's/foo.*/XXX$0XXX', "XXXfooXXX\nbar" ],
+}
+plan tests => scalar @test_cases + scalar @simple_cases,
               need need_lwp,
               need_module('mod_substitute'),
               need_module('mod_bucketeer');
@@ -84,6 +89,18 @@ foreach my $t (@test_cases) {
     ok($ok);
 }
 
+foreach my $t (@simple_cases) {
+    my ($content, $rule, $expect) = @{$t};
+    write_testfile($content);
+    write_htaccess($rule);
+    my $response = GET('/modules/substitute/test.txt');
+    my $rc = $response->code;
+    my $got = $response->content;
+    my $ok = ($rc == 200) && ($got eq $expect);
+    print "got $rc '$got'", ($ok ? ": OK\n" : ", expected '$expect'\n");
+
+    ok($ok);
+}
 exit 0;
 
 ### sub routines
