@@ -15,7 +15,7 @@ my @testcases = (
 my $iters = 100;
 my %cookiex = ();
 
-plan tests => (scalar (@testcases) * 2 + 2) * $iters + 1, need 'mod_usertrack';
+plan tests => (scalar (@testcases) * 2 + 2) * $iters + 1 + 3, need 'mod_usertrack';
 
 foreach (1..$iters) {
     my $nb_req = 1;
@@ -60,3 +60,15 @@ foreach (1..$iters) {
 
 # Check the overall number of cookies generated
 ok ((scalar (keys %cookiex)) == ($iters * 2));
+
+# Check that opt-in flags aren't set
+my $r = GET("/modules/usertrack/foo.html");
+ok t_cmp($r->code, 200, "Checking return code is '200'");
+# Checking for content
+my $setcookie = $r->header('Set-Cookie');
+t_debug("$setcookie");
+ok defined $setcookie;
+$setcookie =~ m/(Secure|HTTPonly|SameSite)/i;
+ok t_cmp($1, undef);
+
+ 
