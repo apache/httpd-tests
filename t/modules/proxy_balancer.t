@@ -8,8 +8,7 @@ use Apache::TestConfig ();
 
 my @echos = ('A'x8, 'A'x64, 'A'x2048, 'A'x4096);
 
-# Fix not in 2.4.42 candidate yet
-my $skipbodyfailover = !need_min_apache_version("2.4.43");
+my $skipbodyfailover = !need_min_apache_version("2.4.42");
 
 plan tests => 3+(2*scalar @echos), need 'proxy_balancer', 'proxy_http';
 
