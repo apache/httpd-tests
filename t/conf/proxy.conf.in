@@ -78,6 +78,12 @@
      ProxyPass /pr45434 balancer://pr45434/alias
      ProxyPassReverse /pr45434 balancer://pr45434/alias
 
+     <Proxy balancer://failover>
+       BalancerMember http://@SERVERNAME@:@NextAvailablePort@  loadfactor=1 retry=1ms
+       BalancerMember http://@SERVERNAME@:@PROXY_HTTP_BAL1_PORT@  loadfactor=1 status=H
+     </Proxy>
+     ProxyPassMatch ^/baltest_echo_post balancer://failover/echo_post
+    
    </VirtualHost>
 
 </IfModule>
