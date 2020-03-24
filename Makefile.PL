@@ -22,6 +22,19 @@ finddepth(sub {
 
 Apache::TestMM::filter_args();
 
+# Temporary workaround to allow passing
+# arguments to "perl Makefile.PL"
+# that should go to t/TEST but are not yet
+# supported in an Apache::Test release.
+# Code borrowed from Apache::TestMM::filter_args().
+my %local_args = (
+    limitrequestline => 'Value for LimitRequestLine',
+    limitrequestlinex2 => 'Twice the value for LimitRequestLine',
+);
+my($argv, $vars) = Apache::TestConfig::filter_args(\@ARGV, \%local_args);
+@ARGV = @$argv;
+push(@Apache::TestMM::Argv, %$vars);
+
 for my $script (@scripts) {
     Apache::TestMM::generate_script($script);
 }
