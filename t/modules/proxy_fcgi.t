@@ -129,8 +129,16 @@ sub run_fcgi_envvar_request
         $envs{$components[0]} = $components[1];
     }
 
-    # Rejoin the child FCGI process.
-    waitpid($child, 0) unless ($fcgi_port <= 0) ;
+    if ($fcgi_port > 0) {
+        if ($r->code eq '500') {
+            # Unknown failure, probably the request didn't hit the FCGI child
+            # process, so it will hang waiting for our request
+            kill 'TERM', $child;
+        } else {
+            # Rejoin the child FCGI process.
+            waitpid($child, 0);
+        }
+    }
 
     return \%envs;
 }
