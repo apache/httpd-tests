@@ -272,10 +272,10 @@
    <IfVersion >= 2.4>
    <Location /modules/rewrite/pr60478-rewrite-loop>
       # This pair of RewriteRules will loop but should eventually 500 once we
-      # reach LimitRequestLine * 2 bytes. (In this case, 128 * 2 = 256.)
+      # reach LimitRequestLine * 2 bytes. (In this case, @limitrequestline@ * 2 = @limitrequestlinex2@.)
       RewriteRule ^(.*)X(.*)$ $1x$2
       # Don't run the test machine out of memory on failure, just stop the loop
-      RewriteCond expr "util_strlen(%{REQUEST_FILENAME}) -lt 257"
+      RewriteCond expr "util_strlen(%{REQUEST_FILENAME}) -le @limitrequestlinex2@"
       RewriteRule X - [N]
    </Location>
    </IfVersion>
@@ -558,7 +558,7 @@ Alias /manual @inherit_documentroot@/manual
 ## LimitRequest* directive testing
 ##
 
-LimitRequestLine      128
+LimitRequestLine      @limitrequestline@
 LimitRequestFieldSize 1024
 LimitRequestFields    32
 <Directory @SERVERROOT@/htdocs/apache/limits>

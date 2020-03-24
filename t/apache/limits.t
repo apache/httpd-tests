@@ -12,7 +12,7 @@ use Apache::TestUtil;
 #
 # These values are chosen to exceed the limits in extra.conf, namely:
 #
-# LimitRequestLine      128
+# LimitRequestLine      @limitrequestline@
 # LimitRequestFieldSize 1024
 # LimitRequestFields    32
 # <Directory @SERVERROOT@/htdocs/apache/limits>
@@ -20,10 +20,12 @@ use Apache::TestUtil;
 # </Directory>
 #
 
+my $limitrequestlinex2 = Apache::Test::config()->{vars}->{limitrequestlinex2};
+
 my @conditions = qw(requestline fieldsize fieldcount bodysize merged_fieldsize);
 
 my %params = ('requestline-succeed' => "/apache/limits/",
-              'requestline-fail'    => ("/apache/limits/" . ('a' x 256)),
+              'requestline-fail'    => ("/apache/limits/" . ('a' x $limitrequestlinex2)),
               'fieldsize-succeed'   => 'short value',
               'fieldsize-fail'      => ('a' x 2048),
               'fieldcount-succeed'  => 1,
