@@ -31,9 +31,16 @@ my %local_args = (
     limitrequestline => 'Value for LimitRequestLine',
     limitrequestlinex2 => 'Twice the value for LimitRequestLine',
 );
-my($argv, $vars) = Apache::TestConfig::filter_args(\@ARGV, \%local_args);
+my($argv, $args_vars) = Apache::TestConfig::filter_args(\@ARGV, \%local_args);
 @ARGV = @$argv;
-push(@Apache::TestMM::Argv, %$vars);
+# Merge given vars with default values
+my %local_vars = (
+    limitrequestline => '128',
+    limitrequestlinex2 => '256',
+);
+map {$local_vars{$_} = $args_vars->{$_}} keys %$args_vars;
+
+push(@Apache::TestMM::Argv, %local_vars);
 
 for my $script (@scripts) {
     Apache::TestMM::generate_script($script);
