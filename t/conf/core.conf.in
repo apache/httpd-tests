@@ -39,6 +39,13 @@
          <LocationMatch ^/authz_core/a//b/c/index.html>
              require all denied 
          </LocationMatch>
+          <ifModule rewrite_module>
+         <Location /CVE-2020-1927/>
+            RewriteEngine ON
+            RewriteCond %{REQUEST_URI} (.+)/$
+            RewriteRule ^ %1 [L]
+         </Location>
+          </ifModule>
    </virtualHost>
 </IfVersion>
 
