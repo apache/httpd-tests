@@ -167,10 +167,16 @@ write_htaccess("SetEnvIfExpr \"%{REQUEST_URI} =~ /\.\(sh\)tmlXXX\$/\" VAR_ONE=\$
 $body = GET_BODY $page;
 ok t_cmp($body, "1:(none)\n2:(none)\n3:(none)\n");
 
-## test SetEnvIfExpr with replacement when regex is REQUIRED to NOT match ##
-write_htaccess("SetEnvIfExpr \"%{REQUEST_URI} !~ /\.\(sh\)tmlXXX\$/\" VAR_ONE=\$0 VAR_TWO=\$1");
-$body = GET_BODY $page;
-ok t_cmp($body, "1:\$0\n2:\$1\n3:(none)\n");
+if (need_min_apache_version("2.4.38")) {
+    ## test SetEnvIfExpr with replacement when regex is REQUIRED to NOT match ##
+    write_htaccess("SetEnvIfExpr \"%{REQUEST_URI} !~ /\.\(sh\)tmlXXX\$/\" VAR_ONE=\$0 VAR_TWO=\$1");
+    $body = GET_BODY $page;
+    ok t_cmp($body, "1:\$0\n2:\$1\n3:(none)\n");
+}
+else {
+    # Skip for versions without r1786235 backported
+    skip "skipping inverted match test with version <2.4.38"
+}
 
 ## i think this should work, but it doesnt.
 ## leaving it commented now pending investigation.
