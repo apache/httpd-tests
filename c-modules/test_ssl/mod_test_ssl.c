@@ -114,7 +114,7 @@ static int test_ssl_ext_lookup(request_rec *r)
 
 static int test_ssl_var_lookup(request_rec *r)
 {
-    char *value;
+    const char *value;
 
     if (strcmp(r->handler, "test-ssl-var-lookup")) {
         return DECLINED;
