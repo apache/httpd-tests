@@ -36,8 +36,9 @@ static int test_rwrite_handler(request_rec *r)
 
     httpd_test_split_qs_numbers(r, &buff_size, &remaining, NULL);
 
-    fprintf(stderr, "[mod_test_rwrite] going to echo %" APR_SIZE_T_FMT " bytes\n",
-            remaining);
+    ap_log_rerror(APLOG_MARK, APLOG_INFO, 0, r,
+                  "[mod_test_rwrite] going to echo %" APR_SIZE_T_FMT " bytes",
+                  remaining);
 
     buff = malloc(buff_size);
     memset(buff, 'a', buff_size);
@@ -48,14 +49,14 @@ static int test_rwrite_handler(request_rec *r)
         long nrd = ap_rwrite(buff, len, r);
         total += nrd;
 
-        fprintf(stderr, "[mod_test_rwrite] wrote %ld of %d bytes\n",
-                nrd, len);
+        ap_log_rerror(APLOG_MARK, APLOG_INFO, 0, r,
+                      "[mod_test_rwrite] wrote %ld of %d bytes", nrd, len);
     }
-    
-    fprintf(stderr,
-            "[mod_test_rwrite] done writing %" APR_SIZE_T_FMT 
-            " of %" APR_SIZE_T_FMT " bytes\n",
-            total, remaining);
+
+    ap_log_rerror(APLOG_MARK, APLOG_INFO, 0, r,
+                  "[mod_test_rwrite] done writing %" APR_SIZE_T_FMT 
+                  " of %" APR_SIZE_T_FMT " bytes",
+                  total, remaining);
 
     free(buff);    
     return OK;
