@@ -765,6 +765,29 @@ LimitRequestFields    32
     </IfModule>
 </IfDefine>
 
+##
+## Configuration for t/modules/ldap.t.
+##
+<IfDefine LDAP>
+  Alias /modules/ldap/simple @DocumentRoot@
+  Alias /modules/ldap/group @DocumentRoot@
+  # Simple user lookup
+  <Location /modules/ldap/simple>
+     AuthType Basic
+     AuthName ldap-simple@httpd.apache.org
+     AuthBasicProvider ldap
+     AuthLDAPURL "ldap://localhost:8389/dc=example,dc=com?uid"
+     Require valid-user
+  </Location>
+  # Static group configuration
+  <Location /modules/ldap/group>
+     AuthType Basic
+     AuthName ldap-group@httpd.apache.org
+     AuthBasicProvider ldap
+     AuthLDAPURL "ldap://localhost:8389/dc=example,dc=com?uid"
+     Require ldap-group cn=Group One,dc=example,dc=com
+  </Location>
+</IfDefine>
 
 ##
 ## ErrorDocument handling
