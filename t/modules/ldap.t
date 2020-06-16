@@ -25,6 +25,8 @@ my @cases = (
     ['/modules/ldap/simple/' => 'gamma', 'Gamma', 200],
     ['/modules/ldap/group/' => 'gamma', 'Gamma', 401],
     ['/modules/ldap/group/' => 'delta', 'Delta', 200],
+    ['/modules/ldap/refer/' => 'alpha', 'Alpha', 401],
+    ['/modules/ldap/refer/' => 'beta', 'Beta', 200],
 );
 
 plan tests => scalar @cases,

@@ -771,21 +771,38 @@ LimitRequestFields    32
 <IfDefine LDAP>
   Alias /modules/ldap/simple @DocumentRoot@
   Alias /modules/ldap/group @DocumentRoot@
+  Alias /modules/ldap/refer @DocumentRoot@
+
   # Simple user lookup
   <Location /modules/ldap/simple>
+     AuthLDAPURL "ldap://localhost:8389/dc=example,dc=com?uid"
+     AuthLDAPBindDN "cn=httpd,dc=example,dc=com"
+     AuthLDAPBindPassword mod_authnz_ldap
      AuthType Basic
      AuthName ldap-simple@httpd.apache.org
      AuthBasicProvider ldap
-     AuthLDAPURL "ldap://localhost:8389/dc=example,dc=com?uid"
      Require valid-user
   </Location>
   # Static group configuration
   <Location /modules/ldap/group>
+     AuthLDAPURL "ldap://localhost:8389/dc=example,dc=com?uid"
+     AuthLDAPBindDN "cn=httpd,dc=example,dc=com"
+     AuthLDAPBindPassword mod_authnz_ldap
      AuthType Basic
      AuthName ldap-group@httpd.apache.org
      AuthBasicProvider ldap
-     AuthLDAPURL "ldap://localhost:8389/dc=example,dc=com?uid"
      Require ldap-group cn=Group One,dc=example,dc=com
+  </Location>
+  # Referral configuration -- the second user is only found if
+  # httpd follows the referral.
+  <Location /modules/ldap/refer>
+     AuthLDAPURL "ldap://localhost:8389/dc=example,dc=com?uid"
+     AuthLDAPBindDN "cn=httpd,dc=example,dc=com"
+     AuthLDAPBindPassword mod_authnz_ldap
+     AuthType Basic
+     AuthName ldap-refer@httpd.apache.org
+     AuthBasicProvider ldap
+     Require ldap-group cn=Subgroup,ou=dept,dc=example,dc=com
   </Location>
 </IfDefine>
 
