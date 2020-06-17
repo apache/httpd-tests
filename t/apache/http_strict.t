@@ -12,6 +12,10 @@ my $test_underscore = defined(&need_min_apache_fix) ?
                 need_min_apache_fix("2.4.34", "2.5.1") :
                 need_min_apache_version('2.4.34');
 
+my $test_unsupported_version = defined(&need_min_apache_fix) ?
+                need_min_apache_fix("2.5.1") :
+                need_min_apache_version('2.5.1');
+
 # possible expected results:
 #   0:       any HTTP error
 #   1:       any HTTP success
@@ -32,7 +36,7 @@ my @test_cases = (
     [ "GET\t/ HTTP/1.0\r\n\r\n"                               => 400],
     [ "GET / HTT/1.0\r\n\r\n"                                 =>   0],
     [ "GET / HTTP/1.0\r\nHost: localhost\r\n\r\n"             =>   1],
-    [ "GET / HTTP/2.0\r\nHost: localhost\r\n\r\n"             =>   1],
+    [ "GET / HTTP/2.0\r\nHost: localhost\r\n\r\n"             =>   1, 505, $test_unsupported_version],
     [ "GET / HTTP/1.2\r\nHost: localhost\r\n\r\n"             =>   1],
     [ "GET / HTTP/1.11\r\nHost: localhost\r\n\r\n"            => 400],
     [ "GET / HTTP/10.0\r\nHost: localhost\r\n\r\n"            => 400],
