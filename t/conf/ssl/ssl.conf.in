@@ -6,7 +6,7 @@
     AddType application/x-pkcs7-crl    .crl
 
     <IfDefine TEST_SSL_SESSCACHE>
-      SSLSessionCache        shmcb
+       SSLSessionCache      ${SSL_SESSCACHE}
     </IfDefine>
     <IfDefine !TEST_SSL_SESSCACHE>
       SSLSessionCache        none
