@@ -5,11 +5,12 @@
     AddType application/x-x509-ca-cert .crt
     AddType application/x-pkcs7-crl    .crl
 
-    SSLSessionCache        none
-    #XXX: would be nice to test these
-    #SSLSessionCache        shm:@ServerRoot@/logs/ssl_scache(512000)
-    #SSLSessionCache        dbm:@ServerRoot@/logs/ssl_scache
-    #SSLSessionCacheTimeout  300
+    <IfDefine TEST_SSL_SESSCACHE>
+      SSLSessionCache        shmcb
+    </IfDefine>
+    <IfDefine !TEST_SSL_SESSCACHE>
+      SSLSessionCache        none
+    </IfDefine>
 
     <IfVersion < 2.3.4>
     #SSLMutex  file:@ServerRoot@/logs/ssl_mutex
