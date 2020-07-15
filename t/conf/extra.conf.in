@@ -340,12 +340,7 @@
     AddHandler cgi-script .sh
     AddHandler cgi-script .pl
     ScriptLog @SERVERROOT@/logs/mod_cgi.log
-    <IfModule mod_cgi.c>
-        ScriptLogLength 40960
-    </IfModule>
-    <IfModule !mod_cgi.c>
-        ScriptLogLength 8192
-    </IfModule>
+    ScriptLogLength 40960
     ScriptLogBuffer 256
 
     <Directory @SERVERROOT@/htdocs/modules/cgi>
