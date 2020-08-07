@@ -41,6 +41,8 @@ my @ts = (
     { url => "$pfx/setheaderfromparam.lua?HeaderName=foo&HeaderValue=bar",
                                     rcontent => "Header set",
                                     headers => { "foo" => "bar" } },
+    { url => "$pfx/filtered/foobar.html",
+          rcontent => "prefix\nbucket:foobar\nsuffix\n" },
 );
 
 plan tests => 4 * scalar @ts, need 'lua';

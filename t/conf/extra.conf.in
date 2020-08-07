@@ -1124,6 +1124,14 @@ LimitRequestFields    32
      LuaHookTranslateName @SERVERROOT@/htdocs/modules/lua/translate.lua translate_name2
      # default: LuaInherit parent-first
    </Location>
+
+   # Filtering tests
+   LuaOutputFilter LUA_OUTPUT @SERVERROOT@/htdocs/modules/lua/filters.lua output_filter
+   Alias /modules/lua/filtered @DocumentRoot@
+   <Location /modules/lua/filtered/>
+      SetOutputFilter LUA_OUTPUT
+   </Location>
+   
 </IfModule>
 
 # 
