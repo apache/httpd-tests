@@ -26,8 +26,9 @@ if (!have_min_apache_version('2.4')) {
 
 # Specific tests for PR 58231
 my $vary_header_tests = (have_min_apache_version("2.4.30") ? 9 : 0) + (have_min_apache_version("2.4.29") ? 4 : 0);
+my $cookie_tests = have_min_apache_version("2.5.1") ? 5 : 0;
 
-plan tests => @map * @num + 16 + $vary_header_tests, todo => \@todo, need_module 'rewrite';
+plan tests => @map * @num + 16 + $vary_header_tests + $cookie_tests, todo => \@todo, need_module 'rewrite';
 
 foreach (@map) {
     foreach my $n (@num) {
@@ -167,4 +168,17 @@ if (have_min_apache_version("2.4.30")) {
     $r = GET("/modules/rewrite/vary3.html", "Host" => "directory-domain");
     ok t_cmp($r->content, qr/VARY4/, "Correct internal redirect happened, OK");
     ok t_cmp($r->header("Vary"), qr/(?!.*Host.*)/, "Vary:Host header not added, OK");
+}
+
+if (have_min_apache_version("2.5.1")) {
+    $r = GET("/modules/rewrite/cookie/0");
+    ok t_cmp($r->header("Set-Cookie"), qr/(?!.*SameSite=.*)/, "samesite present with 0");
+    $r = GET("/modules/rewrite/cookie/false");
+    ok t_cmp($r->header("Set-Cookie"), qr/(?!.*SameSite=.*)/, "samesite present with false");
+    $r = GET("/modules/rewrite/cookie/none");
+    ok t_cmp($r->header("Set-Cookie"), qr/SameSite=none/, "no samesite=none");
+    $r = GET("/modules/rewrite/cookie/lax");
+    ok t_cmp($r->header("Set-Cookie"), qr/SameSite=lax/, "no samesite=lax");
+    $r = GET("/modules/rewrite/cookie/foo");
+    ok t_cmp($r->header("Set-Cookie"), qr/SameSite=foo/, "no samesite=foo");
 }
