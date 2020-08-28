@@ -262,6 +262,7 @@
     ### Redirect, server context
     RewriteRule ^/modules/rewrite/redirect.html$ http://@SERVERNAME@:@PORT@/foobar.html [L,R=301]
 
+    RewriteRule ^/modules/rewrite/cookie/$ - [CO=NAME3:VAL:localhost:86400:/0:secure:httponly]
     RewriteRule ^/modules/rewrite/cookie/0 - [CO=NAME3:VAL:localhost:86400:/0:secure:httponly:0]
     RewriteRule ^/modules/rewrite/cookie/false - [CO=NAME3:VAL:localhost:86400:/0:secure:httponly:false]
     RewriteRule ^/modules/rewrite/cookie/lax - [CO=NAME3:VAL:localhost:86400:/0:secure:httponly:lax]

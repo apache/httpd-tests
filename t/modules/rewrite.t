@@ -26,7 +26,7 @@ if (!have_min_apache_version('2.4')) {
 
 # Specific tests for PR 58231
 my $vary_header_tests = (have_min_apache_version("2.4.30") ? 9 : 0) + (have_min_apache_version("2.4.29") ? 4 : 0);
-my $cookie_tests = have_min_apache_version("2.5.1") ? 5 : 0;
+my $cookie_tests = have_min_apache_version("2.5.1") ? 6 : 0;
 
 plan tests => @map * @num + 16 + $vary_header_tests + $cookie_tests, todo => \@todo, need_module 'rewrite';
 
@@ -171,14 +171,16 @@ if (have_min_apache_version("2.4.30")) {
 }
 
 if (have_min_apache_version("2.5.1")) {
+    $r = GET("/modules/rewrite/cookie/");
+    ok t_cmp($r->header("Set-Cookie"), qr/(?!.*SameSite=.*)/, "samesite not present with no arg");
     $r = GET("/modules/rewrite/cookie/0");
-    ok t_cmp($r->header("Set-Cookie"), qr/(?!.*SameSite=.*)/, "samesite present with 0");
+    ok t_cmp($r->header("Set-Cookie"), qr/(?!.*SameSite=.*)/, "samesite not present with 0");
     $r = GET("/modules/rewrite/cookie/false");
-    ok t_cmp($r->header("Set-Cookie"), qr/(?!.*SameSite=.*)/, "samesite present with false");
+    ok t_cmp($r->header("Set-Cookie"), qr/(?!.*SameSite=.*)/, "samesite not present with false");
     $r = GET("/modules/rewrite/cookie/none");
-    ok t_cmp($r->header("Set-Cookie"), qr/SameSite=none/, "no samesite=none");
+    ok t_cmp($r->header("Set-Cookie"), qr/SameSite=none/, "samesite=none");
     $r = GET("/modules/rewrite/cookie/lax");
-    ok t_cmp($r->header("Set-Cookie"), qr/SameSite=lax/, "no samesite=lax");
+    ok t_cmp($r->header("Set-Cookie"), qr/SameSite=lax/, "samesite=lax");
     $r = GET("/modules/rewrite/cookie/foo");
-    ok t_cmp($r->header("Set-Cookie"), qr/SameSite=foo/, "no samesite=foo");
+    ok t_cmp($r->header("Set-Cookie"), qr/SameSite=foo/, "samesite=foo");
 }
