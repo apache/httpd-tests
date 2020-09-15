@@ -24,7 +24,7 @@ if (!defined &IO::Socket::SSL::can_pha || !IO::Socket::SSL::can_pha()) {
     exit 0;
 }
 
-plan tests => 4, need_min_apache_version("2.5.1");
+plan tests => 4, need_min_apache_version("2.4.47");
 
 $r = GET("/verify/", cert => undef);
 ok t_cmp($r->code, 403, "access must be denied without client certificate");
