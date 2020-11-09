@@ -1333,18 +1333,22 @@ LimitRequestFields    32
     <Directory @SERVERROOT@/htdocs/modules/allowmethods>
         Options +Indexes
     </Directory>
-    <Directory @SERVERROOT@/htdocs/modules/allowmethods/NoPost>
-        AllowMethods -POST
-    </Directory>
+    <IfVersion >= 2.5.1>
+        <Directory @SERVERROOT@/htdocs/modules/allowmethods/NoPost>
+            AllowMethods -POST
+        </Directory>
+    </IfVersion>
     <Directory @SERVERROOT@/htdocs/modules/allowmethods/Get>
         AllowMethods GET
     </Directory>
-    <Directory @SERVERROOT@/htdocs/modules/allowmethods/Get/post>
-        AllowMethods +POST
-    </Directory>
-    <Directory @SERVERROOT@/htdocs/modules/allowmethods/Get/none>
-        AllowMethods -GET
-    </Directory>
+    <IfVersion >= 2.5.1>
+        <Directory @SERVERROOT@/htdocs/modules/allowmethods/Get/post>
+            AllowMethods +POST
+        </Directory>
+        <Directory @SERVERROOT@/htdocs/modules/allowmethods/Get/none>
+            AllowMethods -GET
+        </Directory>
+    </IfVersion>
     <Directory @SERVERROOT@/htdocs/modules/allowmethods/Head>
         AllowMethods HEAD
     </Directory>
