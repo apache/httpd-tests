@@ -34,7 +34,7 @@
         SessionMaxAge 100
     </Location>
     <IfModule mod_version.c>
-        <IfVersion >= 2.5.0>
+        <IfVersion >= 2.4.41>
             <Location /sessiontest/on/expire/cache>
                 SessionExpiryUpdateInterval 50
             </Location>

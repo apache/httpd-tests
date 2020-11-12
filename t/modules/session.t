@@ -172,8 +172,8 @@ check_get 'Keep non-expired session',
 check_post 'Session writable after expired', '/on/expire?expiry=1',
     $create_session, $session, 1, 1;
 
-# SessionExpiryUpdateInterval directive - new in 2.5
-if (have_module('version') && have_min_apache_version('2.5')) {
+# SessionExpiryUpdateInterval directive - new in 2.4.41
+if (have_module('version') && have_min_apache_version('2.4.41')) {
     my $max_expiry = expiry_from_seconds(time() + 100);
     my $threshold_expiry = expiry_from_seconds(time() + 40);
 
