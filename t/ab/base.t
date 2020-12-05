@@ -30,8 +30,8 @@ my $ab_path = catfile $vars->{bindir}, "ab";
 
 my $http_url = Apache::TestRequest::module2url("core", {scheme => 'http', path => '/'});
 my $http_results = run_and_gather_output("ASAN_OPTIONS='detect_leaks=0' $ab_path -B 127.0.0.1 -q -n 10 $http_url");
-ok ($http_results->{status} == 0);
-ok (scalar(@{$http_results->{stderr}}) == 0);
+ok $http_results->{status}, 0;
+ok scalar(@{$http_results->{stderr}}), 0;
 
 if ($vars->{ssl_module_name}) {
     my $https_url = Apache::TestRequest::module2url($vars->{ssl_module_name}, {scheme => 'https', path => '/'});
