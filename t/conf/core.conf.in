@@ -2,6 +2,7 @@
 # will be converted to a set of NVH'es on the same dynamic port, so they
 # are collected here.
 
+MaxMemFree 1
 
 <VirtualHost strict-default:core>
       ServerName default-strict
