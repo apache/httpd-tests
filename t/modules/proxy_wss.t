@@ -25,13 +25,12 @@ my $pingok = 0;
 
 $client->connect("ws://$hostport/proxy/wsoc")->cb(sub {
   our $connection = eval { shift->recv };
-  t_debug("connected");
+  t_debug("wsoc connected");
   if($@) {
     # handle error...
     warn $@;
     return;
   }
-
 
   $connection->send('ping');
 
@@ -40,7 +39,7 @@ $client->connect("ws://$hostport/proxy/wsoc")->cb(sub {
     # $connection is the same connection object
     # $message isa AnyEvent::WebSocket::Message
     my($connection, $message) = @_;
-    t_debug("msg received: " . $message->body);
+    t_debug("wsoc msg received: " . $message->body);
     if ("ping" eq $message->body) { 
       $pingok = 1;
     }
