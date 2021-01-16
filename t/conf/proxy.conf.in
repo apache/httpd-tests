@@ -167,6 +167,9 @@
 
 
   </VirtualHost>
+
+   ProxyPass /proxy/wsoc ws://@SERVERNAME@:@PORT@/modules/lua/websockets.lua
+ 
 </IfModule>
 
 <IfModule mod_rewrite.c>

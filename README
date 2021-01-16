@@ -41,6 +41,8 @@ that you have up to date versions of each of these perl modules:
 - IO::Socket::IP
 - IO::Select
 - LWP::Protocol::https
+- AnyEvent::WebSocket::Client;
+
 
 Quick Start 
 ----------- 
