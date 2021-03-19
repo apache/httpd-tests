@@ -103,6 +103,10 @@ if (not have_min_apache_version('2.4.32')) {
     @vars = grep(!/_RAW/, @vars);
 }
 
+if (not have_min_apache_version('2.5.1')) {
+    @vars = grep(!/_B64CERT/, @vars);
+}
+
 plan tests => scalar (@vars), need need_lwp, need_module('test_ssl');
 
 for my $key (@vars) {
@@ -254,7 +258,8 @@ SSL_CLIENT_A_KEY             'rsaEncryption'
 SSL_SERVER_A_KEY             qr(^[rd]saEncryption$)
 SSL_CLIENT_CERT              qr(^-----BEGIN CERTIFICATE-----)
 SSL_SERVER_CERT              qr(^-----BEGIN CERTIFICATE-----)
-#SSL_CLIENT_CERT_CHAINn
+SSL_CLIENT_B64CERT           qr(^[a-zA-Z0-9+/]{64,}={0,2}$)
+SSL_SERVER_B64CERT           qr(^[a-zA-Z0-9+/]{64,}={0,2}$)
 SSL_CLIENT_VERIFY            'SUCCESS'
 SSL_VERSION_LIBRARY
 SSL_VERSION_INTERFACE
