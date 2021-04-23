@@ -6,12 +6,13 @@ use Apache::TestRequest;
 use Apache::TestUtil;
 use Apache::TestConfig ();
 
-use AnyEvent;
-use AnyEvent::WebSocket::Client;
-
 my $total_tests = 1;
 
-plan tests => $total_tests, need  'AnyEvent', need_module('proxy_http', 'lua'), need_min_apache_version('2.4.47');
+plan tests => $total_tests, need 'AnyEvent::WebSocket::Client',
+    need_module('proxy_http', 'lua'), need_min_apache_version('2.4.47');
+
+require AnyEvent;
+require AnyEvent::WebSocket::Client;
 
 my $config = Apache::Test::config();
 my $hostport = Apache::TestRequest::hostport();
