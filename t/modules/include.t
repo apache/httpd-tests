@@ -28,6 +28,7 @@ my $htdocs = Apache::Test::vars('documentroot');
 my %test = (
 "echo.shtml"            =>    "echo.shtml",
 "set.shtml"             =>    "set works",
+"comment.shtml"         =>    "No  comment  here",
 "include1.shtml"        =>    "inc-two.shtml body  include.shtml body",
 "include2.shtml"        =>    "inc-two.shtml body  include.shtml body",
 "include3.shtml"        =>    "inc-two.shtml body  inc-one.shtml body  ".
