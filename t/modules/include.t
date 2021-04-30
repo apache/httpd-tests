@@ -97,6 +97,10 @@ my %test = (
 "virtualq.shtml?foo=bar" =>   "foo=bar  pass    inc-two.shtml body  foo=bar", # PR#12655
 
 "inc-nego.shtml"        =>    "index.html.en", # requires mod_negotiation
+"mod_request/echo.shtml"=>    "echo.shtml",
+"mod_request/post.shtml?foo=bar&foo2=bar2"
+                        =>    "GET foo: bar foo2: bar2",
+"mod_request/post.shtml"=>    "POST foo: bar foo2: bar2",   # will be twice, only the first one succeed
 );
 
 my %ap_expr_test = (
@@ -228,11 +232,12 @@ unless ($have_apache_2) {
     push @todo, (scalar keys %tests) + 1;
 }
 
-# in addition to %tests, there are 1 fsize and 1 flastmod test,
+# in addition to %tests, there are 1 mod_request expected failure,
+# 1 fsize and 1 flastmod test,
 # 1 GET test, 2 query string tests, 14 XBitHack tests and 14 
 # tests that use mod_bucketeer to construct brigades for mod_include
 
-my $tests = (scalar keys %tests) + @patterns + 1 + 1 + 1 + 2 + 14 + 14;
+my $tests = (scalar keys %tests) + 1 + @patterns + 1 + 1 + 1 + 2 + 14 + 14;
 
 plan tests => $tests,
               todo => \@todo,
@@ -266,6 +271,35 @@ foreach $doc (sort keys %tests) {
         }
         else {
             skip "Skipping 'exec cgi' test; no cgi module.", 1;
+        }
+    }
+    elsif ($doc =~ m/mod_request.*\?/) {
+        # param in the url ==> use GET
+        if (have_cgi) {
+            ok t_cmp(super_chomp(GET_BODY "$dir$doc"),
+                     $tests{$doc},
+                     "GET $dir$doc"
+                    );
+        }
+        else {
+            skip "Skipping 'exec cgi' test; no cgi module.", 1;
+        }
+    }
+    elsif ($doc =~ m/mod_request/) {
+        # no param in the url ==> use POST with a content
+        if (have_cgi) {
+            ok t_cmp(super_chomp(POST_BODY "$dir$doc", content => "foo=bar&foo2=bar2"),
+                     $tests{$doc},
+                     "POST $dir$doc"
+                    );
+            if ($doc =~ m/mod_request.*post/) {
+                # KeptBodySize is 32
+                my $r = POST("$dir$doc", content => "foo=bar&foo2=bar2&foo3=bar3&foo4=bar4");
+                ok t_cmp($r->code, 413, "sizeof(body) > KeptBodySize");
+            }
+        }
+        else {
+            skip "Skipping 'exec cgi' test; no cgi module.", 2;
         }
     }
     else {

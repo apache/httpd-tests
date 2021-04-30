@@ -46,6 +46,11 @@
         Options Includes
     </Directory>
 
+    <Directory @SERVERROOT@/htdocs/modules/include/mod_request>
+        Options Includes
+        KeptBodySize 32
+    </Directory>
+
     <IfDefine APACHE2>
     <IfModule mod_bucketeer.c>
         <Directory @SERVERROOT@/htdocs/modules/include/bucketeer>
