@@ -7,7 +7,7 @@ use Apache::TestUtil;
 use Apache::TestConfig ();
 use Misc;
 
-my $num_tests = 31;
+my $num_tests = 34;
 plan tests => $num_tests, need need_module 'proxy', need_module 'setenvif';
 
 Apache::TestRequest::module("proxy_http_reverse");
@@ -188,3 +188,17 @@ else {
     skip "skipping UDS tests with httpd < 2.4.7" foreach (1..2);
 }
 
+if (have_min_apache_version('2.5.1')) {
+
+    $r = GET("/notexisting/../mapping/mapping.html");
+    ok t_cmp($r->code, 200, "proxy mapping=servlet map it to /servlet/mapping.html");
+    
+    $r = GET("/notexisting/..;/mapping/mapping.html");
+    ok t_cmp($r->code, 200, "proxy mapping=servlet map it to /servlet/mapping.html");
+
+    $r = GET("/mapping/mapping.html");
+    ok t_cmp($r->code, 200, "proxy to /servlet/mapping.html");
+}
+else {
+    skip "skipping tests with mapping=servlet" foreach (1..3);
+}

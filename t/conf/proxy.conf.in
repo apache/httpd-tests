@@ -6,6 +6,11 @@
         ProxyRequests On
     </VirtualHost>
 
+    <IfVersion >= 2.5.1>
+        # Test the mapping.
+        ProxyPass /mapping http://@SERVERNAME@:@PORT@/servlet mapping=servlet
+    </IfVersion>
+
 </IfModule>
 
 <IfModule mod_proxy_hcheck.c>
