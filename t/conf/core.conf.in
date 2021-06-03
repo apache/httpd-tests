@@ -40,6 +40,9 @@ MaxMemFree 1
          <LocationMatch ^/authz_core/a//b/c/index.html>
              require all denied 
          </LocationMatch>
+         <Location /authz_core/a/b/d>
+             require all denied 
+         </Location>
           <ifModule rewrite_module>
          <Location /CVE-2020-1927/>
             RewriteEngine ON

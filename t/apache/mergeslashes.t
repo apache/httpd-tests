@@ -20,7 +20,10 @@ my @test_cases = (
   [ "GET /authz_core/a//b/c/index.html HTTP/1.1\r\nHost: merge-default\r\nConnection: close\r\n\r\n"   => 403, "a// should be merged"],
   [ "GET /authz_core/a//b/c/index.html HTTP/1.1\r\nHost: merge-disabled\r\nConnection: close\r\n\r\n"  => 403, "a// matches locationmatch"],
   [ "GET /authz_core/a/b/c//index.html HTTP/1.1\r\nHost: merge-disabled\r\nConnection: close\r\n\r\n"  => 200, "c// doesn't match locationmatch"],
+  [ "GET /authz_core/a/b/d/index.html HTTP/1.1\r\nHost: merge-disabled\r\nConnection: close\r\n\r\n"  => 403, "baseline failed", need_min_apache_version('2.4.47')],
+  [ "GET /authz_core/a/b//d/index.html HTTP/1.1\r\nHost: merge-disabled\r\nConnection: close\r\n\r\n"  => 403, "b//d not merged for Location with OFF",need_min_apache_version('2.4.47')],
 );
+
 plan tests => scalar(@test_cases), need_min_apache_version('2.4.39');
 
 
@@ -28,7 +31,12 @@ plan tests => scalar(@test_cases), need_min_apache_version('2.4.39');
     my $req = $t->[0];
     my $expect = $t->[1];
     my $desc = $t->[2];
+    my $cond = $t->[3];
     my $decoded;
+
+    if (defined($cond) && !$cond) { 
+        skip("n/a");
+    }
 
     my $sock = Apache::TestRequest::vhost_socket("core");
     if (!$sock) {
