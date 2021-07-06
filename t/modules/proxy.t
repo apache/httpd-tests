@@ -7,7 +7,7 @@ use Apache::TestUtil;
 use Apache::TestConfig ();
 use Misc;
 
-my $num_tests = 34;
+my $num_tests = 40;
 plan tests => $num_tests, need need_module 'proxy', need_module 'setenvif';
 
 Apache::TestRequest::module("proxy_http_reverse");
@@ -15,6 +15,18 @@ Apache::TestRequest::user_agent(requests_redirectable => 0);
 
 my $r = GET("/reverse/");
 ok t_cmp($r->code, 200, "reverse proxy to index.html");
+ok t_cmp($r->content, qr/^welcome to /, "reverse proxied body");
+
+$r = GET("/reverse-match");
+ok t_cmp($r->code, 200, "reverse proxy match no slash");
+ok t_cmp($r->content, qr/^welcome to /, "reverse proxied body");
+
+$r = GET("/reverse-match/");
+ok t_cmp($r->code, 200, "reverse proxy match with slash");
+ok t_cmp($r->content, qr/^welcome to /, "reverse proxied body");
+
+$r = GET("/reverse-match/index.html");
+ok t_cmp($r->code, 200, "reverse proxy match to index.html");
 ok t_cmp($r->content, qr/^welcome to /, "reverse proxied body");
 
 if (have_min_apache_version('2.4.0')) {
