@@ -88,6 +88,16 @@
        BalancerMember http://@SERVERNAME@:@PROXY_HTTP_BAL1_PORT@  loadfactor=1 status=H
      </Proxy>
      ProxyPassMatch ^/baltest_echo_post balancer://failover/echo_post
+
+     ## Test "dynamic balancer
+     <Proxy balancer://dynproxy>
+       ProxySet growth=10
+     </Proxy>
+     <Location /balancer-manager>
+       SetHandler balancer-manager
+       Allow from all
+     </Location>
+     ProxyPass /dynproxy balancer://dynproxy/
     
    </VirtualHost>
 
