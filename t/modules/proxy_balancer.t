@@ -99,7 +99,7 @@ my @proxy_balancer_headers;
 my $vars   = Apache::Test::vars();
 push @proxy_balancer_headers, "Referer" => "http://" . $vars->{servername} . ":" . $vars->{port} . "/balancer-manager";
 
-# First try with the referer it should fail.
+# First try without the referer it should fail.
 if (have_min_apache_version("2.4.41")) {
   $r = POST("/balancer-manager", content => $query);
   ok t_cmp($r->code, 200, "request failed");
