@@ -7,27 +7,44 @@ use Apache::TestUtil;
 use Apache::TestConfig ();
 use Misc;
 
-my $num_tests = 40;
+my $num_tests = 46;
 plan tests => $num_tests, need need_module 'proxy', need_module 'setenvif';
 
 Apache::TestRequest::module("proxy_http_reverse");
 Apache::TestRequest::user_agent(requests_redirectable => 0);
 
 my $r = GET("/reverse/");
+ok t_cmp($r->code, 200, "reverse proxy");
+ok t_cmp($r->content, qr/^welcome to /, "reverse proxied body");
+
+$r = GET("/reverse/index.html");
 ok t_cmp($r->code, 200, "reverse proxy to index.html");
-ok t_cmp($r->content, qr/^welcome to /, "reverse proxied body");
+ok t_cmp($r->content, qr/^welcome to /, "reverse proxied body to index.html");
 
-$r = GET("/reverse-match");
+if (have_min_apache_version('2.5.1')) {
+    $r = GET("/reverse-match/");
+    ok t_cmp($r->code, 200, "reverse proxy match");
+    ok t_cmp($r->content, qr/^welcome to /, "reverse proxied body match");
+
+    $r = GET("/reverse-match/index.html");
+    ok t_cmp($r->code, 200, "reverse proxy match to index.html");
+    ok t_cmp($r->content, qr/^welcome to /, "reverse proxied body match to index.html");
+}
+else { 
+    skip "skipping reverse-match test with httpd <2.5.1" foreach (1..4);
+}
+
+$r = GET("/reverse-slash");
 ok t_cmp($r->code, 200, "reverse proxy match no slash");
-ok t_cmp($r->content, qr/^welcome to /, "reverse proxied body");
+ok t_cmp($r->content, qr/^welcome to /, "reverse proxied body no slash");
 
-$r = GET("/reverse-match/");
-ok t_cmp($r->code, 200, "reverse proxy match with slash");
-ok t_cmp($r->content, qr/^welcome to /, "reverse proxied body");
+$r = GET("/reverse-slash/");
+ok t_cmp($r->code, 200, "reverse proxy match w/ slash");
+ok t_cmp($r->content, qr/^welcome to /, "reverse proxied body w/ slash");
 
-$r = GET("/reverse-match/index.html");
-ok t_cmp($r->code, 200, "reverse proxy match to index.html");
-ok t_cmp($r->content, qr/^welcome to /, "reverse proxied body");
+$r = GET("/reverse-slash/index.html");
+ok t_cmp($r->code, 200, "reverse proxy match w/ slash to index.html");
+ok t_cmp($r->content, qr/^welcome to /, "reverse proxied body w/ slash to index.html");
 
 if (have_min_apache_version('2.4.0')) {
     $r = GET("/reverse/locproxy/");

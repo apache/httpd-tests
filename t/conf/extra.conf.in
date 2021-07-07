@@ -296,7 +296,8 @@
       ProxyPass /reverse/notproxy/ !
       ProxyPass /reverse/ http://@SERVERNAME@:@PORT@/
       ProxyPassReverse /reverse/ http://@SERVERNAME@:@PORT@/
-      ProxyPassMatch ^/reverse-match(/.*+)?$ http://@SERVERNAME@:@PORT@$1
+      ProxyPassMatch ^/reverse-match/(.*)$ http://@SERVERNAME@:@PORT@/$1
+      ProxyPassMatch ^/reverse-slash(/.*)?$ http://@SERVERNAME@:@PORT@$1
       ProxyPassReverseCookieDomain local remote
       ProxyPassReverseCookiePath /local /remote
       <IfVersion >= 2.4.7>
