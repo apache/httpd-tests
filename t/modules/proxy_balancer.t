@@ -107,7 +107,8 @@ if (have_min_apache_version("2.4.41")) {
 }
 
 # Try with the referer and http (byrequests)
-if (have_module('lbmethod_byrequests')) {
+# XXX: crashes in 2.4.48, when r1891477 is backported change "2.5.1" requirement to the appropriate "2.4.x" version.
+if (have_min_apache_version("2.5.1") && have_module('lbmethod_byrequests')) {
   $r = GET("/dynproxy");
   ok t_cmp($r->code, 503, "request should fail for /dynproxy");
   # create it
