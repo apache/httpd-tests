@@ -268,6 +268,8 @@ if (have_min_apache_version("2.5")) {
         [ "'email:<redacted2>' -in split s/$SAN_split/\$1/, $SAN_list_one"      => 0 ],
         [ "'IP Address:%{REMOTE_ADDR}' -in split/, /, join $SAN_list_one"
                                                                                 => 1 ],
+        [ "replace(%{REQUEST_METHOD},  'E', 'O') == 'GOT'" => 1],
+        [ "replace(%{REQUEST_METHOD},  'E', 'O') == 'GET'" => 0],
     ));
 }
 
