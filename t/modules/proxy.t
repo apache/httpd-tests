@@ -21,7 +21,7 @@ $r = GET("/reverse/index.html");
 ok t_cmp($r->code, 200, "reverse proxy to index.html");
 ok t_cmp($r->content, qr/^welcome to /, "reverse proxied body to index.html");
 
-if (have_min_apache_version('2.5.1')) {
+if (have_min_apache_version('2.4.49')) {
     $r = GET("/reverse-match/");
     ok t_cmp($r->code, 200, "reverse proxy match");
     ok t_cmp($r->content, qr/^welcome to /, "reverse proxied body match");
@@ -217,7 +217,7 @@ else {
     skip "skipping UDS tests with httpd < 2.4.7" foreach (1..2);
 }
 
-if (have_min_apache_version('2.5.1')) {
+if (have_min_apache_version('2.4.49')) {
 
     $r = GET("/notexisting/../mapping/mapping.html");
     ok t_cmp($r->code, 200, "proxy mapping=servlet map it to /servlet/mapping.html");
