@@ -29,19 +29,15 @@ http://svn.apache.org/viewvc/perl/modperl/docs/trunk/src/docs/general/testing/te
 To run the tests for all Apache web server modules, some additional 
 CPAN modules will be required. If the tests don't work, make sure
 that you have up to date versions of each of these perl modules:
-- HTTP::DAV (DAV tests)
-- DateTime (mod_include tests)
-- Time::HiRes
-- Protocol::HTTP2::Client and AnyEvent (mod_http2 tests)
-- Test
-- Test::Harness
-- Crypt::SSLeay
-- Net::SSLeay
-- IO::Socket::SSL
-- IO::Socket::IP
-- IO::Select
-- LWP::Protocol::https
-- AnyEvent::WebSocket::Client;
+
+```
+cpan App::cpanminus
+cpanm Bundle::ApacheTest \
+  HTTP::DAV DateTime Time::HiRes Protocol::HTTP2::Client Test      \
+  Test::Harness Crypt::SSLeay Net::SSLeay IO::Socket::SSL          \
+  IO::Socket::IP IO::Select LWP::Protocol::https AnyEvent          \
+  AnyEvent::WebSocket::Client FCGI
+```
 
 
 Quick Start 
