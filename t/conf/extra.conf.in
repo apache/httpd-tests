@@ -1411,3 +1411,23 @@ LimitRequestFields    32
       CheckCaseOnly on
    </Directory>
 </IfModule>
+
+<IfModule mod_actions.c>
+   ScriptAlias /cgi_mod_actions @SERVERROOT@/htdocs/modules/cgi
+   <Location /mod_actions>
+    	SetHandler my-handler
+	Action my-handler "/cgi_mod_actions/perl_echo.pl" virtual
+   </Location>
+
+   <Directory @SERVERROOT@/htdocs/modules/actions/action>
+   	AddHandler my-file-type1 .xyz1
+	Action my-file-type1 "/cgi_mod_actions/perl_echo.pl"
+   	AddHandler my-file-type2 .xyz2
+	Action my-file-type2 "/cgi_mod_actions/perl_echo.pl" virtual
+   </Directory>
+
+   <Directory @SERVERROOT@/htdocs/modules/actions/script>
+   	Script GET  "/cgi_mod_actions/perl_echo.pl"  
+   	Script POST "/cgi_mod_actions/perl_post.pl"  
+   </Directory>
+</IfModule>
