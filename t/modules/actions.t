@@ -25,7 +25,7 @@ my @tests_script = (
 
 my $r;
 
-plan tests => scalar @tests_action*2 + scalar @tests_script*(2+2+1), need_module('actions');
+plan tests => scalar @tests_action*2 + scalar @tests_script*(2+2+1), need_module('mod_actions');
 
 foreach my $test (@tests_action) {
 	$r = GET($test->[0]);
