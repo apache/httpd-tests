@@ -49,7 +49,7 @@ static int test_rwrite_handler(request_rec *r)
         long nrd = ap_rwrite(buff, len, r);
         total += nrd;
 
-        ap_log_rerror(APLOG_MARK, APLOG_INFO, 0, r,
+        ap_log_rerror(APLOG_MARK, APLOG_TRACE2, 0, r,
                       "[mod_test_rwrite] wrote %ld of %d bytes", nrd, len);
     }
 

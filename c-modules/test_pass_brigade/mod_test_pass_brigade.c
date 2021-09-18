@@ -85,7 +85,7 @@ static int test_pass_brigade_handler(request_rec *r)
 
         total += len;
 
-        ap_log_rerror(APLOG_MARK, APLOG_INFO, 0, r,
+        ap_log_rerror(APLOG_MARK, APLOG_TRACE2, 0, r,
                       "[mod_test_pass_brigade] wrote %d of %d bytes",
                       len, len);
     }

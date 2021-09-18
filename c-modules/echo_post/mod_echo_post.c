@@ -66,7 +66,7 @@ static int echo_post_handler(request_rec *r)
                       "[mod_echo_post] read %ld bytes (wanted %d, remaining=%ld)",
                       nrd, sizeof(buff), r->remaining);
 #else
-        ap_log_rerror(APLOG_MARK, APLOG_DEBUG, 0, r,
+        ap_log_rerror(APLOG_MARK, APLOG_TRACE2, 0, r,
                       "[mod_echo_post] read %ld bytes (wanted %" APR_SIZE_T_FMT 
                       ", remaining=%" APR_OFF_T_FMT ")",
                       nrd, sizeof(buff), r->remaining);
