@@ -9,6 +9,8 @@ my $r;
 my $line;
 my $count = 0;
 my $nb_seconds = 5;
+# Because of timing, we may see less than what could be expected
+my $nb_expected = $nb_seconds - 2;
 
 plan tests => 1, need_module('mod_heartbeat', 'mod_heartmonitor');
 
@@ -24,6 +26,5 @@ foreach $line (@loglines) {
     }
 }
 
-print "Expecting at least " . ($nb_seconds-1) . " heartbeat ; Seen: " . $count . "\n";
-ok($count >= $nb_seconds-1);
-
+print "Expecting at least " . $nb_expected . " heartbeat ; Seen: " . $count . "\n";
+ok($count >= $nb_expected);
