@@ -33,7 +33,7 @@ that you have up to date versions of each of these perl modules:
 ```
 cpan App::cpanminus
 cpanm Bundle::ApacheTest \
-  HTTP::DAV DateTime Time::HiRes Protocol::HTTP2::Client Test      \
+  HTTP::DAV DateTime Time::HiRes \
   Test::Harness Crypt::SSLeay Net::SSLeay IO::Socket::SSL          \
   IO::Socket::IP IO::Select LWP::Protocol::https AnyEvent          \
   AnyEvent::WebSocket::Client FCGI
