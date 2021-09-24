@@ -12,7 +12,7 @@ my $nb_seconds = 5;
 # Because of timing, we may see less than what could be expected
 my $nb_expected = $nb_seconds - 2;
 
-plan tests => 1, need_module('mod_heartbeat', 'mod_heartmonitor');
+plan tests => 1, sub { need_module('mod_heartbeat', 'mod_heartmonitor') && !need_apache_mpm('prefork') };
 
 # Give some time to the heart to beat a few times
 t_start_error_log_watch();
