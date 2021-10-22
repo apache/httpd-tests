@@ -20,7 +20,7 @@ sub my_chomp {
     $actual =~ s/[\r\n]+$//s;
 }
 
-plan tests => @bad_index * @index * 5 + @bad_index + 5, need_module 'dir';
+plan tests => @bad_index * @index * 5 + @bad_index + 5 + 3, need_module 'dir';
 
 foreach my $bad_index (@bad_index) {
 
@@ -90,6 +90,21 @@ $expected = "dir index";
 $actual = GET_BODY $url;
 my_chomp();
 ok ($actual eq $expected);
+
+# DirectorySlash stuff
+my $res = GET "/modules/dir", redirect_ok => 0;
+ok ($res->code == 301);
+$res = GET "/modules/dir/htaccess", redirect_ok => 0;
+ok ($res->code == 403);
+
+if (have_min_apache_version('2.5.1')) { 
+    skip("missing DirectorySlash NotFound");
+}
+else { 
+    $res = GET "/modules/dir/htaccess/sub1", redirect_ok => 0;
+    ok ($res->code == 404);
+}
+
 
 sub write_htaccess {
     my $string = shift;

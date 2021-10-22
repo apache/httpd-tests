@@ -493,6 +493,14 @@ Alias /manual @inherit_documentroot@/manual
 
 <IfModule mod_dir.c>
     <Directory @SERVERROOT@/htdocs/modules/dir/htaccess>
+        DirectorySlash OFF
+    </Directory>
+  <IfVersion >= 2.5.1>
+    <Directory @SERVERROOT@/htdocs/modules/dir/htaccess/sub>
+        DirectorySlash NotFound
+    </Directory>
+  </IfVersion>
+    <Directory @SERVERROOT@/htdocs/modules/dir/htaccess>
         AllowOverride Indexes
     </Directory>
 </IfModule>
