@@ -101,7 +101,7 @@ if (!have_min_apache_version('2.5.1')) {
     skip("missing DirectorySlash NotFound");
 }
 else { 
-    $res = GET "/modules/dir/htaccess/sub1", redirect_ok => 0;
+    $res = GET "/modules/dir/htaccess/sub", redirect_ok => 0;
     ok ($res->code == 404);
 }
 
