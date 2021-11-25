@@ -97,7 +97,7 @@ ok ($res->code == 301);
 $res = GET "/modules/dir/htaccess", redirect_ok => 0;
 ok ($res->code == 403);
 
-if (have_min_apache_version('2.5.1')) { 
+if (!have_min_apache_version('2.5.1')) { 
     skip("missing DirectorySlash NotFound");
 }
 else { 
