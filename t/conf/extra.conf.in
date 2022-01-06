@@ -1447,3 +1447,9 @@ LimitRequestFields    32
 	</IfModule>
 </IfModule>
 
+<IfModule mod_dumpio.c>
+	DumpIOInput on
+	DumpIOOutput on
+	LogLevel dumpio:trace7
+</IfModule>
+
