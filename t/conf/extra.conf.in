@@ -918,6 +918,15 @@ LimitRequestFields    32
 </IfModule>
 
 ##
+## mod_dumpio configuration
+##
+<IfModule mod_dumpio.c>
+	DumpIOInput on
+	DumpIOOutput on
+	LogLevel dumpio:trace7
+</IfModule>
+
+##
 ## LogLevel configuration
 ##
 <IfDefine APACHE2>
@@ -1445,11 +1454,5 @@ LimitRequestFields    32
 		HeartbeatListen 239.0.0.1:27999
 		HeartbeatAddress 239.0.0.1:27999
 	</IfModule>
-</IfModule>
-
-<IfModule mod_dumpio.c>
-	DumpIOInput on
-	DumpIOOutput on
-	LogLevel dumpio:trace7
 </IfModule>
 
