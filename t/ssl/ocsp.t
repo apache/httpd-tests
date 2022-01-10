@@ -32,13 +32,21 @@ sok {
     $r = GET $url, cert => undef;
     my $message = $r->content() || '';
     my $warning = $r->header('Client-Warning') || '';
+    print "warning: $warning\n";
+    print "message: $message";
+    print "response:\n";
     print $r->as_string;
     $r->code == 500 && $warning =~ 'Internal response' &&
-        $message =~ /alert handshake failure|read failed/;
+        $message =~ /alert handshake failure|read failed|closed connection without sending any data/;
 };
 
 sok {
     $r = GET $url, cert => 'client_ok';
+    my $warning = $r->header('Client-Warning') || '';
+    my $message = $r->content() || '';
+    print "warning: $warning\n";
+    print "message: $message";
+    print "response:\n";
     print $r->as_string;
     $r->code == 200;
 };
@@ -47,7 +55,10 @@ sok {
     $r = GET $url, cert => 'client_revoked';
     my $message = $r->content() || '';
     my $warning = $r->header('Client-Warning') || '';
+    print "warning: $warning\n";
+    print "message: $message";
+    print "response:\n";
     print $r->as_string;
     $r->code == 500 && $warning =~ 'Internal response' &&
-        $message =~ /alert certificate revoked|read failed/;
+        $message =~ /alert handshake failure|read failed|closed connection without sending any data/;
 };
