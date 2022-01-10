@@ -60,5 +60,5 @@ sok {
     print "response:\n";
     print $r->as_string;
     $r->code == 500 && $warning =~ 'Internal response' &&
-        $message =~ /alert handshake failure|read failed|closed connection without sending any data/;
+        $message =~ /alert certificate revoked|read failed|closed connection without sending any data/;
 };
