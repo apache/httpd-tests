@@ -1456,3 +1456,19 @@ LimitRequestFields    32
 	</IfModule>
 </IfModule>
 
+#
+# t/modules/sed.t test config
+#
+<IfModule mod_sed.c>
+  AliasMatch /apache/sed/[^/]+/(.*) @DocumentRoot@/$1
+
+  <Location /apache/sed/>
+    AddOutputFilter sed .html
+  </Location>
+
+  <Location /apache/sed/out-foo>
+      OutputSed "s/foo/bar/g"
+  </Location>
+</IfModule>
+
+
