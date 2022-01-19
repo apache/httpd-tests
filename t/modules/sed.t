@@ -5,9 +5,6 @@ use Apache::Test;
 use Apache::TestRequest;
 use Apache::TestUtil;
 
-Apache::TestRequest::user_agent(keep_alive => 1);
-
-
 my @ts = (
    # see t/conf/extra.conf.in
    { url => "/apache/sed/out-foo/foobar.html", content => 'barbar', msg => "sed output filter", code => 200 }
