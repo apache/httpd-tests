@@ -1462,6 +1462,11 @@ LimitRequestFields    32
 <IfModule mod_sed.c>
   AliasMatch /apache/sed/[^/]+/(.*) @DocumentRoot@/$1
 
+  <Location /apache/sed-echo>
+    SetHandler echo_post
+    SetInputFilter sed 
+  </Location>
+
   <Location /apache/sed/>
     AddOutputFilter sed .html
   </Location>
@@ -1469,6 +1474,11 @@ LimitRequestFields    32
   <Location /apache/sed/out-foo>
       OutputSed "s/foo/bar/g"
   </Location>
+
+  <Location /apache/sed-echo/>
+    InputSed "s/foo/bar/g"
+  </Location>
+
 </IfModule>
 
 
