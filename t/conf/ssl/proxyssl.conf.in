@@ -51,6 +51,8 @@
 
         ProxyPass        / https://@proxyssl_url@/
         ProxyPassReverse / https://@proxyssl_url@/
+
+        ProxyPass /proxy/wsoc wss://localhost:@proxy_https_https_port@/modules/lua/websockets.lua  
     </VirtualHost>
 
     #here we can test http <-> https using SSLProxyMachine* inside <Proxy>
@@ -118,7 +120,6 @@
         ProxyPass        / http://@servername@:@port@/
         ProxyPassReverse / http://@servername@:@port@/
     </VirtualHost>
-
 </IfModule>
 
 </IfModule>

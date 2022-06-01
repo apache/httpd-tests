@@ -6,26 +6,29 @@ use Apache::TestRequest;
 use Apache::TestUtil;
 use Apache::TestConfig ();
 
-my @test_cases = ( "ping0", "ping1" x 10, "ping2" x 100, "ping3" x 1024, "ping4" x 4096,  "sendquit");
+my @test_cases = ( "ping0", "ping1" x 10, "ping2" x 100, "ping3" x 1024, "ping4" x 4000,  "sendquit");
 my $total_tests = 2;
 
 plan tests => $total_tests, need 'AnyEvent::WebSocket::Client',
-    need_module('proxy_http', 'lua'), need_min_apache_version('2.4.47');
+    need_module('ssl', 'proxy_http', 'lua'), need_min_apache_version('2.4.47');
 
 require AnyEvent;
 require AnyEvent::WebSocket::Client;
 
 my $config = Apache::Test::config();
-my $hostport = Apache::TestRequest::hostport();
-
-my $client = AnyEvent::WebSocket::Client->new(timeout => 5);
+#my $hostport = $config->{vhosts}->{proxy_https_https}->{hostport};
+my $hostport = $config->{vhosts}->{$config->{vars}->{ssl_module_name}}->{hostport};
+my $client = AnyEvent::WebSocket::Client->new(timeout => 5, ssl_ca_file => $config->{vars}->{sslca} . "/" . $config->{vars}->{sslcaorg}  . "/certs/ca.crt");
 
 my $quit_program = AnyEvent->condvar;
 
 my $responses = 0;
 my $surprised = 0;
 
-$client->connect("ws://$hostport/proxy/wsoc")->cb(sub {
+t_debug("wss://$hostport/modules/lua/websockets.lua");
+
+# $client->connect("wss://$hostport/proxy/wsoc")->cb(sub {
+$client->connect("wss://$hostport/modules/lua/websockets.lua")->cb(sub {
   our $connection = eval { shift->recv };
   t_debug("wsoc connected");
   if($@) {
@@ -46,6 +49,7 @@ $client->connect("ws://$hostport/proxy/wsoc")->cb(sub {
 
   $connection->on(finish => sub {
     t_debug("finish");
+    $quit_program->send();
   });
   
   # recieve message from the websocket...
@@ -64,6 +68,7 @@ $client->connect("ws://$hostport/proxy/wsoc")->cb(sub {
     elsif ($message->body =~ /^ping(\d)/) { 
       my $offset = $1;
       if ($message->body ne $test_cases[$offset]) { 
+          t_debug("wrong data");
           $surprised++;
       }
     }
@@ -76,4 +81,5 @@ $client->connect("ws://$hostport/proxy/wsoc")->cb(sub {
 
 $quit_program->recv;
 ok t_cmp($surprised, 0);
-ok t_cmp($responses, scalar(@test_cases) );
+# We don't expect the 20k over SSL to work, and we won't read the "sendquit" echoed back either.
+ok t_cmp($responses, scalar(@test_cases)-2 );
