@@ -1474,11 +1474,13 @@ LimitRequestFields    32
   <Location /apache/sed/out-foo>
       OutputSed "s/foo/bar/g"
   </Location>
-
-  <Location /apache/sed-echo/>
-    InputSed "s/foo/bar/g"
+  <Location /apache/sed-echo/input>
+      InputSed "s/foo/bar/g"
   </Location>
-
+  <Location /apache/sed-echo/out-foo-grow>
+    SetOutputFilter sed
+    OutputSed "s/foo/barbarbarbar/g"
+  </Location>
 </IfModule>
 
 

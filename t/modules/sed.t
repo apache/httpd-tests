@@ -5,29 +5,44 @@ use Apache::Test;
 use Apache::TestRequest;
 use Apache::TestUtil;
 
+# Hack to allow streaming of data in/out of mod_echo
+use LWP::Protocol::AnyEvent::http;
+
 my @ts = (
    # see t/conf/extra.conf.in
-   { url => "/apache/sed/out-foo/foobar.html", content => 'barbar', msg => "sed output filter", code => 200 },
-   { url => "/apache/sed-echo/echo.html", content => 'barbar', msg => "sed input filter", code => 200, body=>"foobar" }
+   { url => "/apache/sed/out-foo/foobar.html", content => 'barbar', msg => "sed output filter", code => '200' },
+   # error after status sent
+   { url => "/apache/sed-echo/out-foo-grow/foobar.html", content => "", msg => "sed output filter too large", code => '200', body=>"foo" x (8192*1024), resplen=>0},
+   { url => "/apache/sed-echo/input", content => 'barbar', msg => "sed input filter", code => '200', body=>"foobar" },
+   { url => "/apache/sed-echo/input", content => undef, msg => "sed input filter", code => '200', body=>"foo" x (1024)},
+   { url => "/apache/sed-echo/input", content => undef, msg => "sed input filter", code => '400', body=>"foo" x (1024*4096)}
 );
 
 my $tests = 2*scalar @ts;
 
-plan tests => $tests, need_module('sed');
+plan tests => $tests, need_module('sed'), need "LWP::Protocol::AnyEvent::http";
 
 
 for my $t (@ts) {
   my $req;
   if (defined($t->{'body'})) { 
+    t_debug "posting body of size  ". length($t->{'body'});
     $req = POST  $t->{'url'}, content => $t->{'body'};
+    t_debug "... posted body of size  ". length($t->{'body'});
   }
   else { 
     $req = GET $t->{'url'};
   }
+  t_debug "Content Length " . length $req->content;
   ok t_cmp($req->code, $t->{'code'}, "status code for " . $t->{'url'});
-  my $content = $req->content;
-  chomp($content);
-  ok t_cmp($content, $t->{content}, $t->{msg});
+  if (defined($t->{content})) { 
+    my $content = $req->content;
+    chomp($content);
+    ok t_cmp($content, $t->{content}, $t->{msg});
+  }
+  else { 
+    ok "no body check";
+  }
 }
 
 

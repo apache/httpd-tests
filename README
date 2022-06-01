@@ -36,7 +36,7 @@ cpanm Bundle::ApacheTest \
   HTTP::DAV DateTime Time::HiRes \
   Test::Harness Crypt::SSLeay Net::SSLeay IO::Socket::SSL          \
   IO::Socket::IP IO::Select LWP::Protocol::https AnyEvent          \
-  AnyEvent::WebSocket::Client FCGI
+  AnyEvent::WebSocket::Client  LWP::Protocol::AnyEvent::http FCGI
 ```
 
 
