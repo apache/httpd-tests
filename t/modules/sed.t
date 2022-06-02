@@ -5,9 +5,6 @@ use Apache::Test;
 use Apache::TestRequest;
 use Apache::TestUtil;
 
-# Hack to allow streaming of data in/out of mod_echo
-use LWP::Protocol::AnyEvent::http;
-
 my @ts = (
    # see t/conf/extra.conf.in
    { url => "/apache/sed/out-foo/foobar.html", content => 'barbar', msg => "sed output filter", code => '200' },
@@ -22,6 +19,8 @@ my $tests = 2*scalar @ts;
 
 plan tests => $tests, need_module('sed'), need "LWP::Protocol::AnyEvent::http";
 
+# Hack to allow streaming of data in/out of mod_echo
+use LWP::Protocol::AnyEvent::http;
 
 for my $t (@ts) {
   my $req;
