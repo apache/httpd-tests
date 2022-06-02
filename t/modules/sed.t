@@ -17,10 +17,10 @@ my @ts = (
 
 my $tests = 2*scalar @ts;
 
-plan tests => $tests, need_module('sed'), need "LWP::Protocol::AnyEvent::http";
+plan tests => $tests, need 'LWP::Protocol::AnyEvent::http', need_module('sed');
 
 # Hack to allow streaming of data in/out of mod_echo
-use LWP::Protocol::AnyEvent::http;
+require LWP::Protocol::AnyEvent::http;
 
 for my $t (@ts) {
   my $req;
