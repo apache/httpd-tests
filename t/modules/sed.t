@@ -15,7 +15,7 @@ my @ts = (
    { url => "/apache/sed-echo/out-foo-grow/foobar.html", content => "", msg => "sed output filter too large", code => '200', body=>"foo" x (8192*1024), resplen=>0},
    { url => "/apache/sed-echo/input", content => 'barbar', msg => "sed input filter", code => '200', body=>"foobar" },
    { url => "/apache/sed-echo/input", content => undef, msg => "sed input filter", code => '200', body=>"foo" x (1024)},
-   { url => "/apache/sed-echo/input", content => undef, msg => "sed input filter", code => '400', body=>"foo" x (1024*4096)}
+   { url => "/apache/sed-echo/input", content => '!!!ERROR!!!', msg => "sed input filter", code => '200', body=>"foo" x (1024*4096)}
 );
 
 my $tests = 2*scalar @ts;
