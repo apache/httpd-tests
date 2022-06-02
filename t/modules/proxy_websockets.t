@@ -6,7 +6,9 @@ use Apache::TestRequest;
 use Apache::TestUtil;
 use Apache::TestConfig ();
 
-my @test_cases = ( "ping0", "ping1" x 10, "ping2" x 100, "ping3" x 1024, "ping4" x 4096,  "sendquit");
+# not reliable, hangs for some people:
+# my @test_cases = ( "ping0", "ping1" x 10, "ping2" x 100, "ping3" x 1024, "ping4" x 4096,  "sendquit");
+my @test_cases = ( "ping0", "ping1" x 10, "ping2" x 100, "ping3" x 1024, "sendquit");
 my $total_tests = 2;
 
 plan tests => $total_tests, need 'AnyEvent::WebSocket::Client',
