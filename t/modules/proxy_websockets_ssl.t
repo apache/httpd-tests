@@ -83,4 +83,4 @@ $client->connect("wss://$hostport/modules/lua/websockets.lua")->cb(sub {
 $quit_program->recv;
 ok t_cmp($surprised, 0);
 # We don't expect the 20k over SSL to work, and we won't read the "sendquit" echoed back either.
-ok t_cmp($responses, scalar(@test_cases)-2 );
+ok t_cmp($responses, scalar(@test_cases));
