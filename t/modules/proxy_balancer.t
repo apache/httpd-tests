@@ -111,10 +111,10 @@ if (have_min_apache_version("2.4.49") && have_module('lbmethod_byrequests')) {
   $r = GET("/dynproxy");
   ok t_cmp($r->code, 503, "request should fail for /dynproxy");
   # create it
-  $query = "b_lbm=byrequests&b_tmo=0&b_max=0&b_sforce=0&b_ss=&b_nwrkr=http%3A%2F%2Flocalhost%3A8529&b_wyes=1&b=dynproxy&nonce=" . $result;
+  $query = 'b_lbm=byrequests&b_tmo=0&b_max=0&b_sforce=0&b_ss=&b_nwrkr=http%3A%2F%2F' . $vars->{servername} . '%3A' . $vars->{port} . '&b_wyes=1&b=dynproxy&nonce=' . $result;
   $r = POST("/balancer-manager", content => $query, @proxy_balancer_headers);
   # enable it.
-  $query = "w=http%3A%2F%2Flocalhost%3A8529&b=dynproxy&w_status_D=0&nonce=" . $result;
+  $query = 'w=http%3A%2F%2F' . $vars->{servername} . '%3A' . $vars->{port} . '&b=dynproxy&w_status_D=0&nonce=' . $result;
   $r = POST("/balancer-manager", content => $query, @proxy_balancer_headers);
   # make a query
   $r = GET("/dynproxy");
