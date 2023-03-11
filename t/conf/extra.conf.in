@@ -272,10 +272,14 @@
     RewriteRule ^/modules/rewrite/escaping/local/(.*) /?$1
     RewriteRule ^/modules/rewrite/escaping/redir/(.*) http://@SERVERNAME@:@PORT@/?$1 [R]
     RewriteRule ^/modules/rewrite/escaping/redir_ne/(.*) http://@SERVERNAME@:@PORT@/?$1 [R,NE]
+    RewriteRule ^/modules/rewrite/escaping/proxy/(.*) http://@SERVERNAME@:@PORT@/?$1 [P]
+    RewriteRule ^/modules/rewrite/escaping/proxy_ne/(.*) http://@SERVERNAME@:@PORT@/?$1 [P]
     <LocationMatch ^/modules/rewrite/escaping/fixups/>
       RewriteRule local/(.*) /?$1
       RewriteRule redir/(.*) http://@SERVERNAME@:@PORT@/?$1 [R]
       RewriteRule redir_ne/(.*) http://@SERVERNAME@:@PORT@/?$1 [R,NE]
+      RewriteRule proxy/(.*) http://@SERVERNAME@:@PORT@/?$1 [P]
+      RewriteRule proxy_ne/(.*) http://@SERVERNAME@:@PORT@/?$1 [P,NE]
     </LocationMatch>
 
    <VirtualHost cve_2011_3368_rewrite>

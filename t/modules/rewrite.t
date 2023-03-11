@@ -17,12 +17,21 @@ my $r;
 
 
 my @escapes = (
+    # rewrite to local/PT is not escaped
     [ "/modules/rewrite/escaping/local/foo%20bar"            =>  403],
+    # rewrite to redir escaped by default
     [ "/modules/rewrite/escaping/redir/foo%20bar"            =>  302],
+    # ... opted out
     [ "/modules/rewrite/escaping/redir_ne/foo%20bar"         =>  403],
+    # rewrite never escapes proxy targets, even though [NE] is kind or repurposed.
+    [ "/modules/rewrite/escaping/proxy/foo%20bar"            =>  403],
+    [ "/modules/rewrite/escaping/proxy_ne/foo%20bar"         =>  403],
+
     [ "/modules/rewrite/escaping/fixups/local/foo%20bar"     =>  403],
     [ "/modules/rewrite/escaping/fixups/redir/foo%20bar"     =>  302],
     [ "/modules/rewrite/escaping/fixups/redir_ne/foo%20bar"  =>  403],
+    [ "/modules/rewrite/escaping/fixups/proxy/foo%20bar"     =>  403],
+    [ "/modules/rewrite/escaping/fixups/proxy_ne/foo%20bar"  =>  403],
 );
 
 
