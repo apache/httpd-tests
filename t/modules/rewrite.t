@@ -141,6 +141,7 @@ if (have_min_apache_version('2.4')) {
 
 if (have_min_apache_version("2.4.29")) {
     # PR 58231: Vary:Host header (was) mistakenly added to the response
+    # XXX: If LWP uses http2, this can result in "Host: localhost, test1"
     $r = GET("/modules/rewrite/vary1.html", "Host" => "test1");
     ok t_cmp($r->content, qr/VARY2/, "Correct internal redirect happened, OK");
     ok t_cmp($r->header("Vary"), qr/(?!.*Host.*)/, "Vary:Host header not added, OK");
