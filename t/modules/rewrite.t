@@ -15,6 +15,17 @@ my @url = qw(forbidden gone perm temp);
 my @todo;
 my $r;
 
+
+my @escapes = (
+    [ "/modules/rewrite/escaping/local/foo%20bar"            =>  403],
+    [ "/modules/rewrite/escaping/redir/foo%20bar"            =>  302],
+    [ "/modules/rewrite/escaping/redir_ne/foo%20bar"         =>  403],
+    [ "/modules/rewrite/escaping/fixups/local/foo%20bar"     =>  403],
+    [ "/modules/rewrite/escaping/fixups/redir/foo%20bar"     =>  302],
+    [ "/modules/rewrite/escaping/fixups/redir_ne/foo%20bar"  =>  403],
+);
+
+
 if (!have_min_apache_version('2.4.19')) {
     # PR 50447, server context
     push @todo, 26
@@ -27,8 +38,9 @@ if (!have_min_apache_version('2.4')) {
 # Specific tests for PR 58231
 my $vary_header_tests = (have_min_apache_version("2.4.30") ? 9 : 0) + (have_min_apache_version("2.4.29") ? 4 : 0);
 my $cookie_tests = have_min_apache_version("2.4.47") ? 6 : 0;
+my $escape_tests = have_min_apache_version("2.4.57") ? scalar(@escapes) : 0;
 
-plan tests => @map * @num + 16 + $vary_header_tests + $cookie_tests, todo => \@todo, need_module 'rewrite';
+plan tests => @map * @num + 16 + $vary_header_tests + $cookie_tests + $escape_tests, todo => \@todo, need_module 'rewrite';
 
 foreach (@map) {
     foreach my $n (@num) {
@@ -184,3 +196,15 @@ if (have_min_apache_version("2.4.47")) {
     $r = GET("/modules/rewrite/cookie/foo");
     ok t_cmp($r->header("Set-Cookie"), qr/SameSite=foo/, "samesite=foo");
 }
+
+
+if (have_min_apache_version("2.4.57")) {
+    foreach my $t (@escapes) {
+        my $url= $t->[0];
+        my $expect = $t->[1];
+        t_debug "Check $url for $expect\n";
+        ok t_cmp GET_RC($url), $expect;
+    }
+}
+
+

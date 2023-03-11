@@ -254,7 +254,7 @@
 
     ### Proxy pass-through to env.pl
     RewriteRule ^/modules/rewrite/proxy2/(.*)$ http://@SERVERNAME@:@PORT@/modules/cgi/$1 [L,P]
-    
+
     ### Pass-through conditional on QUERY_STRING
     RewriteCond %{QUERY_STRING} horse=trigger
     RewriteRule ^/modules/rewrite/proxy3/(.*)$ http://@SERVERNAME@:@PORT@/modules/cgi/$1 [L,P]
@@ -268,6 +268,15 @@
     RewriteRule ^/modules/rewrite/cookie/lax - [CO=NAME3:VAL:localhost:86400:/0:secure:httponly:lax]
     RewriteRule ^/modules/rewrite/cookie/none - [CO=NAME3:VAL:localhost:86400:/0:secure:httponly:none]
     RewriteRule ^/modules/rewrite/cookie/foo - [CO=NAME3:VAL:localhost:86400:/0:secure:httponly:foo]
+
+    RewriteRule ^/modules/rewrite/escaping/local/(.*) /?$1
+    RewriteRule ^/modules/rewrite/escaping/redir/(.*) http://@SERVERNAME@:@PORT@/?$1 [R]
+    RewriteRule ^/modules/rewrite/escaping/redir_ne/(.*) http://@SERVERNAME@:@PORT@/?$1 [R,NE]
+    <LocationMatch ^/modules/rewrite/escaping/fixups/>
+      RewriteRule local/(.*) /?$1
+      RewriteRule redir/(.*) http://@SERVERNAME@:@PORT@/?$1 [R]
+      RewriteRule redir_ne/(.*) http://@SERVERNAME@:@PORT@/?$1 [R,NE]
+    </LocationMatch>
 
    <VirtualHost cve_2011_3368_rewrite>
       DocumentRoot @SERVERROOT@/htdocs/modules/proxy
