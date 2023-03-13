@@ -213,7 +213,8 @@ if (have_min_apache_version("2.4.57")) {
         my $url= $t->[0];
         my $expect = $t->[1];
         t_debug "Check $url for $expect\n";
-        ok t_cmp GET_RC($url), $expect;
+        $r = GET($url, redirect_ok => 0);
+        ok t_cmp $r->code, $expect;
     }
 }
 
