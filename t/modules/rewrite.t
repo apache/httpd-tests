@@ -38,6 +38,7 @@ my @bflags = (
     # t/conf/extra.conf.in
     [ "/modules/rewrite/escaping/local_b/foo/bar/%20baz%0d"           =>  "foo%2fbar%2f+baz%0d"],        # this is why [B] sucks
     [ "/modules/rewrite/escaping/local_bctls/foo/bar/%20baz/%0d"      =>  "foo/bar/+baz/%0d"],           # spaces and ctls only
+    [ "/modules/rewrite/escaping/local_bctls_nospace/foo/bar/%20baz/%0d"  =>  "foo/bar/ baz/%0d"],       # ctls but not space
     [ "/modules/rewrite/escaping/local_bctls_andslash/foo/bar/%20baz/%0d" =>  "foo%2fbar%2f+baz%2f%0d"], # not realistic, but opt in to slashes
     [ "/modules/rewrite/escaping/local_b_noslash/foo/bar/%20baz/%0d"      =>  "foo/bar/+baz/%0d"],       # negate something from [B]
     [ "/modules/rewrite/escaping/local_b_justslash/foo/bar/%20baz/"    =>  "foo%2fbar%2f baz%2f"],       # test basic B=/
