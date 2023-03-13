@@ -273,7 +273,6 @@
     RewriteRule ^/modules/rewrite/escaping/local_b/(.*) /?$1 [B]
     RewriteRule ^/modules/rewrite/escaping/local_bctls/(.*) /?$1 [BCTLS]
     RewriteRule ^/modules/rewrite/escaping/local_bctls_andslash/(.*) /?$1 [B=/,BCTLS]
-    RewriteRule ^/modules/rewrite/escaping/local_bctls_nospace/(.*) /?$1 "[B= ?,BNEG,BCTLS]"
     RewriteRule ^/modules/rewrite/escaping/local_b_noslash/(.*) /?$1 [B=/,BNEG]
     RewriteRule ^/modules/rewrite/escaping/local_b_justslash/(.*) /?$1 [B=/]
     RewriteRule ^/modules/rewrite/escaping/redir/(.*) http://@SERVERNAME@:@PORT@/?$1 [R]
