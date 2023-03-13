@@ -270,6 +270,12 @@
     RewriteRule ^/modules/rewrite/cookie/foo - [CO=NAME3:VAL:localhost:86400:/0:secure:httponly:foo]
 
     RewriteRule ^/modules/rewrite/escaping/local/(.*) /?$1
+    RewriteRule ^/modules/rewrite/escaping/local_b/(.*) /?$1 [B]
+    RewriteRule ^/modules/rewrite/escaping/local_bctls/(.*) /?$1 [BCTLS]
+    RewriteRule ^/modules/rewrite/escaping/local_bctls_andslash/(.*) /?$1 [B=/,BCTLS]
+    RewriteRule ^/modules/rewrite/escaping/local_bctls_nospace/(.*) /?$1 "[B= ?,BNEG,BCTLS]"
+    RewriteRule ^/modules/rewrite/escaping/local_b_noslash/(.*) /?$1 [B=/,BNEG]
+    RewriteRule ^/modules/rewrite/escaping/local_b_justslash/(.*) /?$1 [B=/]
     RewriteRule ^/modules/rewrite/escaping/redir/(.*) http://@SERVERNAME@:@PORT@/?$1 [R]
     RewriteRule ^/modules/rewrite/escaping/redir_ne/(.*) http://@SERVERNAME@:@PORT@/?$1 [R,NE]
     RewriteRule ^/modules/rewrite/escaping/proxy/(.*) http://@SERVERNAME@:@PORT@/?$1 [P]
@@ -282,6 +288,9 @@
       RewriteRule proxy_ne/(.*) http://@SERVERNAME@:@PORT@/?$1 [P,NE]
     </LocationMatch>
 
+   <Location /modules/rewrite/escaping>
+      Header always set rewritten-query "expr=%{QUERY_STRING}"
+   </Location>
    <VirtualHost cve_2011_3368_rewrite>
       DocumentRoot @SERVERROOT@/htdocs/modules/proxy
       RewriteEngine On

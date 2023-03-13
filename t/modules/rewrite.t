@@ -34,6 +34,15 @@ my @escapes = (
     [ "/modules/rewrite/escaping/fixups/proxy_ne/foo%20bar"  =>  403],
 );
 
+my @bflags = (
+    # t/conf/extra.conf.in
+    [ "/modules/rewrite/escaping/local_b/foo/bar/%20baz%0d"           =>  "foo%2fbar%2f+baz%0d"],        # this is why [B] sucks
+    [ "/modules/rewrite/escaping/local_bctls/foo/bar/%20baz/%0d"      =>  "foo/bar/+baz/%0d"],           # spaces and ctls only
+    [ "/modules/rewrite/escaping/local_bctls_andslash/foo/bar/%20baz/%0d" =>  "foo%2fbar%2f+baz%2f%0d"], # not realistic, but opt in to slashes
+    [ "/modules/rewrite/escaping/local_bctls_nospace/foo/bar/%20baz/%0d"  =>  "foo/bar/ baz%0d"],        # CTLS but allow space
+    [ "/modules/rewrite/escaping/local_b_noslash/foo/bar/%20baz/%0d"      =>  "foo/bar/+baz/%0d"],       # negate something from [B]
+    [ "/modules/rewrite/escaping/local_b_justslash/foo/bar/%20baz/"    =>  "foo%2fbar%2f baz%2f"],       # test basic B=/
+);
 
 if (!have_min_apache_version('2.4.19')) {
     # PR 50447, server context
@@ -47,7 +56,7 @@ if (!have_min_apache_version('2.4')) {
 # Specific tests for PR 58231
 my $vary_header_tests = (have_min_apache_version("2.4.30") ? 9 : 0) + (have_min_apache_version("2.4.29") ? 4 : 0);
 my $cookie_tests = have_min_apache_version("2.4.47") ? 6 : 0;
-my $escape_tests = have_min_apache_version("2.4.57") ? scalar(@escapes) : 0;
+my $escape_tests = have_min_apache_version("2.4.57") ? scalar(@escapes) + scalar(@bflags) : 0;
 
 plan tests => @map * @num + 16 + $vary_header_tests + $cookie_tests + $escape_tests, todo => \@todo, need_module 'rewrite';
 
@@ -216,6 +225,15 @@ if (have_min_apache_version("2.4.57")) {
         $r = GET($url, redirect_ok => 0);
         ok t_cmp $r->code, $expect;
     }
+    foreach my $t (@bflags) {
+        my $url= $t->[0];
+        my $expect= $t->[1];
+        t_debug "Check $url for $expect\n";
+        $r = GET($url, redirect_ok => 0);
+        t_debug("rewritten query '" . $r->header("rewritten-query") . "'");
+        ok t_cmp $r->header("rewritten-query"), $expect;
+    }
+
 }
 
 
