@@ -273,7 +273,7 @@
     RewriteRule ^/modules/rewrite/escaping/redir/(.*) http://@SERVERNAME@:@PORT@/?$1 [R]
     RewriteRule ^/modules/rewrite/escaping/redir_ne/(.*) http://@SERVERNAME@:@PORT@/?$1 [R,NE]
     RewriteRule ^/modules/rewrite/escaping/proxy/(.*) http://@SERVERNAME@:@PORT@/?$1 [P]
-    RewriteRule ^/modules/rewrite/escaping/proxy_ne/(.*) http://@SERVERNAME@:@PORT@/?$1 [P]
+    RewriteRule ^/modules/rewrite/escaping/proxy_ne/(.*) http://@SERVERNAME@:@PORT@/?$1 [P,NE]
     <LocationMatch ^/modules/rewrite/escaping/fixups/>
       RewriteRule local/(.*) /?$1
       RewriteRule redir/(.*) http://@SERVERNAME@:@PORT@/?$1 [R]
