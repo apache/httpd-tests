@@ -19,31 +19,43 @@ my $r;
 my @escapes = (
     # rewrite to local/PT is not escaped
     [ "/modules/rewrite/escaping/local/foo%20bar"            =>  403],
-    # rewrite to redir escaped by default
-    [ "/modules/rewrite/escaping/redir/foo%20bar"            =>  302],
-    # ... opted out
+    # rewrite to redir escape opted out
     [ "/modules/rewrite/escaping/redir_ne/foo%20bar"         =>  403],
     # rewrite never escapes proxy targets, even though [NE] is kind or repurposed.
     [ "/modules/rewrite/escaping/proxy/foo%20bar"            =>  403],
     [ "/modules/rewrite/escaping/proxy_ne/foo%20bar"         =>  403],
 
     [ "/modules/rewrite/escaping/fixups/local/foo%20bar"     =>  403],
-    [ "/modules/rewrite/escaping/fixups/redir/foo%20bar"     =>  302],
     [ "/modules/rewrite/escaping/fixups/redir_ne/foo%20bar"  =>  403],
     [ "/modules/rewrite/escaping/fixups/proxy/foo%20bar"     =>  403],
     [ "/modules/rewrite/escaping/fixups/proxy_ne/foo%20bar"  =>  403],
 );
+if (have_min_apache_version('2.5.1')) {
+    push(@escapes, (
+        # rewrite to redir escaped by default
+        [ "/modules/rewrite/escaping/redir/foo%20bar"            =>  302],
+        [ "/modules/rewrite/escaping/fixups/redir/foo%20bar"     =>  302],
+    ));
+}
+else {
+    push(@escapes, (
+        # rewrite to redir forbidden by default
+        [ "/modules/rewrite/escaping/redir/foo%20bar"            =>  403],
+        [ "/modules/rewrite/escaping/fixups/redir/foo%20bar"     =>  403],
+    ));
+}
 
 my @bflags = (
     # t/conf/extra.conf.in
-    [ "/modules/rewrite/escaping/local_b/foo/bar/%20baz%0d"           =>  "foo%2fbar%2f+baz%0d"],        # this is why [B] sucks
-    [ "/modules/rewrite/escaping/local_b_justslash/foo/bar/%20baz/"    =>  "foo%2fbar%2f baz%2f"],       # test basic B=/
+    [ "/modules/rewrite/escaping/local_b/foo/bar/%20baz%0d"               =>  "foo%2fbar%2f+baz%0d"],    # this is why [B] sucks
+    [ "/modules/rewrite/escaping/local_b_justslash/foo/bar/%20baz/"       =>  "foo%2fbar%2f baz%2f"],    # test basic B=/
 );
 if (have_min_apache_version('2.5.1')) {
+    # [BCTLS] / [BNE]
     push(@bflags, (
-        [ "/modules/rewrite/escaping/local_bctls/foo/bar/%20baz/%0d"      =>  "foo/bar/+baz/%0d"],           # spaces and ctls only
-        [ "/modules/rewrite/escaping/local_bctls_andslash/foo/bar/%20baz/%0d" =>  "foo%2fbar%2f+baz%2f%0d"], # not realistic, but opt in to slashes
+        [ "/modules/rewrite/escaping/local_bctls/foo/bar/%20baz/%0d"          =>  "foo/bar/+baz/%0d"],       # spaces and ctls only
         [ "/modules/rewrite/escaping/local_bctls_nospace/foo/bar/%20baz/%0d"  =>  "foo/bar/ baz/%0d"],       # ctls but keep space
+        [ "/modules/rewrite/escaping/local_bctls_andslash/foo/bar/%20baz/%0d" =>  "foo%2fbar%2f+baz%2f%0d"], # not realistic, but opt in to slashes
         [ "/modules/rewrite/escaping/local_b_noslash/foo/bar/%20baz/%0d"      =>  "foo/bar/+baz/%0d"],       # negate something from [B]
     ));
 }
