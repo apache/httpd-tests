@@ -14,6 +14,9 @@ my @num = qw(1 2 3 4 5 6);
 my @url = qw(forbidden gone perm temp);
 my @todo;
 my $r;
+my $post_CVE27522 = "2.5.1"; 
+my $has_redir_escape_exception = have_min_apache_version($post_CVE27522);
+my $has_bctl_bneg = have_min_apache_version($post_CVE27522);
 
 
 my @escapes = (
@@ -30,18 +33,11 @@ my @escapes = (
     [ "/modules/rewrite/escaping/fixups/proxy/foo%20bar"     =>  403],
     [ "/modules/rewrite/escaping/fixups/proxy_ne/foo%20bar"  =>  403],
 );
-if (have_min_apache_version('2.5.1')) {
+if ($has_redir_escape_exception) {
     push(@escapes, (
         # rewrite to redir escaped by default
         [ "/modules/rewrite/escaping/redir/foo%20bar"            =>  302],
         [ "/modules/rewrite/escaping/fixups/redir/foo%20bar"     =>  302],
-    ));
-}
-else {
-    push(@escapes, (
-        # rewrite to redir forbidden by default
-        [ "/modules/rewrite/escaping/redir/foo%20bar"            =>  403],
-        [ "/modules/rewrite/escaping/fixups/redir/foo%20bar"     =>  403],
     ));
 }
 
@@ -50,7 +46,7 @@ my @bflags = (
     [ "/modules/rewrite/escaping/local_b/foo/bar/%20baz%0d"               =>  "foo%2fbar%2f+baz%0d"],    # this is why [B] sucks
     [ "/modules/rewrite/escaping/local_b_justslash/foo/bar/%20baz/"       =>  "foo%2fbar%2f baz%2f"],    # test basic B=/
 );
-if (have_min_apache_version('2.5.1')) {
+if ($has_bctl_bneg) {
     # [BCTLS] / [BNE]
     push(@bflags, (
         [ "/modules/rewrite/escaping/local_bctls/foo/bar/%20baz/%0d"          =>  "foo/bar/+baz/%0d"],       # spaces and ctls only
@@ -233,23 +229,19 @@ if (have_min_apache_version("2.4.47")) {
 }
 
 
-if (have_min_apache_version("2.4.57")) {
-    foreach my $t (@escapes) {
-        my $url= $t->[0];
-        my $expect = $t->[1];
-        t_debug "Check $url for $expect\n";
-        $r = GET($url, redirect_ok => 0);
-        ok t_cmp $r->code, $expect;
-    }
-    foreach my $t (@bflags) {
-        my $url= $t->[0];
-        my $expect= $t->[1];
-        t_debug "Check $url for $expect\n";
-        $r = GET($url, redirect_ok => 0);
-        t_debug("rewritten query '" . $r->header("rewritten-query") . "'");
-        ok t_cmp $r->header("rewritten-query"), $expect;
-    }
-
+foreach my $t (@escapes) {
+    my $url= $t->[0];
+    my $expect = $t->[1];
+    t_debug "Check $url for $expect\n";
+    $r = GET($url, redirect_ok => 0);
+    ok t_cmp $r->code, $expect;
 }
-
+foreach my $t (@bflags) {
+    my $url= $t->[0];
+    my $expect= $t->[1];
+    t_debug "Check $url for $expect\n";
+    $r = GET($url, redirect_ok => 0);
+    t_debug("rewritten query '" . $r->header("rewritten-query") . "'");
+    ok t_cmp $r->header("rewritten-query"), $expect;
+}
 
