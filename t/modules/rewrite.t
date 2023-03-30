@@ -14,7 +14,7 @@ my @num = qw(1 2 3 4 5 6);
 my @url = qw(forbidden gone perm temp);
 my @todo;
 my $r;
-my $post_CVE27522 = "2.5.1"; 
+my $post_CVE27522 = "2.4.57"; 
 my $has_redir_escape_exception = have_min_apache_version($post_CVE27522);
 my $has_bctl_bneg = have_min_apache_version($post_CVE27522);
 
