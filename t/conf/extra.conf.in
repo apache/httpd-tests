@@ -272,6 +272,8 @@
     RewriteRule ^/modules/rewrite/escaping/local/(.*) /?$1
     RewriteRule ^/modules/rewrite/escaping/local_b/(.*) /?$1 [B]
     RewriteRule ^/modules/rewrite/escaping/local_b_justslash/(.*) /?$1 [B=/]
+
+    RewriteRule ^/modules/rewrite/escaping/qsd-like/(.*) /$1? [R]
     <IfVersion >= 2.4.57>
       RewriteRule ^/modules/rewrite/escaping/local_bctls/(.*) /?$1 [BCTLS]
       RewriteRule ^/modules/rewrite/escaping/local_bctls_andslash/(.*) /?$1 [B=/,BCTLS]
