@@ -14,10 +14,6 @@ my @num = qw(1 2 3 4 5 6);
 my @url = qw(forbidden gone perm temp);
 my @todo;
 my $r;
-my $post_CVE27522 = "2.4.57"; 
-my $has_redir_escape_exception = have_min_apache_version($post_CVE27522);
-my $has_bctl_bneg = have_min_apache_version($post_CVE27522);
-
 
 my @redirects_all = (
     [ "/modules/rewrite/escaping/qsd-like/foo", "/foo\$", have_min_apache_version('2.5.1') ], # PR66547
@@ -37,7 +33,7 @@ my @escapes = (
     [ "/modules/rewrite/escaping/fixups/proxy/foo%20bar"     =>  403],
     [ "/modules/rewrite/escaping/fixups/proxy_ne/foo%20bar"  =>  403],
 );
-if ($has_redir_escape_exception) {
+if (have_min_apache_version('2.4.57')) {
     push(@escapes, (
         # rewrite to redir escaped by default
         [ "/modules/rewrite/escaping/redir/foo%20bar"            =>  302],
@@ -50,7 +46,7 @@ my @bflags = (
     [ "/modules/rewrite/escaping/local_b/foo/bar/%20baz%0d"               =>  "foo%2fbar%2f+baz%0d"],    # this is why [B] sucks
     [ "/modules/rewrite/escaping/local_b_justslash/foo/bar/%20baz/"       =>  "foo%2fbar%2f baz%2f"],    # test basic B=/
 );
-if ($has_bctl_bneg) {
+if (have_min_apache_version('2.4.57')) {
     # [BCTLS] / [BNE]
     push(@bflags, (
         [ "/modules/rewrite/escaping/local_bctls/foo/bar/%20baz/%0d"          =>  "foo/bar/+baz/%0d"],       # spaces and ctls only
@@ -72,10 +68,10 @@ if (!have_min_apache_version('2.4')) {
 # Specific tests for PR 58231
 my $vary_header_tests = (have_min_apache_version("2.4.30") ? 9 : 0) + (have_min_apache_version("2.4.29") ? 4 : 0);
 my $cookie_tests = have_min_apache_version("2.4.47") ? 6 : 0;
-my $escape_tests = have_min_apache_version("2.4.57") ? scalar(@escapes) + scalar(@bflags) : 0;
 my @redirects = map {$_->[2] ? $_ : ()} @redirects_all;
 
-plan tests => @map * @num + 16 + $vary_header_tests + $cookie_tests + $escape_tests + scalar(@redirects), todo => \@todo, need_module 'rewrite';
+plan tests => @map * @num + 16 + $vary_header_tests + $cookie_tests + scalar(@escapes) + scalar(@redirects) + scalar(@bflags),
+              todo => \@todo, need_module 'rewrite';
 
 foreach (@map) {
     foreach my $n (@num) {
