@@ -16,7 +16,8 @@ my @todo;
 my $r;
 
 my @redirects_all = (
-    [ "/modules/rewrite/escaping/qsd-like/foo", "/foo\$", have_min_apache_version('2.5.1') ], # PR66547
+        ["/modules/rewrite/escaping/qsd-like/foo", "/foo\$", have_min_apache_version('2.4.57')], # PR66547
+        ["/modules/rewrite/escaping/qsd-like-plus-qsa/foo?preserve-me", "/foo\\?preserve-me\$", have_min_apache_version('2.5.1')], # PR66672
     );
 
 my @escapes = (
@@ -252,6 +253,7 @@ foreach my $t (@redirects) {
     t_debug "Check $url for redir $expect\n";
     $r = GET($url, redirect_ok => 0);
     my $loc = $r->header("location");
+    t_debug " redirect is $loc";
     ok $loc =~ /$expect/;
 }
 
