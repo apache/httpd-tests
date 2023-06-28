@@ -18,6 +18,7 @@ my $r;
 my @redirects_all = (
         ["/modules/rewrite/escaping/qsd-like/foo", "/foo\$", have_min_apache_version('2.4.57')], # PR66547
         ["/modules/rewrite/escaping/qsd-like-plus-qsa/foo?preserve-me", "/foo\\?preserve-me\$", have_min_apache_version('2.5.1')], # PR66672
+        ["/modules/rewrite/escaping/qsd-like-plus-qsa-qsl/foo/%3fbar/?preserve-me", "/foo/%3fbar/\\?preserve-me\$", have_min_apache_version('2.5.1')], # PR66672
     );
 
 my @escapes = (

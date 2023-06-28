@@ -275,6 +275,7 @@
 
     RewriteRule ^/modules/rewrite/escaping/qsd-like/(.*) /$1? [R]
     RewriteRule ^/modules/rewrite/escaping/qsd-like-plus-qsa/(.*) /$1? [R,QSA]
+    RewriteRule ^/modules/rewrite/escaping/qsd-like-plus-qsa-qsl/(.*) /$1? [R,QSA,QSL]
 
     <IfVersion >= 2.4.57>
       RewriteRule ^/modules/rewrite/escaping/local_bctls/(.*) /?$1 [BCTLS]
