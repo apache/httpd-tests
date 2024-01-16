@@ -66,6 +66,21 @@ my @testcases = (
        [ 'Test-Header' => 'foofoo' ],
        [ 'Test-Header' => 'bar2bar2' ],
     ],
+    [
+       "Header echo Test-Header\nHeader edit* Test-Header (?<=a)(ba) cd", # lookbehind
+       [ 'Test-Header' => 'ababa' ],
+       [ 'Test-Header' => 'acdcd' ],
+    ],
+    [
+       "Header echo Test-Header\nHeader edit* Test-Header ^ foo",       # empty match (no infinite loop!)
+       [ 'Test-Header' => 'bar' ],
+       [ 'Test-Header' => 'foobar' ],
+    ],
+    [
+       "Header echo Test-Header\nHeader edit* Test-Header ^(.*)\$ \$1;httpOnly;secure", # empty header/match (no infinite loop!)
+       [ 'Test-Header' => '' ],
+       [ 'Test-Header' => ';httpOnly;secure' ],
+    ],
     # merge
     [
        "Header merge Test-Header foo",                                  # missing header
