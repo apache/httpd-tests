@@ -117,7 +117,8 @@ my @testcases = (
     ],
 );
 if (have_min_apache_version('2.5.1')) {
-    push(@testcases, (
+    push(@testcases,
+        (
             # edit*
             [
                 "Header echo Test-Header\nHeader edit* Test-Header (?<=a)(ba) cd", # lookbehind
@@ -134,7 +135,8 @@ if (have_min_apache_version('2.5.1')) {
                 [ 'Test-Header' => '' ],
                 [ 'Test-Header' => ';httpOnly;secure' ],
             ],
-        ));
+        )
+    );
 }
 
 plan tests => 
