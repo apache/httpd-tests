@@ -1512,4 +1512,24 @@ LimitRequestFields    32
   </Location>
 </IfModule>
 
-
+#
+# t/apache/pr64339.t test configuration
+# 
+<IfModule mod_xml2enc.c>
+   <IfModule mod_proxy_html.c>
+      <IfModule mod_proxy.c>
+         ProxyPass /modules/xml2enc/front http://@SERVERNAME@:@PORT@/modules/xml2enc/back
+         Alias /modules/xml2enc/back @SERVERROOT@/htdocs/modules/xml2enc
+         <Location /modules/xml2enc/back>
+             AddType application/notreallyxml notml
+             AddType application/xml xml
+             AddType application/foo+xml foo
+         </Location>
+         <Location /modules/xml2enc/front>
+             ProxyHTMLEnable on
+             # mod_proxy_html needs some configuration.
+             ProxyHTMLURLMap /foo /bar
+         </Location>
+      </IfModule>
+   </IfModule>
+</IfModule>
