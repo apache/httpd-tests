@@ -1518,17 +1518,22 @@ LimitRequestFields    32
 <IfModule mod_xml2enc.c>
    <IfModule mod_proxy_html.c>
       <IfModule mod_proxy.c>
-         ProxyPass /modules/xml2enc/front http://@SERVERNAME@:@PORT@/modules/xml2enc/back
          Alias /modules/xml2enc/back @SERVERROOT@/htdocs/modules/xml2enc
+         Alias /modules/xml2enc/back/iso @SERVERROOT@/htdocs/modules/xml2enc
          <Location /modules/xml2enc/back>
-             AddType application/notreallyxml notml
+             AddType application/foo+xml fooxml
+             AddType application/notreallyxml notxml
              AddType application/xml xml
-             AddType application/foo+xml foo
+             AddType text/html isohtml
+             AddCharset ISO-8859-1 .isoxml
+             AddCharset ISO-8859-1 .isohtml
          </Location>
          <Location /modules/xml2enc/front>
              ProxyHTMLEnable on
              # mod_proxy_html needs some configuration.
-             ProxyHTMLURLMap /foo /bar
+             ProxyHTMLURLMap / /blah
+             ProxyHTMLLinks a href
+             ProxyPass http://@SERVERNAME@:@PORT@/modules/xml2enc/back
          </Location>
       </IfModule>
    </IfModule>
