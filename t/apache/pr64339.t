@@ -7,25 +7,41 @@ use Apache::TestUtil;
 use Apache::TestRequest;
 
 my @testcases = (
-    # First two cases with no charset, should get charset added
-    ['/doc.xml', "application/xml;charset=utf-8" ],
-    ['/doc.fooxml', "application/foo+xml;charset=utf-8" ],
-    # Not really an XML media type, should not be altered
-    ['/doc.notxml', "application/notreallyxml" ],
+    # Backend sends Content-Type: application/xml; charset=utf-8
+    ['/doc.xml', "application/xml; charset=utf-8", "fóó\n" ],
+
+    # Backend sends Content-Type: application/foo+xml; charset=utf-8
+    ['/doc.fooxml', "application/foo+xml; charset=utf-8", "fóó\n" ],
+
+    # Backend sends Content-Type: application/notreallyxml (no charset)
+    # This should NOT be transformed or have a charset added.
+    ['/doc.notxml', "application/notreallyxml", "f\xf3\xf3\n" ],
+
     # Sent with charset=ISO-8859-1 - should be transformed to utf-8
-    ['/doc.isohtml', "text/html; charset=utf-8" ],
+    ['/doc.isohtml', "text/html;charset=utf-8", "<html><body><p>fóó\n</p></body></html>" ],
 );
 
-if (not have_min_apache_version('2.5.1')) {
-    print "1..0 # skip: Test valid for 2.5.x only";
+# mod_xml2enc on trunk behaves quite differently to the 2.4.x version
+# after r1785780, and does NOT transform the response body. Unclear if
+# this is a regression, so restricting this test to 2.4.x (for now).
+
+if (have_min_apache_version('2.5.0')) {
+    print "1..0 # skip: Test only valid for 2.4.x";
     exit 0;
 }
 
-plan tests => (2*scalar @testcases), need [qw(xml2enc alias proxy_html proxy)];
+# todo: amend to 2.4.59
+if (not have_min_apache_version('2.4.60')) {
+    print "1..0 # skip: Test not valid before 2.4.60";
+    exit 0;
+}
+
+plan tests => (3*scalar @testcases), need [qw(xml2enc alias proxy_html proxy)];
 
 foreach my $t (@testcases) {
     my $r = GET("/modules/xml2enc/front".$t->[0]);
     
     ok t_cmp($r->code, 200, "fetching ".$t->[0]);
     ok t_cmp($r->header('Content-Type'), $t->[1], "content-type header test for ".$t->[0]);
+    ok t_cmp($r->content, $t->[2], "content test for ".$t->[0]);
 }
