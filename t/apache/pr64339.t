@@ -7,13 +7,16 @@ use Apache::TestUtil;
 use Apache::TestRequest;
 
 my @testcases = (
-    ['/doc.notml', "application/notreallyxml"],
-    ['/doc.xml', "application/xml;charset=utf-8"],
-    ['/doc.foo', "application/foo+xml;charset=utf-8"],
-    ['/doc.html', "text/html;charset=utf-8"],
+    # First two cases with no charset, should get charset added
+    ['/doc.xml', "application/xml;charset=utf-8" ],
+    ['/doc.fooxml', "application/foo+xml;charset=utf-8" ],
+    # Not really an XML media type, should not be altered
+    ['/doc.notxml', "application/notreallyxml" ],
+    # Sent with charset=ISO-8859-1 - should be transformed to utf-8
+    ['/doc.isohtml', "text/html; charset=utf-8" ],
 );
 
-if (not have_min_apache_version('2.5.2')) {
+if (not have_min_apache_version('2.5.1')) {
     print "1..0 # skip: Test valid for 2.5.x only";
     exit 0;
 }
