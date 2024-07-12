@@ -63,7 +63,7 @@ my @badquery = (
 );
 if (have_min_apache_version('2.4.60')) {
     push(@badquery, (
-        [ "/modules/rewrite/badquery/backref/%3theval"                  =>  ""],
+        [ "/modules/rewrite/badquery/backref/%3ftheval"                  =>  ""],
         [ "/modules/rewrite/badquery/backref-optin/%3ftheval"           =>  "theval"],
     ));
 }
