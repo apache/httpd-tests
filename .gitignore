@@ -1,0 +1,27 @@
+# Perl build artifacts
+MYMETA.json
+MYMETA.yml
+Makefile
+blib/
+pm_to_blib
+
+# C modules build artifacts
+c-modules/Makefile
+c-modules/apache_httpd_test.h
+c-modules/*/.libs/
+c-modules/*/Makefile
+c-modules/*/*.slo
+
+# Apache Test generated files
+t/REPORT
+t/SMOKE
+t/TEST
+t/conf/apache_test_config.pm
+t/conf/*.conf
+t/conf/ssl/*.pl
+t/conf/ssl/*.conf
+t/logs/
+
+# Generated test scripts
+t/htdocs/**/*.pl
+t/htdocs/modules/access/htaccess/.htaccess
