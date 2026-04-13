@@ -5,6 +5,12 @@ on:
   pull_request:
   workflow_dispatch:
 
+env:
+  MARGS: "-j2"
+  CFLAGS: "-g"
+  # This will need updating as the ubuntu-latest image changes:
+  PHP_FPM: "/usr/sbin/php-fpm8.3"
+
 jobs:
   build:
     name: Test against httpd ${{ matrix.branch }}
@@ -50,6 +56,12 @@ jobs:
                       --prefix=$HOME/root/httpd
           make -j$(nproc)
           make install
+
+      - name: Prepare containers
+        run: |
+          docker build -t httpd_ldap -f httpd/test/travis_Dockerfile_slapd.centos .
+          ./scripts/ldap-init.sh
+
       - name: Run the test suite
         run: |
            eval $(perl -I ~/perl5/lib/perl5/ -Mlocal::lib)
