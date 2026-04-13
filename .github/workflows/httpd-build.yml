@@ -65,7 +65,7 @@ jobs:
       - name: Run the test suite
         run: |
            eval $(perl -I ~/perl5/lib/perl5/ -Mlocal::lib)
-           perl Makefile.PL -apxs $HOME/root/httpd/bin/apxs
+           perl Makefile.PL -apxs $HOME/root/httpd/bin/apxs -defines LDAP
            make test
 
 
