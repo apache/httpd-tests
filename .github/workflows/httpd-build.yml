@@ -37,7 +37,7 @@ jobs:
                     cpanminus libtool-bin libapr1-dev libaprutil1-dev
                     liblua5.3-dev libbrotli-dev libcurl4-openssl-dev
                     libnghttp2-dev libjansson-dev libpcre2-dev
-                    perl-doc libsasl2-dev
+                    perl-doc libsasl2-dev ldap-utils
 
       - name: Install Perl dependencies
         run: |
@@ -45,8 +45,7 @@ jobs:
           cpanm --notest Net::SSL LWP::Protocol::https \
                          LWP::Protocol::AnyEvent::http ExtUtils::Embed Test::More \
                          AnyEvent DateTime HTTP::DAV FCGI \
-                         AnyEvent::WebSocket::Client Apache::Test \
-                         ldap-utils
+                         AnyEvent::WebSocket::Client Apache::Test
 
       - name: Build httpd
         working-directory: httpd
