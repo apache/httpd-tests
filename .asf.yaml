@@ -1,0 +1,20 @@
+github:
+  description: "Perl-based test framework module for Apache httpd"
+  homepage: https://httpd.apache.org/
+  features:
+    wiki: false
+    issues: false
+    projects: false
+    discussions: false
+  features:
+    wiki: false
+    issues: false
+    projects: false
+    discussions: false
+  enabled_merge_buttons:
+    squash: true
+    merge: false
+    rebase: true
+
+notifications:
+  commits: commits@httpd.apache.org
