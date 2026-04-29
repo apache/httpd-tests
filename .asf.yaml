@@ -17,4 +17,4 @@ github:
     rebase: true
 
 notifications:
-  commits: commits@httpd.apache.org
+  commits: cvs@httpd.apache.org
