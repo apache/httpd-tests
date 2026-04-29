@@ -2,7 +2,19 @@ name: Apache httpd Test Suite CI
 
 on:
   push:
+    paths-ignore:
+      - README.md
+      - NOTICE
+      - STATUS
+      - LICENSE
+      - .asf.yaml
   pull_request:
+    paths-ignore:
+      - README.md
+      - NOTICE
+      - STATUS
+      - LICENSE
+      - .asf.yaml
   workflow_dispatch:
 
 env:
