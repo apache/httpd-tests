@@ -1,33 +1,29 @@
-# Testing Apache with the Perl Test Harness
+# Testing Apache httpd with the Perl Test Harness
 
 ## Prerequisites
 
-These two modules must first be installed:
+These Perl modules must installed to be able to use the test harness:
 
-- `perl-ExtUtils-MakeMaker`
-- `perl-Test`
+- `ExtUtils::MakeMaker`
+- `Test`
+- `Apache::Test`
 
-You'll need to install the CPAN modules listed in
-`Apache-Test/lib/Bundle/ApacheTest.pm`. All you have to do to install them
-all in one shot is:
+The
+[`Bundle::ApacheTest`](https://metacpan.org/pod/Bundle%3A%3AApacheTest)
+CPAN module can be installed to gather many dependencies of `Apache::Test`:
 
 ```
 perl -MCPAN -e 'install Bundle::ApacheTest'
 ```
 
-Which are also available in one tarball here:
-http://perl.apache.org/~dougm/httpd-test-bundle-0.02.tar.gz
-
 > **Note:** `Crypt::SSLeay` requires OpenSSL to be installed (only required
-> for `t/TEST -ssl`): http://www.openssl.org/
+> for `t/TEST -ssl`): https://www.openssl-library.org/
 > More accurate results may be obtained by using the same openssl command
-> line and libraries as consumed by APR-util and mod_ssl, due to X509
+> line and libraries as consumed by APR-util and `mod_ssl`, due to X.509
 > formatting behavior differences.
 
 For an extensive documentation see
-http://perl.apache.org/docs/general/testing/testing.html
-or
-http://svn.apache.org/viewvc/perl/modperl/docs/trunk/src/docs/general/testing/testing.pod
+https://perl.apache.org/docs/general/testing/testing.html
 
 To run the tests for all Apache web server modules, some additional
 CPAN modules will be required. If the tests don't work, make sure
@@ -53,7 +49,7 @@ cpanm --quiet --showdeps  Bundle::ApacheTest|grep -v Crypt::SSLeay|xargs cpanm
 
 If you don't care how it works and just want to run the tests:
 
-1. You need an installation of Apache (1.3.x thru trunk).
+1. You need an installation of Apache (2.4.x thru trunk).
 2. Any DSOs you wish to use should be configured in that Apache's
    `httpd.conf` (the test harness will pick this configuration up).
 3. Setup:
@@ -280,6 +276,6 @@ For more information on using the test harness and writing tests, see the
 README in `Apache-Test` and the examples in `Apache-Test/t`.
 
 The test harness was originally written by Doug MacEachern and is discussed
-on the httpd dev mailing list (dev@httpd.apache.org).
+on the [httpd dev mailing list](mailto:dev@httpd.apache.org).
 
 It is also included in modperl-2.0 source along with tests for modperl-2.0.
