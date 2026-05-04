@@ -56,7 +56,7 @@ my @var = qw(VAR_ONE VAR_TWO VAR_THREE);
 
 my $htaccess = "$htdocs/modules/setenvif/htaccess/.htaccess";
 
-plan tests => @var * 10 + (keys %var_att) * 6 * @var + 4,
+plan tests => @var * 10 + (keys %var_att) * 6 * @var + 5,
     have_module qw(setenvif include);
 
 sub write_htaccess {
@@ -176,6 +176,16 @@ if (need_min_apache_version("2.4.38")) {
 else {
     # Skip for versions without r1786235 backported
     skip "skipping inverted match test with version <2.4.38"
+}
+
+if (need_min_apache_version("2.4.67")) {
+    # file() access should be disallowed in htaccess context
+    write_htaccess("SetEnvIfExpr \"file('$htdocs/foobar.html') =~ /(.+)/\" VAR_ONE=\$0");
+    $body = GET_BODY $page;
+    ok ! t_cmp($body, qr/^1:foobar/);
+}
+else {
+    skip "skipping test for CVE-2026-24072 in version <2.4.67";
 }
 
 ## i think this should work, but it doesnt.
