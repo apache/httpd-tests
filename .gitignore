@@ -11,6 +11,9 @@ c-modules/apache_httpd_test.h
 c-modules/*/.libs/
 c-modules/*/Makefile
 c-modules/*/*.slo
+c-modules/*/*.la
+c-modules/*/*.lo
+c-modules/*/*.o
 
 # Apache Test generated files
 t/REPORT
@@ -21,7 +24,14 @@ t/conf/*.conf
 t/conf/ssl/*.pl
 t/conf/ssl/*.conf
 t/logs/
+t/conf/ssl/ca/
 
 # Generated test scripts
 t/htdocs/**/*.pl
 t/htdocs/modules/access/htaccess/.htaccess
+
+# misc
+t/php-fpm/log/
+
+# For override of CPAN release
+Apache-Test/
