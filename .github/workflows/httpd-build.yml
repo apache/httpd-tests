@@ -35,6 +35,8 @@ jobs:
 
     steps:
       - uses: actions/checkout@v4
+        with:
+          submodules: recursive
       - name: Checkout httpd ${{ matrix.branch }}
         uses: actions/checkout@v4
         with:
@@ -57,7 +59,7 @@ jobs:
           cpanm --notest Net::SSL LWP::Protocol::https \
                          LWP::Protocol::AnyEvent::http ExtUtils::Embed Test::More \
                          AnyEvent DateTime HTTP::DAV FCGI \
-                         AnyEvent::WebSocket::Client Apache::Test
+                         AnyEvent::WebSocket::Client
 
       - name: Build httpd
         working-directory: httpd
