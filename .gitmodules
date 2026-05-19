@@ -1,0 +1,3 @@
+[submodule "Apache-Test"]
+	path = Apache-Test
+	url = https://github.com/apache/perl-apache-test
