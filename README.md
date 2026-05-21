@@ -49,15 +49,19 @@ cpanm --quiet --showdeps  Bundle::ApacheTest|grep -v Crypt::SSLeay|xargs cpanm
 
 If you don't care how it works and just want to run the tests:
 
-1. You need an installation of Apache (2.4.x thru trunk).
-2. Any DSOs you wish to use should be configured in that Apache's
-   `httpd.conf` (the test harness will pick this configuration up).
-3. Setup:
+1. Clone this repository:
+   ```bash
+   git clone --recurse-submodule https://github.com/apache/httpd-tests
    ```
+2. You need an installation of Apache httpd (2.4.x or trunk).
+3. Any DSOs you wish to use should be configured in that Apache's
+   `httpd.conf` (the test harness will pick this configuration up).
+4. Setup:
+   ```bash
    perl Makefile.PL -apxs /path/to/apache/bin/apxs
    ```
-4. Run the tests:
-   ```
+5. Run the tests:
+   ```bash
    t/TEST
    ```
 5. Evaluate test output.
