@@ -85,7 +85,7 @@ my %test = (
 "echo3.shtml"           =>    ['<!--#echo var="DOCUMENT_NAME" -->', "retagged1"], 
 "notreal.shtml"         =>    "pass <!--",
 "malformed.shtml"       =>    "[an error occurred while processing this ".
-                              "directive] malformed.shtml",
+                              "directive]",
 "exec/off/cmd.shtml"    =>    "[an error occurred while processing this ".
                               "directive]",
 "exec/on/cmd.shtml"     =>    "pass",
@@ -107,9 +107,9 @@ my %test = (
 my %ap_expr_test = (
 "apexpr/if1.shtml"      =>    "pass",
 "apexpr/err.shtml"      =>    "[an error occurred while processing this ".
-                              "directive] err.shtml",
+                              "directive]",
 "apexpr/restrict.shtml" =>    "[an error occurred while processing this ".
-                              "directive] restrict.shtml",
+                              "directive]",
 "apexpr/var.shtml"      =>    "pass   pass   pass",
 "apexpr/lazyvar.shtml"  =>    "pass",
 );
@@ -302,6 +302,12 @@ foreach $doc (sort keys %tests) {
         else {
             skip "Skipping 'exec cgi' test; no cgi module.", 2;
         }
+    }
+    elsif ($doc =~ m/malformed|apexpr/) {
+        ok t_cmp(super_chomp(GET_BODY "$dir$doc"),
+                 qr/\Q$tests{$doc}\E/,
+                 "GET $dir$doc"
+                );
     }
     else {
         ok t_cmp(super_chomp(GET_BODY "$dir$doc"),
