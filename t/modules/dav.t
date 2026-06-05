@@ -10,7 +10,7 @@ use HTTP::Date;
 ## mod_dav tests
 ##
 
-plan tests => 21, [qw(dav HTTP::DAV)];
+plan tests => 22, [qw(dav HTTP::DAV)];
 require HTTP::DAV;
 
 my $vars = Apache::Test::vars();
@@ -178,6 +178,15 @@ print "PR 49825: expect 400 bad request got: $actual\n";
 ok $actual == 400;
 $user_agent->default_header('Content-Range' => undef);
 
+## Test PUT to .DAV subdirectory (should be blocked in 2.4.68+) ##
+my $dav_uri = "/$dir/.DAV/test.html";
+my $dav_resource = $dav->new_resource( -uri => "http://$server$dav_uri");
+my $expected = have_min_apache_version('2.4.68') ? 403 : 201;
+$response = $dav_resource->put($body);
+$actual = $response->code;
+ok t_cmp($actual, $expected);
+
 ## clean up ##
+unlink "$htdocs/$dir/.DAV/test.html";
 rmdir "$htdocs/$dir/.DAV" or print "warning: could not remove .DAV dir: $!";
 rmdir "$htdocs/$dir" or print "warning: could not remove dav dir: $!";
