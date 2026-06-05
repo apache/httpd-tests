@@ -115,7 +115,27 @@ my @testcases = (
        [  ],
        [ 'Test-Header' => 'foo' ],
     ],
+    # 500 error test - invalid regex pattern
+    [
+       "Header edit Test-Header (unclosed bar",                      # malformed regex (unmatched parenthesis)
+       [  ],
+       [  ],
+       500,
+    ],
 );
+if (have_min_apache_version('2.4.68')) {
+    push(@testcases,
+        (
+            # edit*
+        [
+           "Header set Test-Header \"expr=%{base64:%{file:$htaccess}}\"", # no file() in htaccess
+           [  ],
+           [  ],
+           500,
+        ],
+    )
+  );
+}
 if (have_min_apache_version('2.5.1')) {
     push(@testcases,
         (
@@ -297,6 +317,9 @@ sub test_header2 {
     my @test = @_;
     my $h = HTTP::Headers->new;
     
+    # Extract expected status code (default to 200 if not specified)
+    my $expected_status = $test[0][3] // 200;
+    
     print "\n\n\n";
     for (my $i = 0; $i < scalar @{$test[0][1]}; $i += 2) {
         print "Header sent n°" . $i/2 . ":\n";
@@ -312,22 +335,30 @@ sub test_header2 {
     ## 
     my $r = HTTP::Request->new('GET', "http://$hostport/modules/headers/htaccess/", $h);
     my $res = $ua->request($r);
-    ok t_cmp($res->code, 200, "Checking return code is '200'");
+    ok t_cmp($res->code, $expected_status, "Checking return code is '$expected_status'");
     
-    my $isok = 1;
-    for (my $i = 0; $i < scalar @{$test[0][2]}; $i += 2) {
-        print "\n";
-        print "Header received n°" . $i/2 . ":\n";
-        print "  header:   " . $test[0][2][$i] . "\n";
-        print "  expected: " . $test[0][2][$i+1] . "\n";
-        if ($res->header($test[0][2][$i])) {
-            print "  received: " . $res->header($test[0][2][$i]) . "\n";
-        } else {
-            print "  received: <undefined>\n";
+    # Only validate headers if we expect a successful response
+    if ($expected_status == 200) {
+        my $isok = 1;
+        for (my $i = 0; $i < scalar @{$test[0][2]}; $i += 2) {
+            print "\n";
+            print "Header received n°" . $i/2 . ":\n";
+            print "  header:   " . $test[0][2][$i] . "\n";
+            print "  expected: " . $test[0][2][$i+1] . "\n";
+            if ($res->header($test[0][2][$i])) {
+                print "  received: " . $res->header($test[0][2][$i]) . "\n";
+            } else {
+                print "  received: <undefined>\n";
+            }
+            $isok = $isok && $res->header($test[0][2][$i]) && $test[0][2][$i+1] eq $res->header($test[0][2][$i]);
         }
-        $isok = $isok && $res->header($test[0][2][$i]) && $test[0][2][$i+1] eq $res->header($test[0][2][$i]);
-    }
-    print "\nResponse received is:\n" . $res->as_string;
+        print "\nResponse received is:\n" . $res->as_string;
 
-    ok $isok;
+        ok $isok;
+    } else {
+        # For error responses, skip header validation
+        print "\nExpected error response received (status $expected_status)\n";
+        print "Response received is:\n" . $res->as_string;
+        ok 1;
+    }
 }

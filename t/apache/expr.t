@@ -115,7 +115,6 @@ my @test_cases = (
     [ q[toupper(escape('?')) = '%3F' ] => 1 ],
     [ q[tolower(toupper(escape('?'))) = '%3f' ] => 1 ],
     [ q[%{toupper:%{escape:?}} = '%3F' ] => 1 ],
-    [ q[file('] . $file_foo . q[') = 'foo\n' ]  => 1 ],
     # unary operators
     [ q[-n '']  => 0 ],
     [ q[-z '']  => 1 ],
@@ -198,11 +197,13 @@ push @test_cases, @bool_test_cases;
 push @test_cases, map { ["!($_->[0])" => neg($_->[1]) ] } @bool_test_cases;
 
 if (have_min_apache_version("2.3.13")) {
+    my $restrict2_result = have_min_apache_version('2.4.68') ? undef : 1;
     push(@test_cases, (
         # functions
-        [ q[filesize('] . $file_foo      . q[') = 4 ]  => 1 ],
-        [ q[filesize('] . $file_notexist . q[') = 0 ]  => 1 ],
-        [ q[filesize('] . $file_zero     . q[') = 0 ]  => 1 ],
+        [ q[filesize('] . $file_foo      . q[') = 4 ]  => $restrict2_result ],
+        [ q[filesize('] . $file_notexist . q[') = 0 ]  => $restrict2_result ],
+        [ q[filesize('] . $file_zero     . q[') = 0 ]  => $restrict2_result ],
+        [ q[file('] . $file_foo . q[') = 'foo\n' ]  => $restrict2_result ],
         # unary operators
         [ qq[-d '$file_foo' ] => 0 ],
         [ qq[-e '$file_foo' ] => 1 ],
