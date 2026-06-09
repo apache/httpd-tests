@@ -110,6 +110,8 @@ my %ap_expr_test = (
                               "directive]",
 "apexpr/restrict.shtml" =>    "[an error occurred while processing this ".
                               "directive]",
+"apexpr/restrict_func.shtml" => "[an error occurred while processing this ".
+                              "directive]",
 "apexpr/var.shtml"      =>    "pass   pass   pass",
 "apexpr/lazyvar.shtml"  =>    "pass",
 );

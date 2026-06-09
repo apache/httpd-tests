@@ -1,0 +1,5 @@
+<!--#if expr="file('%{DOCUMENT_ROOT}/foobar.html') =~ /foobar/" -->
+IF_FUNC_TRUE
+<!--#else -->
+IF_FUNC_FALSE
+<!--#endif -->
