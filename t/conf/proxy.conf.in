@@ -360,6 +360,43 @@ Alias /modules/proxy/fcgi-uds-sethandler @SERVERROOT@/htdocs/modules/proxy/fcgi
 	     ProxyPass http://@SERVERNAME@:@PORT@/modules/proxy_html
 	 </Location>
 
+	 # Comment-after-rewrite test (regression for garbage after
+	 # comments following rewritten URLs)
+	 <Location /modules/html_proxy/comment_rewrite>
+	     ProxyHTMLFixups reset
+	     ProxyHTMLEnable on
+	     ProxyHTMLExtended off
+	     ProxyHTMLStripComments off
+	     ProxyHTMLLinks a href
+	     ProxyHTMLLinks link href
+	     ProxyHTMLURLMap http://a.example.com/ http://b.example.com/
+	     ProxyPass http://@SERVERNAME@:@PORT@/modules/proxy_html
+	 </Location>
+
+	 # Comment stripping with extfix off
+	 <Location /modules/html_proxy/comments_strip_no_extfix>
+	     ProxyHTMLFixups reset
+	     ProxyHTMLEnable on
+	     ProxyHTMLExtended off
+	     ProxyHTMLStripComments on
+	     ProxyHTMLLinks a href
+	     ProxyHTMLLinks link href
+	     ProxyHTMLURLMap http://a.example.com/ http://b.example.com/
+	     ProxyPass http://@SERVERNAME@:@PORT@/modules/proxy_html
+	 </Location>
+
+	 # Comment-after-rewrite with extfix on
+	 <Location /modules/html_proxy/comment_rewrite_extfix>
+	     ProxyHTMLFixups reset
+	     ProxyHTMLEnable on
+	     ProxyHTMLExtended on
+	     ProxyHTMLStripComments off
+	     ProxyHTMLLinks a href
+	     ProxyHTMLLinks link href
+	     ProxyHTMLURLMap http://a.example.com/ http://b.example.com/
+	     ProxyPass http://@SERVERNAME@:@PORT@/modules/proxy_html
+	 </Location>
+
 	 # Multiple URL maps test
 	 <Location /modules/html_proxy/multiple_maps>
 	     ProxyHTMLEnable on
