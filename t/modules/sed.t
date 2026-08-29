@@ -8,8 +8,13 @@ use Apache::TestUtil;
 my @ts = (
    # see t/conf/extra.conf.in
    { url => "/apache/sed/out-foo/foobar.html", content => 'barbar', msg => "sed output filter", code => '200' },
-   # error after status sent
-   { url => "/apache/sed-echo/out-foo-grow/foobar.html", content => "", msg => "sed output filter too large", code => '200', body=>"foo" x (8192*1024), resplen=>0},
+   # mod_sed gives up with ENOMEM once the substituted line grows past
+   # MAX_BUF_SIZE.  Whether a 200 was sent first depends on where the last
+   # read lands: if the handler's final write leaves data in the buffer, it
+   # is flushed with the EOS, mod_sed fails on that brigade and drops the
+   # EOS, and no response is sent at all.  Accept either outcome.
+   { url => "/apache/sed-echo/out-foo-grow/foobar.html", content => "", msg => "sed output filter too large",
+     code => qr/^(?:200|5\d\d)$/, body=>"foo" x (8192*1024), resplen=>0},
    { url => "/apache/sed-echo/input", content => 'barbar', msg => "sed input filter", code => '200', body=>"foobar" },
    { url => "/apache/sed-echo/input", content => undef, msg => "sed input filter", code => '200', body=>"foo" x (1024)},
    # fixme: returns 400 default error doc for some people instead
