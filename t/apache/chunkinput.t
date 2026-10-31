@@ -18,6 +18,9 @@ my @test_strings = ("0",
 my @req_strings =  ("/echo_post_chunk",
                     "/i_do_not_exist_in_your_wildest_imagination");
 
+# RFC 9110 renamed "413 Request Entity Too Large" to "413 Content Too Large"
+my $resp_toobig = qr{^HTTP/1\.1 413 (?:Request Entity|Content) Too Large$};
+
 # This is expanded out as these results...
 my @resp_strings = ("HTTP/1.1 200 OK",        # "0"
                     "HTTP/1.1 404 Not Found",
@@ -31,8 +34,8 @@ my @resp_strings = ("HTTP/1.1 200 OK",        # "0"
                     "HTTP/1.1 404 Not Found",
                     "HTTP/1.1 400 Bad Request", # >10 BWS
                     "HTTP/1.1 400 Bad Request",
-                    "HTTP/1.1 413 Request Entity Too Large", # Overflow size
-                    "HTTP/1.1 413 Request Entity Too Large",
+                    $resp_toobig, # Overflow size
+                    $resp_toobig,
                     "HTTP/1.1 400 Bad Request",    # Ctrl in data
                     "HTTP/1.1 400 Bad Request",
                     "HTTP/1.1 400 Bad Request",    # Invalid LWS
