@@ -36,5 +36,5 @@ foreach (1..$iters) {
     $r = POST "/apache/extfilter/out-limit/modules/cgi/perl_echo.pl", content => "foo and bar\n";
     
     ok t_cmp($r->code, 413, "got 413 error");
-    ok t_cmp($r->content, qr/413 Request Entity Too Large/, "got 413 error body");
+    ok t_cmp($r->content, qr/413 (?:Request Entity|Content) Too Large/, "got 413 error body");
 }
