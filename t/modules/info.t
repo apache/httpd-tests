@@ -30,7 +30,9 @@ foreach (split /\n/, $info) {
 }
 
 foreach (sort keys %$mods) {
-    ($mods->{$_} && !$config->should_skip_module($_)) or next;
+    # a module linked in statically is always there, even one
+    # Apache::Test does not load (mod_fcgid)
+    ($mods->{$_} && ($mods->{$_} eq '1' || !$config->should_skip_module($_))) or next;
     if ($_ =~ /^mod_mpm_(eventopt|event|motorz|prefork|worker)\.c$/) {
         push(@expected,"$1.c");
     } elsif ($_ eq 'mod_mpm_simple.c') {
